@@ -1,0 +1,464 @@
+using System.Numerics;
+using FlowExplainer.Msdf;
+using OpenTK.Graphics.OpenGL4;
+
+namespace FlowExplainer;
+
+public static class Gizmos2D
+{
+    private static Material material = Material.NewDefaultUnlit;
+
+    private static Material texturedMat = new Material(
+        Shader.DefaultWorldSpaceVertex,
+        new Shader("Assets/Shaders/textured.frag", ShaderType.FragmentShader));
+
+    private static Mesh quadMesh;
+    private static Mesh imageQuad;
+    private static Mesh imageQuadInvertedY;
+    public static Mesh circleMesh;
+    private static Mesh debugTria;
+    private static Mesh streamtube;
+    private static Matrix4x4 view;
+    private static Matrix4x4 projection;
+
+    static Gizmos2D()
+    {
+        quadMesh = new Mesh(new Geometry(
+        [
+            new Vertex(new Vector3(-.5f, -.5f, 0), Vector4.One),
+            new Vertex(new Vector3(.5f, -.5f, 0), Vector4.One),
+            new Vertex(new Vector3(.5f, .5f, 0), Vector4.One),
+            new Vertex(new Vector3(-.5f, .5f, 0), Vector4.One),
+        ], [0, 1, 2, 0, 2, 3]));
+
+        imageQuad = new Mesh(new Geometry(
+        [
+            new Vertex(new Vector3(0f, 0f, 0), new Vector2(0, 1), Vector4.One),
+            new Vertex(new Vector3(1f, 0f, 0), new Vector2(1, 1), Vector4.One),
+            new Vertex(new Vector3(1f, 1f, 0), new Vector2(1, 0), Vector4.One),
+            new Vertex(new Vector3(0f, 1f, 0), new Vector2(0, 0), Vector4.One),
+        ], [0, 1, 2, 0, 2, 3]));
+
+
+        imageQuadInvertedY = new Mesh(new Geometry(
+        [
+            new Vertex(new Vector3(0f, 0f, 0), new Vector2(0, 0), Vector4.One),
+            new Vertex(new Vector3(1f, 0f, 0), new Vector2(1, 0), Vector4.One),
+            new Vertex(new Vector3(1f, 1f, 0), new Vector2(1, 1), Vector4.One),
+            new Vertex(new Vector3(0f, 1f, 0), new Vector2(0, 1), Vector4.One),
+        ], [0, 1, 2, 0, 2, 3]));
+
+        var v = new Vertex(default, default, new Vector4(1, 1, 1, 1));
+        debugTria = new Mesh(new Geometry([v, v, v], [0, 1, 2]), dynamicVertices: true);
+
+        var circleVerts = new List<Vertex>();
+        var circleIndicies = new List<uint>();
+
+        {
+            int segments = 264;
+            for (uint i = 0; i < segments + 1; i++)
+            {
+                circleVerts.Add(new Vertex(new Vector3(
+                    MathF.Sin((float)(i) / segments * 2 * MathF.PI),
+                    MathF.Cos((float)(i) / segments * 2 * MathF.PI),
+                    0)));
+
+                if (i != 0)
+                {
+                    circleIndicies.Add(0);
+                    circleIndicies.Add((uint)circleVerts.Count);
+                    circleIndicies.Add((uint)circleVerts.Count - 1);
+                }
+            }
+
+            circleMesh = new Mesh(new Geometry(circleVerts.ToArray(), circleIndicies.ToArray()));
+        }
+
+        {
+            var tubeVerts = new List<Vertex>();
+            var indicies = new List<uint>();
+            int segments = 64;
+            for (uint i = 0; i < segments; i++)
+            {
+                tubeVerts.Add(new Vertex(new Vector3(i / (float)segments, -1f, 0)));
+                tubeVerts.Add(new Vertex(new Vector3(i / (float)segments, 1f, 0)));
+            }
+
+            for (uint i = 1; i < segments; i++)
+            {
+                var cur = i * 2;
+                indicies.Add(cur);
+                indicies.Add(cur + 1);
+                indicies.Add(cur - 1);
+
+                indicies.Add(cur);
+                indicies.Add(cur - 1);
+                indicies.Add(cur - 2);
+            }
+
+            streamtube = new Mesh(new Geometry(tubeVerts.ToArray(), indicies.ToArray()), dynamicVertices: true);
+        }
+    }
+
+    public static void Circle(ICamera camera, Vector2 center, Color color, float radius)
+    {
+        material.Use();
+        material.SetUniform("tint", color);
+        material.SetUniform("view", camera.GetViewMatrix());
+        material.SetUniform("projection", camera.GetProjectionMatrix());
+        material.SetUniform("model", Matrix4x4.CreateScale(radius, radius, 1) * Matrix4x4.CreateTranslation(center.X, center.Y, 0));
+        circleMesh.Draw();
+    }
+
+    public static void StreamTube(ICamera camera, List<Vector2> centers, Vector4 color)
+    {
+        if (centers.Count != streamtube.Vertices.Length/2)
+            throw new NotImplementedException();
+
+        material.Use();
+        material.SetUniform("tint", color);
+        var view = camera.GetViewMatrix();
+        var project = camera.GetProjectionMatrix();
+        material.SetUniform("view", view);
+        material.SetUniform("projection", project);
+        float thickness = .010f;
+        var diff = Vector4.Transform(Vector4.Transform(centers[0], project), view) - Vector4.Transform(Vector4.Transform(centers[0] + new Vector2(1, 0), project), view);
+
+
+        /*
+        0 => 0
+        c => 1
+
+        1 => 0
+         */
+        var total = 0f;
+        for (int i = 1; i < centers.Count; i++)
+        {
+            total += Vector2.Distance(centers[i], centers[i - 1]);
+        }
+
+        if (total*1f < thickness/8)
+        {
+            /*for (int i = 1; i < centers.Count; i++)
+            {
+                centers[i] = new Vector2(centers[0].X + float.Lerp(-thickness, thickness, i / (float)centers.Count), centers[0].Y);
+            }*/
+           // Gizmos2D.Circle(camera, centers.Last(), color, thickness);
+            return;
+           
+        }
+        for (int i = 0; i < centers.Count; i++)
+        {
+            var dir = Vector2.Zero;
+            if (i != 0)
+                dir = Vector2.Normalize(centers[i] - centers[i - 1]);
+            var normal = new Vector2(dir.Y, -dir.X);
+
+            float c = (i / (float)centers.Count);
+            var length = thickness * c * (thickness - c * c);
+            length = MathF.Sqrt(1 - (c * 2 - 1) * (c * 2 - 1) * c) *c * thickness;
+            streamtube.Vertices[i * 2 + 0].Position = new Vector3(centers[i] - normal * length, 0);
+            streamtube.Vertices[i * 2 + 0].Colour.Y = MathF.Sqrt(c);
+            streamtube.Vertices[i * 2 + 1].Position = new Vector3(centers[i] + normal * length, 0);
+            streamtube.Vertices[i * 2 + 1].Colour.W =  MathF.Sqrt(c);
+        }
+
+        streamtube.Upload(UploadFlags.Vertices);
+        material.SetUniform("model", Matrix4x4.Identity);
+        streamtube.Draw();
+        //  Gizmos2D.Circle(camera, centers.Last(), color, 1f);
+    }
+
+    public static void ImageOld(ICamera camera, ImageTexture texture, float scale)
+    {
+        texturedMat.Use();
+        texturedMat.SetUniform("tint", Vector4.One);
+        texturedMat.SetUniform("view", camera.GetViewMatrix());
+        texturedMat.SetUniform("projection", camera.GetProjectionMatrix());
+        scale /= texture.Size.X;
+        Vector2 lt = new Vector2(1200, 500);
+        texturedMat.SetUniform("mainTex", texture);
+        texturedMat.SetUniform("model", Matrix4x4.CreateScale(texture.Size.X * scale, texture.Size.Y * scale, .4f) *
+                                        Matrix4x4.CreateTranslation(lt.X, lt.Y, 0));
+        imageQuad.Draw();
+    }
+
+    public static void ImageCentered(ICamera camera, Texture texture, Vector2 center, float width, float alpha = 1)
+    {
+        texturedMat.Use();
+        texturedMat.SetUniform("tint", new Vector4(1, 1, 1, alpha));
+        texturedMat.SetUniform("view", camera.GetViewMatrix());
+        texturedMat.SetUniform("projection", camera.GetProjectionMatrix());
+        texturedMat.SetUniform("mainTex", texture);
+        float height = (texture.Size.Y / (float)texture.Size.X) * width;
+        texturedMat.SetUniform("model", Matrix4x4.CreateScale(width, height, .4f) * Matrix4x4.CreateTranslation(center.X - width / 2, center.Y - height / 2, 0));
+        imageQuad.Draw();
+    }
+
+    public static void ImageCentered(ICamera camera, Texture texture, Vector2 center, Vector2 size, float alpha = 1)
+    {
+        texturedMat.Use();
+        texturedMat.SetUniform("tint", new Vector4(1, 1, 1, alpha));
+        texturedMat.SetUniform("view", camera.GetViewMatrix());
+        texturedMat.SetUniform("projection", camera.GetProjectionMatrix());
+        texturedMat.SetUniform("mainTex", texture);
+        texturedMat.SetUniform("model", Matrix4x4.CreateScale(size.X, size.Y, .4f) * Matrix4x4.CreateTranslation(center.X - size.X / 2, center.Y - size.Y / 2, 0));
+        imageQuad.Draw();
+    }
+
+    public static void ImageCentered(ICamera camera, Texture texture, Vector2 center, Vector2 size, Vector4 tint)
+    {
+        texturedMat.Use();
+        texturedMat.SetUniform("tint", tint);
+        texturedMat.SetUniform("view", camera.GetViewMatrix());
+        texturedMat.SetUniform("projection", camera.GetProjectionMatrix());
+        texturedMat.SetUniform("mainTex", texture);
+        texturedMat.SetUniform("model", Matrix4x4.CreateScale(size.X, size.Y, .4f) * Matrix4x4.CreateTranslation(center.X - size.X / 2, center.Y - size.Y / 2, 0));
+        imageQuad.Draw();
+    }
+
+
+    public static void ImageCenteredInvertedY(ICamera camera, Texture texture, Vector2 center, Vector2 size, float alpha = 1)
+    {
+        texturedMat.Use();
+        texturedMat.SetUniform("tint", new Vector4(1, 1, 1, alpha));
+        texturedMat.SetUniform("view", camera.GetViewMatrix());
+        texturedMat.SetUniform("projection", camera.GetProjectionMatrix());
+        texturedMat.SetUniform("mainTex", texture);
+        texturedMat.SetUniform("model", Matrix4x4.CreateScale(size.X, size.Y, .4f) * Matrix4x4.CreateTranslation(center.X - size.X / 2, center.Y - size.Y / 2, 0));
+        imageQuadInvertedY.Draw();
+    }
+
+
+    public static float lineSpacing = 3;
+
+    public static void AdvText(ICamera camera, Vector2 pos, float lh, Vector4 color, string text, float t = 1, bool centered = false)
+    {
+        void SetCharColor(int i, Vector4 col)
+        {
+            for (int j = 0; j < 6; j++)
+            {
+                MsdfRenderer.textMesh.Vertices[i * 6 + j].Colour = col;
+            }
+        }
+
+        List<(Action<int, int>, int, int)> tasks = new();
+        var splitted = text.Split("\n");
+        var globalT = t;
+
+        var sum = (float)text.Length;
+        var cur = 0f;
+        for (int l = 0; l < splitted.Length; l++)
+        {
+            tasks.Clear();
+            var startPos = cur / sum;
+            var endPos = (cur + splitted[l].Length) / sum;
+            var localT = 0f;
+
+            if (t <= startPos)
+                localT = 0f;
+            else if (t >= endPos)
+                localT = 1f;
+            else
+                localT = (t - startPos) / (endPos - startPos);
+
+            string? line = splitted[l].ReplaceLineEndings("");
+
+            for (int i = 0; i < line.Length; i++)
+            {
+                if (line[i] == '@')
+                {
+                    var valueS = line.IndexOf('[', i) + 1;
+                    var tag = line[(i + 1)..(valueS - 1)];
+                    var valueE = line.IndexOf(']', i);
+                    line = line[.. i] + line[valueS..valueE] + line[(valueE + 1)..];
+                    int start = i;
+                    int leng = valueE - valueS;
+                    var colored = (Vector4 col, int s, int e) =>
+                    {
+                        for (int j = s; j < e; j++)
+                            SetCharColor(j, col);
+                    };
+
+                    Action<int, int> action = null;
+
+                    if (tag == "red")
+                        action = (s, e) => colored(new Vector4(.8f, .0f, .0f, 1), s, e);
+
+                    if (tag == "green")
+                        action = (s, e) => colored(new Vector4(.0f, .65f, .0f, 1), s, e);
+
+
+                    if (tag.StartsWith("#"))
+                    {
+                        var col = VectorExtensions.FromHexString(tag[1..]);
+                        action = (s, e) => colored(col, s, e);
+                    }
+
+                    if (action != null)
+                        tasks.Add((action, start, start + leng))
+                            ;
+                }
+            }
+
+            MsdfRenderer.UpdateMesh(line, camera, centered);
+            for (int i = 0; i < MsdfRenderer.textMesh.Vertices.Length; i++)
+            {
+                MsdfRenderer.textMesh.Vertices[i].Colour = color;
+            }
+
+            foreach (var task in tasks)
+                task.Item1(task.Item2, task.Item3);
+
+            MsdfRenderer.textMesh.Upload();
+            MsdfRenderer.Material.Use();
+            MsdfRenderer.Material.SetUniform("t", localT);
+            MsdfRenderer.Material.SetUniform("line", (float)l);
+            MsdfRenderer.Material.SetUniform("lines", (float)splitted.Length);
+            MsdfRenderer.Material.SetUniform("tint", new Vector4(1, 1, 1, 1));
+            MsdfRenderer.Material.SetUniform("screenPxRange", 4f);
+            MsdfRenderer.Material.SetUniform("mainTex", MsdfRenderer.font.Texture);
+            MsdfRenderer.Material.SetUniform("view", camera.GetViewMatrix());
+            MsdfRenderer.Material.SetUniform("projection", camera.GetProjectionMatrix());
+            MsdfRenderer.Material.SetUniform("model", Matrix4x4.CreateScale(lh, lh, 1) * Matrix4x4.CreateTranslation(pos.X, pos.Y - l * (lh + lineSpacing), 0));
+            MsdfRenderer.Render();
+            cur += line.Length;
+        }
+    }
+
+
+    public static void Text(ICamera camera, Vector2 pos, float lh, Vector4 color, string text, float t = 1, bool centered = false)
+    {
+        var splitted = text.Split("\n");
+        var globalT = t;
+
+        var sum = (float)text.Length;
+        var cur = 0f;
+        for (int l = 0; l < splitted.Length; l++)
+        {
+            var startPos = cur / sum;
+            var endPos = (cur + splitted[l].Length) / sum;
+            var localT = 0f;
+
+            if (t <= startPos)
+                localT = 0f;
+            else if (t >= endPos)
+                localT = 1f;
+            else
+                localT = (t - startPos) / (endPos - startPos);
+
+            string? line = splitted[l].ReplaceLineEndings("").Trim();
+            MsdfRenderer.UpdateMesh(line, camera, centered);
+            MsdfRenderer.Material.Use();
+            MsdfRenderer.Material.SetUniform("t", localT);
+            MsdfRenderer.Material.SetUniform("line", (float)l);
+            MsdfRenderer.Material.SetUniform("lines", (float)splitted.Length);
+            MsdfRenderer.Material.SetUniform("tint", color);
+            MsdfRenderer.Material.SetUniform("screenPxRange", 4f);
+            MsdfRenderer.Material.SetUniform("mainTex", MsdfRenderer.font.Texture);
+            MsdfRenderer.Material.SetUniform("view", camera.GetViewMatrix());
+            MsdfRenderer.Material.SetUniform("projection", camera.GetProjectionMatrix());
+            MsdfRenderer.Material.SetUniform("model", Matrix4x4.CreateScale(lh, lh, 1) * Matrix4x4.CreateTranslation(pos.X, pos.Y - l * lh, 0));
+            MsdfRenderer.Render();
+            cur += splitted[l].Length;
+        }
+    }
+
+    public static void DrawTria(ICamera cam, Vector2 p1, Vector2 p2, Vector2 p3, Vector4 color)
+    {
+        material.Use();
+        debugTria.Vertices[0].Position = new Vector3(p1, 0f);
+        debugTria.Vertices[1].Position = new Vector3(p2, 0f);
+        debugTria.Vertices[2].Position = new Vector3(p3, 0f);
+        debugTria.Upload(UploadFlags.Vertices);
+        material.SetUniform("tint", color);
+        material.SetUniform("view", cam.GetViewMatrix());
+        material.SetUniform("projection", cam.GetProjectionMatrix());
+        material.SetUniform("model", Matrix4x4.Identity);
+        debugTria.Draw();
+    }
+
+    public static void RectCenter(ICamera cam, Vector2 center, Vector2 size, Vector4 color)
+    {
+        view = cam.GetViewMatrix();
+        projection = cam.GetProjectionMatrix();
+
+        // Draw your quad
+        material.Use();
+        material.SetUniform("tint", color);
+        material.SetUniform("view", view);
+        material.SetUniform("projection", projection);
+        var model = Matrix4x4.CreateScale(size.X, size.Y, .4f) * Matrix4x4.CreateTranslation(center.X, center.Y, 0);
+        material.SetUniform("model", model);
+        quadMesh.Draw();
+    }
+
+    //source claude
+    public static void SetScissorPresiView(Vector2 center, Vector2 size)
+    {
+        var model = Matrix4x4.CreateScale(size.X, size.Y, .4f) * Matrix4x4.CreateTranslation(center.X, center.Y, 0);
+
+        Vector3[] corners = new Vector3[4]
+        {
+            Vector3.Transform(new Vector3(-0.5f, -0.5f, 0), model), // bottom-left
+            Vector3.Transform(new Vector3(0.5f, -0.5f, 0), model), // bottom-right
+            Vector3.Transform(new Vector3(0.5f, 0.5f, 0), model), // top-right
+            Vector3.Transform(new Vector3(-0.5f, 0.5f, 0), model) // top-left
+        };
+
+// Project these corners to screen space
+        Vector2[] screenCorners = new Vector2[4];
+        for (int i = 0; i < 4; i++)
+        {
+            Vector4 clipSpace = Vector4.Transform(new Vector4(corners[i], 1.0f), view * projection);
+            Vector3 ndcSpace = new Vector3(
+                clipSpace.X / clipSpace.W,
+                clipSpace.Y / clipSpace.W,
+                clipSpace.Z / clipSpace.W);
+
+            // Convert to screen space
+            screenCorners[i] = new Vector2(
+                (ndcSpace.X + 1.0f) * 0.5f * WindowService.SWindow.ClientSize.X,
+                (ndcSpace.Y + 1f) * 0.5f * WindowService.SWindow.ClientSize.Y); // Flip Y for screen coordinates
+        }
+
+// Find the bounding rectangle in screen space
+        float minX = float.MaxValue, minY = float.MaxValue;
+        float maxX = float.MinValue, maxY = float.MinValue;
+        foreach (var corner in screenCorners)
+        {
+            minX = Math.Min(minX, corner.X);
+            minY = Math.Min(minY, corner.Y);
+            maxX = Math.Max(maxX, corner.X);
+            maxY = Math.Max(maxY, corner.Y);
+        }
+
+// Set up scissor rectangle
+        int scissorX = (int)minX;
+        int scissorY = (int)minY;
+        int scissorWidth = (int)(maxX - minX);
+        int scissorHeight = (int)(maxY - minY);
+
+// Enable scissor test
+        // GL.Enable(EnableCap.ScissorTest);
+        GL.Scissor(scissorX - 1, scissorY - 1, scissorWidth + 2, scissorHeight + 2);
+    }
+
+    public static void Line(ICamera cam, Vector2 start, Vector2 end, Vector4 color, float thickness)
+    {
+        Vector2 dir = Vector2.Normalize(end - start);
+        float xScale = Vector2.Distance(end, start);
+        start -= dir * thickness / 2;
+        material.Use();
+        material.SetUniform("tint", color);
+        material.SetUniform("view", cam.GetViewMatrix());
+        material.SetUniform("projection", cam.GetProjectionMatrix());
+        material.SetUniform("model",
+            Matrix4x4.CreateTranslation(.5f, 0, 0) *
+            Matrix4x4.CreateScale(xScale + thickness, thickness, 1) *
+            Matrix4x4.CreateRotationZ(MathF.Atan2(dir.Y, dir.X)) *
+            Matrix4x4.CreateTranslation(start.X, start.Y, 0));
+
+        quadMesh.Draw();
+    }
+}
