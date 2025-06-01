@@ -25,7 +25,7 @@ public class PreferencesService : GlobalService
         {
             UIScale = x,
             VSync = false,
-            WindowSizeOnStartup = new Vector2i((int)(1280 * x), (int)(720 * x))
+            WindowSizeOnStartup = new Vec2i((int)(1280 * x), (int)(720 * x))
         };
     }
 

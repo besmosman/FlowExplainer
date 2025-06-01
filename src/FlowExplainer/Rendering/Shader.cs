@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using System.Threading;
+using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer
 {

@@ -46,7 +46,7 @@ public class ImGUIRenderService : GlobalService
 
         /*io.DisplayFramebufferScale.X = 1;
             io.DisplayFramebufferScale.Y = 1;
-            io.MousePos = new Vector2(window.MousePosition.X, window.MousePosition.Y);
+            io.MousePos = new Vec2(window.MousePosition.X, window.MousePosition.Y);
             io.MouseClicked[0] = window.IsMouseButtonPressed(MouseButton.Button1);
             io.MouseReleased[0] = window.IsMouseButtonReleased(MouseButton.Button1);
             io.MouseClicked[1] = window.IsMouseButtonPressed(MouseButton.Button2);

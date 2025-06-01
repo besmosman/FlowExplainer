@@ -1,4 +1,3 @@
-using System.Numerics;
 using ImGuiNET;
 
 namespace FlowExplainer;
@@ -7,33 +6,33 @@ public class ImGUIViewRenderer
 {
     public static void Render(View view, FlowExplainer flowExplainer)
     {
-        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vector2(0, 0));
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vec2(0, 0));
         var rendertexture = view.PostProcessingTarget;
         ImGui.SetNextWindowSize(rendertexture.Size.ToNumerics(), ImGuiCond.Appearing);
         if (ImGui.Begin(view.Name, ref view.IsOpen))
         {
-            //Vector2 contentMin = ImGui.regio();
-            //Vector2 contentMax = ImGui.GetWindowContentRegionMax();
+            //Vec2 contentMin = ImGui.regio();
+            //Vec2 contentMax = ImGui.GetWindowContentRegionMax();
             var min = ImGui.GetCursorPos();
-            Vector2 size = ImGui.GetContentRegionAvail() - new Vector2(6, 6);
+            Vec2 size = (Vec2)ImGui.GetContentRegionAvail() - new Vec2(6, 6);
             view.TargetSize = size;
 
             //drawing after target size has been set using ImGui info.
             view.Visualisation.Draw(view);
-            ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(0, 0));
-            ImGui.PushStyleVar(ImGuiStyleVar.CellPadding, new Vector2(0, 0));
-            ImGui.Image(rendertexture.TextureHandle, size, new Vector2(0, 1), new Vector2(1, 0));
+            ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vec2(0, 0));
+            ImGui.PushStyleVar(ImGuiStyleVar.CellPadding, new Vec2(0, 0));
+            ImGui.Image(rendertexture.TextureHandle, size, new Vec2(0, 1), new Vec2(1, 0));
             ImGui.PopStyleVar();
             ImGui.PopStyleVar();
 
             view.IsSelected = ImGui.IsItemHovered();
-            view.RelativeMousePosition = ImGui.GetMousePos() - min;
+            view.RelativeMousePosition = (Vec2)(ImGui.GetMousePos() - min);
 
             //issue with overlay when not docked...
             if (ImGui.IsWindowDocked())
-                ImGui.SetNextWindowPos(min + new Vector2(15, 45));
+                ImGui.SetNextWindowPos(min + new Vec2(15, 45));
             else
-                ImGui.SetNextWindowPos(ImGui.GetWindowPos() + new Vector2(0, -35));
+                ImGui.SetNextWindowPos(ImGui.GetWindowPos() + new Vec2(0, -35));
 
             
             if (ImGui.Begin(view.Name + " overlay", ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoSavedSettings))

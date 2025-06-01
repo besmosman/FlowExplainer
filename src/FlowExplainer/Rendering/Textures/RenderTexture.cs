@@ -118,7 +118,7 @@ namespace FlowExplainer
 
         public void Resize(int width, int height)
         {
-            Size = new Vector2i(width, height);
+            Size = new Vec2i(width, height);
             GL.BindTexture(IsMultisampled ? TextureTarget.Texture2DMultisample : TextureTarget.Texture2D, TextureHandle);
             if (IsMultisampled)
                 GL.TexImage2DMultisample(TextureTargetMultisample.Texture2DMultisample, Samples, PixelInternalFormat.Rgba32f, Size.X, Size.Y, false);
@@ -143,7 +143,7 @@ namespace FlowExplainer
                 GL.DeleteTexture(DepthTextureHandle.Value);
         }
 
-        public static void ReadAllPixels(byte[] bytes, Vector2i Size)
+        public static void ReadAllPixels(byte[] bytes, Vec2i Size)
         {
             GL.ReadPixels(0, 0, Size.X, Size.Y, PixelFormat.Bgra, PixelType.UnsignedByte, bytes);
             for (int i = 0; i < bytes.Length; i += 4)
@@ -161,7 +161,7 @@ namespace FlowExplainer
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, oldId);
         }
         
-        public static void SaveToFile(string path, Vector2i Size, int scaler = 1)
+        public static void SaveToFile(string path, Vec2i Size, int scaler = 1)
         {
             GL.GetInteger(GetPName.FramebufferBinding, out int currentframebuffer);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);

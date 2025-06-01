@@ -4,8 +4,8 @@ namespace FlowExplainer;
 
 public class Camera2D : ICamera
 {
-    public Vector2 RenderTargetSize;
-    public Vector2 Position;
+    public Vec2 RenderTargetSize;
+    public Vec2 Position;
     public float Scale;
 
     public Matrix4x4 GetProjectionMatrix()

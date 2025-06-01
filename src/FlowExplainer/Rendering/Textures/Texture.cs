@@ -6,14 +6,14 @@ namespace FlowExplainer
     public class Texture : IDisposable
     {
         public int TextureHandle;
-        public Vector2i Size { get; protected set; }
+        public Vec2i Size { get; protected set; }
         public TextureMinFilter TextureMinFilter = TextureMinFilter.Nearest;
         public TextureMagFilter TextureMagFilter = TextureMagFilter.Linear;
         public TextureTarget TextureTarget = TextureTarget.Texture2D;
 
         public Texture(int width, int height, bool skipGeneration = false)
         {
-            Size = new Vector2i(width, height);
+            Size = new Vec2i(width, height);
             if (!skipGeneration)
             {
                 TextureHandle = GL.GenTexture();

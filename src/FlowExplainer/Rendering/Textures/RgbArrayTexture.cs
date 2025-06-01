@@ -1,13 +1,12 @@
-using System.Numerics;
 using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
 
 public class RgbArrayTexture : ArrayTexture
 {
-    public readonly Vector3[] Pixels;
+    public readonly Vec3[] Pixels;
 
-    public RgbArrayTexture(int width, int height, Vector3[] pixels) : base(width, height)
+    public RgbArrayTexture(int width, int height, Vec3[] pixels) : base(width, height)
     {
         this.TextureMinFilter = TextureMinFilter.Nearest;
         this.TextureMagFilter = TextureMagFilter.Nearest;

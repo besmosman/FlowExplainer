@@ -1,5 +1,5 @@
-﻿using OpenTK.Windowing.GraphicsLibraryFramework;
-using System.Numerics;
+﻿using System.Numerics;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace FlowExplainer
 {
@@ -25,8 +25,8 @@ namespace FlowExplainer
         public void NewView()
         {
             Views.Add(new View(1, 1, GetRequiredGlobalService<VisualisationManagerService>().Visualisations[0]));
-            Views.Last().CameraOffset = new Vector3(0, -.004f, .02f);
-            Views.Last().CameraOffset = new Vector3(0, 0, 0);
+            Views.Last().CameraOffset = new Vec3(0, -.004f, .02f);
+            Views.Last().CameraOffset = new Vec3(0, 0, 0);
             Views.Last().CameraZoom = 500;
             Views[Views.Count-1].Camera2D.Scale = 14f;
             
@@ -53,7 +53,7 @@ namespace FlowExplainer
                 
                 if (window.IsMouseButtonDown(MouseButton.Right))
                 {
-                    view.CameraOffset -= new Vector3(window.MouseState.Delta.X * 0.15f / view.CameraZoom, window.MouseState.Delta.Y * 0.15f / view.CameraZoom, 0);
+                    view.CameraOffset -= new Vec3(window.MouseState.Delta.X * 0.15f / view.CameraZoom, window.MouseState.Delta.Y * 0.15f / view.CameraZoom, 0);
                 }
 
                 view.CameraZoom *= (1f + window.MouseState.ScrollDelta.Y * .03f);
@@ -63,10 +63,12 @@ namespace FlowExplainer
             var matrix = Matrix4x4.CreateTranslation(view.CameraOffset.X, view.CameraOffset.Z, view.CameraOffset.Y) *
                          Matrix4x4.CreateRotationZ(view.CameraYaw) *
                          Matrix4x4.CreateRotationX(view.CameraPitch) *
-                         Matrix4x4.CreateLookAt(new Vector3(0, 100 / view.CameraZoom, 0), Vector3.Zero, Vector3.UnitZ);
+                         Matrix4x4.CreateLookAt(new Vec3(0, 100 / view.CameraZoom, 0), Vec3.Zero, Vec3.UnitZ);
 
-            Matrix4x4.Decompose(matrix, out var _, out view.Camera.Rotation, out view.Camera.Position);
+            Matrix4x4.Decompose(matrix, out var _, out var r, out var p);
 
+            view.Camera.Rotation = r;
+            view.Camera.Position = (Vec3)p;
             if (view.CameraSync != null)
                 view.Camera = view.CameraSync.Camera;
         }

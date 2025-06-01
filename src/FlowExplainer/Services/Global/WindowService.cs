@@ -6,7 +6,6 @@ using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
 using Color = System.Drawing.Color;
 using Image = SixLabors.ImageSharp.Image;
-using Vector3 = System.Numerics.Vector3;
 
 namespace FlowExplainer
 {
@@ -14,9 +13,9 @@ namespace FlowExplainer
     {
         public NativeWindow Window => SWindow;
         public static NativeWindow SWindow = null!;
-        //public Vector3 ClearColor = new(1f, 1f, 1f);
-        //public Vector3 ClearColor = new(15/255f, 15/255f, 15/255f);
-        public Vector3 ClearColor = new(0/255f, 0/255f, 0/255f);
+        //public Vec3 ClearColor = new(1f, 1f, 1f);
+        //public Vec3 ClearColor = new(15/255f, 15/255f, 15/255f);
+        public Vec3 ClearColor = new(0/255f, 0/255f, 0/255f);
 
         public override void Initialize()
         {
@@ -29,7 +28,7 @@ namespace FlowExplainer
                 Title = nameof(FlowExplainer),
                 StartFocused = true,
                 StartVisible = true,
-                Size = new Vector2i(1600,1000 - 40),
+                ClientSize = new(1600,1000 - 40),
                 API = ContextAPI.OpenGL,
                 APIVersion = new Version(4,1 ),
                 NumberOfSamples = 0,

@@ -1,5 +1,4 @@
 ﻿using OpenTK.Graphics.OpenGL4;
-using System.Numerics;
 
 namespace FlowExplainer
 {
@@ -40,10 +39,10 @@ namespace FlowExplainer
         }
     }
 
-    public class Vector3VertexAttributes : IVertexAttributes<Vector3>
+    public class Vec3VertexAttributes : IVertexAttributes<Vec3>
     {
         public int Stride => sizeof(float) * 3;
-        public Span<Vector3> Data => data;
+        public Span<Vec3> Data => data;
         public int Count { get; set; }
 
         public BufferUsageHint Usage { get; set; } = BufferUsageHint.StaticDraw;
@@ -51,9 +50,9 @@ namespace FlowExplainer
 
         public virtual int Divisor => 0;
 
-        private Vector3[] data;
+        private Vec3[] data;
 
-        public Vector3VertexAttributes(Vector3[] data, bool dynamic = false)
+        public Vec3VertexAttributes(Vec3[] data, bool dynamic = false)
         {
             this.data = data;
             Dynamic = dynamic;

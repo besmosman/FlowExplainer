@@ -1,13 +1,14 @@
-﻿using System.Numerics;
+﻿
+using System.Numerics;
 
 namespace FlowExplainer
 {
     public class Camera : ICamera
     {
-        public Vector3 Position = Vector3.Zero;
+        public Vec3 Position = Vec3.Zero;
         public Quaternion Rotation = Quaternion.Identity;
         public float FovRadians = 65 / 360f * float.Tau;
-        public Vector2 RenderTargetSize;
+        public Vec2 RenderTargetSize;
         public CameraProjectionMode ProjectionMode = CameraProjectionMode.Perspective;
 
         public float NearPlane = .01f;

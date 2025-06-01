@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Numerics;
 using System.Text;
 using Newtonsoft.Json;
 using OpenTK.Graphics.OpenGL4;
@@ -93,7 +92,7 @@ public static class MsdfRenderer
         var vertices = new Vertex[text.Length * 6];
         float currentX = 0;
         bool invertY = !cam.InvertedY();
-        var color = new Vector4(1, 1, 1, 1);
+        var color = new Vec4(1, 1, 1, 1);
         for (int i = 0; i < text.Length; i++)
         {
             char c = text[i];
@@ -105,15 +104,15 @@ public static class MsdfRenderer
                 float lh = font.MsdfFontInfo.Metrics.lineHeight;
                 float baseHeight = font.MsdfFontInfo.Metrics.descender;
 
-                Vector2 uvSize = new(1f / font.Texture.Size.X, 1f / font.Texture.Size.Y);
+                Vec2 uvSize = new(1f / font.Texture.Size.X, 1f / font.Texture.Size.Y);
 
                 var ab = fontChar.atlasBounds;
                 var pb = fontChar.planeBounds;
                 int maxY = font.MsdfFontInfo.Atlas.height;
-                var uvLeftTop = new Vector2(ab.left, maxY - ab.bottom) * uvSize;
-                var uvLeftBot = new Vector2(ab.left, maxY - ab.top) * uvSize;
-                var uvRightTop = new Vector2(ab.right, maxY - ab.bottom) * uvSize;
-                var uvRightBot = new Vector2(ab.right, maxY - ab.top) * uvSize;
+                var uvLeftTop = new Vec2(ab.left, maxY - ab.bottom) * uvSize;
+                var uvLeftBot = new Vec2(ab.left, maxY - ab.top) * uvSize;
+                var uvRightTop = new Vec2(ab.right, maxY - ab.bottom) * uvSize;
+                var uvRightBot = new Vec2(ab.right, maxY - ab.top) * uvSize;
 
                 vertices[(i * 6) + 0] = new Vertex(new(currentX + pb.left, baseHeight + lh - pb.top), color, uvLeftBot);
                 vertices[(i * 6) + 1] = new Vertex(new(currentX + pb.left, baseHeight + lh - pb.bottom), color, uvLeftTop);
@@ -124,17 +123,17 @@ public static class MsdfRenderer
 
                 if (invertY)
                 {
-                    var planeLeftTop = new Vector2(pb.left, pb.top);
-                    var planeLeftBot = new Vector2(pb.left, pb.bottom);
-                    var planeRightTop = new Vector2(pb.right, pb.top);
-                    var planeRightBot = new Vector2(pb.right, pb.bottom);
+                    var planeLeftTop = new Vec2(pb.left, pb.top);
+                    var planeLeftBot = new Vec2(pb.left, pb.bottom);
+                    var planeRightTop = new Vec2(pb.right, pb.top);
+                    var planeRightBot = new Vec2(pb.right, pb.bottom);
 
-                    vertices[(i * 6) + 0] = new Vertex(new Vector2(currentX, baseHeight) + planeLeftTop, color, uvLeftBot);
-                    vertices[(i * 6) + 1] = new Vertex(new Vector2(currentX, baseHeight) + planeLeftBot, color, uvLeftTop);
-                    vertices[(i * 6) + 2] = new Vertex(new Vector2(currentX, baseHeight) + planeRightTop, color, uvRightBot);
-                    vertices[(i * 6) + 3] = new Vertex(new Vector2(currentX, baseHeight) + planeRightBot, color, uvRightTop);
-                    vertices[(i * 6) + 4] = new Vertex(new Vector2(currentX, baseHeight) + planeLeftBot, color, uvLeftTop);
-                    vertices[(i * 6) + 5] = new Vertex(new Vector2(currentX, baseHeight) + planeRightTop, color, uvRightBot);
+                    vertices[(i * 6) + 0] = new Vertex(new Vec2(currentX, baseHeight) + planeLeftTop, color, uvLeftBot);
+                    vertices[(i * 6) + 1] = new Vertex(new Vec2(currentX, baseHeight) + planeLeftBot, color, uvLeftTop);
+                    vertices[(i * 6) + 2] = new Vertex(new Vec2(currentX, baseHeight) + planeRightTop, color, uvRightBot);
+                    vertices[(i * 6) + 3] = new Vertex(new Vec2(currentX, baseHeight) + planeRightBot, color, uvRightTop);
+                    vertices[(i * 6) + 4] = new Vertex(new Vec2(currentX, baseHeight) + planeLeftBot, color, uvLeftTop);
+                    vertices[(i * 6) + 5] = new Vertex(new Vec2(currentX, baseHeight) + planeRightTop, color, uvRightBot);
                 }
             }
 
@@ -156,7 +155,7 @@ public static class MsdfRenderer
         float m = 1f / font.MsdfFontInfo.Metrics.lineHeight;
         for (int i = 0; i < vertices.Length; i++)
         {
-            vertices[i].Position = new Vector3(vertices[i].Position.X * m, vertices[i].Position.Y * m, 0);
+            vertices[i].Position = new Vec3(vertices[i].Position.X * m, vertices[i].Position.Y * m, 0);
         }
 
         LastMaxPos = currentX * m;

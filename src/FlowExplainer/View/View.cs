@@ -1,5 +1,4 @@
 ﻿using OpenTK.Graphics.OpenGL4;
-using System.Numerics;
 
 namespace FlowExplainer
 {
@@ -15,11 +14,11 @@ namespace FlowExplainer
         public float CameraYaw;
         public float CameraPitch;
         public bool DemoCameraSwitch;
-        public Vector3 CameraOffset;
+        public Vec3 CameraOffset;
         public float CameraZoom = .5f;
         public View? CameraSync;
 
-        public Vector2 RelativeMousePosition;
+        public Vec2 RelativeMousePosition;
         public ICamera ScreenCamera => new ScreenCamera(RenderTarget.Size.ToNumerics());
 
         public bool IsOpen = true;
@@ -34,8 +33,8 @@ namespace FlowExplainer
         /// <summary>
         /// As in the target size, not the the current rendertarget size.
         /// </summary>
-        public Vector2 TargetSize;
-        public OpenTK.Mathematics.Vector2i Size => RenderTarget.Size;
+        public Vec2 TargetSize;
+        public Vec2i Size => RenderTarget.Size;
         public int Width => RenderTarget.Size.X;
         public int Height => RenderTarget.Size.Y;
 

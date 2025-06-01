@@ -34,7 +34,7 @@ namespace FlowExplainer
         public static void Transform(Geometry geometry, Matrix4x4 transformation)
         {
             for (int i = 0; i < geometry.Vertices.Length; i++)
-                geometry.Vertices[i].Position = Vector3.Transform(geometry.Vertices[i].Position, transformation);
+                geometry.Vertices[i].Position = Vec3.Transform(geometry.Vertices[i].Position, transformation);
         }
 
         public static Bounds GetBounds(Geometry geometry)
@@ -60,7 +60,7 @@ namespace FlowExplainer
                 maxZ = float.Max(maxZ, v.Position.Z);
             }
 
-            return new Bounds(new Vector3(minX, minY, minZ), new Vector3(maxX, maxY, maxZ));
+            return new Bounds(new Vec3(minX, minY, minZ), new Vec3(maxX, maxY, maxZ));
         }
 
         public static void CenterOrigin(Geometry geometry)

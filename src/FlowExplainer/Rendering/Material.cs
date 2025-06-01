@@ -121,6 +121,12 @@ namespace FlowExplainer
                         SetTextureUniformDirectly(loc, v.TextureHandle, materialTexture.TextureUnit, v.TextureTarget);
                     }
                     break;
+                case Vec2 v:
+                    GL.ProgramUniform2(ProgramHandle, loc, v.X, v.Y);
+                    break;
+                case Vec3 v:
+                    GL.ProgramUniform3(ProgramHandle, loc, v.X, v.Y, v.Z);
+                    break;
                 case Vector2 v:
                     GL.ProgramUniform2(ProgramHandle, loc, v.X, v.Y);
                     break;
@@ -129,6 +135,9 @@ namespace FlowExplainer
                     break;
                 case Color v:
                     GL.ProgramUniform4(ProgramHandle, loc, v.R, v.G, v.B, v.A);
+                    break;
+                case Vec4 v:
+                    GL.ProgramUniform4(ProgramHandle, loc, v.X, v.Y, v.Z, v.W);
                     break;
                 case Vector4 v:
                     GL.ProgramUniform4(ProgramHandle, loc, v.X, v.Y, v.Z, v.W);

@@ -1,16 +1,16 @@
-using System.Numerics;
 
 namespace FlowExplainer;
 
-public class Line : ILine<Vector2>
+public class Line<T>
 {
-    public List<Vector2> points;
+    public List<T> points;
 
 
-    public Line(List<Vector2> points)
+    public Line(List<T> points)
     {
         this.points = points;
     }
 
-    public IEnumerable<Vector2> Points => points;
+    public IEnumerable<T> Points => points;
 }
+

@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace FlowExplainer
 {
@@ -12,39 +11,39 @@ namespace FlowExplainer
             sizeof(float) * 3 + // Normal
             sizeof(float) * 4; // Colour
 
-        public Vector3 Position;
-        public Vector2 TexCoords;
-        public Vector3 Normal;
-        public Vector4 Colour;
+        public Vec3 Position;
+        public Vec2 TexCoords;
+        public Vec3 Normal;
+        public Vec4 Colour;
 
-        public Vertex(Vector3 pos)
+        public Vertex(Vec3 pos)
         {
             Position = pos;
-            Colour = Vector4.One;
+            Colour = Vec4.One;
         }
         
         
-        public Vertex(Vector2 pos, Vector4 colour, Vector2 uv)
+        public Vertex(Vec2 pos, Vec4 colour, Vec2 uv)
         {
-            Position = new Vector3(pos.X,pos.Y,0);
+            Position = new Vec3(pos.X,pos.Y,0);
             Colour = colour;
             TexCoords = uv;
         }
 
 
-        public Vertex(Vector3 pos, Vector2 uv)
+        public Vertex(Vec3 pos, Vec2 uv)
         {
             Position = pos;
             TexCoords = uv;
         }
 
-        public Vertex(Vector3 pos, Vector4 col)
+        public Vertex(Vec3 pos, Vec4 col)
         {
             Position = pos;
             Colour = col;
         }
 
-        public Vertex(Vector3 pos, Vector2 uv, Vector4 col)
+        public Vertex(Vec3 pos, Vec2 uv, Vec4 col)
         {
             Position = pos;
             TexCoords = uv;

@@ -74,7 +74,7 @@ namespace FlowExplainer
             view.ResizeToTargetSize();
             
             view.RenderTarget.DrawTo(() =>
-            {
+            { 
                 GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
                 foreach (var service in Services)
                     if (service.IsEnabled)

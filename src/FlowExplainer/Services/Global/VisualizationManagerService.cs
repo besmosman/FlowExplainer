@@ -16,7 +16,7 @@
                 throw new Exception();
 
             Visualisation v = new(FlowExplainer);
-            v.AddVisualisationService(new TestService());
+            v.AddVisualisationService(new Test2Service());
             Visualisations.Add(v);
             return v;
         }

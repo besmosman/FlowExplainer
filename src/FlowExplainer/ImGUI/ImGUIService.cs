@@ -42,7 +42,7 @@ public class ImGUIService : GlobalService
         
         ImGui.BeginMainMenuBar();
         {
-            ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.6f));
+            ImGui.PushStyleColor(ImGuiCol.Text, new Vec4(0.6f));
             ImGui.Text("NeuroTrace");
             ImGui.PopStyleColor();
             if (ImGui.BeginMenu("File"))
@@ -145,11 +145,11 @@ public class ImGUIService : GlobalService
     }
 
 
-    Dictionary<LogLevel, Vector4> LogColours = new()
+    Dictionary<LogLevel, Vec4> LogColours = new()
     {
-        { LogLevel.Message, new Vector4(0, 1, 0, 1) },
-        { LogLevel.Debug, new Vector4(0, 1, 1, 1) },
-        { LogLevel.Warning, new Vector4(1, 0, 1, 1) },
+        { LogLevel.Message, new Vec4(0, 1, 0, 1) },
+        { LogLevel.Debug, new Vec4(0, 1, 1, 1) },
+        { LogLevel.Warning, new Vec4(1, 0, 1, 1) },
     };
 
     private int lastLogId;

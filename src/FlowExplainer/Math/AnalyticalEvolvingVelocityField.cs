@@ -1,14 +1,13 @@
-using System.Numerics;
 using static System.Single;
 
 namespace FlowExplainer;
 
 //https://shaddenlab.berkeley.edu/uploads/LCS-tutorial/examples.html#x1-1200812
-public class AnalyticalEvolvingVelocityField : IVectorField<Vector3, Vector2>
+public class AnalyticalEvolvingVelocityField : IVectorField<Vec3, Vec2>
 {
-    public float elipson = 0f;
+    public float elipson = 0.3f;
     public float A = .05f;
-    public float w = .1f;
+    public float w = .9f;
 
     float streamFunction(float x, float y, float t)
     {
@@ -30,16 +29,16 @@ public class AnalyticalEvolvingVelocityField : IVectorField<Vector3, Vector2>
         return a(t) * x * x + b(t) * x;
     }
 
-    public Vector2 Evaluate(Vector3 x)
+    public Vec2 Evaluate(Vec3 x)
     {
         return Velocity(x.X, x.Y, x.Z);
     }
 
-    public Vector2 Velocity(float x, float y, float t)
+    public Vec2 Velocity(float x, float y, float t)
     {
         var u = -Pi * A * Sin(Pi * f(x, t)) * Cos(Pi * y);
         var dfdx = 2 * a(t) * x + b(t);
         var v = Pi * A * Cos(Pi * f(x, t)) * Sin(Pi * y) * dfdx;
-        return new Vector2(u, v);
+        return new Vec2(u, v);
     }
 }

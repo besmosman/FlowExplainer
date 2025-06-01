@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using System.Threading;
+using OpenTK.Graphics.OpenGL4;
 using OpenTK.Mathematics;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
@@ -33,7 +34,7 @@ namespace FlowExplainer
         public void RefreshSource()
         {
             using var image = Image.Load<Rgba32>(FilePath);
-            Size = new Vector2i(image.Width, image.Height);
+            Size = new Vec2i(image.Width, image.Height);
             pixels = new Rgba32[image.Width * image.Height];
             image.CopyPixelDataTo(pixels);
         }

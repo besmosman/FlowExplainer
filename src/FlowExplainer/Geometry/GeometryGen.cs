@@ -5,7 +5,7 @@ namespace FlowExplainer
 {
     public static class GeometryGen
     {
-        public static Geometry WireCube(Vector3 o, Vector3 s, Vector4 color)
+        public static Geometry WireCube(Vec3 o, Vec3 s, Vec4 color)
         {
             var vertices = new Vertex[8];
             var indices = new uint[]
@@ -17,20 +17,20 @@ namespace FlowExplainer
             };
             var extents = s / 2;
 
-            vertices[0] = new Vertex(new Vector3(0, 0, 0) * s - extents + o, color);
-            vertices[1] = new Vertex(new Vector3(1, 0, 0) * s - extents + o, color);
-            vertices[2] = new Vertex(new Vector3(1, 0, 1) * s - extents + o, color);
-            vertices[3] = new Vertex(new Vector3(0, 0, 1) * s - extents + o, color);
+            vertices[0] = new Vertex(new Vec3(0, 0, 0) * s - extents + o, color);
+            vertices[1] = new Vertex(new Vec3(1, 0, 0) * s - extents + o, color);
+            vertices[2] = new Vertex(new Vec3(1, 0, 1) * s - extents + o, color);
+            vertices[3] = new Vertex(new Vec3(0, 0, 1) * s - extents + o, color);
 
-            vertices[4] = new Vertex(new Vector3(0, 1, 0) * s - extents + o, color);
-            vertices[5] = new Vertex(new Vector3(1, 1, 0) * s - extents + o, color);
-            vertices[6] = new Vertex(new Vector3(1, 1, 1) * s - extents + o, color);
-            vertices[7] = new Vertex(new Vector3(0, 1, 1) * s - extents + o, color);
+            vertices[4] = new Vertex(new Vec3(0, 1, 0) * s - extents + o, color);
+            vertices[5] = new Vertex(new Vec3(1, 1, 0) * s - extents + o, color);
+            vertices[6] = new Vertex(new Vec3(1, 1, 1) * s - extents + o, color);
+            vertices[7] = new Vertex(new Vec3(0, 1, 1) * s - extents + o, color);
 
             return new Geometry(vertices, indices);
         }
 
-        public static Geometry Quad(Vector3 o, Vector2 s, Vector4 color)
+        public static Geometry Quad(Vec3 o, Vec2 s, Vec4 color)
         {
             var vertices = new Vertex[6];
             var indices = new uint[]
@@ -39,15 +39,15 @@ namespace FlowExplainer
                 2, 3, 0
             };
 
-            var s3 = new Vector3(s, 0);
-            vertices[0] = new Vertex(new Vector3(0, 0, 0) * s3, new Vector2(0, 0), color);
-            vertices[1] = new Vertex(new Vector3(1, 0, 0) * s3, new Vector2(1, 0), color);
-            vertices[2] = new Vertex(new Vector3(1, 1, 0) * s3, new Vector2(1, 1), color);
-            vertices[3] = new Vertex(new Vector3(0, 1, 0) * s3, new Vector2(0, 1), color);
+            var s3 = new Vec3(s, 0);
+            vertices[0] = new Vertex(new Vec3(0, 0, 0) * s3, new Vec2(0, 0), color);
+            vertices[1] = new Vertex(new Vec3(1, 0, 0) * s3, new Vec2(1, 0), color);
+            vertices[2] = new Vertex(new Vec3(1, 1, 0) * s3, new Vec2(1, 1), color);
+            vertices[3] = new Vertex(new Vec3(0, 1, 0) * s3, new Vec2(0, 1), color);
             return new Geometry(vertices, indices);
         }
 
-        public static Geometry TriangleCubeNoExtends(Vector3 o, Vector3 s, Vector4 color)
+        public static Geometry TriangleCubeNoExtends(Vec3 o, Vec3 s, Vec4 color)
         {
             var vertices = new Vertex[8];
             var indices = new uint[]
@@ -71,21 +71,21 @@ namespace FlowExplainer
                 1, 2, 6
             };
 
-            vertices[0] = new Vertex(new Vector3(0, 0, 0) * s + o, color);
-            vertices[1] = new Vertex(new Vector3(1, 0, 0) * s + o, color);
-            vertices[2] = new Vertex(new Vector3(1, 0, 1) * s + o, color);
-            vertices[3] = new Vertex(new Vector3(0, 0, 1) * s + o, color);
+            vertices[0] = new Vertex(new Vec3(0, 0, 0) * s + o, color);
+            vertices[1] = new Vertex(new Vec3(1, 0, 0) * s + o, color);
+            vertices[2] = new Vertex(new Vec3(1, 0, 1) * s + o, color);
+            vertices[3] = new Vertex(new Vec3(0, 0, 1) * s + o, color);
 
-            vertices[4] = new Vertex(new Vector3(0, 1, 0) * s + o, color);
-            vertices[5] = new Vertex(new Vector3(1, 1, 0) * s + o, color);
-            vertices[6] = new Vertex(new Vector3(1, 1, 1) * s + o, color);
-            vertices[7] = new Vertex(new Vector3(0, 1, 1) * s + o, color);
+            vertices[4] = new Vertex(new Vec3(0, 1, 0) * s + o, color);
+            vertices[5] = new Vertex(new Vec3(1, 1, 0) * s + o, color);
+            vertices[6] = new Vertex(new Vec3(1, 1, 1) * s + o, color);
+            vertices[7] = new Vertex(new Vec3(0, 1, 1) * s + o, color);
 
             for (int i = 0; i < vertices.Length; i++)
             {
                 var vert = vertices[i];
 
-                vert.Normal = Vector3.Normalize(vert.Position - o);
+                vert.Normal = Vec3.Normalize(vert.Position - o);
 
                 vertices[i] = vert;
             }
@@ -94,7 +94,7 @@ namespace FlowExplainer
         }
 
 
-        public static Geometry TriangleCube(Vector3 o, Vector3 s, Vector4 color)
+        public static Geometry TriangleCube(Vec3 o, Vec3 s, Vec4 color)
         {
             var vertices = new Vertex[8];
             var indices = new uint[]
@@ -119,21 +119,21 @@ namespace FlowExplainer
             };
             var extents = s / 2;
 
-            vertices[0] = new Vertex(new Vector3(0, 0, 0) * s - extents + o, color);
-            vertices[1] = new Vertex(new Vector3(1, 0, 0) * s - extents + o, color);
-            vertices[2] = new Vertex(new Vector3(1, 0, 1) * s - extents + o, color);
-            vertices[3] = new Vertex(new Vector3(0, 0, 1) * s - extents + o, color);
+            vertices[0] = new Vertex(new Vec3(0, 0, 0) * s - extents + o, color);
+            vertices[1] = new Vertex(new Vec3(1, 0, 0) * s - extents + o, color);
+            vertices[2] = new Vertex(new Vec3(1, 0, 1) * s - extents + o, color);
+            vertices[3] = new Vertex(new Vec3(0, 0, 1) * s - extents + o, color);
 
-            vertices[4] = new Vertex(new Vector3(0, 1, 0) * s - extents + o, color);
-            vertices[5] = new Vertex(new Vector3(1, 1, 0) * s - extents + o, color);
-            vertices[6] = new Vertex(new Vector3(1, 1, 1) * s - extents + o, color);
-            vertices[7] = new Vertex(new Vector3(0, 1, 1) * s - extents + o, color);
+            vertices[4] = new Vertex(new Vec3(0, 1, 0) * s - extents + o, color);
+            vertices[5] = new Vertex(new Vec3(1, 1, 0) * s - extents + o, color);
+            vertices[6] = new Vertex(new Vec3(1, 1, 1) * s - extents + o, color);
+            vertices[7] = new Vertex(new Vec3(0, 1, 1) * s - extents + o, color);
 
             for (int i = 0; i < vertices.Length; i++)
             {
                 var vert = vertices[i];
 
-                vert.Normal = Vector3.Normalize(vert.Position - o);
+                vert.Normal = Vec3.Normalize(vert.Position - o);
 
                 vertices[i] = vert;
             }
@@ -141,7 +141,7 @@ namespace FlowExplainer
             return new Geometry(vertices, indices);
         }
 
-        public static Geometry WireGrid(int resolution, Vector4 color)
+        public static Geometry WireGrid(int resolution, Vec4 color)
         {
             var vertices = new Vertex[resolution * 2 * 2 + 4]; //+4 for the final edges.
             var indices = new uint[resolution * 2 * 2 + 4];
@@ -149,25 +149,25 @@ namespace FlowExplainer
             for (int x = 0; x <= resolution; x++)
             {
                 indices[n] = n;
-                vertices[n++] = new Vertex(new Vector3(x, 0, 0), color);
+                vertices[n++] = new Vertex(new Vec3(x, 0, 0), color);
 
                 indices[n] = n;
-                vertices[n++] = new Vertex(new Vector3(x, resolution, 0), color);
+                vertices[n++] = new Vertex(new Vec3(x, resolution, 0), color);
             }
 
             for (int z = 0; z <= resolution; z++)
             {
                 indices[n] = n;
-                vertices[n++] = new Vertex(new Vector3(0, z, 0), color);
+                vertices[n++] = new Vertex(new Vec3(0, z, 0), color);
 
                 indices[n] = n;
-                vertices[n++] = new Vertex(new Vector3(resolution, z, 0), color);
+                vertices[n++] = new Vertex(new Vec3(resolution, z, 0), color);
             }
 
             return new Geometry(vertices, indices);
         }
 
-        public static Geometry WireTriangle(Vector3 a, Vector3 b, Vector3 c, Vector4 color)
+        public static Geometry WireTriangle(Vec3 a, Vec3 b, Vec3 c, Vec4 color)
         {
             var vertices = new[]
             {
@@ -180,7 +180,7 @@ namespace FlowExplainer
             return new Geometry(vertices, indices);
         }
 
-        public static Geometry WireCircle(uint resolution, float radius, Quaternion rotation, Vector4 color)
+        public static Geometry WireCircle(uint resolution, float radius, Quaternion rotation, Vec4 color)
         {
             resolution = Math.Max(3, resolution);
 
@@ -192,7 +192,7 @@ namespace FlowExplainer
             {
                 float th = float.Tau * (i / (float)(resolution - 1));
                 var vert = new Vertex(
-                    Vector3.Transform(new Vector3(float.Cos(th) * radius, float.Sin(th) * radius, 0), rotation),
+                    Vec3.Transform(new Vec3(float.Cos(th) * radius, float.Sin(th) * radius, 0), rotation),
                     color
                 );
 
@@ -214,7 +214,7 @@ namespace FlowExplainer
             var indices = new List<uint>();
 
             // Add top vertex
-            vertices.Add(new Vertex(new Vector3(0, 1, 0), Vector4.One));
+            vertices.Add(new Vertex(new Vec3(0, 1, 0), Vec4.One));
 
             // Generate vertices per stack / slice
             for (uint i = 0; i < nStacks - 1; i++)
@@ -226,12 +226,12 @@ namespace FlowExplainer
                     float x = MathF.Sin(phi) * MathF.Cos(theta);
                     float y = MathF.Cos(phi);
                     float z = MathF.Sin(phi) * MathF.Sin(theta);
-                    vertices.Add(new Vertex(new Vector3(x, y, z), Vector4.One));
+                    vertices.Add(new Vertex(new Vec3(x, y, z), Vec4.One));
                 }
             }
 
             // Add bottom vertex
-            vertices.Add(new Vertex(new Vector3(0, -1, 0), Vector4.One));
+            vertices.Add(new Vertex(new Vec3(0, -1, 0), Vec4.One));
 
             uint vTop = 0;
             uint vBottom = (uint)vertices.Count - 1;

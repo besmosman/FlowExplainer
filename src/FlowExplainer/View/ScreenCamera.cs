@@ -4,14 +4,14 @@ namespace FlowExplainer;
 
 public struct ScreenCamera : ICamera
 {
-    public Vector2 Size;
+    public Vec2 Size;
 
     public bool InvertedY()
     {
         return true;
     }
 
-    public ScreenCamera(Vector2 size)
+    public ScreenCamera(Vec2 size)
     {
         Size = size;
     }
