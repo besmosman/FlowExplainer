@@ -18,7 +18,7 @@ public class ImGUIViewRenderer
             view.TargetSize = size;
 
             //drawing after target size has been set using ImGui info.
-            view.Visualisation.Draw(view);
+            view.World.Draw(view);
             ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vec2(0, 0));
             ImGui.PushStyleVar(ImGuiStyleVar.CellPadding, new Vec2(0, 0));
             ImGui.Image(rendertexture.TextureHandle, size, new Vec2(0, 1), new Vec2(1, 0));
@@ -91,10 +91,10 @@ public class ImGUIViewRenderer
                     }
                     if (ImGui.BeginMenu("Visualisation"))
                     {
-                        foreach (var vis in flowExplainer.GetGlobalService<VisualisationManagerService>()!.Visualisations)
+                        foreach (var vis in flowExplainer.GetGlobalService<VisualisationManagerService>()!.Worlds)
                         {
-                            if (ImGui.MenuItem(vis.Name, "", view.Visualisation == vis))
-                                view.Visualisation = vis;
+                            if (ImGui.MenuItem(vis.Name, "", view.World == vis))
+                                view.World = vis;
                         }
                         ImGui.EndMenu();
                     }

@@ -5,10 +5,12 @@ namespace FlowExplainer;
 //https://shaddenlab.berkeley.edu/uploads/LCS-tutorial/examples.html#x1-1200812
 public class AnalyticalEvolvingVelocityField : IVectorField<Vec3, Vec2>
 {
-    public float elipson = 0.3f;
-    public float A = .05f;
-    public float w = .9f;
+    public float elipson = 0.9f;
+    public float A = 1f;
+    public float w = 2f;
 
+
+    public float Period => (2f * Pi) / w;
     float streamFunction(float x, float y, float t)
     {
         return A * Sin(Pi * f(x, t)) * Sin(Pi * y);
@@ -39,6 +41,6 @@ public class AnalyticalEvolvingVelocityField : IVectorField<Vec3, Vec2>
         var u = -Pi * A * Sin(Pi * f(x, t)) * Cos(Pi * y);
         var dfdx = 2 * a(t) * x + b(t);
         var v = Pi * A * Cos(Pi * f(x, t)) * Sin(Pi * y) * dfdx;
-        return new Vec2(u, v);
+        return -new Vec2(u, v);
     }
 }

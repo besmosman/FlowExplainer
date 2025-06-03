@@ -10,7 +10,7 @@
 
             var visualisations = new VisualisationManagerService();
             neuroTrace.AddGlobalService(visualisations);
-            visualisations.NewVisualisation();
+            visualisations.NewWorld();
             neuroTrace.AddGlobalService(new ImGUIService());
             neuroTrace.AddGlobalService(new ViewsService());
             neuroTrace.AddGlobalService(new ImGUIRenderService());

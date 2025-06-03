@@ -2,6 +2,21 @@ using System.Numerics;
 
 namespace FlowExplainer;
 
+public struct Rect
+{
+    public Vec2 Min;
+    public Vec2 Max;
+
+    public Vec2 Size => Max - Min;
+    public Vec2 Center => (Max + Min) / 2;
+
+    public Rect(Vec2 min, Vec2 max)
+    {
+        Min = min;
+        Max = max;
+    }
+}
+
 [Serializable]
 public struct Vec4
 {
@@ -45,7 +60,7 @@ public struct Vec4
     {
         return (Vec4)Vector4.Transform(p, view);
     }
-    
+
     public static Vec4 Transform(Vec2 p, Matrix4x4 view)
     {
         return (Vec4)Vector4.Transform(p, view);

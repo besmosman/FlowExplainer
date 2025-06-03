@@ -25,7 +25,7 @@ namespace FlowExplainer
         public bool Is2DCamera = false;
         public Camera Camera = new();
         public Camera2D Camera2D = new();
-        public Visualisation Visualisation;
+        public World World;
         public readonly RenderTexture RenderTarget;
         public readonly RenderTexture PostProcessingTarget;
         public bool IsSelected;
@@ -38,7 +38,7 @@ namespace FlowExplainer
         public int Width => RenderTarget.Size.X;
         public int Height => RenderTarget.Size.Y;
 
-        public View(int w, int h, Visualisation visualisation)
+        public View(int w, int h, World world)
         {
             Id = viewsCreated++;
             Name = $"view {Id}";
@@ -46,7 +46,7 @@ namespace FlowExplainer
             RenderTarget = new RenderTexture(w, h, true, true);
             PostProcessingTarget = new RenderTexture(w, h, true, false);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, previouslyBound);
-            Visualisation = visualisation;
+            World = world;
         }
 
         public void ResizeToTargetSize()

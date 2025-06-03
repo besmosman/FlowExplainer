@@ -114,7 +114,7 @@ public static class Gizmos2D
         circleMesh.Draw();
     }
 
-    public static void StreamTube(ICamera camera, List<Vec2> centers, Vec4 color)
+    public static void StreamTube(ICamera camera, List<Vec2> centers, Vec4 color, float thickness)
     {
         if (centers.Count != streamtube.Vertices.Length/2)
             throw new NotImplementedException();
@@ -125,8 +125,6 @@ public static class Gizmos2D
         var project = camera.GetProjectionMatrix();
         material.SetUniform("view", view);
         material.SetUniform("projection", project);
-        float thickness = .007f;
-
         /*
         0 => 0
         c => 1
@@ -446,20 +444,37 @@ public static class Gizmos2D
         GL.Scissor(scissorX - 1, scissorY - 1, scissorWidth + 2, scissorHeight + 2);
     }
 
-    public static void Line(ICamera cam, Vec2 start, Vec2 end, Vec4 color, float thickness)
+ 
+    
+    public static void LineCentered(ICamera cam, Vec2 center, Vec2 dir, Color color, float thickness)
     {
-        Vec2 dir = Vec2.Normalize(end - start);
-        float xScale = Vec2.Distance(end, start);
-        start -= dir * thickness / 2;
         material.Use();
         material.SetUniform("tint", color);
         material.SetUniform("view", cam.GetViewMatrix());
         material.SetUniform("projection", cam.GetProjectionMatrix());
+
         material.SetUniform("model",
-            Matrix4x4.CreateTranslation(.5f, 0, 0) *
-            Matrix4x4.CreateScale(xScale + thickness, thickness, 1) *
+            Matrix4x4.CreateScale(dir.Length(), thickness, 1) *
             Matrix4x4.CreateRotationZ(MathF.Atan2(dir.Y, dir.X)) *
-            Matrix4x4.CreateTranslation(start.X, start.Y, 0));
+            Matrix4x4.CreateTranslation(center.X, center.Y, 0));
+
+        quadMesh.Draw();
+    }
+    
+    public static void Line(ICamera cam, Vec2 start, Vec2 end, Color color, float thickness)
+    {
+        Vec2 dir = Vec2.Normalize(end - start);
+        float length = Vec2.Distance(start, end);
+        material.Use();
+        material.SetUniform("tint", color);
+        material.SetUniform("view", cam.GetViewMatrix());
+        material.SetUniform("projection", cam.GetProjectionMatrix());
+
+        var s2 = start + dir/2 * length*1;
+        material.SetUniform("model",
+            Matrix4x4.CreateScale(length, thickness, 1) *
+            Matrix4x4.CreateRotationZ(MathF.Atan2(dir.Y, dir.X)) *
+            Matrix4x4.CreateTranslation(s2.X, s2.Y, 0));
 
         quadMesh.Draw();
     }

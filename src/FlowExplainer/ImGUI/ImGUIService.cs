@@ -39,7 +39,7 @@ public class ImGUIService : GlobalService
 
         if (window.KeyboardState.IsKeyPressed(Keys.F11))
             SwapFullScreen(window);
-        
+
         ImGui.BeginMainMenuBar();
         {
             ImGui.PushStyleColor(ImGuiCol.Text, new Vec4(0.6f));
@@ -97,6 +97,8 @@ public class ImGUIService : GlobalService
         if (RenderData.showDemoWindow)
             ImGui.ShowDemoWindow();
 
+
+        ImGuiToolWindows.Draw(this);
 
         DrawPreferencesWindow();
 
@@ -209,5 +211,4 @@ public class ImGUIService : GlobalService
         CommandHandler.FlowExplainer = FlowExplainer;
         CommandHandler.InitilizeCommands();
     }
-    
 }

@@ -24,11 +24,15 @@ namespace FlowExplainer
 
         public void NewView()
         {
-            Views.Add(new View(1, 1, GetRequiredGlobalService<VisualisationManagerService>().Visualisations[0]));
-            Views.Last().CameraOffset = new Vec3(0, -.004f, .02f);
-            Views.Last().CameraOffset = new Vec3(0, 0, 0);
-            Views.Last().CameraZoom = 500;
+            var view = new View(1, 1, GetRequiredGlobalService<VisualisationManagerService>().Worlds[0]);
+            Views.Add(view);
+            view.CameraOffset = new Vec3(0, -.004f, .02f);
+            view.CameraOffset = new Vec3(0, 0, 0);
+            view.CameraZoom = 500;
             Views[Views.Count-1].Camera2D.Scale = 14f;
+            
+            view.Camera2D.Scale = 700;
+            view.Camera2D.Position = -new Vec2(1f, .5f);
             
         }
 
@@ -40,7 +44,7 @@ namespace FlowExplainer
             var window = windowService.Window;
 
 
-            var nt = view.Visualisation.FlowExplainer;
+            var nt = view.World.FlowExplainer;
 
             if (view.IsSelected && !view.CameraLocked && view.CameraSync == null)
             {

@@ -2,22 +2,22 @@
 
 namespace FlowExplainer
 {
-    public class Visualisation
+    public class World
     {
-        private static int visualisationCount;
+        private static int worldCount;
 
         public string Name;
         public FlowExplainer FlowExplainer;
 
-        public Visualisation(FlowExplainer flowExplainer)
+        public World(FlowExplainer flowExplainer)
         {
             FlowExplainer = flowExplainer;
-            Name = "visualisation " + visualisationCount++;
+            Name = "visualisation " + worldCount++;
         }
 
-        public readonly List<VisualisationService> Services = new();
+        public readonly List<WorldService> Services = new();
 
-        public void AddVisualisationService(VisualisationService service, int? index = null)
+        public void AddVisualisationService(WorldService service, int? index = null)
         {
             if (index == null)
                 Services.Add(service);
@@ -25,24 +25,24 @@ namespace FlowExplainer
                 Services.Insert(index.Value, service);
 
             service.FlowExplainer = FlowExplainer;
-            service.Visualisation = this;
+            service.World = this;
             service.Initialize();
         }
 
-        public void ReplaceVisualizationService(VisualisationService old, VisualisationService service)
+        public void ReplaceVisualizationService(WorldService old, WorldService service)
         {
             int index = Services.IndexOf(old);
-            RemoveVisualizationService(old);
+            RemoveWorldService(old);
             AddVisualisationService(service, index);
         }
 
-        public void RemoveVisualizationService(VisualisationService service)
+        public void RemoveWorldService(WorldService service)
         {
             service.Deinitialize();
             Services.Remove(service);
         }
 
-        public T? GetVisualisationService<T>() where T : VisualisationService
+        public T? GetWorldService<T>() where T : WorldService
         {
             foreach (var s in Services)
             {
@@ -55,7 +55,7 @@ namespace FlowExplainer
             return null;
         }
 
-        public VisualisationService? GetVisualisationService(Type t)
+        public WorldService? GetWorldService(Type t)
         {
             foreach (var s in Services)
             {
@@ -70,9 +70,7 @@ namespace FlowExplainer
 
         public void Draw(View view)
         {
-            
             view.ResizeToTargetSize();
-            
             view.RenderTarget.DrawTo(() =>
             { 
                 GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);

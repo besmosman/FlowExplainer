@@ -1,7 +1,5 @@
 using System.Numerics;
 using ImGuiNET;
-using OpenTK.Compute.OpenCL;
-using OpenTK.Graphics.ES20;
 
 namespace FlowExplainer;
 
@@ -28,17 +26,9 @@ public struct Vec1
     }
 }*/
 
-public struct Particle
-{
-    public List<Vec2> points;
-    public Vec2 Position;
-    public float Heat;
-    public float tag;
-    public float RadiationHeatFlux;
-    public float DiffusionHeatFlux;
-}
 
-public class TestService : VisualisationService
+/*
+public class Test1Service : WorldService
 {
     public override ToolCategory Category => ToolCategory.Simulation;
 
@@ -144,7 +134,7 @@ public class TestService : VisualisationService
             /*foreach (var pos in p.points)
             {
                 var center = pos;
-            }*/
+            }#1#
         }
         
         /*var a = sph.Particles[40].Position;
@@ -152,7 +142,7 @@ public class TestService : VisualisationService
         var c = sph.Particles[94].Position;
         var col = new Vec4(1, 0, 1, 1);
         var th = .007f;
-        var area = MathF.Abs(0.5f * ((b.X - a.X) * (c.Y - a.Y) - (c.X - a.X) * (b.Y - a.Y)));*/
+        var area = MathF.Abs(0.5f * ((b.X - a.X) * (c.Y - a.Y) - (c.X - a.X) * (b.Y - a.Y)));#1#
         // Gizmos2D.Line(view.Camera2D, a,b,col,th );
         // Gizmos2D.Line(view.Camera2D, b,c,col,th );
         // Gizmos2D.Line(view.Camera2D, a,c,col,th );
@@ -167,7 +157,7 @@ public class TestService : VisualisationService
             var p = particles[i];
             particles[i].Position = ;
         }
-        #1#
+        #2#
 
         var camera = view.Camera2D;
         material.Use();
@@ -194,7 +184,7 @@ public class TestService : VisualisationService
             {
                 start = 0.04f;
             }
-            #1#
+            #2#
 
 
             row++;
@@ -216,7 +206,7 @@ public class TestService : VisualisationService
 
                 Gizmos2D.Line(view.Camera2D, pos, pos + vel, col, .006f);
             }
-        }*/
+        }#1#
 
         // Gizmos2D.RectCenter(view.Camera2D, new Vec2(1f, .5f), new Vec2(2, 1), new Vec4(0, 1, 1, 1));
     }
@@ -236,6 +226,4 @@ public class TestService : VisualisationService
 
         return 0.5f * MathF.Abs(area);
     }
-
-    public override bool HasImGuiEditElements { get; }
-}
+}*/

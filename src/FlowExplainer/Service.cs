@@ -3,7 +3,7 @@
 namespace FlowExplainer
 {
     /// <summary>
-    /// Don't implement directly. Use <see cref="VisualisationService"/> or <see cref="GlobalService"/>.
+    /// Don't implement directly. Use <see cref="WorldService"/> or <see cref="GlobalService"/>.
     /// </summary>
     public abstract class Service
     {

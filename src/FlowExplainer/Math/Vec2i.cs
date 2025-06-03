@@ -27,6 +27,11 @@ public struct Vec2i :
         X = x;
         Y = y;
     }
+
+    public Vec2 ToVec2()
+    {
+        return new Vec2(X, Y);
+    }
         
     public static bool operator ==(Vec2i left, Vec2i right)
     {

@@ -1,35 +1,56 @@
+using System.Buffers;
 using System.Threading.Tasks;
 
 namespace FlowExplainer;
 
 public class Sph
 {
+    public struct Particle
+    {
+        public Vec2 Position;
+        public float Heat;
+        public float tag;
+        public float RadiationHeatFlux;
+        public float DiffusionHeatFlux;
+    }
+
     public Particle[] Particles = new Particle[0];
     public IIntegrator<Vec3, Vec2> Integrator = new RungeKutta4Integrator();
     public float cellSize = .1f;
     private Dictionary<Vec2i, List<int>> grid = new();
 
-    public void Setup()
+    private Rect domain;
+
+    public void Setup(Rect domain, float spacing)
     {
-        var ps = Particles.AsSpan();
-        for (int i = 0; i < ps.Length; i++)
+        this.domain = domain;
+        List<Vec2> positions = new();
+        float m = domain.Size.X / 100f;
+        for (float x = domain.Min.X; x <= domain.Max.X; x += spacing)
+        for (float y = domain.Min.Y; y <= domain.Max.Y; y += spacing)
         {
-            ref var p = ref ps[i];
-            p.Position = new Vec2(Random.Shared.NextSingle() * 1, Random.Shared.NextSingle() * .5f);
-            //p.Position = new Vec2(i/(float)ps.Length, .25f);
+            var r = new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()) - new Vec2(.5f, .5f);
+            positions.Add(new Vec2(x, y) + r * m);
+        }
+
+        Particles = new Particle[positions.Count];
+
+        for (int i = 0; i < Particles.Length; i++)
+        {
+            ref var p = ref Particles[i];
+            p.Position = positions[i];
             p.Heat = .5f;
-            
-            p.tag = Vec2.Distance(p.Position, new Vec2(.5f, .3f)) < .2f ? 1 : 0;
+            p.tag = Vec2.Distance(p.Position, new Vec2(.5f, .3f)) < 1f ? 1 : 0;
         }
     }
 
     public void Update(IVectorField<Vec3, Vec2> velocityField, float time, float dt)
     {
-        float k = .01f; //heat diffusion
-        float thermalEffect = .009f; //heat radiation strength;
-        float rad = .13f;
+        float k = 0.03f; //heat diffusion
+        float thermalEffect = .1f; //heat radiation strength;
+        float rad = .1f;
 
-        
+
         var ps = Particles.AsSpan();
         foreach (var l in grid.Values)
         {
@@ -46,14 +67,15 @@ public class Sph
 
             grid[coords].Add(i);
         }
-
+        
         Parallel.For(0, Particles.Length, (i) =>
         {
             ref var p = ref Particles[i];
             p.RadiationHeatFlux = 0f;
             p.DiffusionHeatFlux = 0f;
             p.Position = Integrator.Integrate(velocityField.Evaluate, new(p.Position, time), dt);
-
+            var r = new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()) - new Vec2(.5f, .5f);
+            p.Position += r * .001f;
             float eps = .002f;
 
             //bottom wall
@@ -62,50 +84,86 @@ public class Sph
             p.RadiationHeatFlux += (1 - p.Heat) * Single.Min(1, intensity * dt * thermalEffect);
 
             //top wall
-            dis = .5f - p.Position.Y + +.001f;
+            dis = 1f - p.Position.Y + +.001f;
             intensity = (1f / (dis * dis + eps));
             p.RadiationHeatFlux += (0 - p.Heat) * Single.Min(1, intensity * dt * thermalEffect);
-            
-            
+
+
             //bounds shouldnt be needed though
-            if (p.Position.X < 0)
-                p.Position.X = 0;
-            if (p.Position.X > 1)
-                p.Position.X = 1;
+            if (p.Position.X < domain.Min.X)
+                p.Position.X = domain.Min.X + float.Epsilon;
+            if (p.Position.X > domain.Max.X)
+                p.Position.X = domain.Max.X - float.Epsilon;
 
-            if (p.Position.Y < 0)
-                p.Position.Y = 0;
-            if (p.Position.Y > .5f)
-                p.Position.Y = .5f;
+            if (p.Position.Y < domain.Min.Y)
+                p.Position.Y = float.Epsilon;
+            if (p.Position.Y > domain.Max.Y)
+                p.Position.Y = domain.Max.Y - float.Epsilon;
         });
-
-        /*
-        Parallel.For(0, Particles.Length, (i) =>
-            //for (int i = 0; i < Particles.Length; i++)
+        
+         Parallel.For(0, Particles.Length, (i) =>
         {
             ref var p = ref Particles[i];
-            foreach (int j in GetWithinRange(i, rad))
+            p.Heat += p.RadiationHeatFlux;
+        });
+
+        Parallel.For(0, Particles.Length, (i) =>
+        //    for (int i = 0; i < Particles.Length; i++)
+        {
+            ref var p = ref Particles[i];
+            int[] withinRange = GetWithinRange(i, rad);
+            foreach (int j in withinRange)
             {
-                // if (Particles[j].Heat > p.Heat)
-                {
+                if(j == -1)
+                    break;
+                
                     float distance = Vec2.Distance(Particles[j].Position, p.Position);
-                    var flux = k * dt * (rad - distance) / rad * -(Particles[j].Heat - p.Heat);
+                    var flux = dt * k  * (rad - distance) / rad * -(Particles[j].Heat - p.Heat);
                     Particles[j].DiffusionHeatFlux += flux;
                     p.DiffusionHeatFlux -= flux;
-                }
             }
+
+            ArrayPool<int>.Shared.Return(withinRange);
         });
-        */
 
         Parallel.For(0, Particles.Length, (i) =>
         {
             ref var p = ref Particles[i];
             p.Heat += p.DiffusionHeatFlux;
-            p.Heat += p.RadiationHeatFlux;
         });
     }
 
-    public IEnumerable<int> GetWithinRange(int i, float radius)
+
+    public int[] GetWithinRange(int i, float radius)
+    {
+        var array = ArrayPool<int>.Shared.Rent(10000);
+        int index = 0;
+        var pos = Particles[i].Position;
+        var min = GetVoxelCoords(pos - new Vec2(radius, radius));
+        var max = GetVoxelCoords(pos + new Vec2(radius, radius));
+        float r2 = radius * radius;
+
+        for (int x = min.X; x <= max.X; x++)
+        for (int y = min.Y; y <= max.Y; y++)
+        {
+            grid.TryGetValue(new Vec2i(x, y), out var l);
+
+            if (l != null)
+                foreach (var p in l)
+                {
+                    if (p != i && Vec2.DistanceSquared(pos, Particles[p].Position) < r2)
+                    {
+                        array[index] = p;
+                        index++;
+                    }
+                }
+        }
+
+        array[index] = -1;
+        return array;
+    }
+
+    public IEnumerable<int> GetWithinRangeOld(int i, float radius)
     {
         var pos = Particles[i].Position;
         var min = GetVoxelCoords(pos - new Vec2(radius, radius));

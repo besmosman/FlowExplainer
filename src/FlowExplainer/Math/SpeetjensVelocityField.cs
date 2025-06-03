@@ -2,7 +2,7 @@ using static System.Single;
 
 namespace FlowExplainer;
 
-public class PoincareSectionsComputer
+public class PhaseComputer
 {
     public class Tracer
     {

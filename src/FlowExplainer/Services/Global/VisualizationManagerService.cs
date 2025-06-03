@@ -2,7 +2,7 @@
 {
     public class VisualisationManagerService : GlobalService
     {
-        public List<Visualisation> Visualisations = new();
+        public List<World> Worlds = new();
 
         public override void Draw()
         {
@@ -10,14 +10,16 @@
                             v.Draw();*/
         }
 
-        public Visualisation NewVisualisation(bool skipInit = false)
+        public World NewWorld(bool skipInit = false)
         {
             if (FlowExplainer == null)
                 throw new Exception();
 
-            Visualisation v = new(FlowExplainer);
-            v.AddVisualisationService(new Test2Service());
-            Visualisations.Add(v);
+            World v = new(FlowExplainer);
+            v.AddVisualisationService(new DataService());
+            v.AddVisualisationService(new SphSimulationService());
+            v.AddVisualisationService(new FlowFieldVisualizer());
+            Worlds.Add(v);
             return v;
         }
 

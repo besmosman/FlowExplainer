@@ -28,7 +28,7 @@ namespace FlowExplainer
                 Title = nameof(FlowExplainer),
                 StartFocused = true,
                 StartVisible = true,
-                ClientSize = new(1600,1000 - 40),
+                ClientSize = new(2000,1000 - 40),
                 API = ContextAPI.OpenGL,
                 APIVersion = new Version(4,1 ),
                 NumberOfSamples = 0,

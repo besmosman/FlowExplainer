@@ -80,11 +80,11 @@ namespace FlowExplainer.Logging
             }
 
 
-            if (declaringType.IsSubclassOf(typeof(VisualisationService)))
+            if (declaringType.IsSubclassOf(typeof(WorldService)))
             {
                 //temp should be the current highlighted visualization.
-                var visualisation = FlowExplainer.GetGlobalService<VisualisationManagerService>()!.Visualisations[0] ?? throw new Exception("No visualizations.");
-                target = visualisation!.GetVisualisationService(declaringType);
+                var visualisation = FlowExplainer.GetGlobalService<VisualisationManagerService>()!.Worlds[0] ?? throw new Exception("No visualizations.");
+                target = visualisation!.GetWorldService(declaringType);
 
                 if (target == null)
                 {

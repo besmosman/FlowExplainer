@@ -9,4 +9,9 @@ public class Utils
     {
         return a * (TC.One - c) + b * c;
     }
+
+    public static T Max<T>(T a, T b) where T : IVec<T>
+    {
+        return a.Max(b);
+    }
 }
