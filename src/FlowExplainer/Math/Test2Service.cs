@@ -71,7 +71,6 @@ public class Test2Service : WorldService
 
         trajects = new();
         //int traj = 10000;
-
         for (float x = 0; x <= 2f; x += .1f)
         for (float y = 0; y <= 1f; y += .1f)
         {
@@ -82,13 +81,7 @@ public class Test2Service : WorldService
             //this.points.Add(startPos);
         }
 
-        Parallel.ForEach(start, (p) =>
-        {
-            //var points = poincare.ComputeOne(p, velocity.Period * 32, 60000, 1);
-            var points = poincare.ComputeOne(p, velocity.Period, 1500, 100);
-            trajects.Add((p, points));
-            //trajects.Add((p, [p]));
-        });
+      
     }
 
     public override void Draw(RenderTexture rendertarget, View view)

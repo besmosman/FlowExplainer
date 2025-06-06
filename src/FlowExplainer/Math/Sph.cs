@@ -46,8 +46,11 @@ public class Sph
 
     public void Update(IVectorField<Vec3, Vec2> velocityField, float time, float dt)
     {
-        float k = 0.03f; //heat diffusion
-        float thermalEffect = .1f; //heat radiation strength;
+        if(Particles.Length ==0)
+            return;
+        
+        float k = 0.5f; //heat diffusion
+        float thermalEffect = .05f; //heat radiation strength;
         float rad = .1f;
 
 
@@ -75,7 +78,7 @@ public class Sph
             p.DiffusionHeatFlux = 0f;
             p.Position = Integrator.Integrate(velocityField.Evaluate, new(p.Position, time), dt);
             var r = new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()) - new Vec2(.5f, .5f);
-            p.Position += r * .001f;
+            p.Position += r * .001f * dt;
             float eps = .002f;
 
             //bottom wall

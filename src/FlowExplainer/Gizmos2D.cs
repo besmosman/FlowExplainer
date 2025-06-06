@@ -1,10 +1,8 @@
 using System.Numerics;
-
 using FlowExplainer.Msdf;
 using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
-
 
 using System;
 
@@ -114,9 +112,25 @@ public static class Gizmos2D
         circleMesh.Draw();
     }
 
+    public static void Circles<T>(ICamera camera, IEnumerable<T> ts, Func<T, Vec2> getCenter, Func<T, Color> getColor, float radius)
+    {
+        material.Use();
+        material.SetUniform("view", camera.GetViewMatrix());
+        material.SetUniform("projection", camera.GetProjectionMatrix());
+        foreach (var entry in ts)
+        {
+            var color = getColor(entry);
+            var pos = getCenter(entry);
+            material.SetUniform("tint", color);
+            material.SetUniform("model", Matrix4x4.CreateScale(radius, radius, 1) * Matrix4x4.CreateTranslation(pos.X, pos.Y, 0));
+            circleMesh.Draw();
+        }
+    }
+
+
     public static void StreamTube(ICamera camera, List<Vec2> centers, Vec4 color, float thickness)
     {
-        if (centers.Count != streamtube.Vertices.Length/2)
+        if (centers.Count != streamtube.Vertices.Length / 2)
             throw new NotImplementedException();
 
         material.Use();
@@ -137,16 +151,16 @@ public static class Gizmos2D
             total += Vec2.Distance(centers[i], centers[i - 1]);
         }
 
-        if (total*1f < thickness/8)
+        if (total * 1f < thickness / 8)
         {
             /*for (int i = 1; i < centers.Count; i++)
             {
                 centers[i] = new Vec2(centers[0].X + float.Lerp(-thickness, thickness, i / (float)centers.Count), centers[0].Y);
             }*/
-           // Gizmos2D.Circle(camera, centers.Last(), color, thickness);
+            // Gizmos2D.Circle(camera, centers.Last(), color, thickness);
             return;
-           
         }
+
         for (int i = 0; i < centers.Count; i++)
         {
             var dir = Vec2.Zero;
@@ -156,11 +170,11 @@ public static class Gizmos2D
 
             float c = (i / (float)centers.Count);
             var length = thickness * c * (thickness - c * c);
-            length = MathF.Sqrt(1 - (c * 2 - 1) * (c * 2 - 1) * c) *c * thickness;
+            length = MathF.Sqrt(1 - (c * 2 - 1) * (c * 2 - 1) * c) * c * thickness;
             streamtube.Vertices[i * 2 + 0].Position = new Vec3(centers[i] - normal * length, 0);
             streamtube.Vertices[i * 2 + 0].Colour.Y = MathF.Sqrt(c);
             streamtube.Vertices[i * 2 + 1].Position = new Vec3(centers[i] + normal * length, 0);
-            streamtube.Vertices[i * 2 + 1].Colour.W =  MathF.Sqrt(c);
+            streamtube.Vertices[i * 2 + 1].Colour.W = MathF.Sqrt(c);
         }
 
         streamtube.Upload(UploadFlags.Vertices);
@@ -444,8 +458,7 @@ public static class Gizmos2D
         GL.Scissor(scissorX - 1, scissorY - 1, scissorWidth + 2, scissorHeight + 2);
     }
 
- 
-    
+
     public static void LineCentered(ICamera cam, Vec2 center, Vec2 dir, Color color, float thickness)
     {
         material.Use();
@@ -460,7 +473,7 @@ public static class Gizmos2D
 
         quadMesh.Draw();
     }
-    
+
     public static void Line(ICamera cam, Vec2 start, Vec2 end, Color color, float thickness)
     {
         Vec2 dir = Vec2.Normalize(end - start);
@@ -470,7 +483,7 @@ public static class Gizmos2D
         material.SetUniform("view", cam.GetViewMatrix());
         material.SetUniform("projection", cam.GetProjectionMatrix());
 
-        var s2 = start + dir/2 * length*1;
+        var s2 = start + dir / 2 * length * 1;
         material.SetUniform("model",
             Matrix4x4.CreateScale(length, thickness, 1) *
             Matrix4x4.CreateRotationZ(MathF.Atan2(dir.Y, dir.X)) *

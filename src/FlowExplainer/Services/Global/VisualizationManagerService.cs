@@ -19,6 +19,7 @@
             v.AddVisualisationService(new DataService());
             v.AddVisualisationService(new SphSimulationService());
             v.AddVisualisationService(new FlowFieldVisualizer());
+            v.AddVisualisationService(new PoincareVisualizer());
             Worlds.Add(v);
             return v;
         }

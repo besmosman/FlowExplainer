@@ -4,7 +4,7 @@ namespace FlowExplainer;
 
 public class DataService : WorldService
 {
-    public IVectorField<Vec3, Vec2> VelocityField = new AnalyticalEvolvingVelocityField();
+    public IPeriodicVectorField<Vec3, Vec2> VelocityField = new AnalyticalEvolvingVelocityField();
     public IIntegrator<Vec3, Vec2> Integrator = new RungeKutta4Integrator();
     public Rect Domain = new Rect(new Vec2(0, 0), new Vec2(2, 1));
     public float SimulationTime;
@@ -16,6 +16,7 @@ public class DataService : WorldService
 
     public override void Draw(RenderTexture rendertarget, View view)
     {
+        VelocityField = new AnalyticalEvolvingVelocityField();
         float dt = (float)FlowExplainer.DeltaTime.TotalSeconds;
         dt = 1f / 90f;
         DeltaTime = dt * TimeMultiplier;

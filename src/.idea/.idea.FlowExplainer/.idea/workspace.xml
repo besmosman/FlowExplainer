@@ -4,34 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="de64a90b-d37e-448c-ab79-56558d5f35b9" name="Changes" comment="Custom vectors and testing stuff">
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGuiToolWindows.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/DataService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/FlowFieldVisualizer.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/PoincareComputer.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/SphSimulationService.cs" afterDir="false" />
+    <list default="true" id="de64a90b-d37e-448c-ab79-56558d5f35b9" name="Changes" comment="Organization.">
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/Gradients.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/PoincareVisualizer.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.FlowExplainer/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FlowExplainer/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/FlowExplainer.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/FlowExplainer.csproj" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Gizmos2D.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Gizmos2D.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGUIService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGUIService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGUIViewRenderer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGUIViewRenderer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Logging/CommandHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Logging/CommandHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGuiController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGuiController.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGuiToolWindows.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGuiToolWindows.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/AnalyticalEvolvingVelocityField.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/AnalyticalEvolvingVelocityField.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/SpeetjensVelocityField.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/SpeetjensVelocityField.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/DataService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/DataService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/FlowFieldVisualizer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/FlowFieldVisualizer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/IVectorField.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/IVectorField.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/PoincareComputer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/PoincareComputer.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Sph.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Sph.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/SphSimulationService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/SphSimulationService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Test2Service.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Test2Service.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/TestService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Test1Service.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Utils.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Utils.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Vec2.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Vec2.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Vec2i.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Vec2i.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Vec4.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Vec4.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Service.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Service.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Services/Global/ViewsService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Services/Global/ViewsService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Rendering/Textures/ImageTexture.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Rendering/Textures/ImageTexture.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Services/Global/VisualizationManagerService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Services/Global/VisualizationManagerService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Services/Global/WindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Services/Global/WindowService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Services/VisualisationService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Services/WorldService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/View/View.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/View/View.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Visualization.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Visualization.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,6 +48,7 @@
 }</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/Internal/Runtime/CompilerHelpers/ThrowHelpers.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Lazy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/MathF.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Numerics/INumber.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Numerics/INumberBase.cs" root0="SKIP_HIGHLIGHTING" />
@@ -89,7 +80,8 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    ".NET Project.FlowExplainer.executor": "Debug",
+    ".NET Project.FlowExplainer.executor": "Run",
+    "ASKED_ADD_EXTERNAL_FILES": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "git-widget-placeholder": "main",
     "node.js.detected.package.eslint": "true",
@@ -140,7 +132,8 @@
       <workItem from="1748780122378" duration="10905000" />
       <workItem from="1748848304872" duration="656000" />
       <workItem from="1748864386995" duration="7435000" />
-      <workItem from="1748949186701" duration="13165000" />
+      <workItem from="1748949186701" duration="14566000" />
+      <workItem from="1749202941587" duration="11787000" />
     </task>
     <task id="LOCAL-00001" summary="Custom vectors and testing stuff">
       <option name="closed" value="true" />
@@ -150,7 +143,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748802560149</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Organization.">
+      <option name="closed" value="true" />
+      <created>1748964864105</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1748964864105</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -160,26 +161,10 @@
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Custom vectors and testing stuff" />
-    <option name="LAST_COMMIT_MESSAGE" value="Custom vectors and testing stuff" />
+    <MESSAGE value="Organization." />
+    <option name="LAST_COMMIT_MESSAGE" value="Organization." />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/FlowExplainer/Math/Sph.cs</url>
-          <line>120</line>
-          <properties documentPath="C:\Users\osman\Documents\Projects\FlowExplainer\src\FlowExplainer\Math\Sph.cs" containingFunctionPresentation="Method 'Update'">
-            <startOffsets>
-              <option value="3915" />
-            </startOffsets>
-            <endOffsets>
-              <option value="3954" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="15" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
     <pin-to-top-manager>
       <pinned-members>
         <PinnedItemInfo parentTag="Type#System.Buffers.SharedArrayPool`1" memberName="_buckets" />

@@ -1,4 +1,5 @@
 using System.Numerics;
+using ImGuiNET;
 
 namespace FlowExplainer;
 
@@ -7,9 +8,17 @@ public class SphSimulationService : WorldService
     private Sph sph = new Sph();
     private Material material = Material.NewDefaultUnlit;
 
+    private float particleSpacing = 0.1f;
 
     public override void DrawImGuiEdit()
     {
+        var dat = GetRequiredWorldService<DataService>();
+        ImGui.SliderFloat("Particle Spacing", ref particleSpacing, 0, dat.Domain.Size.X / 4f);
+        if (ImGui.Button("Reset"))
+        {
+            sph.Setup(dat.Domain, particleSpacing);
+        }
+
         base.DrawImGuiEdit();
     }
 
@@ -17,7 +26,6 @@ public class SphSimulationService : WorldService
     public override void Initialize()
     {
         var dat = GetRequiredWorldService<DataService>();
-        sph.Setup(dat.Domain, .006f);
     }
 
     public override void Draw(RenderTexture rendertarget, View view)
@@ -25,14 +33,15 @@ public class SphSimulationService : WorldService
         var dat = GetRequiredWorldService<DataService>();
         sph.Update(dat.VelocityField, dat.SimulationTime, dat.DeltaTime);
 
-        var gradient = new Gradient<Color>([
+        /*var gradient = new Gradient<Color>([
             (0.00f, new(0, 0, .4f)),
             (0.02f, new(0, 0, 1f)),
             (0.4f, new(0, 1f, 1)),
             (0.6f, new(1, 1, 0)),
             (0.98f, new(1f, 0, 0f)),
             (1.00f, new(.4f, 0, 0f)),
-        ]);
+        ]);*/
+        var gradient = Gradients.GetGradient("matlab_turbo");
         var camera = view.Camera2D;
         material.Use();
         material.SetUniform("view", camera.GetViewMatrix());

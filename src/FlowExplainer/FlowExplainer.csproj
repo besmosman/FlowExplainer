@@ -18,6 +18,7 @@
         <Content Include="$(ProjectDir)Assets\**" CopyToOutputDirectory="Always" />
     </ItemGroup>
     <ItemGroup>
+      <Folder Include="Assets\Images\Colormaps\" />
       <Folder Include="Services\Visualization\" />
     </ItemGroup>
 

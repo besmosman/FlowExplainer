@@ -1,4 +1,8 @@
 using ImGuiNET;
+using OpenTK.Graphics.ES20;
+using OpenTK.Graphics.OpenGL;
+using OpenTK.Windowing.Common.Input;
+using SixLabors.ImageSharp;
 
 namespace FlowExplainer;
 
@@ -9,10 +13,7 @@ public class FlowFieldVisualizer : WorldService
         var dat = GetRequiredWorldService<DataService>();
         var domainArea = dat.Domain.Size.X * dat.Domain.Size.Y;
 
-        //10 * 20 =200
-        //2  4 = 8
-        // 200/25
-        ImGui.SliderInt("Grid Cells", ref GridCells, 0, 1512);
+        ImGui.SliderInt("Grid Cells", ref GridCells, 0, 1500);
         ImGui.SliderFloat("Length", ref Length, 0, 1);
         ImGui.SliderFloat("Thickness", ref Thickness, 0, dat.Domain.Size.Length() / 10f);
         ImGui.Checkbox("Auto Resize", ref AutoResize);
@@ -47,7 +48,7 @@ public class FlowFieldVisualizer : WorldService
                 var endpos = dat.Integrator.Integrate(dat.VelocityField.Evaluate, pos.Up(dat.SimulationTime), .1f);
                 var dir = dat.VelocityField.Evaluate(pos.Up(dat.SimulationTime));
                 maxDirLenght2 = MathF.Max(maxDirLenght2, dir.LengthSquared());
-                var color = new Color(0,0, 0, 1);
+                var color = new Color(1, 1, 1, 1);
                 Gizmos2D.Circle(view.Camera2D, pos, color, Thickness / 2 * 1.0f);
                 Gizmos2D.LineCentered(view.Camera2D, pos, dir * Length, color, Thickness);
                 var end = pos + dir * Length / 2;

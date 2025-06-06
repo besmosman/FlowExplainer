@@ -82,7 +82,7 @@ public class ImGuiController : IDisposable
         _frameBegun = true;
     }
 
-    public static Vec4 highlightColor = new Vec4(.7f, .2f, 1f, 1);
+    public static Vec4 highlightColor = new Vec4(.0f, .5f, 1f, 1);
 
     public static void SetupImGuiStyle()
     {
