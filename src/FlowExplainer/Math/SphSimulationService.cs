@@ -14,7 +14,6 @@ public class SphSimulationService : WorldService
 
     private float particleSpacing = 0.1f;
     private float particleRenderRadius = .009f;
-    private AutoExpandStorageBuffer<CircleRenderInfo> models = new();
 
     public override void DrawImGuiEdit()
     {
