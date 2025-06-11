@@ -69,5 +69,12 @@ namespace FlowExplainer
         {
             return X == other.X && Y == other.Y && Z == other.Z;
         }
+        
+        public Vec3 ToVec3()
+        {
+            return new Vec3(X, Y, Z);
+        }
+        
+        
     }
 }

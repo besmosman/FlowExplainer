@@ -148,4 +148,5 @@ public struct Vec3 :
     {
         return (Vec3)Vector3.Transform(vec3, m);
     }
+    
 }

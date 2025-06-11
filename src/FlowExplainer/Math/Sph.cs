@@ -21,6 +21,10 @@ public class Sph
 
     private Rect domain;
 
+    public float HeatDiffusionFactor = 0.5f; //heat diffusion
+    public float RadiationFactor = .05f; //heat radiation strength;
+    public float KernelRadius = .14f;
+    
     public void Setup(Rect domain, float spacing)
     {
         this.domain = domain;
@@ -49,9 +53,7 @@ public class Sph
         if(Particles.Length ==0)
             return;
         
-        float k = 0.5f; //heat diffusion
-        float thermalEffect = .05f; //heat radiation strength;
-        float rad = .1f;
+    
 
 
         var ps = Particles.AsSpan();
@@ -77,19 +79,19 @@ public class Sph
             p.RadiationHeatFlux = 0f;
             p.DiffusionHeatFlux = 0f;
             p.Position = Integrator.Integrate(velocityField.Evaluate, new(p.Position, time), dt);
-            var r = new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()) - new Vec2(.5f, .5f);
-            p.Position += r * .001f * dt;
+            //var r = new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()) - new Vec2(.5f, .5f);
+            // p.Position += r * .001f * dt;
             float eps = .002f;
 
             //bottom wall
-            float dis = p.Position.Y + .001f;
+            float dis = p.Position.Y;
             var intensity = (1f / (dis * dis + eps));
-            p.RadiationHeatFlux += (1 - p.Heat) * Single.Min(1, intensity * dt * thermalEffect);
+            p.RadiationHeatFlux += (1 - p.Heat) * Single.Min(1, intensity * dt * RadiationFactor);
 
             //top wall
-            dis = 1f - p.Position.Y + +.001f;
+            dis = 1f - p.Position.Y ;
             intensity = (1f / (dis * dis + eps));
-            p.RadiationHeatFlux += (0 - p.Heat) * Single.Min(1, intensity * dt * thermalEffect);
+            p.RadiationHeatFlux += (0 - p.Heat) * Single.Min(1, intensity * dt * RadiationFactor);
 
 
             //bounds shouldnt be needed though
@@ -114,16 +116,16 @@ public class Sph
         //    for (int i = 0; i < Particles.Length; i++)
         {
             ref var p = ref Particles[i];
-            int[] withinRange = GetWithinRange(i, rad);
+            int[] withinRange = GetWithinRange(i, KernelRadius);
             foreach (int j in withinRange)
             {
                 if(j == -1)
                     break;
                 
-                    float distance = Vec2.Distance(Particles[j].Position, p.Position);
-                    var flux = dt * k  * (rad - distance) / rad * -(Particles[j].Heat - p.Heat);
-                    Particles[j].DiffusionHeatFlux += flux;
-                    p.DiffusionHeatFlux -= flux;
+                float distance = Vec2.Distance(Particles[j].Position, p.Position);
+                var flux = dt * HeatDiffusionFactor  * (KernelRadius*KernelRadius - distance*distance) / KernelRadius * -(Particles[j].Heat - p.Heat);
+                Particles[j].DiffusionHeatFlux += flux;
+                p.DiffusionHeatFlux -= flux;
             }
 
             ArrayPool<int>.Shared.Return(withinRange);

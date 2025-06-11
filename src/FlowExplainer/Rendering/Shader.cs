@@ -13,12 +13,8 @@ namespace FlowExplainer
         public bool HasChanged;
 
         public static readonly Shader DefaultWorldSpaceVertex = new("Assets/Shaders/worldspace.vert", ShaderType.VertexShader);
-        public static readonly Shader DefaultWorldSpaceLinesVertex = new("Assets/Shaders/worldspacelines.vert", ShaderType.VertexShader);
         public static readonly Shader DefaultUnlitFragment = new("Assets/Shaders/unlit.frag", ShaderType.FragmentShader);
-        
-        public static readonly Shader DefaultUnlitBoundedFragment = new("Assets/Shaders/unlitBounded.frag", ShaderType.FragmentShader);
-        public static readonly Shader DefaultUnlitLinesFragment = new("Assets/Shaders/unlitlines.frag", ShaderType.FragmentShader);
-        public static readonly Shader DefaultLitFragment = new("Assets/Shaders/lit.frag", ShaderType.FragmentShader);
+       // public static readonly Shader DefaultLitFragment = new("Assets/Shaders/lit.frag", ShaderType.FragmentShader);
 
         private ShaderImporter ShaderImporter = new ShaderImporter();
 

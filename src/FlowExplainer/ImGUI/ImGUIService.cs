@@ -169,6 +169,7 @@ public class ImGUIService : GlobalService
 
         if (!ConsoleVisible)
             return;
+        
         Logger.Clean(500);
         ImGui.SetNextWindowPos(new Vector2(0, 0));
         var lh = ImGui.GetTextLineHeightWithSpacing();
@@ -204,6 +205,7 @@ public class ImGUIService : GlobalService
         ImGui.SameLine();
         if (ImGui.Button("Clear all"))
             Logger.Clean(0);
+        ImGui.End();
     }
 
     public override void Initialize()

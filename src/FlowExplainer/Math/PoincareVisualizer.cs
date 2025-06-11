@@ -50,8 +50,9 @@ public class PoincareVisualizer : WorldService
             foreach (var p in t.Points)
             {
                 var color = new Color(1, 0, 1);
-                Gizmos2D.Circle(view.Camera2D, p, color, .003f);
+                Gizmos2D.Instanced.RegisterCircle(p, .003f, color);
             }
         }
+        Gizmos2D.Instanced.RenderCircles(view.Camera2D);
     }
 }

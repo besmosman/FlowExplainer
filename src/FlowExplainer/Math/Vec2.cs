@@ -15,12 +15,14 @@ public interface IVec<TVec, TNumber> :
     where TVec : IVec<TVec, TNumber>
 {
     public TVec Max(TVec b);
+    public float Dimensions { get; }
 }
 
 public struct Vec2 : IVec<Vec2, float>, IAddDimension<Vec2, Vec3>
 {
     public float X;
     public float Y;
+    public float Dimensions => 2;
 
     public Vec2(float x, float y)
     {
@@ -111,4 +113,10 @@ public struct Vec2 : IVec<Vec2, float>, IAddDimension<Vec2, Vec3>
     {
         return new Vec2(float.Max(X, b.X), float.Max(Y, b.Y));
     }
+    
+    public override string ToString()
+    {
+        return $"({X}, {Y})";
+    }
+
 }

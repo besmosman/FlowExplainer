@@ -13,7 +13,7 @@ public class ImGUIViewRenderer
         {
             //Vec2 contentMin = ImGui.regio();
             //Vec2 contentMax = ImGui.GetWindowContentRegionMax();
-            var min = ImGui.GetCursorPos();
+            var min = ImGui.GetCursorScreenPos();
             Vec2 size = (Vec2)ImGui.GetContentRegionAvail() - new Vec2(6, 6);
             view.TargetSize = size;
 

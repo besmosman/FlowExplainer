@@ -16,6 +16,7 @@
                 throw new Exception();
 
             World v = new(FlowExplainer);
+            v.AddVisualisationService(new ViewController2D());
             v.AddVisualisationService(new DataService());
             v.AddVisualisationService(new SphSimulationService());
             v.AddVisualisationService(new FlowFieldVisualizer());

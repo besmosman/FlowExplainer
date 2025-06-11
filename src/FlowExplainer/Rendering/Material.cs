@@ -13,26 +13,16 @@ namespace FlowExplainer
         private readonly Dictionary<string, int> uniformLocations = new();
         private readonly Dictionary<string, MaterialTexture> texturesByUniform = new();
 
-        public static Material NewDefaultLit => new(
+        /*public static Material NewDefaultLit => new(
             Shader.DefaultWorldSpaceVertex,
             Shader.DefaultLitFragment
-        );
-
-        public static Material NewDefaultLinesLit => new(
-            Shader.DefaultWorldSpaceLinesVertex,
-            Shader.DefaultLitFragment
-        );
-
+        );*/
+        
         public static Material NewDefaultUnlit => new(
             Shader.DefaultWorldSpaceVertex,
             Shader.DefaultUnlitFragment
         );
-
-        public static Material NewDefaultLinesUnlit => new(
-            Shader.DefaultWorldSpaceLinesVertex,
-            Shader.DefaultUnlitLinesFragment
-        );
-
+        
         public Material(params Shader[] shaders)
         {
             Shaders = shaders;

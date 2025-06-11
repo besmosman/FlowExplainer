@@ -23,7 +23,7 @@ public class FlowFieldVisualizer : WorldService
     public int GridCells;
     public float Length;
     public float Thickness;
-    public bool AutoResize;
+    public bool AutoResize = true;
 
     public override void Initialize()
     {

@@ -6,15 +6,59 @@ namespace FlowExplainer;
 
 using System;
 
+public class AutoExpandStorageBuffer<TData> where TData : struct
+{
+    private StorageBuffer<TData> buffer = new(64);
+    private int cur = 0;
+
+    public AutoExpandStorageBuffer()
+    {
+    }
+
+    public int GetCurrentIndex()
+    {
+        return cur;
+    }
+
+    public void Use()
+    {
+        buffer.Use();
+    }
+
+    public void Upload()
+    {
+        buffer.Upload();
+    }
+
+
+    public void Register(TData data)
+    {
+        buffer.Data[cur] = data;
+        cur++;
+        if (cur >= buffer.Data.Length)
+        {
+            var old = buffer.Data;
+            buffer.Resize(buffer.Length * 2);
+            Array.Copy(old, buffer.Data, old.Length);
+        }
+    }
+
+    public void Reset()
+    {
+        cur = 0;
+    }
+}
+
 public static class Gizmos2D
 {
     private static Material material = Material.NewDefaultUnlit;
-
+    public static Gizmos2DInstanced Instanced { get; } = new();
+    
     private static Material texturedMat = new Material(
         Shader.DefaultWorldSpaceVertex,
         new Shader("Assets/Shaders/textured.frag", ShaderType.FragmentShader));
 
-    private static Mesh quadMesh;
+    private static Mesh quadMeshCentered;
     private static Mesh imageQuad;
     private static Mesh imageQuadInvertedY;
     public static Mesh circleMesh;
@@ -25,7 +69,7 @@ public static class Gizmos2D
 
     static Gizmos2D()
     {
-        quadMesh = new Mesh(new Geometry(
+        quadMeshCentered = new Mesh(new Geometry(
         [
             new Vertex(new Vec3(-.5f, -.5f, 0), Vec4.One),
             new Vertex(new Vec3(.5f, -.5f, 0), Vec4.One),
@@ -57,7 +101,7 @@ public static class Gizmos2D
         var circleIndicies = new List<uint>();
 
         {
-            int segments = 264;
+            int segments = 64;
             for (uint i = 0; i < segments + 1; i++)
             {
                 circleVerts.Add(new Vertex(new Vec3(
@@ -392,19 +436,33 @@ public static class Gizmos2D
         debugTria.Draw();
     }
 
+    public static void Rect(ICamera cam, Vec2 start, Vec2 end, Vec4 color)
+    {
+        view = cam.GetViewMatrix();
+        projection = cam.GetProjectionMatrix();
+        var size = end - start;
+        material.Use();
+        material.SetUniform("tint", color);
+        material.SetUniform("view", view);
+        material.SetUniform("projection", projection);
+        var model = Matrix4x4.CreateScale(size.X, size.Y, .4f) * Matrix4x4.CreateTranslation(start.X, start.Y, 0);
+        material.SetUniform("model", model);
+        imageQuad.Draw();
+    }
+
+    
     public static void RectCenter(ICamera cam, Vec2 center, Vec2 size, Vec4 color)
     {
         view = cam.GetViewMatrix();
         projection = cam.GetProjectionMatrix();
 
-        // Draw your quad
         material.Use();
         material.SetUniform("tint", color);
         material.SetUniform("view", view);
         material.SetUniform("projection", projection);
         var model = Matrix4x4.CreateScale(size.X, size.Y, .4f) * Matrix4x4.CreateTranslation(center.X, center.Y, 0);
         material.SetUniform("model", model);
-        quadMesh.Draw();
+        quadMeshCentered.Draw();
     }
 
     //source claude
@@ -471,7 +529,7 @@ public static class Gizmos2D
             Matrix4x4.CreateRotationZ(MathF.Atan2(dir.Y, dir.X)) *
             Matrix4x4.CreateTranslation(center.X, center.Y, 0));
 
-        quadMesh.Draw();
+        quadMeshCentered.Draw();
     }
 
     public static void Line(ICamera cam, Vec2 start, Vec2 end, Color color, float thickness)
@@ -489,6 +547,6 @@ public static class Gizmos2D
             Matrix4x4.CreateRotationZ(MathF.Atan2(dir.Y, dir.X)) *
             Matrix4x4.CreateTranslation(s2.X, s2.Y, 0));
 
-        quadMesh.Draw();
+        quadMeshCentered.Draw();
     }
 }
