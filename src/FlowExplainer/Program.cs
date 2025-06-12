@@ -27,7 +27,7 @@
             neuroTrace.AddGlobalService(new PreferencesService());
             neuroTrace.AddGlobalService(new WindowService());
 
-            var visualisations = new VisualisationManagerService();
+            var visualisations = new WorldManagerService();
             neuroTrace.AddGlobalService(visualisations);
             visualisations.NewWorld();
             neuroTrace.AddGlobalService(new ImGUIService());

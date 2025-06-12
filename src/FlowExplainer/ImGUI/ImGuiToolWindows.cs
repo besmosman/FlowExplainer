@@ -31,7 +31,7 @@ public static class ImGuiToolWindows
             if (values[ind] == ToolCategory.None || !imguiService.RenderData.ShowToolServices[ind])
                 continue;
 
-            var visualizationService = imguiService.GetRequiredGlobalService<VisualisationManagerService>();
+            var visualizationService = imguiService.GetRequiredGlobalService<WorldManagerService>();
 
             ImGui.Begin(Enum.GetName(category), ref imguiService.RenderData.ShowToolServices[ind]);
 

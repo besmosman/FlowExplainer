@@ -73,7 +73,7 @@ public class DataService : WorldService
     public override void Draw(RenderTexture rendertarget, View view)
     {
         //VelocityField = new PeriodicDiscritizedField(new AnalyticalEvolvingVelocityField(), new Vec3(.01f, .01f, .01f));
-        float dt = (float)FlowExplainer.DeltaTime.TotalSeconds;
+        float dt = FlowExplainer.DeltaTime;
         //dt = 1f / 90f;
         DeltaTime = dt * TimeMultiplier;
         SimulationTime += DeltaTime;

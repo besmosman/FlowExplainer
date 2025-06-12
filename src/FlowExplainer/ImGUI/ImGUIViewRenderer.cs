@@ -91,7 +91,7 @@ public class ImGUIViewRenderer
                     }
                     if (ImGui.BeginMenu("Visualisation"))
                     {
-                        foreach (var vis in flowExplainer.GetGlobalService<VisualisationManagerService>()!.Worlds)
+                        foreach (var vis in flowExplainer.GetGlobalService<WorldManagerService>()!.Worlds)
                         {
                             if (ImGui.MenuItem(vis.Name, "", view.World == vis))
                                 view.World = vis;

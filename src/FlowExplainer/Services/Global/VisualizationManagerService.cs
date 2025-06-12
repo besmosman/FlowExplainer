@@ -1,6 +1,6 @@
 ﻿namespace FlowExplainer
 {
-    public class VisualisationManagerService : GlobalService
+    public class WorldManagerService : GlobalService
     {
         public List<World> Worlds = new();
 
@@ -18,7 +18,10 @@
             World v = new(FlowExplainer);
             v.AddVisualisationService(new ViewController2D());
             v.AddVisualisationService(new DataService());
-            v.AddVisualisationService(new SphSimulationService());
+            v.AddVisualisationService(new HeatSimulationViewData());
+            v.AddVisualisationService(new HeatSimulationVisualizer());
+            v.AddVisualisationService(new HeatSimulationService());
+            v.AddVisualisationService(new HeatSimulationReplayer());
             v.AddVisualisationService(new FlowFieldVisualizer());
             v.AddVisualisationService(new PoincareVisualizer());
             Worlds.Add(v);

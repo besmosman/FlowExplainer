@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace FlowExplainer;
 
-public class Sph
+public class BasicLagrangianHeatSim
 {
     public struct Particle
     {
@@ -24,7 +24,7 @@ public class Sph
     public float HeatDiffusionFactor = 0.5f; //heat diffusion
     public float RadiationFactor = .05f; //heat radiation strength;
     public float KernelRadius = .14f;
-    
+
     public void Setup(Rect domain, float spacing)
     {
         this.domain = domain;
@@ -50,10 +50,8 @@ public class Sph
 
     public void Update(IVectorField<Vec3, Vec2> velocityField, float time, float dt)
     {
-        if(Particles.Length ==0)
+        if (Particles.Length == 0)
             return;
-        
-    
 
 
         var ps = Particles.AsSpan();
@@ -72,8 +70,9 @@ public class Sph
 
             grid[coords].Add(i);
         }
-        
-        Parallel.For(0, Particles.Length, (i) =>
+        var parallelOptions = new ParallelOptions() { /*MaxDegreeOfParallelism = 10*/ };
+
+        Parallel.For(0, Particles.Length, parallelOptions, (i) =>
         {
             ref var p = ref Particles[i];
             p.RadiationHeatFlux = 0f;
@@ -89,7 +88,7 @@ public class Sph
             p.RadiationHeatFlux += (1 - p.Heat) * Single.Min(1, intensity * dt * RadiationFactor);
 
             //top wall
-            dis = 1f - p.Position.Y ;
+            dis = 1f - p.Position.Y;
             intensity = (1f / (dis * dis + eps));
             p.RadiationHeatFlux += (0 - p.Heat) * Single.Min(1, intensity * dt * RadiationFactor);
 
@@ -105,25 +104,25 @@ public class Sph
             if (p.Position.Y > domain.Max.Y)
                 p.Position.Y = domain.Max.Y - float.Epsilon;
         });
-        
-         Parallel.For(0, Particles.Length, (i) =>
+
+        Parallel.For(0, Particles.Length, (i) =>
         {
             ref var p = ref Particles[i];
             p.Heat += p.RadiationHeatFlux;
         });
 
-        Parallel.For(0, Particles.Length, (i) =>
-        //    for (int i = 0; i < Particles.Length; i++)
+        Parallel.For(0, Particles.Length, parallelOptions, (i) =>
+            //    for (int i = 0; i < Particles.Length; i++)
         {
             ref var p = ref Particles[i];
             int[] withinRange = GetWithinRange(i, KernelRadius);
             foreach (int j in withinRange)
             {
-                if(j == -1)
+                if (j == -1)
                     break;
-                
+
                 float distance = Vec2.Distance(Particles[j].Position, p.Position);
-                var flux = dt * HeatDiffusionFactor  * (KernelRadius*KernelRadius - distance*distance) / KernelRadius * -(Particles[j].Heat - p.Heat);
+                var flux = dt * HeatDiffusionFactor * (KernelRadius * KernelRadius - distance * distance) / KernelRadius * -(Particles[j].Heat - p.Heat);
                 Particles[j].DiffusionHeatFlux += flux;
                 p.DiffusionHeatFlux -= flux;
             }
@@ -131,7 +130,7 @@ public class Sph
             ArrayPool<int>.Shared.Return(withinRange);
         });
 
-        Parallel.For(0, Particles.Length, (i) =>
+        Parallel.For(0, Particles.Length, parallelOptions, (i) =>
         {
             ref var p = ref Particles[i];
             p.Heat += p.DiffusionHeatFlux;

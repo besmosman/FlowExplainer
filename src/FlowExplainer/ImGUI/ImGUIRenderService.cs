@@ -42,7 +42,7 @@ public class ImGUIRenderService : GlobalService
         controller.Render();
         var io = ImGui.GetIO();
         //ImGui.NewFrame();
-        controller.Update(window, (float)FlowExplainer.DeltaTime.TotalSeconds);
+        controller.Update(window, FlowExplainer.DeltaTime);
 
         /*io.DisplayFramebufferScale.X = 1;
             io.DisplayFramebufferScale.Y = 1;

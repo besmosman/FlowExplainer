@@ -49,6 +49,28 @@ public class AutoExpandStorageBuffer<TData> where TData : struct
     }
 }
 
+public static class Gizmos
+{
+    public static Material debugMat = Material.NewDefaultUnlit;
+    public static Mesh sphereMesh;
+
+    static Gizmos()
+    {        
+        sphereMesh = new Mesh(GeometryGen.UVSphere(40, 40));
+    }
+
+    public static void DrawSphere(View view, Vector3 pos, Vector3 size, Vector4 color)
+    {
+        debugMat.Use();
+        debugMat.SetUniform("view", view.Camera.GetViewMatrix());
+        debugMat.SetUniform("projection",
+            view.Camera.GetProjectionMatrix());
+        debugMat.SetUniform("model", Matrix4x4.CreateScale(size) * Matrix4x4.CreateTranslation(pos + size / 2));
+        debugMat.SetUniform("tint", color);
+        sphereMesh.Draw();
+    }
+}
+
 public static class Gizmos2D
 {
     private static Material material = Material.NewDefaultUnlit;

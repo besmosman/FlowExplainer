@@ -24,7 +24,7 @@ namespace FlowExplainer
 
         public void NewView()
         {
-            var view = new View(1, 1, GetRequiredGlobalService<VisualisationManagerService>().Worlds[0]);
+            var view = new View(1, 1, GetRequiredGlobalService<WorldManagerService>().Worlds[0]);
             Views.Add(view);
             view.CameraOffset = new Vec3(0, -.004f, .02f);
             view.CameraOffset = new Vec3(0, 0, 0);

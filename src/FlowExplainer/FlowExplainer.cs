@@ -9,7 +9,7 @@ namespace FlowExplainer
 
 
         public TimeSpan Time { get; set; }
-        public TimeSpan DeltaTime { get; private set; }
+        public float DeltaTime { get; private set; }
 
         public void AddGlobalService(GlobalService service)
         {
@@ -61,8 +61,8 @@ namespace FlowExplainer
                 while (shouldRun)
                 {
                     double startTime = total.Elapsed.TotalSeconds;
-                    DeltaTime = w.Elapsed;
-                    Time += DeltaTime;
+                    DeltaTime = (float)w.Elapsed.TotalSeconds;
+                    Time += w.Elapsed;
                     w.Restart();
 
 
@@ -70,10 +70,10 @@ namespace FlowExplainer
                         service.Draw();
                     double endTime = total.Elapsed.TotalSeconds;
 
-                    while (endTime - startTime < 1 / 144f)
+                    /*while (endTime - startTime < 1 / 144f)
                     {
                         endTime = total.Elapsed.TotalSeconds;
-                    }
+                    }*/
                 }
 
                 foreach (var item in Services)
