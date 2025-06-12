@@ -26,9 +26,9 @@ namespace FlowExplainer
         {
             var view = new View(1, 1, GetRequiredGlobalService<WorldManagerService>().Worlds[0]);
             Views.Add(view);
-            view.CameraOffset = new Vec3(0, -.004f, .02f);
+            view.CameraOffset = new Vec3(1, .5f, 0f);
             view.CameraOffset = new Vec3(0, 0, 0);
-            view.CameraZoom = 500;
+            view.CameraZoom = 5;
             Views[Views.Count-1].Camera2D.Scale = 14f;
             
             view.Camera2D.Scale = 700;
@@ -65,7 +65,7 @@ namespace FlowExplainer
             }
 
             var matrix = Matrix4x4.CreateTranslation(view.CameraOffset.X, view.CameraOffset.Z, view.CameraOffset.Y) *
-                         Matrix4x4.CreateRotationZ(view.CameraYaw) *
+                         Matrix4x4.CreateRotationY(view.CameraYaw) *
                          Matrix4x4.CreateRotationX(view.CameraPitch) *
                          Matrix4x4.CreateLookAt(new Vec3(0, 100 / view.CameraZoom, 0), Vec3.Zero, Vec3.UnitZ);
 

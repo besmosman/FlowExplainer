@@ -2,24 +2,6 @@ using ImGuiNET;
 
 namespace FlowExplainer;
 
-public class HeatSimulation3DVisualizer : WorldService
-{
-    private HeatSimulation? loaded;
-
-    public override void Initialize()
-    {
-      //  loaded = BinarySerializer.Load<HeatSimulation>("heat.sim");
-    }
-
-    public override void Draw(RenderTexture rendertarget, View view)
-    {
-        /*foreach (var VARIABLE in )
-        {
-            
-        }*/
-    }
-}
-
 public class HeatSimulationReplayer : WorldService
 {
     private HeatSimulation? loaded;

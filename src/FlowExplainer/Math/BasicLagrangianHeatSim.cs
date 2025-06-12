@@ -111,8 +111,8 @@ public class BasicLagrangianHeatSim
             p.Heat += p.RadiationHeatFlux;
         });
 
-        Parallel.For(0, Particles.Length, parallelOptions, (i) =>
-            //    for (int i = 0; i < Particles.Length; i++)
+        //Parallel.For(0, Particles.Length, parallelOptions, (i) =>
+        for (int i = 0; i < Particles.Length; i++)
         {
             ref var p = ref Particles[i];
             int[] withinRange = GetWithinRange(i, KernelRadius);
@@ -122,18 +122,18 @@ public class BasicLagrangianHeatSim
                     break;
 
                 float distance = Vec2.Distance(Particles[j].Position, p.Position);
-                var flux = dt * HeatDiffusionFactor * (KernelRadius * KernelRadius - distance * distance) / KernelRadius * -(Particles[j].Heat - p.Heat);
+                var flux = HeatDiffusionFactor * (KernelRadius - distance) / KernelRadius * -(Particles[j].Heat - p.Heat);
                 Particles[j].DiffusionHeatFlux += flux;
                 p.DiffusionHeatFlux -= flux;
             }
 
             ArrayPool<int>.Shared.Return(withinRange);
-        });
+        };
 
         Parallel.For(0, Particles.Length, parallelOptions, (i) =>
         {
             ref var p = ref Particles[i];
-            p.Heat += p.DiffusionHeatFlux;
+            p.Heat += p.DiffusionHeatFlux * dt;
         });
     }
 

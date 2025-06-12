@@ -174,6 +174,13 @@ namespace FlowExplainer
             else
                 GL.DrawElements(PrimitiveType, IndexCount, DrawElementsType.UnsignedInt, 0);
         }
+        
+        public void DrawInstanced(int count)
+        {
+            GL.BindVertexArray(VertexArrayObject);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, IndexBufferObject);
+            GL.DrawElementsInstanced(PrimitiveType.Triangles,IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, count); 
+        }
 
         public void Dispose()
         {

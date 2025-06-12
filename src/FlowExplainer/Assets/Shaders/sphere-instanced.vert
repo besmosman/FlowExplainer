@@ -22,9 +22,8 @@ uniform mat4 view;
 uniform mat4 projection;
 
 struct Particle {
-   vec2 position;
+   vec3 position;
    float radius;
-   float padding;
    vec4 color;
 };
 
@@ -42,11 +41,11 @@ void main()
    
    model[0][0] = particles[gl_InstanceID].radius;
    model[1][1] = particles[gl_InstanceID].radius;
-   model[2][2] = 1;
+   model[2][2] = particles[gl_InstanceID].radius;
 
    model[3][0] = particles[gl_InstanceID].position.x;
    model[3][1] = particles[gl_InstanceID].position.y;
-   model[3][2] = 0;
+   model[3][2] = particles[gl_InstanceID].position.z;
    
    gl_Position = projection * view * model * vec4(in_position, 1.0);
    

@@ -27,7 +27,7 @@ namespace FlowExplainer
         {
             return ProjectionMode switch
             {
-                CameraProjectionMode.Orthographic => Matrix4x4.CreateOrthographic(RenderTargetSize.X/6, RenderTargetSize.Y/6, NearPlane, FarPlane),
+                CameraProjectionMode.Orthographic => Matrix4x4.CreateOrthographic(RenderTargetSize.X/90, RenderTargetSize.Y/90, NearPlane, FarPlane),
                 CameraProjectionMode.Perspective => Matrix4x4.CreatePerspectiveFieldOfView(10 / 360f * float.Tau, RenderTargetSize.X / RenderTargetSize.Y, NearPlane, FarPlane),
                 _ => throw new Exception($"{nameof(ProjectionMode)} is invalid")
             };

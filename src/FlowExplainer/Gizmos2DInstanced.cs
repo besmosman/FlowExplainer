@@ -39,9 +39,7 @@ public class Gizmos2DInstanced
         circleStorage.Use();
         circleStorage.Upload();
         
-        GL.BindVertexArray(Gizmos2D.circleMesh.VertexArrayObject);
-        GL.BindBuffer(BufferTarget.ElementArrayBuffer, Gizmos2D.circleMesh.IndexBufferObject);
-        GL.DrawElementsInstanced(PrimitiveType.Triangles, Gizmos2D.circleMesh.IndexCount, DrawElementsType.UnsignedInt, IntPtr.Zero, circleStorage.GetCurrentIndex()); 
+        circleMesh.DrawInstanced(circleStorage.GetCurrentIndex());
         circleStorage.Reset();
     }
 }

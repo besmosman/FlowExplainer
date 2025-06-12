@@ -4,29 +4,27 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="de64a90b-d37e-448c-ab79-56558d5f35b9" name="Changes" comment="build fix.">
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/BinarySerializer.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/HeatSimulationReplayer.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/HeatSimulationService.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/HeatSimulationViewData.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/HeatSimulationVisualizer.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/Test3Service.cs" afterDir="false" />
+    <list default="true" id="de64a90b-d37e-448c-ab79-56558d5f35b9" name="Changes" comment="Heat simulation async, serialization and loading.">
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Assets/Shaders/sphere-instanced.vert" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Gizmos.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/CoordinatesConverter2D.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/HeatSimulation3DVisualizer.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/PeriodicDiscritizedField.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/ViewController2D.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.FlowExplainer/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FlowExplainer/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/FlowExplainer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/FlowExplainer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/FlowExplainer.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/FlowExplainer.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Assets/Shaders/instanced.vert" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Assets/Shaders/instanced.vert" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Gizmos2D.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Gizmos2D.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGUIRenderService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGUIRenderService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGUIViewRenderer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGUIViewRenderer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGuiToolWindows.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGuiToolWindows.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Logging/CommandHandler.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Logging/CommandHandler.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Gizmos2DInstanced.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Gizmos2DInstanced.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/AnalyticalEvolvingVelocityField.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/AnalyticalEvolvingVelocityField.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/BasicLagrangianHeatSim.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/BasicLagrangianHeatSim.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/DataService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/DataService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Sph.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/BasicLagrangianHeatSim.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/SphSimulationService.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Test1Service.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Test1Service.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Test2Service.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Test2Service.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/HeatSimulationReplayer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/HeatSimulationReplayer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/HeatSimulationService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/HeatSimulationService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/HeatSimulationVisualizer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/HeatSimulationVisualizer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Rendering/Mesh.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Rendering/Mesh.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Services/Global/ViewsService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Services/Global/ViewsService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Services/Global/VisualizationManagerService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Services/Global/VisualizationManagerService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/View/Camera.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/View/Camera.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,6 +74,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/997d2c0341d69df6df6b6a4dacfef2a38986a28984a4cb5cd220d86eaaa98d/NativeWindowSettings.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/9ac61952e0eca9986ce4a54183743ce515bb71015edc74339daa6df759ebe6d/Vector2.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/d1b3e93ee7eac7c9d2d20ef1717971cf696d48d9b6162855dbd38e6806e74/MathHelper.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/osman/Documents/Projects/FlowExplainer/src/FlowExplainer/Math/HeatSimulationReplayer.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProjectColorInfo">{
@@ -153,7 +152,7 @@
       <workItem from="1749640141654" duration="3980000" />
       <workItem from="1749721657625" duration="434000" />
       <workItem from="1749722121239" duration="253000" />
-      <workItem from="1749725687625" duration="6077000" />
+      <workItem from="1749725687625" duration="11260000" />
     </task>
     <task id="LOCAL-00001" summary="Custom vectors and testing stuff">
       <option name="closed" value="true" />
@@ -203,7 +202,15 @@
       <option name="project" value="LOCAL" />
       <updated>1749649445186</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Heat simulation async, serialization and loading.">
+      <option name="closed" value="true" />
+      <created>1749732214430</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1749732214430</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -217,13 +224,15 @@
     <MESSAGE value="Color gradients, poincare work, imgui stuff." />
     <MESSAGE value="Instanced circle rendering, shader cleanup, heat simulation parameters" />
     <MESSAGE value="build fix." />
-    <option name="LAST_COMMIT_MESSAGE" value="build fix." />
+    <MESSAGE value="Heat simulation async, serialization and loading." />
+    <option name="LAST_COMMIT_MESSAGE" value="Heat simulation async, serialization and loading." />
   </component>
   <component name="XDebuggerManager">
     <pin-to-top-manager>
       <pinned-members>
         <PinnedItemInfo parentTag="Type#System.Buffers.SharedArrayPool`1" memberName="_buckets" />
         <PinnedItemInfo parentTag="Type#FlowExplainer.Sph+Particle" memberName="Heat" />
+        <PinnedItemInfo parentTag="Type#FlowExplainer.BasicLagrangianHeatSim+Particle" memberName="DiffusionHeatFlux" />
       </pinned-members>
     </pin-to-top-manager>
   </component>

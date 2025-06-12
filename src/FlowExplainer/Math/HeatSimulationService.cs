@@ -78,8 +78,8 @@ public class HeatSimulationService : WorldService
                 sim.KernelRadius = basicLagrangianHeatSim.KernelRadius;
                 sim.Setup(dat.Domain, .03f);
                 entries.Add(Snapshot(0, sim));
-                int steps = 100;
-                float dt = 1 / 60f;
+                int steps = 400;
+                float dt = 1 / 30f;
                 float t = 0;
                 for (int i = 0; i < steps; i++)
                 {
@@ -125,8 +125,8 @@ public class HeatSimulationService : WorldService
         {
             var off = .02f;
 
-            Gizmos2D.Line(view.Camera2D, new Vec2(0, 1 + off), new Vec2(2, 1 + off), gradient.Get(.00f), .01f);
-            Gizmos2D.Line(view.Camera2D, new Vec2(0, 0 - off), new Vec2(2, 0 - off), gradient.Get(1f), .01f);
+           // Gizmos2D.Line(view.Camera2D, new Vec2(0, 1 + off), new Vec2(2, 1 + off), gradient.Get(.00f), .01f);
+           // Gizmos2D.Line(view.Camera2D, new Vec2(0, 0 - off), new Vec2(2, 0 - off), gradient.Get(1f), .01f);
         }
     }
 
