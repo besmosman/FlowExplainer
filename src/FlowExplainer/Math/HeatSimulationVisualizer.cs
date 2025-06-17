@@ -7,6 +7,7 @@ public class HeatSimulationVisualizer : WorldService
     public float RenderRadius = .01f;
 
     public Colorings Coloring;
+    public bool Scaled;
 
     public enum Colorings
     {
@@ -29,12 +30,17 @@ public class HeatSimulationVisualizer : WorldService
             Coloring = (Colorings)selected;
         }
 
+        ImGui.Checkbox("Scaled", ref Scaled);
+
 
         base.DrawImGuiEdit();
     }
 
     public override void Draw(RenderTexture rendertarget, View view)
     {
+        if(!view.Is2DCamera)
+            return;
+        
         var particles = GetRequiredWorldService<HeatSimulationViewData>().ViewParticles;
         if (particles != null)
         {
@@ -49,10 +55,10 @@ public class HeatSimulationVisualizer : WorldService
                         c = p.Heat;
                         break;
                     case Colorings.DiffusionFlux:
-                        c = p.DiffusionHeatFlux;
+                        c = .5f  -p.DiffusionHeatFlux;
                         break;
                     case Colorings.RadiationFlux:
-                        c = p.RadiationHeatFlux;
+                        c = .5f  -p.RadiationHeatFlux;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
@@ -62,7 +68,7 @@ public class HeatSimulationVisualizer : WorldService
                 max = float.Max(max, c);
             }
 
-            var grad = Gradients.GetGradient("matlab_turbo");
+            var grad = Gradients.GetGradient("matlab_jet");
 
             foreach (ref var p in particles.AsSpan())
             {
@@ -73,16 +79,21 @@ public class HeatSimulationVisualizer : WorldService
                         c = p.Heat;
                         break;
                     case Colorings.DiffusionFlux:
-                        c = -p.DiffusionHeatFlux;
+                        c = .5f  -p.DiffusionHeatFlux;
                         break;
                     case Colorings.RadiationFlux:
-                        c = -p.RadiationHeatFlux;
+                        c = .5f -p.RadiationHeatFlux;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
 
-                float t = (c - min) / (max - min);
+                float t = c;
+                
+                if(Scaled)
+                    t = (c - min) / (max - min);
+
+                //t = -(p.LastHeat - p.Heat)*500 + .5f;
                 Gizmos2D.Instanced.RegisterCircle(p.Position, RenderRadius, grad.GetCached(t));
             }
 

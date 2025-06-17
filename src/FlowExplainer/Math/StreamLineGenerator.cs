@@ -1,8 +1,9 @@
 namespace FlowExplainer;
 
+/*
 public static class StreamLineGenerator
 {
-    public static Line<TOut> Generate<TOut, TPhase>(IVectorField<TPhase, TOut> flowField, IIntegrator<TPhase, TOut> integrator, TOut pos, float startTime, float elipson, int steps) where TOut : IAddDimension<TOut, TPhase>
+    public static Line<TOut> Generate<TOut, TPhase>(IVectorField<TPhase, TOut> flowField, IIntegrator<TPhase, TOut> integrator, TOut pos, float startTime, float elipson, int steps) where TOut : IVecUpDimension<TPhase>
     {
         List<TOut> points = new();
         float dt = elipson / ((float)steps - 1);
@@ -18,4 +19,4 @@ public static class StreamLineGenerator
 
         return new Line<TOut>(points);
     }
-}
+}*/

@@ -1,15 +1,24 @@
+using ImGuiNET;
 using static System.Single;
 
 namespace FlowExplainer;
 
 //https://shaddenlab.berkeley.edu/uploads/LCS-tutorial/examples.html#x1-1200812
-public class AnalyticalEvolvingVelocityField : IPeriodicVectorField<Vec3, Vec2>
+public class AnalyticalEvolvingVelocityField : IEditabalePeriodicVectorField<Vec3, Vec2>
 {
-    public float elipson = 1f;
+    public float elipson = 0f;
     public float A = 1f;
-    public float w = 1f;
+    public float w = 0f;
 
     public float Period => (2f * Pi) / w;
+    public Rect Domain => new Rect(new Vec2(0, 0), new Vec2(2, 1));
+
+    public void OnImGuiEdit()
+    {
+        ImGui.SliderFloat("A", ref A, 0, 10);
+        ImGui.SliderFloat("Elipson", ref elipson, 0, 2);
+        ImGui.SliderFloat("w", ref w, 0, 2);
+    }
 
     float streamFunction(float x, float y, float t)
     {

@@ -11,18 +11,23 @@ public interface IVec<TVec> : IVec<TVec, float>
 public interface IVec<TVec, TNumber> :
     IMultiplyOperators<TVec, TNumber, TVec>,
     ISubtractionOperators<TVec, TVec, TVec>,
+    IDivisionOperators<TVec, TNumber, TVec>,
     IAdditionOperators<TVec, TVec, TVec>
     where TVec : IVec<TVec, TNumber>
 {
     public TVec Max(TVec b);
-    public float Dimensions { get; }
+    public int Dimensions { get; }
+    public TNumber Last { get; }
+    static abstract TVec operator *(TNumber left, TVec right);
+
 }
 
-public struct Vec2 : IVec<Vec2, float>, IAddDimension<Vec2, Vec3>
+public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>
 {
     public float X;
     public float Y;
-    public float Dimensions => 2;
+    public int Dimensions => 2;
+    public float Last => Y;
 
     public Vec2(float x, float y)
     {
@@ -37,6 +42,10 @@ public struct Vec2 : IVec<Vec2, float>, IAddDimension<Vec2, Vec3>
     {
         return new Vec3(X, Y, f);
     }
+
+    public Vec2 Down(Vec3 x) => x.XY;
+
+    public Vec3 Construct(Vec2 x, float t) => new Vec3(x, t);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vec2 operator +(Vec2 v1, Vec2 v2) => new(v1.X + v2.X, v1.Y + v2.Y);
@@ -113,7 +122,12 @@ public struct Vec2 : IVec<Vec2, float>, IAddDimension<Vec2, Vec3>
     {
         return new Vec2(float.Max(X, b.X), float.Max(Y, b.Y));
     }
-    
+
+    public Vec1 Down()
+    {
+        return new Vec1(X);
+    }
+
     public override string ToString()
     {
         return $"({X}, {Y})";

@@ -4,9 +4,8 @@ namespace FlowExplainer;
 
 public class DataService : WorldService
 {
-    public AnalyticalEvolvingVelocityField VelocityField = new AnalyticalEvolvingVelocityField();
+    public IEditabalePeriodicVectorField<Vec3, Vec2> VelocityField = new SpeetjensAdaptedVelocityField();
     public IIntegrator<Vec3, Vec2> Integrator = new RungeKutta4Integrator();
-    public Rect Domain = new Rect(new Vec2(0, 0), new Vec2(2, 1));
     public float SimulationTime;
 
     public float TimeMultiplier = .1f;
@@ -21,14 +20,18 @@ public class DataService : WorldService
         //dt = 1f / 90f;
         DeltaTime = dt * TimeMultiplier;
         SimulationTime += DeltaTime;
+
+       // var f = (SpeetjensAdaptedVelocityField)VelocityField;
+       // var dx = f.elipson * float.Sin(2 * float.Pi * SimulationTime) / 4;
+       // var x_plus = new Vec2(1 / 4f + dx, 1 / 4f);
+       // Gizmos2D.Circle(view.Camera2D, x_plus, new Color(1,1,0,1), 0.01f);
     }
 
     public override void DrawImGuiEdit()
     {
         ImGui.SliderFloat("Time Multiplier", ref TimeMultiplier, 0, 10);
-        ImGui.SliderFloat("A", ref VelocityField.A, 0, 10);
-        ImGui.SliderFloat("Elipson", ref VelocityField.elipson, 0, 2);
-        ImGui.SliderFloat("w", ref VelocityField.w, 0, 2);
+        ImGui.SeparatorText("Velocity field");
+        VelocityField.OnImGuiEdit();
         base.DrawImGuiEdit();
     }
 

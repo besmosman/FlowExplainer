@@ -9,9 +9,12 @@ public class BasicLagrangianHeatSim
     {
         public Vec2 Position;
         public float Heat;
+        public float LastHeat;
         public float tag;
         public float RadiationHeatFlux;
         public float DiffusionHeatFlux;
+        public float TotalConductiveHeatFlux;
+        public float TotalHeatFlux;
     }
 
     public Particle[] Particles = new Particle[0];
@@ -21,8 +24,8 @@ public class BasicLagrangianHeatSim
 
     private Rect domain;
 
-    public float HeatDiffusionFactor = 0.5f; //heat diffusion
-    public float RadiationFactor = .05f; //heat radiation strength;
+    public float HeatDiffusionFactor = 0.01f; //heat diffusion
+    public float RadiationFactor = .14f; //heat radiation strength;
     public float KernelRadius = .14f;
 
     public void Setup(Rect domain, float spacing)
@@ -44,6 +47,7 @@ public class BasicLagrangianHeatSim
             ref var p = ref Particles[i];
             p.Position = positions[i];
             p.Heat = .5f;
+            p.LastHeat = p.Heat;
             p.tag = Vec2.Distance(p.Position, new Vec2(.5f, .3f)) < 1f ? 1 : 0;
         }
     }
@@ -70,7 +74,11 @@ public class BasicLagrangianHeatSim
 
             grid[coords].Add(i);
         }
-        var parallelOptions = new ParallelOptions() { /*MaxDegreeOfParallelism = 10*/ };
+
+        var parallelOptions = new ParallelOptions()
+        {
+            /*MaxDegreeOfParallelism = 10*/
+        };
 
         Parallel.For(0, Particles.Length, parallelOptions, (i) =>
         {
@@ -78,21 +86,8 @@ public class BasicLagrangianHeatSim
             p.RadiationHeatFlux = 0f;
             p.DiffusionHeatFlux = 0f;
             p.Position = Integrator.Integrate(velocityField.Evaluate, new(p.Position, time), dt);
-            //var r = new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()) - new Vec2(.5f, .5f);
-            // p.Position += r * .001f * dt;
-            float eps = .002f;
 
-            //bottom wall
-            float dis = p.Position.Y;
-            var intensity = (1f / (dis * dis + eps));
-            p.RadiationHeatFlux += (1 - p.Heat) * Single.Min(1, intensity * dt * RadiationFactor);
-
-            //top wall
-            dis = 1f - p.Position.Y;
-            intensity = (1f / (dis * dis + eps));
-            p.RadiationHeatFlux += (0 - p.Heat) * Single.Min(1, intensity * dt * RadiationFactor);
-
-
+            
             //bounds shouldnt be needed though
             if (p.Position.X < domain.Min.X)
                 p.Position.X = domain.Min.X + float.Epsilon;
@@ -103,16 +98,27 @@ public class BasicLagrangianHeatSim
                 p.Position.Y = float.Epsilon;
             if (p.Position.Y > domain.Max.Y)
                 p.Position.Y = domain.Max.Y - float.Epsilon;
+            //var r = new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()) - new Vec2(.5f, .5f);
+            // p.Position += r * .001f * dt;
+            float eps = .00001f;
+
+            //bottom hot wall
+            float dis = p.Position.Y -  domain.Min.Y;
+            var intensity = (1f / (dis * dis + eps));
+            p.RadiationHeatFlux += (1 - p.Heat) * Single.Min(1, intensity * dt * RadiationFactor);
+
+            //top cold wall
+            dis = domain.Max.Y - p.Position.Y;
+            intensity = (1f / (dis * dis + eps));
+            p.RadiationHeatFlux += (0 - p.Heat) * Single.Min(1, intensity * dt * RadiationFactor);
+
+
+           
         });
 
-        Parallel.For(0, Particles.Length, (i) =>
-        {
-            ref var p = ref Particles[i];
-            p.Heat += p.RadiationHeatFlux;
-        });
 
-        //Parallel.For(0, Particles.Length, parallelOptions, (i) =>
-        for (int i = 0; i < Particles.Length; i++)
+        Parallel.For(0, Particles.Length, parallelOptions, (i) =>
+        //    for (int i = 0; i < Particles.Length; i++)
         {
             ref var p = ref Particles[i];
             int[] withinRange = GetWithinRange(i, KernelRadius);
@@ -120,20 +126,27 @@ public class BasicLagrangianHeatSim
             {
                 if (j == -1)
                     break;
-
-                float distance = Vec2.Distance(Particles[j].Position, p.Position);
-                var flux = HeatDiffusionFactor * (KernelRadius - distance) / KernelRadius * -(Particles[j].Heat - p.Heat);
-                Particles[j].DiffusionHeatFlux += flux;
-                p.DiffusionHeatFlux -= flux;
+                
+                if (i < j)
+                {
+                    float distance = Vec2.Distance(Particles[j].Position, p.Position);
+                    var flux = HeatDiffusionFactor * (KernelRadius - distance) / KernelRadius * -(Particles[j].Heat - p.Heat) *dt;
+                    Particles[j].DiffusionHeatFlux += flux;
+                    p.DiffusionHeatFlux -= flux;
+                }
+                
             }
 
             ArrayPool<int>.Shared.Return(withinRange);
-        };
+        });
 
-        Parallel.For(0, Particles.Length, parallelOptions, (i) =>
+        Parallel.For(0, Particles.Length, (i) =>
         {
             ref var p = ref Particles[i];
-            p.Heat += p.DiffusionHeatFlux * dt;
+            p.LastHeat = p.Heat;
+            p.TotalConductiveHeatFlux = p.RadiationHeatFlux + p.DiffusionHeatFlux;
+            p.Heat += p.RadiationHeatFlux;
+            p.Heat += p.DiffusionHeatFlux;
         });
     }
 

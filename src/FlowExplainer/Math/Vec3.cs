@@ -5,17 +5,24 @@ namespace FlowExplainer;
 
 [Serializable]
 public struct Vec3 :
+    IVec<Vec3>,
     IEquatable<Vec3>,
-    IMultiplyOperators<Vec3, float, Vec3>,
-    IAdditionOperators<Vec3, Vec3, Vec3>,
-    IEqualityOperators<Vec3, Vec3, bool>,
-    IAddDimension<Vec3, Vec4>
+    IVecUpDimension<Vec4>,
+    IVecDownDimension<Vec2>
 {
     public float X;
     public float Y;
     public float Z;
 
     public static int SizeInBytes { get; } = 12;
+    public int Dimensions => 3;
+    
+    public float Last => Z;
+    
+    public static Vec3 operator *(float left, Vec3 right)
+    {
+        return right * left;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vec3(float x, float y, float z)
@@ -148,5 +155,15 @@ public struct Vec3 :
     {
         return (Vec3)Vector3.Transform(vec3, m);
     }
-    
+
+    public Vec3 Max(Vec3 b)
+    {
+        return new Vec3(
+            float.Max(X, b.X),
+            float.Max(Y, b.Y),
+            float.Max(Z, b.Z)
+        );
+    }
+
+    public Vec2 Down() => XY;
 }

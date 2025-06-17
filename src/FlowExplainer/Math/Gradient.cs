@@ -8,22 +8,23 @@ public class Gradient<T> where T : IMultiplyOperators<T, float, T>, IAdditionOpe
 {
     private (float time, T value)[] entries;
     private T[] Cached;
-
+    public static int CachedSize = 1024;
+    
     public Gradient((float, T)[] entries)
     {
         this.entries = entries;
 
-        Cached = new T[255];
-        for (int i = 0; i < 255; i++)
+        Cached = new T[CachedSize];
+        for (int i = 0; i < CachedSize; i++)
         {
-            Cached[i] = Get(i / 255f);
+            Cached[i] = Get(i / (float)CachedSize);
         }
     }
 
 
     public T GetCached(float t)
     {
-        return Cached[int.Clamp((int)float.Round(t * 255f), 0, 254)];
+        return Cached[int.Clamp((int)float.Round(t * CachedSize), 0, CachedSize-1)];
     }
 
     public T Get(float t)

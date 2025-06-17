@@ -1,3 +1,4 @@
+using ImGuiNET;
 using static System.Single;
 
 namespace FlowExplainer;
@@ -50,22 +51,76 @@ public class PhaseComputer
     }
 }
 
-public class SpeetjensAdaptedVelocityField : IVectorField<Vec3, Vec2>
+public class SpeetjensAdaptedVelocityField : IEditabalePeriodicVectorField<Vec3, Vec2>
 {
-    public float elipson = 0.0f;
+    public float elipson = 1f;
+    public float w = 2*Pi;
 
-    public Vec2 ubar(Vec2 p) => ubar(p.X, p.Y);
+    public float Period => 1;
+    public Rect Domain => new Rect(new Vec2(0, 0), new Vec2(1, .5f));
 
-    public Vec2 ubar(float x, float y)
+    public void OnImGuiEdit()
     {
-        var ux = Sin(2 * Pi * x) * Cos(2 * Pi * y);
-        var uy = -Cos(2 * Pi * x) * Sin(2 * Pi * y);
+        ImGui.SliderFloat("Elipson", ref elipson, 0, 2);
+    }
+    
+
+    float a(float t)
+    {
+        return elipson * Sin(w * t);
+    }
+
+    float b(float t)
+    {
+        return 1f - 2 * elipson * Sin(w * t);
+    }
+
+    public float f(float x, float t)
+    {
+        return a(t) * x * x + b(t) * x;
+    }
+
+    public Vec2 Evaluate(Vec3 x)
+    {
+        return Velocity(x.X, x.Y, x.Z);
+    }
+
+    public Vec2 Velocity(float x, float y, float t)
+    {
+        x *= 2;
+        y *= 2;
+        //var dx = x + elipson * Sin(2 * Pi * t);
+        var u = Sin(Pi * f(x, t)) * -Cos(Pi * y);
+        var dfdx = 2 * a(t) * x + b(t);
+        var v = Cos(Pi * f(x,t)) * Sin(Pi * y) * dfdx;
+        return -new Vec2(u, v);
+    }
+}
+
+public class SpeetjensVelocityField : IEditabalePeriodicVectorField<Vec3, Vec2>
+{
+    public float Epsilon = 0.0f;
+
+    public float Period => 1;
+    public Rect Domain => new Rect(Vec2.Zero, new Vec2(1, .5f));
+
+    public void OnImGuiEdit()
+    {
+        ImGui.SliderFloat("Epsilon", ref Epsilon, 0, 1);
+    }
+
+
+    public Vec2 ubar(Vec2 x, float t)
+    {
+        var ux = Sin(2 * Pi * x.X) * Cos(2 * Pi * x.Y);
+        var uy = -Cos(2 * Pi * x.X) * Sin(2 * Pi * x.Y);
         return new Vec2(ux, uy);
     }
+    
 
     public float DeltaX(float t)
     {
-        return elipson * Sin(2 * Pi * t);
+        return Epsilon * Sin(2 * Pi * t);
     }
 
     public Vec2 Evaluate(Vec3 p)
@@ -74,88 +129,11 @@ public class SpeetjensAdaptedVelocityField : IVectorField<Vec3, Vec2>
         var y = p.Y;
         var t = p.Z;
 
-        var x_plus = new Vec2(x, y) + new Vec2(1 / 4f - DeltaX(t), 1 / 4f);
-        var x_minus = new Vec2(x, y) + new Vec2(3 / 4f - DeltaX(t), 1 / 4f);
-
-        return ubar(new Vec2(x + DeltaX(t), y));
+        var x_plus = new Vec2(x, y) - new Vec2(1 / 4f - DeltaX(t), 1 / 4f);
+        var x_minus = new Vec2(x, y) - new Vec2(3 / 4f - DeltaX(t), 1 / 4f);
+        return ubar(x_plus, t) + ubar(x_minus, t);
     }
-}
-
-public class SpeetjensVelocityField : IVectorField<Vec3, Vec2>
-{
-    public float Elipson = 0.5f;
-
-    public Vec2 Evaluate(Vec3 x)
-    {
-        //var r= GetVelocity(x.X, x.Y,x.Z);
-        //return new Vec2((float)r.ux, (float)r.uy);
-
-        var t = x.Z;
-        var pos = new Vec2(x.X, x.Y);
-
-        var xPlus = new Vec2(1 / 4f - DeltaX(t), 1 / 4f);
-        var xMinus = new Vec2(3 / 4f - DeltaX(t), 1 / 4f);
-
-        return UBar(pos - new Vec2(-DeltaX(t), 0));
-    }
-
-
-    private float DeltaX(float t)
-    {
-        return Elipson * Sin(2 * Pi * t);
-    }
-
-    private static Vec2 UBar(Vec2 x) => UBar(x.X, x.Y);
-
-    private static Vec2 UBar(float x, float y)
-    {
-        float ux = Sin(2 * Pi * x) * Cos(2 * Pi * y);
-        float uy = -Cos(2 * Pi * x) * Sin(2 * Pi * y);
-        return new Vec2(ux, uy);
-    }
-
-    /// <summary>
-    /// Calculates the horizontal time-periodic oscillation Δx(t)
-    /// </summary>
-    private double DeltaX(double t)
-    {
-        return Epsilon * Math.Sin(2.0 * Math.PI * t);
-    }
-
-    /// <summary>
-    /// Computes the x-component of velocity: ux = sin(2πx)cos(2πy)
-    /// This creates the base solenoidal field
-    /// </summary>
-    public double GetVelocityX(double x, double y)
-    {
-        return Math.Sin(2.0 * Math.PI * x) * Math.Cos(2.0 * Math.PI * y);
-    }
-
-    /// <summary>
-    /// Computes the y-component of velocity: uy = -cos(2πx)sin(2πy)
-    /// This ensures divergence-free condition: ∂ux/∂x + ∂uy/∂y = 0
-    /// </summary>
-    public double GetVelocityY(double x, double y)
-    {
-        return -Math.Cos(2.0 * Math.PI * x) * Math.Sin(2.0 * Math.PI * y);
-    }
-
-    /// <summary>
-    /// Computes the complete velocity vector at position (x,y) and current time
-    /// Incorporates time-periodic vortex oscillation
-    /// </summary>
-    public (double ux, double uy) GetVelocity(double x, double y, float t)
-    {
-        // Apply time-dependent transformation for oscillating vortices
-        double deltaX = DeltaX(t);
-
-        // The vortices are centered at (1/4 - Δx(t), 1/4) and (3/4 - Δx(t), 1/4)
-        // Transform coordinates to account for vortex movement
-        double transformedX = x + deltaX;
-
-        double ux = GetVelocityX(transformedX, y);
-        double uy = GetVelocityY(transformedX, y);
-
-        return (ux, uy);
-    }
+    
+    
+    
 }

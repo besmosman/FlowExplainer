@@ -31,7 +31,7 @@ public class HeatSimulationService : WorldService
     private Material instanceMat = new Material(new Shader("Assets/Shaders/instanced.vert", ShaderType.VertexShader), Shader.DefaultUnlitFragment);
 
     private float particleSpacing = 0.1f;
-    private float particleRenderRadius = .009f;
+    private float particleRenderRadius = .0045f;
 
 
     private static float builderProgress = 0;
@@ -39,14 +39,14 @@ public class HeatSimulationService : WorldService
     public override void DrawImGuiEdit()
     {
         var dat = GetRequiredWorldService<DataService>();
-        ImGui.SliderFloat("Particle Spacing", ref particleSpacing, 0, dat.Domain.Size.X / 4f);
+        ImGui.SliderFloat("Particle Spacing", ref particleSpacing, 0, dat.VelocityField.Domain.Size.X / 4f);
         ImGui.SliderFloat("Radiation Factor", ref basicLagrangianHeatSim.RadiationFactor, 0, .5f);
         ImGui.SliderFloat("Conduction Factor", ref basicLagrangianHeatSim.HeatDiffusionFactor, 0, 1);
         ImGui.SliderFloat("Kernel Radius", ref basicLagrangianHeatSim.KernelRadius, 0, .5f);
 
         if (ImGui.Button("Reset"))
         {
-            basicLagrangianHeatSim.Setup(dat.Domain, particleSpacing);
+            basicLagrangianHeatSim.Setup(dat.VelocityField.Domain, particleSpacing);
             GetRequiredWorldService<HeatSimulationViewData>().Controller = this;
             GetRequiredWorldService<HeatSimulationViewData>().ViewParticles = basicLagrangianHeatSim.Particles;
         }
@@ -76,18 +76,23 @@ public class HeatSimulationService : WorldService
                 sim.RadiationFactor = basicLagrangianHeatSim.RadiationFactor;
                 sim.HeatDiffusionFactor = basicLagrangianHeatSim.HeatDiffusionFactor;
                 sim.KernelRadius = basicLagrangianHeatSim.KernelRadius;
-                sim.Setup(dat.Domain, .03f);
+                sim.Setup(dat.VelocityField.Domain, .01f);
                 entries.Add(Snapshot(0, sim));
-                int steps = 400;
+                int steps = 80;
+                int substeps = 10;
                 float dt = 1 / 30f;
                 float t = 0;
+                var h = dt / substeps;
                 for (int i = 0; i < steps; i++)
                 {
                     HeatSimulationService.builderProgress = (i + 1) / ((float)steps + 2);
 
-                    sim.Update(dat.VelocityField, t, dt);
-                    entries.Add(Snapshot(t, sim));
-                    t += dt;
+                    for (int j = 0; j < substeps; j++)
+                    {
+                        sim.Update(dat.VelocityField, t, h);
+                        entries.Add(Snapshot(t, sim));
+                        t += h;
+                    }
                 }
 
                 HeatSimulation r = new HeatSimulation
@@ -114,10 +119,9 @@ public class HeatSimulationService : WorldService
         var dat = GetRequiredWorldService<DataService>();
         basicLagrangianHeatSim.Update(dat.VelocityField, dat.SimulationTime, dat.DeltaTime);
 
-        var gradient = Gradients.GetGradient("matlab_turbo");
 
         var viewer = GetRequiredWorldService<HeatSimulationViewData>();
-        
+
         if (viewer.Controller == this)
             viewer.ViewParticles = basicLagrangianHeatSim.Particles;
 
@@ -125,8 +129,8 @@ public class HeatSimulationService : WorldService
         {
             var off = .02f;
 
-           // Gizmos2D.Line(view.Camera2D, new Vec2(0, 1 + off), new Vec2(2, 1 + off), gradient.Get(.00f), .01f);
-           // Gizmos2D.Line(view.Camera2D, new Vec2(0, 0 - off), new Vec2(2, 0 - off), gradient.Get(1f), .01f);
+            // Gizmos2D.Line(view.Camera2D, new Vec2(0, 1 + off), new Vec2(2, 1 + off), gradient.Get(.00f), .01f);
+            // Gizmos2D.Line(view.Camera2D, new Vec2(0, 0 - off), new Vec2(2, 0 - off), gradient.Get(1f), .01f);
         }
     }
 

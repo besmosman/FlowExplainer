@@ -5,6 +5,7 @@ namespace FlowExplainer;
 public class PeriodicDiscritizedField : IPeriodicVectorField<Vec3, Vec2>
 {
     public float Period => Original.Period;
+    public Rect Domain => Original.Domain;
     public IPeriodicVectorField<Vec3, Vec2> Original;
     public Vec3 CellSize;
 

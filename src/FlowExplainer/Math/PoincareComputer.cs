@@ -18,27 +18,25 @@ public class PoincareComputer
         this.Integrator = integrator;
     }
 
-    public Trajectory ComputeOne(Vec2 startPos, float period, int stepsPerPeriod, int periods)
+    public Trajectory ComputeOne(Vec3 startPhase, float period, int stepsPerPeriod, int periods)
     {
         List<Vec2> positions = new(periods * stepsPerPeriod);
-        float t = 0f;
-        var pos = startPos;
+        var pos = startPhase.XY;
         float dt = period / stepsPerPeriod;
         for (int p = 0; p < periods; p++)
         {
             for (int i = 0; i < stepsPerPeriod; i++)
             {
+                float t = (p * stepsPerPeriod + i) * dt + startPhase.Z;
                 pos = Integrator.Integrate(VectorField.Evaluate, pos.Up(t), dt);
-                t += dt;
             }
-
             positions.Add(pos);
         }
 
         return new Trajectory
         {
             Points = positions,
-            StartPhase = pos.Up(0)
+            StartPhase = startPhase,
         };
     }
 }

@@ -13,16 +13,16 @@ namespace FlowExplainer
         public bool CameraLocked;
         public float CameraYaw;
         public float CameraPitch;
-        public bool DemoCameraSwitch;
         public Vec3 CameraOffset;
         public float CameraZoom = .5f;
         public View? CameraSync;
-
+        
         public Vec2 RelativeMousePosition;
         public ICamera ScreenCamera => new ScreenCamera(RenderTarget.Size.ToNumerics());
 
         public bool IsOpen = true;
-        public bool Is2DCamera = false;
+        public bool Is3DCamera = false;
+        public bool Is2DCamera => !Is3DCamera;
         public Camera Camera = new();
         public Camera2D Camera2D = new();
         public World World;
