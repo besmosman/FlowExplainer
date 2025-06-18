@@ -30,7 +30,7 @@ public interface IIntegrator<TInput, TOutput>
 {
     TOutput Integrate(Func<TInput, TOutput> f, TInput x, float dt);
 
-    public static IIntegrator<TInput, TOutput> Default { get; } = new RungeKutta4IntegratorGen<TInput, TOutput>();
+    public static IIntegrator<TInput, TOutput> Rk4 { get; } = new RungeKutta4IntegratorGen<TInput, TOutput>();
 }
 
 public class RungeKutta4IntegratorGen<TInput, TOutput> : IIntegrator<TInput, TOutput>

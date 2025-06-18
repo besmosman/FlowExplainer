@@ -133,4 +133,8 @@ public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>
         return $"({X}, {Y})";
     }
 
+    public Vec2 Abs()
+    {
+        return new Vec2(float.Abs(X), float.Abs(Y));
+    }
 }

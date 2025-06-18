@@ -4,18 +4,6 @@ using ImGuiNET;
 
 namespace FlowExplainer;
 
-public class AverageAlongTrajectory
-{
-    public Z Compute<Z>(float t, float tau, Vec2 x,
-        IVectorField<Vec3, Vec2> v,
-        Func<Vec3, Z> b
-    ) where Z : IMultiplyOperators<Z, float, Z>, IAdditionOperators<Z, Z, Z>
-    {
-        var trajectory = IFlowOperator<Vec2, Vec3>.Default.Compute(t, tau, x, v);
-        return trajectory.Integrate(f => b(f));
-    }
-
-}
 
 public class PoincareVisualizer : WorldService
 {

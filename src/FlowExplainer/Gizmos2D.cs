@@ -59,7 +59,7 @@ public static class Gizmos2D
         new Shader("Assets/Shaders/textured.frag", ShaderType.FragmentShader));
 
     private static Mesh quadMeshCentered;
-    private static Mesh imageQuad;
+    public static Mesh imageQuad;
     private static Mesh imageQuadInvertedY;
     public static Mesh circleMesh;
     private static Mesh debugTria;
@@ -172,7 +172,7 @@ public static class Gizmos2D
     }
 
 
-    public static void StreamTube(ICamera camera, List<Vec2> centers, Vec4 color, float thickness)
+    public static void StreamTube(ICamera camera, List<Vec2> centers, Color color, float thickness)
     {
         if (centers.Count != streamtube.Vertices.Length / 2)
             throw new NotImplementedException();

@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Threading;
 
 namespace FlowExplainer;
@@ -7,7 +8,7 @@ public static class AssetWatcher
     public static event Action<FileSystemEventArgs>? OnChange;
 
     private static readonly Queue<FileSystemEventArgs> events = new();
-    private static readonly HashSet<string> queuedFilesChanged = new();
+    private static readonly ConcurrentBag<string> queuedFilesChanged = new();
     public static readonly FileSystemWatcher watcherBin;
     public static readonly FileSystemWatcher watcherDevAssets;
 
@@ -76,8 +77,8 @@ public static class AssetWatcher
             int c = 5;
         }
 
-        if (queuedFilesChanged.Add(e.FullPath)) // prevent duplicates and consecutive events within a single frame
-            events.Enqueue(e);
+        queuedFilesChanged.Add(e.FullPath); 
+        events.Enqueue(e);
         // manualResetEvent.Set();
     }
 

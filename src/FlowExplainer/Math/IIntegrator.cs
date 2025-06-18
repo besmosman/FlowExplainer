@@ -11,12 +11,13 @@ public class Trajectory<T> where T : IVec<T>
         Entries = entries;
     }
 
-    public Z Integrate<Z>(Func<T, Z> selector) where Z : IMultiplyOperators<Z, float, Z>, IAdditionOperators<Z, Z, Z>
+    public Z AverageAlong<Z>(Func<T, T, Z> selector) where Z : IMultiplyOperators<Z, float, Z>, IAdditionOperators<Z, Z, Z>
     {
         Z sum = default!;
-        foreach (var p in Entries)
+
+        for (int i = 1; i < Entries.Count; i++)
         {
-            sum += selector(p);
+            sum += selector(Entries[i - 1], Entries[i]) * float.Abs(Entries[i].Last - Entries[i - 1].Last);
         }
 
         var t = Entries.First().Last;
@@ -30,13 +31,13 @@ public interface IFlowOperator<X, P>
     where P : IVec<P>, IVecDownDimension<X>
 {
     Trajectory<P> Compute(float t_start, float t_end, X x, IVectorField<P, X> v);
-    
+
     public static IFlowOperator<X, P> Default { get; } = new DefaultFlowOperator();
 
     class DefaultFlowOperator : IFlowOperator<X, P>
     {
-        private const int Steps = 300;
-        public static IIntegrator<P, X> Integrator = IIntegrator<P, X>.Default;
+        private const int Steps = 64;
+        public static IIntegrator<P, X> Integrator = IIntegrator<P, X>.Rk4;
 
         public Trajectory<P> Compute(float t_start, float t_end, X x, IVectorField<P, X> v)
         {
@@ -55,6 +56,4 @@ public interface IFlowOperator<X, P>
             return new Trajectory<P>(points);
         }
     }
-
 }
-

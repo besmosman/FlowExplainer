@@ -5,7 +5,7 @@ namespace FlowExplainer
 {
     public class Shader : IDisposable
     {
-        private readonly FileInfo fileSource;
+        private readonly FileInfo? fileSource;
 
         public readonly ShaderType ShaderType;
         public readonly int ShaderHandle;
@@ -14,9 +14,26 @@ namespace FlowExplainer
 
         public static readonly Shader DefaultWorldSpaceVertex = new("Assets/Shaders/worldspace.vert", ShaderType.VertexShader);
         public static readonly Shader DefaultUnlitFragment = new("Assets/Shaders/unlit.frag", ShaderType.FragmentShader);
-       // public static readonly Shader DefaultLitFragment = new("Assets/Shaders/lit.frag", ShaderType.FragmentShader);
+        // public static readonly Shader DefaultLitFragment = new("Assets/Shaders/lit.frag", ShaderType.FragmentShader);
 
         private ShaderImporter ShaderImporter = new ShaderImporter();
+        public string? Content;
+
+        public static Shader FromSource(string text, ShaderType shaderType)
+        {
+            var shader = new Shader(shaderType, GL.CreateShader(shaderType))
+            {
+                Content = text,
+            };
+            shader.Recompile();
+            return shader;
+        }
+
+        public Shader(ShaderType shaderType, int handle)
+        {
+            ShaderType = shaderType;
+            ShaderHandle = handle;
+        }
 
         public Shader(string path, ShaderType shaderType, bool hotreload = true)
         {
@@ -25,6 +42,7 @@ namespace FlowExplainer
 
 
             fileSource = new FileInfo(path);
+
             ShaderType = shaderType;
             ShaderHandle = GL.CreateShader(ShaderType);
 
@@ -32,13 +50,13 @@ namespace FlowExplainer
 
 
             //hotreload is een meme met de nieuwe shader
-             if (hotreload)
-                 AssetWatcher.OnChange += OnSourceChange;
+            if (hotreload)
+                AssetWatcher.OnChange += OnSourceChange;
         }
 
         private void OnSourceChange(FileSystemEventArgs e)
         {
-            if (Path.GetFileName(e.FullPath) == Path.GetFileName(fileSource.FullName))
+            if (Path.GetFileName(e.FullPath) == Path.GetFileName(fileSource?.FullName))
             {
                 Thread.Sleep(100);
                 //we sleep because the file might still be in the middle of being changed
@@ -56,20 +74,23 @@ namespace FlowExplainer
 
         public void Recompile(string? altPath = null)
         {
-
             try
             {
-                Logger.LogMessage($"Compiling {ShaderType} \"{fileSource.Name}\"...");
-                string path = fileSource.FullName;
+                var contents = Content;
+                
+                if (fileSource != null)
+                {
+                    Logger.LogMessage($"Compiling {ShaderType} \"{fileSource?.Name}\"...");
+                    string path = fileSource.FullName;
 
-                if (altPath != null)
-                    path = altPath;
-
-                var contents = ShaderImporter.Build(path);
-
+                    if (altPath != null)
+                        path = altPath;
+                    contents = ShaderImporter.Build(path);
+                }
+                
                 if (!ShaderCompiler.TryCompileShader(ShaderHandle, contents, out var err))
-                    throw new Exception($"{ShaderType} \"{fileSource.Name}\" failed to compile: {err}");
-                Logger.LogMessage($"Successfuly compiled \"{fileSource.Name}\"!");
+                    throw new Exception($"{ShaderType} \"{fileSource?.Name}\" failed to compile: {err}");
+                Logger.LogMessage($"Successfuly compiled \"{fileSource?.Name}\"!");
 
                 HasChanged = true;
             }

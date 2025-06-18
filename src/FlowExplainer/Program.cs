@@ -18,12 +18,22 @@
     */
     
     
+    public class AssetWatcherService : GlobalService
+    {
+        public override void Initialize() { }
 
+        public override void Draw()
+        {
+            AssetWatcher.Execute();
+        }
+    }
+    
     internal class Program
     {
         static void Main(string[] _)
         {
             var neuroTrace = new FlowExplainer();
+            neuroTrace.AddGlobalService(new AssetWatcherService());
             neuroTrace.AddGlobalService(new PreferencesService());
             neuroTrace.AddGlobalService(new WindowService());
 

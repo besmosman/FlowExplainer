@@ -20,6 +20,7 @@
             v.AddVisualisationService(new DataService());
             v.AddVisualisationService(new HeatSimulationViewData());
             v.AddVisualisationService(new HeatSimulationVisualizer());
+            v.AddVisualisationService(new GridVisualizer());
             v.AddVisualisationService(new HeatSimulation3DVisualizer());
             v.AddVisualisationService(new HeatSimulationService());
             v.AddVisualisationService(new HeatSimulationReplayer());
