@@ -10,6 +10,7 @@ public static class MsdfRenderer
     public static Material Material;
     public static Mesh textMesh = new Mesh(new Geometry([], []), true, true);
     public static MsdfFont font;
+    private static bool forceRegenerate = false;
 
     static MsdfRenderer()
     {
@@ -32,9 +33,21 @@ public static class MsdfRenderer
         string genInfoPath = $"{genFolderPath}/info.json";
         string md5Path = $"{genFolderPath}/.md5";
 
-        if (Directory.Exists(genFolderPath))
-            Directory.Delete(genFolderPath, true);
+      
+        if (!forceRegenerate && Directory.Exists(genFolderPath))
+        {
+            font = new MsdfFont(JsonConvert.DeserializeObject<MsdfFontInfo>(File.ReadAllText(genInfoPath)))
+            {
+                Texture = new ImageTexture(genImagePath),
+            };
+            return;
+        }
 
+        if (Directory.Exists(genFolderPath))
+        {
+            Directory.Delete(genFolderPath, true);
+        }
+        
         var call = new StringBuilder();
         call.Append(" -font ");
         call.Append($"\"{ttfFilePath}\"");
@@ -43,7 +56,7 @@ public static class MsdfRenderer
         call.Append(" -imageout \"");
         call.Append(genImagePath + "\"");
         call.Append(" -json \"" + genInfoPath + "\"");
-        call.Append(" -size 32");
+        call.Append(" -size 64");
         Directory.CreateDirectory(Path.GetRelativePath(Directory.GetCurrentDirectory(), genFolderPath));
         ProcessStartInfo psi = new()
         {

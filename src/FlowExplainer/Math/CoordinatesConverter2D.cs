@@ -21,4 +21,23 @@ public  static class CoordinatesConverter2D
 
         return new Vec2(worldPos.X, worldPos.Y);
     }
+    public static Vec2 WorldToView(View v, Vec2 worldCoords)
+    {
+        // 1. Convert world coordinates to homogeneous coordinates
+        var worldPos = new Vector4(worldCoords.X, worldCoords.Y, 0, 1);
+    
+        // 2. Transform to clip space using view-projection matrix
+        var viewProjMatrix = v.Camera2D.GetViewMatrix() * v.Camera2D.GetProjectionMatrix();
+        var clipPos = Vector4.Transform(worldPos, viewProjMatrix);
+    
+        // 3. Convert from clip space to NDC (normalized device coordinates)
+        var ndcX = clipPos.X;
+        var ndcY = clipPos.Y;
+    
+        // 4. Convert from NDC (-1 to 1) to window coordinates
+        var screenX = (ndcX + 1f) * 0.5f * v.Width;
+        var screenY = (1f - ndcY) * 0.5f * v.Height; // Invert Y back to screen space
+    
+        return new Vec2(screenX, screenY);
+    }
 }

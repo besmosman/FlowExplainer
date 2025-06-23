@@ -70,9 +70,11 @@ namespace FlowExplainer
 
         public void Draw(View view)
         {
-            view.ResizeToTargetSize();
+          //  if (!view.World.FlowExplainer.GetGlobalService<PresentationService>()?.IsPresenting == true)
+                view.ResizeToTargetSize();
+
             view.RenderTarget.DrawTo(() =>
-            { 
+            {
                 GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
                 foreach (var service in Services)
                     if (service.IsEnabled)

@@ -6,6 +6,7 @@ public class DataService : WorldService
 {
     public IEditabalePeriodicVectorField<Vec3, Vec2> VelocityField = new SpeetjensAdaptedVelocityField();
     public IIntegrator<Vec3, Vec2> Integrator = new RungeKutta4Integrator();
+    public ColorGradient ColorGradient { get; set; } = Gradients.GetGradient("matlab_jet");
     public float SimulationTime;
 
     public float TimeMultiplier = .1f;
@@ -20,11 +21,7 @@ public class DataService : WorldService
         //dt = 1f / 90f;
         DeltaTime = dt * TimeMultiplier;
         SimulationTime += DeltaTime;
-
-       // var f = (SpeetjensAdaptedVelocityField)VelocityField;
-       // var dx = f.elipson * float.Sin(2 * float.Pi * SimulationTime) / 4;
-       // var x_plus = new Vec2(1 / 4f + dx, 1 / 4f);
-       // Gizmos2D.Circle(view.Camera2D, x_plus, new Color(1,1,0,1), 0.01f);
+        ColorGradient = Gradients.GetGradient("matlab_cool");
     }
 
     public override void DrawImGuiEdit()

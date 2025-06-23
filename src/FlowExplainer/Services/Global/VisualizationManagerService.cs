@@ -16,7 +16,6 @@
                 throw new Exception();
 
             World v = new(FlowExplainer);
-            v.AddVisualisationService(new ViewController2D());
             v.AddVisualisationService(new DataService());
             v.AddVisualisationService(new HeatSimulationViewData());
             v.AddVisualisationService(new HeatSimulationVisualizer());
@@ -26,6 +25,7 @@
             v.AddVisualisationService(new HeatSimulationReplayer());
             v.AddVisualisationService(new FlowFieldVisualizer());
             v.AddVisualisationService(new PoincareVisualizer());
+            v.AddVisualisationService(new AxisVisualizer());
             Worlds.Add(v);
             return v;
         }

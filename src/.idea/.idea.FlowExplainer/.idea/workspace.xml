@@ -4,22 +4,38 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="de64a90b-d37e-448c-ab79-56558d5f35b9" name="Changes" comment="Generic rk4 and flow integration">
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Assets/Shaders/grid-gen.frag" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Assets/Shaders/grid.frag" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/ExpressionTreeShaderGen.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/GridVisualizer.cs" afterDir="false" />
+    <list default="true" id="de64a90b-d37e-448c-ab79-56558d5f35b9" name="Changes" comment="Interpolated render grid with glsl generation">
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Assets/Shaders/msdf.frag" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/InterpolatedRenderGrid.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/VelocityMagnitudeGridVisualizer.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Presentation/PresentationService.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Presentation/PresiContext.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Presentation/Slide.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.FlowExplainer/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FlowExplainer/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Assets/Shaders/grid-gen.frag" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Assets/Shaders/grid-gen.frag" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Gizmos2D.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Gizmos2D.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGUIViewRenderer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGUIViewRenderer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Color.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Color.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/CoordinatesConverter2D.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/CoordinatesConverter2D.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/DataService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/DataService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/FlowFieldVisualizer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/FlowFieldVisualizer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Gradient.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Gradient.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Gradients.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Gradients.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/GridVisualizer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/GridVisualizer.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/IIntegrator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/IIntegrator.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/PoincareVisualizer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/PoincareVisualizer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/RungeKutta4Integrator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/RungeKutta4Integrator.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Vec2.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Vec2.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/VectorExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/VectorExtensions.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/ViewController2D.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/ViewController2D.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Msfd/MsdfRenderer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Msfd/MsdfRenderer.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Rendering/AssetWatcher.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Rendering/AssetWatcher.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Rendering/Shader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Rendering/Shader.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Rendering/Textures/ImageTexture.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Rendering/Textures/ImageTexture.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Rendering/Textures/RgbArrayTexture.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Rendering/Textures/RgbArrayTexture.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Services/Global/ViewsService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Services/Global/ViewsService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Services/Global/VisualizationManagerService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Services/Global/VisualizationManagerService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Services/Global/WindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Services/Global/WindowService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/View/ScreenCamera.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/View/ScreenCamera.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/View/View.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/View/View.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Visualization.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Visualization.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,10 +62,12 @@
 }</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/coreclr/System.Private.CoreLib/src/System/Runtime/CompilerServices/CastHelpers.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/coreclr/System.Private.CoreLib/src/System/RuntimeType.CoreCLR.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Linq.Expressions/src/System/Linq/Expressions/LambdaExpression.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/Internal/Runtime/CompilerHelpers/ThrowHelpers.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/ArgumentNullException.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Collections/Generic/Dictionary.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/IO/FileSystem.Windows.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Lazy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/MathF.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Numerics/IAdditionOperators.cs" root0="SKIP_HIGHLIGHTING" />
@@ -62,6 +80,7 @@
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Numerics/Matrix4x4.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Numerics/Vector3.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Numerics/Vector4.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Reflection/MethodBaseInvoker.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Runtime/ExceptionServices/ExceptionDispatchInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Single.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Threading/Overlapped.cs" root0="SKIP_HIGHLIGHTING" />
@@ -74,10 +93,15 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/e3157c720a4245958cf8a1b12c4b4a27e90928/3b/83d42aeb/IntrinsicAttribute.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/e3157c720a4245958cf8a1b12c4b4a27e90928/c9/361682ad/IMultiplicativeIdentity`2.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/e3157c720a4245958cf8a1b12c4b4a27e90928/e3/6f87ae5f/IAdditiveIdentity`2.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/356e901355d061ec467328ae269cbf165ffb989756b3994a1e6f68cd96ace6/Keys.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/5b3075336b49b79db66a37909213a5e758547d41bba639933c23d33d4c475/NativeWindow.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/62a5106fa5e513ca616921987bcf3ab481c113322a8d45f4f0c7472928509e/Matrix2.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/8e90945a2ba4efdf63ecd291a2f18cd731eed131712ff33639f91dd0574d3d/DeflaterEngine.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/997d2c0341d69df6df6b6a4dacfef2a38986a28984a4cb5cd220d86eaaa98d/NativeWindowSettings.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/9ac61952e0eca9986ce4a54183743ce515bb71015edc74339daa6df759ebe6d/Vector2.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/b7c389586d39108cdb7250c6a81462b9292f5776b2f86e360e4504d42229b40/PaethFilter.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/d1b3e93ee7eac7c9d2d20ef1717971cf696d48d9b6162855dbd38e6806e74/MathHelper.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/f8a2bf751a396d21bcb21b7e5acae9ef6951e260923390dce380bf366bf241/Vector2i.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProjectColorInfo">{
@@ -92,28 +116,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;.NET Project.FlowExplainer.executor&quot;: &quot;Debug&quot;,
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    ".NET Project.FlowExplainer.executor": "Debug",
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "vue.rearranger.settings.migration": "true"
   },
-  &quot;keyToStringList&quot;: {
-    &quot;rider.external.source.directories&quot;: [
-      &quot;C:\\Users\\osman\\AppData\\Roaming\\JetBrains\\Rider2024.1\\resharper-host\\DecompilerCache&quot;,
-      &quot;C:\\Users\\osman\\AppData\\Roaming\\JetBrains\\Rider2024.1\\resharper-host\\SourcesCache&quot;,
-      &quot;C:\\Users\\osman\\AppData\\Local\\Symbols\\src&quot;
+  "keyToStringList": {
+    "rider.external.source.directories": [
+      "C:\\Users\\osman\\AppData\\Roaming\\JetBrains\\Rider2024.1\\resharper-host\\DecompilerCache",
+      "C:\\Users\\osman\\AppData\\Roaming\\JetBrains\\Rider2024.1\\resharper-host\\SourcesCache",
+      "C:\\Users\\osman\\AppData\\Local\\Symbols\\src"
     ]
   }
-}</component>
+}]]></component>
   <component name="RunManager">
     <configuration name="FlowExplainer" type="DotNetProject" factoryName=".NET Project" activateToolWindowBeforeRun="false">
       <option name="EXE_PATH" value="$PROJECT_DIR$/FlowExplainer/bin/Debug/net9.0/FlowExplainer.exe" />
@@ -159,7 +183,11 @@
       <workItem from="1749725687625" duration="11801000" />
       <workItem from="1750058416760" duration="19567000" />
       <workItem from="1750158002448" duration="14379000" />
-      <workItem from="1750232297050" duration="18403000" />
+      <workItem from="1750232297050" duration="18711000" />
+      <workItem from="1750331152105" duration="7837000" />
+      <workItem from="1750404035529" duration="17801000" />
+      <workItem from="1750497993807" duration="5097000" />
+      <workItem from="1750663053047" duration="24814000" />
     </task>
     <task id="LOCAL-00001" summary="Custom vectors and testing stuff">
       <option name="closed" value="true" />
@@ -233,7 +261,15 @@
       <option name="project" value="LOCAL" />
       <updated>1750176676622</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Interpolated render grid with glsl generation">
+      <option name="closed" value="true" />
+      <created>1750255612442</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1750255612442</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -261,13 +297,15 @@
     <MESSAGE value="Heat simulation async, serialization and loading." />
     <MESSAGE value="3D visualization, Gizmos 3d instancing" />
     <MESSAGE value="Generic rk4 and flow integration" />
-    <option name="LAST_COMMIT_MESSAGE" value="Generic rk4 and flow integration" />
+    <MESSAGE value="Interpolated render grid with glsl generation" />
+    <option name="LAST_COMMIT_MESSAGE" value="Interpolated render grid with glsl generation" />
   </component>
   <component name="XDebuggerManager">
     <pin-to-top-manager>
       <pinned-members>
         <PinnedItemInfo parentTag="Type#System.Buffers.SharedArrayPool`1" memberName="_buckets" />
         <PinnedItemInfo parentTag="Type#FlowExplainer.Sph+Particle" memberName="Heat" />
+        <PinnedItemInfo parentTag="Type#FlowExplainer.GridVisualizer+GridData" memberName="FTLE" />
         <PinnedItemInfo parentTag="Type#FlowExplainer.BasicLagrangianHeatSim+Particle" memberName="DiffusionHeatFlux" />
       </pinned-members>
     </pin-to-top-manager>

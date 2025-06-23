@@ -54,7 +54,7 @@ public static class Gizmos2D
     private static Material material = Material.NewDefaultUnlit;
     public static Gizmos2DInstanced Instanced { get; } = new();
     
-    private static Material texturedMat = new Material(
+    public static Material texturedMat = new Material(
         Shader.DefaultWorldSpaceVertex,
         new Shader("Assets/Shaders/textured.frag", ShaderType.FragmentShader));
 
@@ -123,7 +123,7 @@ public static class Gizmos2D
         {
             var tubeVerts = new List<Vertex>();
             var indicies = new List<uint>();
-            int segments = 64;
+            int segments = 32;
             for (uint i = 0; i < segments; i++)
             {
                 tubeVerts.Add(new Vertex(new Vec3(i / (float)segments, -1f, 0)));
@@ -290,13 +290,13 @@ public static class Gizmos2D
 
     public static float lineSpacing = 3;
 
-    public static void AdvText(ICamera camera, Vec2 pos, float lh, Vec4 color, string text, float t = 1, bool centered = false)
+    public static void AdvText(ICamera camera, Vec2 pos, float lh, Color color, string text, float t = 1, bool centered = false)
     {
-        void SetCharColor(int i, Vec4 col)
+        void SetCharColor(int i, Color col)
         {
             for (int j = 0; j < 6; j++)
             {
-                MsdfRenderer.textMesh.Vertices[i * 6 + j].Colour = col;
+                MsdfRenderer.textMesh.Vertices[i * 6 + j].Colour = new Vec4(col.R,col.G,col.B,col.A);
             }
         }
 
@@ -332,7 +332,7 @@ public static class Gizmos2D
                     line = line[.. i] + line[valueS..valueE] + line[(valueE + 1)..];
                     int start = i;
                     int leng = valueE - valueS;
-                    var colored = (Vec4 col, int s, int e) =>
+                    var colored = (Color col, int s, int e) =>
                     {
                         for (int j = s; j < e; j++)
                             SetCharColor(j, col);
@@ -341,15 +341,15 @@ public static class Gizmos2D
                     Action<int, int> action = null;
 
                     if (tag == "red")
-                        action = (s, e) => colored(new Vec4(.8f, .0f, .0f, 1), s, e);
+                        action = (s, e) => colored(new Color(.8f, .0f, .0f, 1), s, e);
 
                     if (tag == "green")
-                        action = (s, e) => colored(new Vec4(.0f, .65f, .0f, 1), s, e);
+                        action = (s, e) => colored(new Color(.0f, .65f, .0f, 1), s, e);
 
 
                     if (tag.StartsWith("#"))
                     {
-                        var col = VectorExtensions.FromHexString(tag[1..]);
+                        var col = Color.FromHexString(tag[1..]);
                         action = (s, e) => colored(col, s, e);
                     }
 
@@ -362,7 +362,7 @@ public static class Gizmos2D
             MsdfRenderer.UpdateMesh(line, camera, centered);
             for (int i = 0; i < MsdfRenderer.textMesh.Vertices.Length; i++)
             {
-                MsdfRenderer.textMesh.Vertices[i].Colour = color;
+                MsdfRenderer.textMesh.Vertices[i].Colour =  color.ToVec4();
             }
 
             foreach (var task in tasks)
@@ -385,7 +385,7 @@ public static class Gizmos2D
     }
 
 
-    public static void Text(ICamera camera, Vec2 pos, float lh, Vec4 color, string text, float t = 1, bool centered = false)
+    public static void Text(ICamera camera, Vec2 pos, float lh, Color color, string text, float t = 1, bool centered = false)
     {
         var splitted = text.Split("\n");
         var globalT = t;
@@ -412,7 +412,7 @@ public static class Gizmos2D
             MsdfRenderer.Material.SetUniform("line", (float)l);
             MsdfRenderer.Material.SetUniform("lines", (float)splitted.Length);
             MsdfRenderer.Material.SetUniform("tint", color);
-            MsdfRenderer.Material.SetUniform("screenPxRange", 4f);
+            MsdfRenderer.Material.SetUniform("screenPxRange",1.2f);
             MsdfRenderer.Material.SetUniform("mainTex", MsdfRenderer.font.Texture);
             MsdfRenderer.Material.SetUniform("view", camera.GetViewMatrix());
             MsdfRenderer.Material.SetUniform("projection", camera.GetProjectionMatrix());
@@ -451,7 +451,7 @@ public static class Gizmos2D
     }
 
     
-    public static void RectCenter(ICamera cam, Vec2 center, Vec2 size, Vec4 color)
+    public static void RectCenter(ICamera cam, Vec2 center, Vec2 size, Color color)
     {
         view = cam.GetViewMatrix();
         projection = cam.GetProjectionMatrix();

@@ -1,4 +1,5 @@
 using ImGuiNET;
+using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
 
@@ -6,36 +7,38 @@ public class ImGUIViewRenderer
 {
     public static void Render(View view, FlowExplainer flowExplainer)
     {
+        if (view.IsFullScreen)
+            return;
+       
         var rendertexture = view.PostProcessingTarget;
+        
         ImGui.SetNextWindowSize(rendertexture.Size.ToNumerics(), ImGuiCond.Appearing);
         ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vec2(0, 0));
         if (ImGui.Begin(view.Name, ref view.IsOpen))
         {
-            //Vec2 contentMin = ImGui.regio();
-            //Vec2 contentMax = ImGui.GetWindowContentRegionMax();
             var min = ImGui.GetCursorScreenPos();
             Vec2 size = (Vec2)ImGui.GetContentRegionAvail() - new Vec2(6, 6);
             view.TargetSize = size;
 
             //drawing after target size has been set using ImGui info.
+            ViewController2D.Update(view, flowExplainer.GetGlobalService<WindowService>()!.Window);
             view.World.Draw(view);
             ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vec2(0, 0));
             ImGui.PushStyleVar(ImGuiStyleVar.CellPadding, new Vec2(0, 0));
             ImGui.Image(rendertexture.TextureHandle, size, new Vec2(0, 1), new Vec2(1, 0));
             ImGui.PopStyleVar();
             ImGui.PopStyleVar();
-            ImGui.PopStyleVar();
 
             view.IsSelected = ImGui.IsItemHovered();
 
             view.RelativeMousePosition = (Vec2)(ImGui.GetMousePos() - min);
-            
-            
+
+
             if (ImGui.IsWindowDocked())
                 ImGui.SetNextWindowPos(min + new Vec2(15, 15));
             else
                 ImGui.SetNextWindowPos(ImGui.GetWindowPos() + new Vec2(0, -35));
-        
+
             if (ImGui.Begin(view.Name + " overlay", ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoSavedSettings))
             {
                 ImGui.Text(view.Name);
@@ -46,14 +49,12 @@ public class ImGUIViewRenderer
                     ImGui.EndPopup();
                 }
             }
+
             ImGui.End();
-
-           
-
         }
+        ImGui.PopStyleVar();
         ImGui.End();
 
-      
 
         /*//issue with overlay when not docked...
         if (ImGui.IsWindowDocked())

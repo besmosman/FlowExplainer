@@ -36,7 +36,7 @@ public interface IFlowOperator<X, P>
 
     class DefaultFlowOperator : IFlowOperator<X, P>
     {
-        private const int Steps = 64;
+        private const int Steps = 32;
         public static IIntegrator<P, X> Integrator = IIntegrator<P, X>.Rk4;
 
         public Trajectory<P> Compute(float t_start, float t_end, X x, IVectorField<P, X> v)

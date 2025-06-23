@@ -85,20 +85,6 @@ public static class VectorExtensions
         return q1;
     }
         
-        
-    public static Vec4 FromHexString(string hex)
-    {
-        float r = GetFloat(hex, 0);
-        float g = GetFloat(hex, 2);
-        float b = GetFloat(hex, 4);
-        int a = 1;
-
-        return new Vec4(r, g, b, a);
-
-        static float GetFloat(string hex, int i)
-        {
-            return Convert.ToInt32(hex.Substring(i, 2), 16) / 255f;
-        }
-    }
+    
 
 }

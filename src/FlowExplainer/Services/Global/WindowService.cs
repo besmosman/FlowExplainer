@@ -14,8 +14,8 @@ namespace FlowExplainer
         public NativeWindow Window => SWindow;
         public static NativeWindow SWindow = null!;
         //public Vec3 ClearColor = new(1f, 1f, 1f);
-        //public Vec3 ClearColor = new(15/255f, 15/255f, 15/255f);
-        public Vec3 ClearColor = new(0/255f, 0/255f, 0/255f);
+        public Color ClearColor = new(15/255f, 15/255f, 15/255f);
+        //public Vec3 ClearColor = new(0/255f, 0/255f, 0/255f);
 
         public override void Initialize()
         {
@@ -53,7 +53,7 @@ namespace FlowExplainer
             GL.Enable(EnableCap.Multisample);
             GL.Disable(EnableCap.DepthTest);
             //GL.DepthFunc(DepthFunction.Less);
-            GL.BlendFuncSeparate(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha, BlendingFactorSrc.SrcAlpha, BlendingFactorDest.One);
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             //GL.BlendEquationSeparate(BlendEquationMode.FuncAdd, BlendEquationMode.FuncAdd);
             GL.LineWidth(1);
         }
@@ -72,7 +72,7 @@ namespace FlowExplainer
             Window.ProcessEvents(0f);
 
             //GL.ClearColor(0.13f, 0.11f, 0.18f, 1);
-            GL.ClearColor(ClearColor.X, ClearColor.Y, ClearColor.Z, 1);
+            GL.ClearColor(ClearColor.R, ClearColor.G, ClearColor.B, ClearColor.A);
             GL.ClearDepth(1);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         }

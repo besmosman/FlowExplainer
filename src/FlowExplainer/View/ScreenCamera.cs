@@ -1,17 +1,18 @@
+
 using System.Numerics;
 
 namespace FlowExplainer;
 
 public struct ScreenCamera : ICamera
 {
-    public Vec2 Size;
+    public Vec2i Size;
 
     public bool InvertedY()
     {
         return true;
     }
 
-    public ScreenCamera(Vec2 size)
+    public ScreenCamera(Vec2i size)
     {
         Size = size;
     }

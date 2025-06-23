@@ -5,6 +5,7 @@ namespace FlowExplainer;
 public class RgbArrayTexture : ArrayTexture
 {
     public readonly Vec3[] Pixels;
+    public static RgbArrayTexture White1x1 => new RgbArrayTexture(1, 1, [new Vec3(1, 1, 1)]);
 
     public RgbArrayTexture(int width, int height, Vec3[] pixels) : base(width, height)
     {

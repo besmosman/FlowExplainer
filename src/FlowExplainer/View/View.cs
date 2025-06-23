@@ -8,6 +8,7 @@ namespace FlowExplainer
         public const int SuperSamplingLevel = 1;
         public readonly int Id;
         public string Name;
+        public bool IsFullScreen;
 
         //Camera settings, should be moved I think.
         public bool CameraLocked;
@@ -18,7 +19,7 @@ namespace FlowExplainer
         public View? CameraSync;
         
         public Vec2 RelativeMousePosition;
-        public ICamera ScreenCamera => new ScreenCamera(RenderTarget.Size.ToNumerics());
+        public ICamera ScreenCamera => new ScreenCamera(RenderTarget.Size);
 
         public bool IsOpen = true;
         public bool Is3DCamera = false;
@@ -30,6 +31,9 @@ namespace FlowExplainer
         public readonly RenderTexture PostProcessingTarget;
         public bool IsSelected;
 
+        public  Vec2 lastClickPos = Vec2.Zero;
+        public Vec2 startCamPos = Vec2.Zero;
+        
         /// <summary>
         /// As in the target size, not the the current rendertarget size.
         /// </summary>

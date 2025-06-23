@@ -5,19 +5,19 @@ namespace FlowExplainer;
 
 public static class Gradients
 {
-    private static Dictionary<string, Lazy<Gradient<Color>>> grads = new();
+    private static Dictionary<string, Lazy<ColorGradient>> grads = new();
 
     static Gradients()
     {
         foreach (var f in Directory.GetFiles("Assets/Images/Colormaps"))
         {
-            grads.Add(Path.GetFileNameWithoutExtension(f), new Lazy<Gradient<Color>>(() => LoadGradient(f)));
+            grads.Add(Path.GetFileNameWithoutExtension(f), new Lazy<ColorGradient>(() => LoadGradient(f)));
         }
     }
 
-    public static Gradient<Color> GetGradient(string name) => grads[name].Value;
+    public static ColorGradient GetGradient(string name) => grads[name].Value;
 
-    private static Gradient<Color> LoadGradient(string path)
+    private static ColorGradient LoadGradient(string path)
     {
         using var image = Image.Load<Rgba32>(path);
         var samples = 64;
@@ -33,6 +33,6 @@ public static class Gradients
             entries[i] = (t, color);
         }
 
-        return new Gradient<Color>(entries);
+        return new ColorGradient(entries);
     }
 }

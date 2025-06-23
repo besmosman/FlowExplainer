@@ -9,6 +9,7 @@ namespace FlowExplainer
 
         public override void Draw()
         {
+            if(!Views.Any(n => n.IsFullScreen))
             foreach (var view in Views)
             {
                 UpdateView(view);
@@ -22,7 +23,7 @@ namespace FlowExplainer
             }
         }
 
-        public void NewView()
+        public View NewView()
         {
             var view = new View(1, 1, GetRequiredGlobalService<WorldManagerService>().Worlds[0]);
             Views.Add(view);
@@ -33,7 +34,7 @@ namespace FlowExplainer
             
             view.Camera2D.Scale = 1400;
             view.Camera2D.Position = -new Vec2(.5f, .25f);
-            
+            return view;
         }
 
         public void UpdateView(View view)

@@ -25,7 +25,6 @@ namespace FlowExplainer
         {
             if (AutoRefresh && obj.FullPath.StartsWith(Path.GetFullPath(FilePath)))
             {
-                Thread.Sleep(100);
                 RefreshSource();
                 Upload();
             }
