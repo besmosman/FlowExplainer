@@ -10,18 +10,52 @@ public class TestSlide : Slide
 
     public override void Draw()
     {
-        n++;
-        Presi.ViewPanel("main", new Vec2(Presi.View.Size.X/2f, Presi.View.Size.Y/2f), new Vec2(1920, 1920/2f));
-        Presi.Text($"Double Gyre", new Vec2(20, 20f), 110, false, Color.White);
+        LayoutMain();
+        Title("FTLE");
+        Presi.ViewPanel("main", (Presi.CanvasSize - new Vec2(0, topbarHeight)) / 2, new Vec2(1920, 1000));
         base.Draw();
     }
 }
 
-public class TestPresentation : Presentation
+
+
+public class FirstPresentation : Presentation
 {
+    
+    public class VelocityFieldVisualizerSlide : Slide
+    {
+        public override void OnEnter()
+        {
+            MainWorld.GetWorldService<FlowFieldVisualizer>()!.IsEnabled = true;
+            base.OnEnter();
+        }
+
+        public override void Draw()
+        {
+            LayoutMain();
+            Title("Double Gyre Flow");
+            MainWorld.GetWorldService<FlowFieldVisualizer>()!.IsEnabled = true;
+            if (ImGui.Begin("edit", ImGuiWindowFlags.NoDecoration))
+            {
+              MainWorld.GetWorldService<FlowFieldVisualizer>()!.DrawImGuiEdit();
+            }
+            ImGui.End();
+            base.Draw();
+        }
+
+        public override void OnLeave()
+        {
+            MainWorld.GetWorldService<FlowFieldVisualizer>()!.IsEnabled = false;
+            base.OnLeave();
+        }
+    }
+    
     public override Slide[] GetSlides()
     {
-        return [new TestSlide()];
+        return [
+            new TestSlide(),
+            new VelocityFieldVisualizerSlide(),
+        ];
     }
 }
 
@@ -30,36 +64,74 @@ public abstract class Presentation
     public abstract Slide[] GetSlides();
 }
 
-public class PresentatationWorldManagerService : WorldService
+public class PresentationViewController : IViewController
 {
-    public override void Initialize()
+    public void UpdateAndDraw(View presiView)
     {
-    }
+        var FlowExplainer = presiView.World.FlowExplainer;
+        var window = FlowExplainer.GetGlobalService<WindowService>()!.Window;
+        var baseSize = FlowExplainer.GetGlobalService<PresentationService>()!.CanvasSize;
+        presiView.Camera2D.Position = -baseSize / 2;
 
-    public override void Draw(RenderTexture rendertarget, View view)
-    {
-        var pre = GetRequiredGlobalService<PresentationService>();
+        var size = new Vec2(window.ClientSize.X, window.ClientSize.Y);
+        if (presiView.IsFullScreen)
+        {
+            presiView.TargetSize = size;
+        }
+        else
+        {
+            ImGUIViewRenderer.Render(presiView, FlowExplainer);
+        }
+
+        presiView.ResizeToTargetSize();
+
+        var pre = FlowExplainer.GetGlobalService<PresentationService>()!;
         pre.CurrentSlide.Presi = pre.Presi;
-        pre.CurrentSlide.Draw();
+
+        presiView.RenderTarget.DrawTo(() =>
+        {
+            GL.ClearColor(presiView.ClearColor.R, presiView.ClearColor.G, presiView.ClearColor.B, presiView.ClearColor.A);
+            GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
+            pre.CurrentSlide.Draw();
+        });
+
+        RenderTexture.Blit(presiView.RenderTarget, presiView.PostProcessingTarget);
+
+
+        if (presiView.IsFullScreen)
+        {
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+            GL.Viewport(0, 0, (int)size.X, (int)size.Y);
+            Gizmos2D.RectCenter(new ScreenCamera(size.RoundInt()), size / 2, size, FlowExplainer.GetGlobalService<WindowService>()!.ClearColor);
+            Gizmos2D.ImageCentered(new ScreenCamera(size.RoundInt()), presiView.PostProcessingTarget, size / 2, size);
+        }
+
+        //presiView.Camera2D.Scale = 1;
+        if (presiView.IsFullScreen || presiView.IsSelected)
+        {
+            if (window.MouseState.ScrollDelta.Y != 0)
+            {
+                presiView.Camera2D.Scale *= (1f + window.MouseState.ScrollDelta.Y * .01f);
+            }
+        }
     }
 }
 
 public class PresentationService : GlobalService
 {
     public bool IsPresenting { get; set; }
-    public float RenderScale { get; set; }
     public Slide[] Slides { get; set; }
 
     public int CurrentSlideIndex { get; set; }
     public Slide CurrentSlide => Slides[CurrentSlideIndex];
     public PresiContext Presi = new PresiContext();
     public View PresiView;
-    public World PresiWorld;
+    public Vec2 CanvasSize = new Vec2(1920, 1200);
 
     public override void Initialize()
     {
-        LoadPresentation(new TestPresentation());
-        StartPresenting();
+       // LoadPresentation(new FirstPresentation());
+       // StartPresenting();
     }
 
     public void LoadPresentation(Presentation slides)
@@ -68,15 +140,12 @@ public class PresentationService : GlobalService
 
         PresiView = GetGlobalService<ViewsService>()!.NewView();
         PresiView.Name = "Presentation";
-        PresiWorld = new World(FlowExplainer);
-        PresiWorld.AddVisualisationService(new PresentatationWorldManagerService());
-        PresiWorld.Name = "Presi World";
-        PresiView.World = PresiWorld;
+        PresiView.Controller = new PresentationViewController();
         Presi.View = PresiView;
-        //Presi.View.Camera2D.Position = view.Camera2D.Position;
-        //Presi.View.Camera2D.Scale = view.Camera2D.Scale;
+
         foreach (var s in Slides)
         {
+            s.Presi = Presi;
             s.Load();
         }
     }
@@ -112,9 +181,8 @@ public class PresentationService : GlobalService
     public void StartPresenting()
     {
         IsPresenting = true;
-        var baseSize = new Vec2(1920, 1080);
         var window = GetRequiredGlobalService<WindowService>().Window;
-        RenderScale = (window.ClientSize.X / baseSize.X);
+        PresiView.Camera2D.Scale = (window.ClientSize.Y / CanvasSize.Y) * .9f;
         CurrentSlide.OnEnter();
     }
 
@@ -125,7 +193,7 @@ public class PresentationService : GlobalService
         {
             if (window.IsKeyDown(Keys.LeftControl))
             {
-                LoadPresentation(new TestPresentation());
+                LoadPresentation(new FirstPresentation());
             }
 
             if (!IsPresenting)
@@ -137,68 +205,19 @@ public class PresentationService : GlobalService
 
         if (IsPresenting)
         {
-            var view = PresiView;
+            var presiView = PresiView;
 
             CurrentSlide.Presi = Presi;
             Presi.Refresh(this);
 
-            /*
-                ImGui.SetNextWindowBgAlpha(1f);
-                ImGui.SetNextWindowPos(new Vec2(0, 0));
-                var windowSize = window.Size.ToVector2();
-                ImGui.SetNextWindowSize(new Vec2(windowSize.X, windowSize.Y));
-
-                ImGui.Begin("Presi");
-                ImGui.SetCursorPos(new(0, 0));
-
-                var baseSize = new Vec2(1920, 1200);
-                /*view.Camera2D.Position = -baseSize / 2;
-                view.Camera2D.Position += new Vec2(0, -30);
-                view.Camera2D.Scale = 1;#1#
-                view.TargetSize = new Vec2(windowSize.X, windowSize.Y);
-                view.ResizeToTargetSize();
-                view.World.Draw(view);
-                //CurrentSlide.Presi.View = GetRequiredGlobalService<ViewsService>().Views.First();
-                view.RenderTarget.DrawTo(() =>
-                {
-                CurrentSlide.Draw();
-                //GL.Disable(EnableCap.DepthTest);
-                });
-                //GL.Enable(EnableCap.DepthTest);
-                var viewrt = view.PostProcessingTarget;
-                var viewId = viewrt.TextureHandle;
-                ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vec2(0, 0));
-                ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vec2(0, 0));
-                ImGui.PushStyleVar(ImGuiStyleVar.CellPadding, new Vec2(0, 0));
-                ImGui.Image(viewId, new Vec2(0, 1), new Vec2(1, 0));
-                ImGui.PopStyleVar();
-                ImGui.PopStyleVar();
-                ImGui.PopStyleVar();
-                ImGui.End();*/
-
             foreach (var v in Presi.ActiveChildViews)
             {
-                v.ResizeToTargetSize();
-                v.World.Draw(v);
+                v.Controller.UpdateAndDraw(v);
             }
 
-            if (view.IsFullScreen)
+            if (presiView.IsFullScreen)
             {
-                
-                var baseSize = new Vec2(1920, 1200);
-                view.Camera2D.Position = -baseSize / 2;
-                view.Camera2D.Position += new Vec2(0, -30);
-                view.Camera2D.Scale = 1;
-                
-                var size = new Vec2i(window.ClientSize.X, window.ClientSize.Y);
-                view.TargetSize = size.ToVec2();
-                view.ResizeToTargetSize();
-                view.World.Draw(view);
-                GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-                GL.Viewport(0, 0, size.X, size.Y);
-                
-                Gizmos2D.RectCenter(new ScreenCamera(size), size.ToVec2() / 2, size.ToVec2(), FlowExplainer.GetGlobalService<WindowService>()!.ClearColor);
-                Gizmos2D.ImageCentered(new ScreenCamera(size), view.PostProcessingTarget, size.ToVec2() / 2, size.ToVec2());
+                presiView.Controller.UpdateAndDraw(presiView);
             }
 
             if (window.IsKeyPressed(Keys.Up))
@@ -209,14 +228,9 @@ public class PresentationService : GlobalService
 
 
             if (window.IsKeyPressed(Keys.F12))
-                PresiView.IsFullScreen = !PresiView.IsFullScreen;
-
-            if (window.MouseState.ScrollDelta.Y != 0)
             {
-                if (window.IsKeyDown(Keys.LeftShift))
-                {
-                    RenderScale *= 1f + ((window.MouseState.Scroll - window.MouseState.PreviousScroll).Y) / 60f;
-                }
+                PresiView.IsFullScreen = !PresiView.IsFullScreen;
+                PresiView.Camera2D.Scale = (window.ClientSize.Y / CanvasSize.Y) * .9f;
             }
         }
     }

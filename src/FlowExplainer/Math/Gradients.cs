@@ -15,6 +15,8 @@ public static class Gradients
         }
     }
 
+    public static IEnumerable<ColorGradient> All => grads.Select(s => s.Value.Value);
+    
     public static ColorGradient GetGradient(string name) => grads[name].Value;
 
     private static ColorGradient LoadGradient(string path)
@@ -33,6 +35,6 @@ public static class Gradients
             entries[i] = (t, color);
         }
 
-        return new ColorGradient(entries);
+        return new ColorGradient(Path.GetFileNameWithoutExtension(path).Replace("_", " "), entries);
     }
 }

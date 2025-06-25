@@ -10,7 +10,7 @@ public class BasicLagrangianHeatSim
         public Vec2 Position;
         public float Heat;
         public float LastHeat;
-        public float tag;
+        public float Tag;
         public float RadiationHeatFlux;
         public float DiffusionHeatFlux;
         public float TotalConductiveHeatFlux;
@@ -25,7 +25,7 @@ public class BasicLagrangianHeatSim
     private Rect domain;
 
     public float HeatDiffusionFactor = 0.01f; //heat diffusion
-    public float RadiationFactor = .14f; //heat radiation strength;
+    public float RadiationFactor = .0f; //heat radiation strength;
     public float KernelRadius = .14f;
 
     public void Setup(Rect domain, float spacing)
@@ -48,7 +48,7 @@ public class BasicLagrangianHeatSim
             p.Position = positions[i];
             p.Heat = .5f;
             p.LastHeat = p.Heat;
-            p.tag = Vec2.Distance(p.Position, new Vec2(.5f, .3f)) < 1f ? 1 : 0;
+            p.Tag = p.Position.X < domain.Center.X ? 1 : 0;
         }
     }
 
@@ -130,6 +130,7 @@ public class BasicLagrangianHeatSim
                 if (i < j)
                 {
                     float distance = Vec2.Distance(Particles[j].Position, p.Position);
+                    distance *= distance;
                     var flux = HeatDiffusionFactor * (KernelRadius - distance) / KernelRadius * -(Particles[j].Heat - p.Heat) *dt;
                     Particles[j].DiffusionHeatFlux += flux;
                     p.DiffusionHeatFlux -= flux;

@@ -3,6 +3,8 @@
     public enum ToolCategory
     {
         None,
-        Simulation,
+        Data,
+        Flow,
+        Heat,
     }
 }

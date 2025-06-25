@@ -21,6 +21,14 @@ public struct Color : IMultiplyOperators<Color, float, Color>,
         A = a;
     }
 
+    public Color(Vec4 v)
+    {
+        R = v.X;
+        G = v.Y;
+        B = v.Z;
+        A = v.W;
+    }
+
     public static Color White => new Color(1, 1, 1);
     public static Color Black => new Color(0, 0, 0);
 

@@ -2,6 +2,11 @@
 
 namespace FlowExplainer
 {
+    public interface IViewController
+    {
+        void UpdateAndDraw(View view);
+    }
+
     public class View : IDisposable
     {
         private static int viewsCreated;
@@ -17,7 +22,7 @@ namespace FlowExplainer
         public Vec3 CameraOffset;
         public float CameraZoom = .5f;
         public View? CameraSync;
-        
+
         public Vec2 RelativeMousePosition;
         public ICamera ScreenCamera => new ScreenCamera(RenderTarget.Size);
 
@@ -26,18 +31,21 @@ namespace FlowExplainer
         public bool Is2DCamera => !Is3DCamera;
         public Camera Camera = new();
         public Camera2D Camera2D = new();
+        public Color ClearColor = new(15 / 255f, 15 / 255f, 15 / 255f);
         public World World;
         public readonly RenderTexture RenderTarget;
         public readonly RenderTexture PostProcessingTarget;
         public bool IsSelected;
+        public IViewController Controller = new DefaultViewController();
 
-        public  Vec2 lastClickPos = Vec2.Zero;
+        public Vec2 lastClickPos = Vec2.Zero;
         public Vec2 startCamPos = Vec2.Zero;
-        
+
         /// <summary>
         /// As in the target size, not the the current rendertarget size.
         /// </summary>
         public Vec2 TargetSize;
+
         public Vec2i Size => RenderTarget.Size;
         public int Width => RenderTarget.Size.X;
         public int Height => RenderTarget.Size.Y;
@@ -72,6 +80,5 @@ namespace FlowExplainer
             RenderTarget.Dispose();
             GC.SuppressFinalize(this);
         }
-        
     }
 }

@@ -1,12 +1,13 @@
+using System.Buffers;
 using System.Numerics;
 
 namespace FlowExplainer;
 
 public class Trajectory<T> where T : IVec<T>
 {
-    public List<T> Entries;
+    public T[] Entries;
 
-    public Trajectory(List<T> entries)
+    public Trajectory(T[] entries)
     {
         Entries = entries;
     }
@@ -15,7 +16,7 @@ public class Trajectory<T> where T : IVec<T>
     {
         Z sum = default!;
 
-        for (int i = 1; i < Entries.Count; i++)
+        for (int i = 1; i < Entries.Length; i++)
         {
             sum += selector(Entries[i - 1], Entries[i]) * float.Abs(Entries[i].Last - Entries[i - 1].Last);
         }
@@ -36,7 +37,7 @@ public interface IFlowOperator<X, P>
 
     class DefaultFlowOperator : IFlowOperator<X, P>
     {
-        private const int Steps = 32;
+        private const int Steps = 64;
         public static IIntegrator<P, X> Integrator = IIntegrator<P, X>.Rk4;
 
         public Trajectory<P> Compute(float t_start, float t_end, X x, IVectorField<P, X> v)
@@ -44,13 +45,13 @@ public interface IFlowOperator<X, P>
             var duration = float.Abs(t_end - t_start);
             float dt = (1f / Steps) * duration;
             var cur = x;
-            var points = new List<P>(Steps);
-            points.Add(x.Up(t_start));
+            var points = new P[Steps];
+            points[0] = x.Up(t_start);
             for (int i = 1; i < Steps; i++)
             {
                 float t = (float)i / Steps * duration + t_start;
                 cur = Integrator.Integrate(v.Evaluate, cur.Up(t), dt);
-                points.Add(cur.Up(t));
+                points[i] = cur.Up(t);
             }
 
             return new Trajectory<P>(points);

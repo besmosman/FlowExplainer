@@ -8,20 +8,23 @@ public class AnalyticalEvolvingVelocityField : IEditabalePeriodicVectorField<Vec
 {
     public float elipson = 0f;
     public float A = 1f;
-    public float w = 0f;
+    public float w = 1f;
 
     public float Period => (2f * Pi) / w;
     public Rect Domain => new Rect(new Vec2(0, 0), new Vec2(2, 1));
 
     public void OnImGuiEdit()
     {
-        ImGui.SliderFloat("A", ref A, 0, 10);
-        ImGui.SliderFloat("Elipson", ref elipson, 0, 2);
-        ImGui.SliderFloat("w", ref w, 0, 2);
+        ImGuiHelpers.SliderFloat("A", ref A, 0, 10);
+        ImGuiHelpers.SliderFloat("Elipson", ref elipson, 0, 2);
+        ImGuiHelpers.SliderFloat("w", ref w, 0, 2);
     }
 
-    float streamFunction(float x, float y, float t)
+    float streamFunction(Vec3 phase)
     {
+        float x = phase.X;
+        float y = phase.Y;
+        float t = phase.Z;
         return A * Sin(Pi * f(x, t)) * Sin(Pi * y);
     }
 
@@ -42,6 +45,14 @@ public class AnalyticalEvolvingVelocityField : IEditabalePeriodicVectorField<Vec
 
     public Vec2 Evaluate(Vec3 x)
     {
+        /*
+        var d = .001f;
+        var dx = (streamFunction(x + new Vec3(-d, 0, 0)) - streamFunction(x + new Vec3(d, 0, 0))) / (2*d);
+        var dy = (streamFunction(x + new Vec3(0, -d, 0)) - streamFunction(x + new Vec3(0, d, 0))) / (2*d);
+        if(x.X > 1)
+        return new Vec2(-dy,dx);
+        */
+        
         return Velocity(x.X, x.Y, x.Z);
     }
 

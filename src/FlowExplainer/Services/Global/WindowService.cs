@@ -27,8 +27,8 @@ namespace FlowExplainer
             {
                 Title = nameof(FlowExplainer),
                 StartFocused = true,
-                StartVisible = true,
-                ClientSize = new(2000,1000 - 40),
+                StartVisible = false,
+                ClientSize = new(2000,1000),
                 API = ContextAPI.OpenGL,
                 APIVersion = new Version(4,1 ),
                 NumberOfSamples = 0,
@@ -39,6 +39,7 @@ namespace FlowExplainer
             bool vSync = pref.VSync;
             //Window.VSync = SetVsync(vSync);
             Window.CenterWindow();
+            Window.IsVisible = true;
             Window.VSync = VSyncMode.On;
             Window.Closing += OnWindowClose;
             Window.Resize += OnWindowResize;

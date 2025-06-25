@@ -61,7 +61,7 @@ public class SpeetjensAdaptedVelocityField : IEditabalePeriodicVectorField<Vec3,
 
     public void OnImGuiEdit()
     {
-        ImGui.SliderFloat("Elipson", ref elipson, 0, 2);
+        ImGuiHelpers.SliderFloat("Elipson", ref elipson, 0, 2);
     }
     
 
@@ -106,7 +106,7 @@ public class SpeetjensVelocityField : IEditabalePeriodicVectorField<Vec3, Vec2>
 
     public void OnImGuiEdit()
     {
-        ImGui.SliderFloat("Epsilon", ref Epsilon, 0, 1);
+        ImGuiHelpers.SliderFloat("Epsilon", ref Epsilon, 0, 1);
     }
 
 
@@ -133,7 +133,4 @@ public class SpeetjensVelocityField : IEditabalePeriodicVectorField<Vec3, Vec2>
         var x_minus = new Vec2(x, y) - new Vec2(3 / 4f - DeltaX(t), 1 / 4f);
         return ubar(x_plus, t) + ubar(x_minus, t);
     }
-    
-    
-    
 }

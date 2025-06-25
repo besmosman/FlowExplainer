@@ -10,6 +10,7 @@ public class HeatSimulation3DVisualizer : WorldService
     private float heatfilterMax = 1;
     private float heatfilterMin;
     private float timeFilter;
+    public override ToolCategory Category => ToolCategory.Heat;
 
     public override void Initialize()
     {
@@ -25,11 +26,11 @@ public class HeatSimulation3DVisualizer : WorldService
     {
         if (loaded.HasValue)
         {
-            ImGui.SliderFloat("Heat Filter Min", ref heatfilterMin, 0, 1);
-            ImGui.SliderFloat("Heat Filter Max", ref heatfilterMax, heatfilterMin, 1);
+            ImGuiHelpers.SliderFloat("Heat Filter Min", ref heatfilterMin, 0, 1);
+            ImGuiHelpers.SliderFloat("Heat Filter Max", ref heatfilterMax, heatfilterMin, 1);
             var min = loaded.Value.States[0].Time;
             var max = loaded.Value.States.Last().Time;
-            ImGui.SliderFloat("Time Filter", ref timeFilter, min, max);
+            ImGuiHelpers.SliderFloat("Time Filter", ref timeFilter, min, max);
         }
 
         if (ImGui.Button("Load heat.sim"))
@@ -44,9 +45,14 @@ public class HeatSimulation3DVisualizer : WorldService
     {
         if (!view.Is3DCamera)
             return;
-
+        
+        var dat = GetRequiredWorldService<DataService>();
+        
         if (!loaded.HasValue)
             return;
+            float rad = .01f;
+            view.CameraOffset = -dat.VelocityField.Domain.Size.Up(-(loaded.Value.States.Length * rad))/2 ;
+//            view.CameraOffset = new Vec3(-.5f, .25f, -.25f);
 
         GL.Enable(EnableCap.DepthTest);
         for (int index = 0; index < loaded.Value.States.Length; index++)
@@ -57,12 +63,11 @@ public class HeatSimulation3DVisualizer : WorldService
             if (timeFilter < state.Time)
                 continue;
 
-            var grad = Gradients.GetGradient("matlab_jet");
+            var grad = dat.ColorGradient;
 
-            float rad = .01f;
             for (int i = 0; i < state.ParticleX.Length; i++)
             {
-                var pos = new Vec3(state.ParticleX[i], state.ParticleY[i], index * rad);
+                var pos = new Vec3(state.ParticleX[i], state.ParticleY[i], -index * rad);
                 if (state.ParticleHeat[i] > heatfilterMin && state.ParticleHeat[i] < heatfilterMax)
                 {
                     Gizmos.Instanced.RegisterSphere(pos, rad, grad.GetCached(state.ParticleHeat[i]));

@@ -93,6 +93,7 @@ public class InterpolatedRenderGrid<T> : InterpolatedRenderGrid where T : struct
         public Vec2 GridSize;
         public T[] data;
 
+        public float Multiplier => throw new Exception();
 
         public T Dat => throw new Exception();
 

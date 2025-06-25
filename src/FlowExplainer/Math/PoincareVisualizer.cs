@@ -21,8 +21,8 @@ public class PoincareVisualizer : WorldService
         ImGui.SliderInt("Periods", ref Periods, 0, 5000);
         ImGui.SliderInt("Integrations per period", ref StepsPerPeriod, 0, 2000);
         ImGui.SliderInt("Start points", ref StartPoints, 0, 2000);
-        ImGui.SliderFloat("Render radius", ref RenderRadius, 0, .1f);
-        ImGui.SliderFloat("Offset", ref Offset, 0, dat.VelocityField.Period);
+        ImGuiHelpers.SliderFloat("Render radius", ref RenderRadius, 0, .1f);
+        ImGuiHelpers.SliderFloat("Offset", ref Offset, 0, dat.VelocityField.Period);
         if (ImGui.Button("Generate"))
         {
             var poincare = new PoincareComputer(dat.VelocityField, dat.Integrator);
@@ -52,6 +52,9 @@ public class PoincareVisualizer : WorldService
 
     public override void Draw(RenderTexture rendertarget, View view)
     {
+        if(!view.Is2DCamera)
+            return;
+        
         foreach (var t in Trajectories)
         {
             foreach (var p in t.Points)

@@ -2,7 +2,7 @@ namespace FlowExplainer;
 
 public class Test3Service : WorldService
 {
-    public override ToolCategory Category => ToolCategory.Simulation;
+    public override ToolCategory Category => ToolCategory.Flow;
 
     public class Particle
     {

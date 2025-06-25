@@ -70,15 +70,25 @@ namespace FlowExplainer
 
         public void Draw(View view)
         {
-          //  if (!view.World.FlowExplainer.GetGlobalService<PresentationService>()?.IsPresenting == true)
-                view.ResizeToTargetSize();
+            //  if (!view.World.FlowExplainer.GetGlobalService<PresentationService>()?.IsPresenting == true)
+            view.ResizeToTargetSize();
 
             view.RenderTarget.DrawTo(() =>
             {
+                GL.ClearColor(view.ClearColor.R, view.ClearColor.G, view.ClearColor.B, view.ClearColor.A);
                 GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
                 foreach (var service in Services)
                     if (service.IsEnabled)
                         service.Draw(view.RenderTarget, view);
+
+                if (!string.IsNullOrEmpty(ImGuiHelpers.LastMessage))
+                {
+                    var t = 1.5f + (float)(ImGuiHelpers.MessageTime - DateTime.Now).TotalSeconds;
+                    if (t > 0)
+                    {
+                        Gizmos2D.Text(view.ScreenCamera, new Vec2(view.RenderTarget.Size.X / 2, view.RenderTarget.Size.Y - 90), 80, new Color(1, 1, 0, 1.5f - (1.5f - t)*(1.5f - t)), ImGuiHelpers.LastMessage, centered: true);
+                    }
+                }
             });
 
             RenderTexture.Blit(view.RenderTarget, view.PostProcessingTarget);

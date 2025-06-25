@@ -4,6 +4,7 @@ namespace FlowExplainer;
 
 public class HeatSimulationVisualizer : WorldService
 {
+    public override ToolCategory Category => ToolCategory.Heat;
     public float RenderRadius = .01f;
 
     public Colorings Coloring;
@@ -14,6 +15,7 @@ public class HeatSimulationVisualizer : WorldService
         Heat,
         DiffusionFlux,
         RadiationFlux,
+        Tag,
     }
 
     public override void Initialize()
@@ -22,7 +24,7 @@ public class HeatSimulationVisualizer : WorldService
 
     public override void DrawImGuiEdit()
     {
-        ImGui.SliderFloat("Render Radius", ref RenderRadius, 0, .06f);
+        ImGuiHelpers.SliderFloat("Render Radius", ref RenderRadius, 0, .06f);
         int selected = (int)Coloring;
         var names = Enum.GetNames<Colorings>();
         if (ImGui.Combo("Color by", ref selected, names, names.Length))
@@ -54,8 +56,11 @@ public class HeatSimulationVisualizer : WorldService
                     case Colorings.Heat:
                         c = p.Heat;
                         break;
+                    case Colorings.Tag:
+                        c = p.Tag;
+                        break;
                     case Colorings.DiffusionFlux:
-                        c = .5f  -p.DiffusionHeatFlux;
+                        c = .5f - p.TotalConductiveHeatFlux;
                         break;
                     case Colorings.RadiationFlux:
                         c = .5f  -p.RadiationHeatFlux;
@@ -68,7 +73,7 @@ public class HeatSimulationVisualizer : WorldService
                 max = float.Max(max, c);
             }
 
-            var grad = Gradients.GetGradient("matlab_jet");
+            var grad = GetRequiredWorldService<DataService>().ColorGradient;
 
             foreach (ref var p in particles.AsSpan())
             {
@@ -78,8 +83,11 @@ public class HeatSimulationVisualizer : WorldService
                     case Colorings.Heat:
                         c = p.Heat;
                         break;
+                    case Colorings.Tag:
+                        c = p.Tag;
+                        break;
                     case Colorings.DiffusionFlux:
-                        c = .5f  -p.DiffusionHeatFlux;
+                        c = .5f - p.TotalConductiveHeatFlux;
                         break;
                     case Colorings.RadiationFlux:
                         c = .5f -p.RadiationHeatFlux;

@@ -43,7 +43,7 @@ public static class ImGuiToolWindows
                 {
                     string name = s.GetType().Name.Replace("RenderService", " renderer").Replace("Service", "");
                     bool sIsEnabled = s.IsEnabled;
-                    
+
                     if (CheckableCollapsingHeader(name, ref sIsEnabled, ImGuiTreeNodeFlags.DefaultOpen))
                     {
                         // ImGui.TextColored(ImGuiController.highlightColor, name);
@@ -54,7 +54,11 @@ public static class ImGuiToolWindows
                         ImGui.Separator();
                         ImGui.Separator();*/ /**/
                         if (s.IsEnabled)
+                        {
                             s.DrawImGuiEdit();
+                            ImGui.Spacing();
+                            ImGui.Spacing();
+                        }
                         // ImGui.colla();
                     }
 

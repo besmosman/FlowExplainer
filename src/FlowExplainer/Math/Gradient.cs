@@ -6,9 +6,11 @@ namespace FlowExplainer;
 public class ColorGradient : Gradient<Color>
 {
     public Lazy<Texture> Texture { get; private set; }
+    public string Name;
 
-    public ColorGradient((float, Color)[] entries) : base(entries)
+    public ColorGradient(string name, (float, Color)[] entries) : base(entries)
     {
+        Name = name;
         Texture = new Lazy<Texture>(() =>
         {
             Vec3[] pixels = new Vec3[256];
@@ -51,6 +53,7 @@ public class Gradient<T> where T : IMultiplyOperators<T, float, T>, IAdditionOpe
 
     public T Get(float t)
     {
+        t = float.Clamp(t, 0, 1);
         for (int i = 0; i < entries.Length; i++)
         {
             if (entries[i].Item1 <= t && entries[i + 1].Item1 >= t)

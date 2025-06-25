@@ -124,7 +124,7 @@ public class ImGUIService : GlobalService
             var prefs = GetRequiredGlobalService<PreferencesService>();
 
             ImGui.Checkbox("VSync", ref RenderData.editingPreferences.VSync);
-            ImGui.SliderFloat("UIScale", ref RenderData.editingPreferences.UIScale, .5f, 3);
+            ImGuiHelpers.SliderFloat("UIScale", ref RenderData.editingPreferences.UIScale, .5f, 3);
             if (ImGui.Button("Reset"))
             {
                 RenderData.editingPreferences = prefs.Preferences;

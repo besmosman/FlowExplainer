@@ -9,9 +9,9 @@ public class ImGUIViewRenderer
     {
         if (view.IsFullScreen)
             return;
-       
+
         var rendertexture = view.PostProcessingTarget;
-        
+
         ImGui.SetNextWindowSize(rendertexture.Size.ToNumerics(), ImGuiCond.Appearing);
         ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vec2(0, 0));
         if (ImGui.Begin(view.Name, ref view.IsOpen))
@@ -21,8 +21,6 @@ public class ImGUIViewRenderer
             view.TargetSize = size;
 
             //drawing after target size has been set using ImGui info.
-            ViewController2D.Update(view, flowExplainer.GetGlobalService<WindowService>()!.Window);
-            view.World.Draw(view);
             ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vec2(0, 0));
             ImGui.PushStyleVar(ImGuiStyleVar.CellPadding, new Vec2(0, 0));
             ImGui.Image(rendertexture.TextureHandle, size, new Vec2(0, 1), new Vec2(1, 0));
@@ -34,24 +32,30 @@ public class ImGUIViewRenderer
             view.RelativeMousePosition = (Vec2)(ImGui.GetMousePos() - min);
 
 
-            if (ImGui.IsWindowDocked())
-                ImGui.SetNextWindowPos(min + new Vec2(15, 15));
-            else
-                ImGui.SetNextWindowPos(ImGui.GetWindowPos() + new Vec2(0, -35));
+          
 
-            if (ImGui.Begin(view.Name + " overlay", ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoSavedSettings))
+
+            if (!view.Name.Contains("Presentation"))
             {
-                ImGui.Text(view.Name);
-                ImGui.OpenPopupOnItemClick(view.Name + " settings", ImGuiPopupFlags.MouseButtonLeft);
-                if (ImGui.BeginPopup(view.Name + " settings"))
+                if (ImGui.IsWindowDocked())
+                    ImGui.SetNextWindowPos(min + new Vec2(15, 15));
+                else
+                    ImGui.SetNextWindowPos(ImGui.GetWindowPos() + new Vec2(0, -35));
+                
+                if (ImGui.Begin(view.Name + " overlay", ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoSavedSettings))
                 {
-                    ImGui.Checkbox("3D View", ref view.Is3DCamera);
-                    ImGui.EndPopup();
+                    ImGui.Text(view.Name);
+                    ImGui.OpenPopupOnItemClick(view.Name + " settings", ImGuiPopupFlags.MouseButtonLeft);
+                    if (ImGui.BeginPopup(view.Name + " settings"))
+                    {
+                        ImGui.Checkbox("3D View", ref view.Is3DCamera);
+                        ImGui.EndPopup();
+                    }
                 }
+                ImGui.End();
             }
-
-            ImGui.End();
         }
+
         ImGui.PopStyleVar();
         ImGui.End();
 

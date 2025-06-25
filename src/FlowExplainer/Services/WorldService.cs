@@ -8,7 +8,7 @@ namespace FlowExplainer;
 /// </summary>
 public abstract class WorldService : Service
 {
-    public virtual ToolCategory Category => ToolCategory.Simulation;
+    public virtual ToolCategory Category => ToolCategory.Flow;
     public World World { get; internal set; } = null!;
     public bool IsEnabled { get; set; } = true;
 

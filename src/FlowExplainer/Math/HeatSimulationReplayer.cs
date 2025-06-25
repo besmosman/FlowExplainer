@@ -4,6 +4,7 @@ namespace FlowExplainer;
 
 public class HeatSimulationReplayer : WorldService
 {
+    public override ToolCategory Category => ToolCategory.Heat;
     private HeatSimulation? loaded;
     private float time = 0;
     private float replaySpeed = 1;
@@ -19,9 +20,7 @@ public class HeatSimulationReplayer : WorldService
 
         if (loaded.HasValue)
         {
-            ImGui.SliderFloat("time", ref time, loaded.Value.States.First().Time, loaded.Value.States.Last().Time);
-            time += FlowExplainer.DeltaTime * replaySpeed;
-            time = float.Clamp(time, loaded.Value.States.First().Time, loaded.Value.States.Last().Time);
+            ImGuiHelpers.SliderFloat("time", ref time, loaded.Value.States.First().Time, loaded.Value.States.Last().Time);
         }
 
         base.DrawImGuiEdit();
@@ -56,6 +55,8 @@ public class HeatSimulationReplayer : WorldService
     {
         if (loaded.HasValue)
         {
+            time = float.Clamp(time, loaded.Value.States.First().Time, loaded.Value.States.Last().Time);
+            time += FlowExplainer.DeltaTime * replaySpeed;
             UpdateParticles(GetRequiredWorldService<HeatSimulationViewData>().ViewParticles, loaded.Value, time);
         }
     }

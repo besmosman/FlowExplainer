@@ -87,6 +87,7 @@ public struct Vec3 :
     }
 
     public static Vec3 Zero => new();
+    public static Vec3 One => new Vec3(1, 1, 1);
     public static Vec3 UnitZ => new(0, 0, 1);
     public Vec2 XY => new Vec2(X, Y);
 
@@ -166,4 +167,27 @@ public struct Vec3 :
     }
 
     public Vec2 Down() => XY;
+
+    //source NeuroTrace ????
+    public static Matrix4x4 LookAtDirection(Vector3 direction)
+    {
+        direction = Vector3.Normalize(direction);
+        Vector3 forward = new Vector3(0, 0, 1);
+        Vector3 rotationAxis = Vector3.Cross(forward, direction);
+        float dotProduct = Vector3.Dot(forward, direction);
+        float angle = MathF.Acos(dotProduct);
+        
+        if (rotationAxis.LengthSquared() > 0.0001f)
+        {
+            rotationAxis = Vector3.Normalize(rotationAxis);
+            return Matrix4x4.CreateFromAxisAngle(rotationAxis, angle);
+        }
+        else
+        {
+            if (dotProduct < 0)
+                return Matrix4x4.CreateRotationX(MathF.PI);
+            else
+                return Matrix4x4.Identity;
+        }
+    }
 }
