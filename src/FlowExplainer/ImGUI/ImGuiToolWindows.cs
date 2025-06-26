@@ -62,7 +62,24 @@ public static class ImGuiToolWindows
                         // ImGui.colla();
                     }
 
-                    s.IsEnabled = sIsEnabled;
+                    if (s.IsEnabled != sIsEnabled)
+                    {
+                        
+                        if (s.IsEnabled)
+                            s.OnDisable();
+                        else
+                            s.OnEnable();
+                        
+                        if (s is IAxisTitle axisTitle)
+                        {
+                            if (s.IsEnabled)
+                                s.GetRequiredWorldService<AxisVisualizer>().titler = null;
+                            else
+                                s.GetRequiredWorldService<AxisVisualizer>().titler = axisTitle;
+                        }
+
+                        s.IsEnabled = sIsEnabled;
+                    }
                 }
             }
 

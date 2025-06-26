@@ -31,6 +31,23 @@ public class PresiContext
     }
 
 
+    
+    public void MainParagraph(string title, [System.Runtime.CompilerServices.CallerFilePath] string filePath = "",
+        [System.Runtime.CompilerServices.CallerLineNumber]
+        int lineNumber = 0)
+    {
+        var widgetData = GetWidgetData(filePath, lineNumber);
+        var pos = new Vec2(50, CanvasSize.Y - 250);
+        var lh = 64;
+        widgetData.Position = pos;
+        widgetData.Size = new Vec2(lh, lh);
+        if (title.StartsWith("\r\n"))
+        {
+            title = title[2..];
+        }
+        Gizmos2D.AdvText(View.Camera2D, pos, lh, Color.White, title, 1);
+    }
+
     public void ViewPanel(string viewname, Vec2 center, Vec2 size, [System.Runtime.CompilerServices.CallerFilePath] string filePath = "",
         [System.Runtime.CompilerServices.CallerLineNumber]
         int lineNumber = 0)

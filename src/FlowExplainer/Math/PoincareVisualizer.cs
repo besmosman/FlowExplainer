@@ -4,17 +4,24 @@ using ImGuiNET;
 
 namespace FlowExplainer;
 
+public interface IAxisTitle
+{
+    public string GetTitle();
+}
 
-public class PoincareVisualizer : WorldService
+public class PoincareVisualizer : WorldService, IAxisTitle
 {
     private ConcurrentBag<PoincareComputer.Trajectory> Trajectories = new();
 
-    public int Periods = 20;
-    public int StepsPerPeriod = 500;
-    public int StartPoints;
-    public float RenderRadius;
+    public int Periods = 200;
+    public int StepsPerPeriod = 100;
+    public int StartPoints = 12;
+    public float RenderRadius = .004f;
     public float Offset;
 
+
+    public string GetTitle() => "Poincaré Section";
+    
     public override void DrawImGuiEdit()
     {
         var dat = GetRequiredWorldService<DataService>();
@@ -52,9 +59,9 @@ public class PoincareVisualizer : WorldService
 
     public override void Draw(RenderTexture rendertarget, View view)
     {
-        if(!view.Is2DCamera)
+        if (!view.Is2DCamera)
             return;
-        
+
         foreach (var t in Trajectories)
         {
             foreach (var p in t.Points)

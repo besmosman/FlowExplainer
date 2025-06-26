@@ -43,8 +43,9 @@ public class ImGUIService : GlobalService
         ImGui.BeginMainMenuBar();
         {
             ImGui.PushStyleColor(ImGuiCol.Text, new Vec4(0.6f));
-            ImGui.Text("NeuroTrace");
+            ImGui.Text("FlowExplainer");
             ImGui.PopStyleColor();
+            /*
             if (ImGui.BeginMenu("File"))
             {
                 if (ImGui.MenuItem("Open"))
@@ -64,6 +65,7 @@ public class ImGUIService : GlobalService
 
                 ImGui.EndMenu();
             }
+            */
 
             if (ImGui.BeginMenu("View"))
             {

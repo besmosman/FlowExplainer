@@ -11,6 +11,9 @@ public class AxisVisualizer : WorldService
     public int StepsY = 5;
     public bool DrawGradient;
 
+    public string? Title;
+    public IAxisTitle? titler;
+
     Mesh gradientMesh = new Mesh(new Geometry(
     [
         new Vertex(new Vec3(0f, 0f, 0), new Vec2(1, 0), Vec4.One),
@@ -53,7 +56,9 @@ public class AxisVisualizer : WorldService
             Gizmos2D.Line(view.ScreenCamera, lb + new Vec2(-thickness / 2, margin), rb + new Vec2(0, margin), color, thickness);
             Gizmos2D.Line(view.ScreenCamera, lb + new Vec2(0, margin), rb + new Vec2(0, margin), color, thickness);
             Gizmos2D.Line(view.ScreenCamera, lb + new Vec2(-margin, 0), lt + new Vec2(-margin, 0), color, thickness);
-
+            
+            if(titler != null)
+            Gizmos2D.Text(view.ScreenCamera, new Vec2((lb.X + rb.X) /2, lt.Y - lh*2),lh, color, titler.GetTitle(), centered:true);
 
             for (int i = 0; i <= StepsX; i++)
             {
@@ -91,8 +96,8 @@ public class AxisVisualizer : WorldService
             var posY = view.Height / 2f - height / 2f;
             texturedMat.SetUniform("model", Matrix4x4.CreateScale(width, height, .4f) * Matrix4x4.CreateTranslation(posX, posY, 0));
             gradientMesh.Draw();
-           // Gizmos2D.Text(view.ScreenCamera, new Vec2(posX + width / 2f, posY - lh - 5), lh, color, "1", centered: true);
-           // Gizmos2D.Text(view.ScreenCamera, new Vec2(posX + width / 2f, posY + height + 5), lh, color, "0", centered: true);
+            Gizmos2D.Text(view.ScreenCamera, new Vec2(posX + width / 2f, posY - lh - 5), lh, color, "1", centered: true);
+            Gizmos2D.Text(view.ScreenCamera, new Vec2(posX + width / 2f, posY + height + 5), lh, color, "0", centered: true);
         }
     }
 

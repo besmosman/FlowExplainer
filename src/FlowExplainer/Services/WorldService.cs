@@ -12,6 +12,15 @@ public abstract class WorldService : Service
     public World World { get; internal set; } = null!;
     public bool IsEnabled { get; set; } = true;
 
+    public virtual void OnEnable()
+    {
+    }
+    
+    public virtual void OnDisable()
+    {
+        
+    }
+    
     /// <summary>
     /// Gets called every frame before executing rendertasks.
     /// </summary>

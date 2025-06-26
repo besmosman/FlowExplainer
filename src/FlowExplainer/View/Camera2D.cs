@@ -7,6 +7,10 @@ public class Camera2D : ICamera
     public Vec2 RenderTargetSize;
     public Vec2 Position;
     public float Scale;
+    public bool InvertedY()
+    {
+        return false;
+    }
 
     public Matrix4x4 GetProjectionMatrix()
     {

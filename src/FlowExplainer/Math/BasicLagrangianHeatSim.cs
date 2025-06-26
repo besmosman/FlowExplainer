@@ -13,7 +13,7 @@ public class BasicLagrangianHeatSim
         public float Tag;
         public float RadiationHeatFlux;
         public float DiffusionHeatFlux;
-        public float TotalConductiveHeatFlux;
+        public float TotalConvectionHeatFlux;
         public float TotalHeatFlux;
     }
 
@@ -24,9 +24,9 @@ public class BasicLagrangianHeatSim
 
     private Rect domain;
 
-    public float HeatDiffusionFactor = 0.01f; //heat diffusion
+    public float HeatDiffusionFactor = 0.0f; //heat diffusion
     public float RadiationFactor = .0f; //heat radiation strength;
-    public float KernelRadius = .14f;
+    public float KernelRadius = .0f;
 
     public void Setup(Rect domain, float spacing)
     {
@@ -87,7 +87,7 @@ public class BasicLagrangianHeatSim
             p.DiffusionHeatFlux = 0f;
             p.Position = Integrator.Integrate(velocityField.Evaluate, new(p.Position, time), dt);
 
-            
+
             //bounds shouldnt be needed though
             if (p.Position.X < domain.Min.X)
                 p.Position.X = domain.Min.X + float.Epsilon;
@@ -103,7 +103,7 @@ public class BasicLagrangianHeatSim
             float eps = .00001f;
 
             //bottom hot wall
-            float dis = p.Position.Y -  domain.Min.Y;
+            float dis = p.Position.Y - domain.Min.Y;
             var intensity = (1f / (dis * dis + eps));
             p.RadiationHeatFlux += (1 - p.Heat) * Single.Min(1, intensity * dt * RadiationFactor);
 
@@ -111,43 +111,43 @@ public class BasicLagrangianHeatSim
             dis = domain.Max.Y - p.Position.Y;
             intensity = (1f / (dis * dis + eps));
             p.RadiationHeatFlux += (0 - p.Heat) * Single.Min(1, intensity * dt * RadiationFactor);
-
-
-           
         });
 
 
-        Parallel.For(0, Particles.Length, parallelOptions, (i) =>
-        //    for (int i = 0; i < Particles.Length; i++)
-        {
-            ref var p = ref Particles[i];
-            int[] withinRange = GetWithinRange(i, KernelRadius);
-            foreach (int j in withinRange)
+        if (HeatDiffusionFactor > 0 && KernelRadius > 0)
+            Parallel.For(0, Particles.Length, parallelOptions, (i) =>
+                //    for (int i = 0; i < Particles.Length; i++)
             {
-                if (j == -1)
-                    break;
-                
-                if (i < j)
+                ref var p = ref Particles[i];
+                int[] withinRange = GetWithinRange(i, KernelRadius);
+                foreach (int j in withinRange)
                 {
-                    float distance = Vec2.Distance(Particles[j].Position, p.Position);
-                    distance *= distance;
-                    var flux = HeatDiffusionFactor * (KernelRadius - distance) / KernelRadius * -(Particles[j].Heat - p.Heat) *dt;
-                    Particles[j].DiffusionHeatFlux += flux;
-                    p.DiffusionHeatFlux -= flux;
-                }
-                
-            }
+                    if (j == -1)
+                        break;
 
-            ArrayPool<int>.Shared.Return(withinRange);
-        });
+                    if (i < j)
+                    {
+                        float distance = Vec2.Distance(Particles[j].Position, p.Position);
+                        distance *= distance;
+                        var flux = HeatDiffusionFactor * (KernelRadius - distance) / KernelRadius * -(Particles[j].Heat - p.Heat) * dt;
+                        Particles[j].DiffusionHeatFlux += flux;
+                        p.DiffusionHeatFlux -= flux;
+                    }
+                }
+
+                ArrayPool<int>.Shared.Return(withinRange);
+            });
 
         Parallel.For(0, Particles.Length, (i) =>
         {
             ref var p = ref Particles[i];
             p.LastHeat = p.Heat;
-            p.TotalConductiveHeatFlux = p.RadiationHeatFlux + p.DiffusionHeatFlux;
             p.Heat += p.RadiationHeatFlux;
             p.Heat += p.DiffusionHeatFlux;
+
+            p.DiffusionHeatFlux /= dt;
+            p.RadiationHeatFlux /= dt;
+            p.TotalConvectionHeatFlux = -p.RadiationHeatFlux - p.DiffusionHeatFlux; //assuming steady state which is bad :(
         });
     }
 

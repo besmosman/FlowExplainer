@@ -2,7 +2,7 @@ using ImGuiNET;
 
 namespace FlowExplainer;
 
-public class HeatSimulationVisualizer : WorldService
+public class HeatSimulationVisualizer : WorldService, IAxisTitle
 {
     public override ToolCategory Category => ToolCategory.Heat;
     public float RenderRadius = .01f;
@@ -14,6 +14,7 @@ public class HeatSimulationVisualizer : WorldService
     {
         Heat,
         DiffusionFlux,
+        ConvectionFlux,
         RadiationFlux,
         Tag,
     }
@@ -38,14 +39,18 @@ public class HeatSimulationVisualizer : WorldService
         base.DrawImGuiEdit();
     }
 
+    private float lastMin;
+    private float lastMax;
+
     public override void Draw(RenderTexture rendertarget, View view)
     {
-        if(!view.Is2DCamera)
+        if (!view.Is2DCamera)
             return;
-        
+
         var particles = GetRequiredWorldService<HeatSimulationViewData>().ViewParticles;
         if (particles != null)
         {
+            GetRequiredWorldService<AxisVisualizer>().titler = this;
             var min = float.MaxValue;
             var max = float.MinValue;
             foreach (ref var p in particles.AsSpan())
@@ -60,21 +65,34 @@ public class HeatSimulationVisualizer : WorldService
                         c = p.Tag;
                         break;
                     case Colorings.DiffusionFlux:
-                        c = .5f - p.TotalConductiveHeatFlux;
+                        c = .5f + p.DiffusionHeatFlux / 2;
+                        break;
+                    case Colorings.ConvectionFlux:
+                        c = .5f + p.TotalConvectionHeatFlux / 2;
                         break;
                     case Colorings.RadiationFlux:
-                        c = .5f  -p.RadiationHeatFlux;
+                        c = .5f + p.RadiationHeatFlux / 2;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
 
-                min = float.Min(min, c);
-                max = float.Max(max, c);
+                if (float.IsRealNumber(c))
+                {
+                    min = float.Min(min, c);
+                    max = float.Max(max, c);
+                }
             }
 
             var grad = GetRequiredWorldService<DataService>().ColorGradient;
 
+            min = Utils.Lerp(lastMin, min, .06f);
+            min = 0;
+            max = Utils.Lerp(lastMax, max, .06f);
+            lastMin = min;
+            lastMax = max;
+            /*max *= .8f;
+            min *= 1.2f;*/
             foreach (ref var p in particles.AsSpan())
             {
                 var c = p.Heat;
@@ -87,25 +105,34 @@ public class HeatSimulationVisualizer : WorldService
                         c = p.Tag;
                         break;
                     case Colorings.DiffusionFlux:
-                        c = .5f - p.TotalConductiveHeatFlux;
+                        c = .5f + p.DiffusionHeatFlux / 2;
+                        break;
+                    case Colorings.ConvectionFlux:
+                        c = .5f + p.TotalConvectionHeatFlux / 2;
                         break;
                     case Colorings.RadiationFlux:
-                        c = .5f -p.RadiationHeatFlux;
+                        c = .5f + p.RadiationHeatFlux / 2;
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
 
                 float t = c;
-                
-                if(Scaled)
+
+                if (Scaled)
                     t = (c - min) / (max - min);
 
                 //t = -(p.LastHeat - p.Heat)*500 + .5f;
                 Gizmos2D.Instanced.RegisterCircle(p.Position, RenderRadius, grad.GetCached(t));
             }
 
+
             Gizmos2D.Instanced.RenderCircles(view.Camera2D);
         }
+    }
+
+    public string GetTitle()
+    {
+        return "Particles (" + Enum.GetName(Coloring) + ")";
     }
 }

@@ -53,7 +53,7 @@ public class PhaseComputer
 
 public class SpeetjensAdaptedVelocityField : IEditabalePeriodicVectorField<Vec3, Vec2>
 {
-    public float elipson = 1f;
+    public float elipson = 0f;
     public float w = 2*Pi;
 
     public float Period => 1;

@@ -9,12 +9,29 @@ public static class MsdfRenderer
 {
     public static Material Material;
     public static Mesh textMesh = new Mesh(new Geometry([], []), true, true);
-    public static MsdfFont font;
-    private static bool forceRegenerate = false;
+    public static Dictionary<int, MsdfFont> fonts = new();
+    private static bool forceRegenerate = true;
 
     static MsdfRenderer()
     {
         Init();
+    }
+
+    public static MsdfFont GetClosestFont(ICamera cam, float lh)
+    {
+        var target = lh*0;
+        var minDis = float.MaxValue;
+        MsdfFont minFont = null;
+        foreach (var p in fonts)
+        {
+            if (minDis > float.Abs(p.Key - target))
+            {
+                minDis = float.Abs(p.Key - target);
+                minFont = p.Value;
+            }
+        }
+
+        return minFont!;
     }
 
     public static void Init()
@@ -23,31 +40,41 @@ public static class MsdfRenderer
             new Shader("Assets/Shaders/msdf.frag", ShaderType.FragmentShader),
             Shader.DefaultWorldSpaceVertex);
 
+        int size = 96;
+        string folderPath = "Assets/Fonts/OpenSans-Medium";
+        string genFolderPath = $"{folderPath}/generated";
+        if (Directory.Exists(genFolderPath))
+        {
+            string genCharsetFilePath = $"{genFolderPath}/charset.txt";
+            string charsetFilePath = $"{folderPath}/charset.txt";
+            File.Copy(charsetFilePath, genCharsetFilePath);
+            Directory.Delete(genFolderPath, true);
+        }
+            GenererateFont(32);
+    }
+
+    private static void GenererateFont(int size)
+    {
         string folderPath = "Assets/Fonts/OpenSans-Medium";
         string fontName = new DirectoryInfo(Path.GetDirectoryName(folderPath + "/")).Name;
         string genFolderPath = $"{folderPath}/generated";
         string ttfFilePath = $"{folderPath}/{fontName}.ttf";
-        string charsetFilePath = $"{folderPath}/charset.txt";
-        string genCharsetFilePath = $"{genFolderPath}/charset.txt";
-        string genImagePath = $"{genFolderPath}/texture.png";
-        string genInfoPath = $"{genFolderPath}/info.json";
-        string md5Path = $"{genFolderPath}/.md5";
+        string genImagePath = $"{genFolderPath}/texture-{size}.png";
+        string genInfoPath = $"{genFolderPath}/info-{size}.json";
+        string md5Path = $"{genFolderPath}-{size}/.md5";
 
-      
+
         if (!forceRegenerate && Directory.Exists(genFolderPath))
         {
-            font = new MsdfFont(JsonConvert.DeserializeObject<MsdfFontInfo>(File.ReadAllText(genInfoPath)))
+            fonts.Add(size, new MsdfFont(JsonConvert.DeserializeObject<MsdfFontInfo>(File.ReadAllText(genInfoPath)))
             {
                 Texture = new ImageTexture(genImagePath),
-            };
+            });
             return;
         }
 
-        if (Directory.Exists(genFolderPath))
-        {
-            Directory.Delete(genFolderPath, true);
-        }
-        
+        string charsetFilePath = $"{folderPath}/charset.txt";
+
         var call = new StringBuilder();
         call.Append(" -font ");
         call.Append($"\"{ttfFilePath}\"");
@@ -56,7 +83,7 @@ public static class MsdfRenderer
         call.Append(" -imageout \"");
         call.Append(genImagePath + "\"");
         call.Append(" -json \"" + genInfoPath + "\"");
-        call.Append(" -size 64");
+        call.Append($" -size {size}");
         Directory.CreateDirectory(Path.GetRelativePath(Directory.GetCurrentDirectory(), genFolderPath));
         ProcessStartInfo psi = new()
         {
@@ -67,12 +94,11 @@ public static class MsdfRenderer
         };
         var process = Process.Start(psi);
         process.WaitForExit();
-        File.Copy(charsetFilePath, genCharsetFilePath);
 
-        font = new MsdfFont(JsonConvert.DeserializeObject<MsdfFontInfo>(File.ReadAllText(genInfoPath)))
+        fonts.Add(size, new MsdfFont(JsonConvert.DeserializeObject<MsdfFontInfo>(File.ReadAllText(genInfoPath)))
         {
             Texture = new ImageTexture(genImagePath),
-        };
+        });
     }
 
 
@@ -83,7 +109,7 @@ public static class MsdfRenderer
 
     public static float LastMaxPos = 0;
 
-    public static float CalcTextWidth(string text)
+    public static float CalcTextWidth(MsdfFont font, string text)
     {
         float currentX = 0;
         for (int i = 0; i < text.Length; i++)
@@ -100,11 +126,12 @@ public static class MsdfRenderer
         return currentX * m;
     }
 
-    public static void UpdateMesh(string text, ICamera cam, bool centered = false)
+    public static void UpdateMesh(string text, ICamera cam, MsdfFont font, bool centered = false)
     {
         var vertices = new Vertex[text.Length * 6];
         float currentX = 0;
         bool invertY = !cam.InvertedY();
+
         var color = new Vec4(1, 1, 1, 1);
         for (int i = 0; i < text.Length; i++)
         {

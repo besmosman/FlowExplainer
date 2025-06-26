@@ -233,7 +233,7 @@ public static class Gizmos2D
     }
 
 
-    public static void ImageCenteredInvertedY(ICamera camera, Texture texture, Vec2 center, Vec2 size, float alpha = 1)
+    public static void ImageCenteredInvertedY(Camera2D camera, Texture texture, Vec2 center, Vec2 size, float alpha = 1)
     {
         texturedMat.Use();
         texturedMat.SetUniform("tint", new Vec4(1, 1, 1, alpha));
@@ -247,7 +247,7 @@ public static class Gizmos2D
 
     public static float lineSpacing = 3;
 
-    public static void AdvText(ICamera camera, Vec2 pos, float lh, Color color, string text, float t = 1, bool centered = false)
+    public static void AdvText(Camera2D camera, Vec2 pos, float lh, Color color, string text, float t = 1, bool centered = false)
     {
         void SetCharColor(int i, Color col)
         {
@@ -316,7 +316,8 @@ public static class Gizmos2D
                 }
             }
 
-            MsdfRenderer.UpdateMesh(line, camera, centered);
+            var font = MsdfRenderer.GetClosestFont(camera, lh);
+            MsdfRenderer.UpdateMesh(line, camera, font, centered);
             for (int i = 0; i < MsdfRenderer.textMesh.Vertices.Length; i++)
             {
                 MsdfRenderer.textMesh.Vertices[i].Colour =  color.ToVec4();
@@ -331,8 +332,8 @@ public static class Gizmos2D
             MsdfRenderer.Material.SetUniform("line", (float)l);
             MsdfRenderer.Material.SetUniform("lines", (float)splitted.Length);
             MsdfRenderer.Material.SetUniform("tint", new Vec4(1, 1, 1, 1));
-            MsdfRenderer.Material.SetUniform("screenPxRange", 4f);
-            MsdfRenderer.Material.SetUniform("mainTex", MsdfRenderer.font.Texture);
+            MsdfRenderer.Material.SetUniform("screenPxRange", 2.5f);
+            MsdfRenderer.Material.SetUniform("mainTex", font.Texture);
             MsdfRenderer.Material.SetUniform("view", camera.GetViewMatrix());
             MsdfRenderer.Material.SetUniform("projection", camera.GetProjectionMatrix());
             MsdfRenderer.Material.SetUniform("model", Matrix4x4.CreateScale(lh, lh, 1) * Matrix4x4.CreateTranslation(pos.X, pos.Y - l * (lh + lineSpacing), 0));
@@ -344,6 +345,7 @@ public static class Gizmos2D
 
     public static void Text(ICamera camera, Vec2 pos, float lh, Color color, string text, float t = 1, bool centered = false)
     {
+        
         var splitted = text.Split("\n");
         var globalT = t;
 
@@ -363,14 +365,15 @@ public static class Gizmos2D
                 localT = (t - startPos) / (endPos - startPos);
 
             string? line = splitted[l].ReplaceLineEndings("").Trim();
-            MsdfRenderer.UpdateMesh(line, camera, centered);
+            var font = MsdfRenderer.GetClosestFont(camera, lh);
+            MsdfRenderer.UpdateMesh(line, camera,font, centered);
             MsdfRenderer.Material.Use();
             MsdfRenderer.Material.SetUniform("t", localT);
             MsdfRenderer.Material.SetUniform("line", (float)l);
             MsdfRenderer.Material.SetUniform("lines", (float)splitted.Length);
             MsdfRenderer.Material.SetUniform("tint", color);
-            MsdfRenderer.Material.SetUniform("screenPxRange",1.2f);
-            MsdfRenderer.Material.SetUniform("mainTex", MsdfRenderer.font.Texture);
+            MsdfRenderer.Material.SetUniform("screenPxRange",2.5f);
+            MsdfRenderer.Material.SetUniform("mainTex", font.Texture);
             MsdfRenderer.Material.SetUniform("view", camera.GetViewMatrix());
             MsdfRenderer.Material.SetUniform("projection", camera.GetProjectionMatrix());
             MsdfRenderer.Material.SetUniform("model", Matrix4x4.CreateScale(lh, lh, 1) * Matrix4x4.CreateTranslation(pos.X, pos.Y - l * lh, 0));

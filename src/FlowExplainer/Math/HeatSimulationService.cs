@@ -39,8 +39,8 @@ public class HeatSimulationService : WorldService
     {
         var dat = GetRequiredWorldService<DataService>();
         ImGuiHelpers.SliderFloat("Particle Spacing", ref particleSpacing, 0, dat.VelocityField.Domain.Size.X / 4f);
-        ImGuiHelpers.SliderFloat("Radiation Factor", ref basicLagrangianHeatSim.RadiationFactor, 0, .5f);
-        ImGuiHelpers.SliderFloat("Conduction Factor", ref basicLagrangianHeatSim.HeatDiffusionFactor, 0, 1);
+        ImGuiHelpers.SliderFloat("Radiation Factor", ref basicLagrangianHeatSim.RadiationFactor, 0, .05f);
+        ImGuiHelpers.SliderFloat("Conduction Factor", ref basicLagrangianHeatSim.HeatDiffusionFactor, 0, .1f);
         ImGuiHelpers.SliderFloat("Kernel Radius", ref basicLagrangianHeatSim.KernelRadius, 0, .5f);
 
         if (ImGui.Button("Reset"))

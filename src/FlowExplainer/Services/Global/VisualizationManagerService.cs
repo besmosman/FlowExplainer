@@ -20,11 +20,11 @@
             v.AddVisualisationService(new HeatSimulationViewData());
             v.AddVisualisationService(new HeatSimulationVisualizer());
             v.AddVisualisationService(new GridVisualizer() { IsEnabled = false});
-            v.AddVisualisationService(new HeatSimulation3DVisualizer());
-            v.AddVisualisationService(new HeatSimulationService());
+            v.AddVisualisationService(new HeatSimulation3DVisualizer() );
+            v.AddVisualisationService(new HeatSimulationService(){ IsEnabled = false});
             v.AddVisualisationService(new HeatSimulationReplayer());
-            v.AddVisualisationService(new FlowFieldVisualizer());
-            v.AddVisualisationService(new PoincareVisualizer());
+            v.AddVisualisationService(new FlowFieldVisualizer() { IsEnabled = false});
+            v.AddVisualisationService(new PoincareVisualizer(){ IsEnabled = false});
             v.AddVisualisationService(new AxisVisualizer());
             Worlds.Add(v);
             return v;

@@ -43,7 +43,7 @@
             neuroTrace.AddGlobalService(new ImGUIService());
             neuroTrace.AddGlobalService(new ViewsService());
             neuroTrace.AddGlobalService(new ImGUIRenderService());
-            //neuroTrace.AddGlobalService(new PresentationService());
+            neuroTrace.AddGlobalService(new PresentationService());
             neuroTrace.Run();
         }
     }

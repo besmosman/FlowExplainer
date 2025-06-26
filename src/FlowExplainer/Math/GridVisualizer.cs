@@ -2,14 +2,14 @@ using ImGuiNET;
 
 namespace FlowExplainer;
 
-public class GridVisualizer : WorldService
+public class GridVisualizer : WorldService, IAxisTitle
 {
     private IGridDiagnostic? diagnostic;
     private InterpolatedRenderGrid gridData;
     public bool Continous = true;
     public int TargetCellCount = 4000;
 
-    public List<IGridDiagnostic> Diagnostics = [new FTLEGridDiagnostic(), new VelocityMagnitudeGridDiagnostic()];
+    public List<IGridDiagnostic> Diagnostics = [new FTLEGridDiagnostic(), new VelocityMagnitudeGridDiagnostic(), new CustomGridDiagnostic()];
 
     public InterpolatedRenderGrid<T> GetRenderGrid<T>() where T : struct
     {
@@ -108,5 +108,10 @@ public class GridVisualizer : WorldService
 
         diagnostic?.OnImGuiEdit(this);
         base.DrawImGuiEdit();
+    }
+
+    public string GetTitle()
+    {
+        return "LCS: " + diagnostic?.Name ?? "";
     }
 }

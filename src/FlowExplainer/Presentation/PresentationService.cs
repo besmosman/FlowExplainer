@@ -4,57 +4,70 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace FlowExplainer;
 
-public class TestSlide : Slide
-{
-    public int n = 9;
-
-    public override void Draw()
-    {
-        LayoutMain();
-        Title("FTLE");
-        Presi.ViewPanel("main", (Presi.CanvasSize - new Vec2(0, topbarHeight)) / 2, new Vec2(1920, 1000));
-        base.Draw();
-    }
-}
-
-
-
 public class FirstPresentation : Presentation
 {
-    
-    public class VelocityFieldVisualizerSlide : Slide
+    public class ProgressSlide : Slide
     {
-        public override void OnEnter()
-        {
-            MainWorld.GetWorldService<FlowFieldVisualizer>()!.IsEnabled = true;
-            base.OnEnter();
-        }
-
         public override void Draw()
         {
             LayoutMain();
-            Title("Double Gyre Flow");
-            MainWorld.GetWorldService<FlowFieldVisualizer>()!.IsEnabled = true;
-            if (ImGui.Begin("edit", ImGuiWindowFlags.NoDecoration))
-            {
-              MainWorld.GetWorldService<FlowFieldVisualizer>()!.DrawImGuiEdit();
-            }
-            ImGui.End();
+            Title("Progress");
+            Presi.MainParagraph(
+                @"
+PhD Project (30%)
+    - Reading
+    - Experimenting
+    - Double Gyre / Bickley Jet
+    - Poincaré sections
+    - 3D visualizations
+    - Simple Heat Simulation
+    - Diagnostics: FTLE / Velocity magnitude
+
+Graduation Paper (70%)
+    - IST abstract submitted/accepted
+    - Modifications for new fetal dataset
+    - Validation
+");
+            //Presi.ViewPanel("main", (Presi.CanvasSize - new Vec2(0, topbarHeight)) / 2, new Vec2(1920, 1000));
             base.Draw();
         }
+    }
 
-        public override void OnLeave()
+
+    public class RecapSlide : Slide
+    {
+        public override void Draw()
         {
-            MainWorld.GetWorldService<FlowFieldVisualizer>()!.IsEnabled = false;
-            base.OnLeave();
+            LayoutMain();
+            Title("Recap");
+            Presi.MainParagraph(
+                @"
+- Focus on graduation paper
+- Replicate Speetjens 2012
+- Reading
+");
+            base.Draw();
         }
     }
-    
+
+    public class DemoSlide : Slide
+    {
+        public override void Draw()
+        {
+            LayoutMain();
+            Title("Demo");
+            base.Draw();
+        }
+    }
+
+
     public override Slide[] GetSlides()
     {
-        return [
-            new TestSlide(),
-            new VelocityFieldVisualizerSlide(),
+        return
+        [
+            new RecapSlide(),
+            new DemoSlide(),
+            new ProgressSlide(),
         ];
     }
 }
@@ -130,8 +143,8 @@ public class PresentationService : GlobalService
 
     public override void Initialize()
     {
-       // LoadPresentation(new FirstPresentation());
-       // StartPresenting();
+        //LoadPresentation(new FirstPresentation());
+        //StartPresenting();
     }
 
     public void LoadPresentation(Presentation slides)
