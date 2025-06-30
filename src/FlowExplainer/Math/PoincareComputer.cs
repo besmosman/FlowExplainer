@@ -10,8 +10,7 @@ public class PoincareComputer
 
     public IVectorField<Vec3, Vec2> VectorField { get; set; }
     public IIntegrator<Vec3, Vec2> Integrator { get; set; }
-
-
+    
     public PoincareComputer(IVectorField<Vec3, Vec2> vectorField, IIntegrator<Vec3, Vec2> integrator)
     {
         this.VectorField = vectorField;

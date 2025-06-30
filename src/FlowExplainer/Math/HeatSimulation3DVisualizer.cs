@@ -4,6 +4,75 @@ using OpenTK.Graphics.ES20;
 
 namespace FlowExplainer;
 
+public class HeatSimulationToField
+{
+    public static void Convert(HeatSimulation simulation)
+    {
+        
+        /*Vec3i dimensions = 
+        
+        
+        RegularGridVectorField<Vec3, Vec3i, float> heatField = new(*/
+    }
+}
+
+public class Heat3DViewer : WorldService
+{
+    private List<(Vec3, float h)> particles = new();
+
+    HeatSimulation? loaded = BinarySerializer.Load<HeatSimulation>("heat.sim");
+
+    public override void Initialize()
+    {
+    }
+
+    public override void Draw(RenderTexture rendertarget, View view)
+    {
+        if (!view.Is3DCamera)
+            return;
+
+        Update();
+
+        var th = .02f;
+        GL.Enable(EnableCap.DepthTest);
+        Gizmos.DrawLine(view, Vec3.Zero, new Vec3(1, 0, 0), th, new Color(1, 0, 0));
+        Gizmos.DrawLine(view, Vec3.Zero, new Vec3(0, 1, 0), th, new Color(0, 1, 0));
+        Gizmos.DrawLine(view, Vec3.Zero, new Vec3(0, 0, 1), th, new Color(0, 0, 1));
+
+        var grad = GetRequiredWorldService<DataService>().ColorGradient;
+        foreach (var p in particles)
+        {
+            var z = p.Item1;
+            Gizmos.Instanced.RegisterSphere(z, .01f, grad.GetCached(p.h));
+        }
+
+        Gizmos.Instanced.DrawSpheres(view.Camera);
+    }
+
+    private void Update()
+    {
+        particles.Clear();
+        //thresh *= .001f;
+        for (int s = 1; s < loaded.Value.States.Length-1; s++)
+        {
+            var states = loaded.Value.States;
+            var state = states[s];
+            for (int i = 0; i < state.ParticleHeat.Length; i++)
+            {
+                var flux = (states[s].ParticleHeat[i] - states[s - 1].ParticleHeat[i]) / (states[s].Time - states[s - 1].Time);
+                var fluxNext = (states[s+1].ParticleHeat[i] - states[s].ParticleHeat[i]) / (states[s+1].Time - states[s].Time);
+                var thresh = .8f;
+                
+                if (flux >= thresh
+                   )
+                {
+                    particles.Add((new Vec3(states[s].ParticleX[i] , states[s].ParticleY[i], states[s].Time), flux));
+                }
+            }
+        }
+    }
+}
+
 public class HeatSimulation3DVisualizer : WorldService
 {
     private HeatSimulation? loaded;
@@ -45,13 +114,13 @@ public class HeatSimulation3DVisualizer : WorldService
     {
         if (!view.Is3DCamera)
             return;
-        
+
         var dat = GetRequiredWorldService<DataService>();
-        
+
         if (!loaded.HasValue)
             return;
-            float rad = .01f;
-            view.CameraOffset = -dat.VelocityField.Domain.Size.Up(-(loaded.Value.States.Length * rad))/2 ;
+        float rad = .01f;
+        view.CameraOffset = -dat.VelocityField.Domain.Size.Up(-(loaded.Value.States.Length * rad)) / 2;
 //            view.CameraOffset = new Vec3(-.5f, .25f, -.25f);
 
         GL.Enable(EnableCap.DepthTest);
@@ -74,6 +143,7 @@ public class HeatSimulation3DVisualizer : WorldService
                 }
             }
         }
+
 
         Gizmos.Instanced.DrawSpheres(view.Camera);
     }

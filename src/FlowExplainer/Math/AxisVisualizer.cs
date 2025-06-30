@@ -32,10 +32,10 @@ public class AxisVisualizer : WorldService
         var domain = dat.VelocityField.Domain;
         if (!view.Is2DCamera)
         {
-            var th = .02f;
+            /*var th = .02f;
             //GL.Disable(EnableCap.DepthTest);
             Gizmos.DrawLine(view, domain.Min.Up(0), new Vec3(domain.Max.X,0, 0), th, Color.White);
-            Gizmos.DrawLine(view, domain.Min.Up(0), new Vec3(0, domain.Max.Y, 0), th, Color.White);
+            Gizmos.DrawLine(view, domain.Min.Up(0), new Vec3(0, domain.Max.Y, 0), th, Color.White);*/
            // Gizmos.DrawLine(view, domain.Min.Up(0) + new Vec3(0, -.01f, 0), new Vec3(0, -.01f, 4), th, Color.White);
             // GL.Enable(EnableCap.DepthTest);
 

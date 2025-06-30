@@ -8,6 +8,12 @@ public interface IVec<TVec> : IVec<TVec, float>
 {
 }
 
+public interface IVecIntegerEquivelant<TVeci> where TVeci : IVec<TVeci, int>
+{
+    TVeci Floor();
+    TVeci Round();
+}
+
 public interface IVec<TVec, TNumber> :
     IMultiplyOperators<TVec, TNumber, TVec>,
     ISubtractionOperators<TVec, TVec, TVec>,
@@ -17,12 +23,13 @@ public interface IVec<TVec, TNumber> :
 {
     public TVec Max(TVec b);
     public int Dimensions { get; }
-    public TNumber Last { get; }
-    static abstract TVec operator *(TNumber left, TVec right);
 
+    public TNumber Last => this[Dimensions - 1];
+    public TNumber this[int n] { get; set; }
+    static abstract TVec operator *(TNumber left, TVec right);
 }
 
-public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>
+public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>, IVecIntegerEquivelant<Vec2i>
 {
     public float X;
     public float Y;
@@ -73,6 +80,36 @@ public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vec2 operator /(Vec2 v1, float f) => new(v1.X / f, v1.Y / f);
+
+    public float this[int n]
+    {
+        get
+        {
+            switch (n)
+            {
+                case 0:
+                    return X;
+                case 1:
+                    return Y;
+                default:
+                    throw new Exception();
+            }
+        }
+        set
+        {
+            switch (n)
+            {
+                case 0:
+                    X = value;
+                    return;
+                case 1:
+                    Y = value;
+                    return;
+                default:
+                    throw new Exception();
+            }
+        }
+    }
 
     public static Vec2 operator *(float f, Vec2 v1) => new(f * v1.X, f * v1.Y);
 
@@ -141,5 +178,15 @@ public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>
     public Vector2 ToNumerics()
     {
         return new Vector2(X, Y);
+    }
+
+    public Vec2i Floor()
+    {
+        return new Vec2i((int)float.Floor(X), (int)float.Floor(Y));
+    }
+
+    public Vec2i Round()
+    {
+        return new Vec2i((int)float.Round(X), (int)float.Round(Y));
     }
 }

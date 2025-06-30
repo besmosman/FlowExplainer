@@ -19,12 +19,7 @@ public static class VectorExtensions
     }
 
 
-    public static Vec3 Floor(this Vec3 v)
-    {
-        return new Vec3(MathF.Floor(v.X), MathF.Floor(v.Y), MathF.Floor(v.Z));
-    }
-        
-        
+  
     public static Vec3 Ceil(this Vec3 v)
     {
         return new Vec3(MathF.Ceiling(v.X), MathF.Ceiling(v.Y), MathF.Ceiling(v.Z));

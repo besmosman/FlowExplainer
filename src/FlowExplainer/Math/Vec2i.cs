@@ -3,10 +3,16 @@ using Vector2 = OpenTK.Mathematics.Vector2;
 
 namespace FlowExplainer;
 
+
+public interface IVecFloatEquivelant<TVecF>
+{
+    TVecF ToVecF();
+}
+
 public struct Vec2i :
     IEquatable<Vec2i>,
-    IAdditionOperators<Vec2i, Vec2i, Vec2i>,
-    IEqualityOperators<Vec2i, Vec2i, bool>
+    IEqualityOperators<Vec2i, Vec2i, bool>,
+    IVecFloatEquivelant<Vec2>, IVec<Vec2i, int>
 
 {
       
@@ -62,6 +68,11 @@ public struct Vec2i :
         return HashCode.Combine(X, Y);
     }
 
+    public Vec2 ToVecF()
+    {
+        return new Vec2(X, Y);
+    }
+
     public override bool Equals(object? obj)
     {
         return obj is Vec2i other && Equals(other);
@@ -97,5 +108,50 @@ public struct Vec2i :
     public static explicit operator Vec2i(Vector2 v)
     {
         return new Vec2i((int)v.X, (int)v.Y);
+    }
+
+    public Vec2i Max(Vec2i b)
+    {
+        return new Vec2i(int.Max(X, b.X), int.Max(Y, b.Y));
+    }
+
+    public int Dimensions => 2;
+    public int Last => Y;
+    
+    
+    public int this[int n]
+    {
+        get
+        {
+            switch (n)
+            {
+                case 0:
+                    return X;
+                case 1:
+                    return Y;
+                default:
+                    throw new Exception();
+            }
+        }
+        set
+        {
+            switch (n)
+            {
+                case 0:
+                    X = value;
+                    return;
+                case 1:
+                    Y = value;
+                    return;
+                default:
+                    throw new Exception();
+            }
+        }
+    }
+    
+
+    public static Vec2i operator *(int left, Vec2i right)
+    {
+        return right * left;
     }
 }

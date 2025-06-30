@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowExplainer", "FlowExplainer\FlowExplainer.csproj", "{0EBA0EE6-54D3-4D2E-86F1-C5EF01A4A9E6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowExplainer.Tests", "FlowExplainer.Tests\FlowExplainer.Tests.csproj", "{BA6EA3ED-ABBD-4D54-B506-319DB4B9F15E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{0EBA0EE6-54D3-4D2E-86F1-C5EF01A4A9E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0EBA0EE6-54D3-4D2E-86F1-C5EF01A4A9E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0EBA0EE6-54D3-4D2E-86F1-C5EF01A4A9E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA6EA3ED-ABBD-4D54-B506-319DB4B9F15E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA6EA3ED-ABBD-4D54-B506-319DB4B9F15E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA6EA3ED-ABBD-4D54-B506-319DB4B9F15E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA6EA3ED-ABBD-4D54-B506-319DB4B9F15E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

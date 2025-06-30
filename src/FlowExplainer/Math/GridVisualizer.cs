@@ -9,7 +9,7 @@ public class GridVisualizer : WorldService, IAxisTitle
     public bool Continous = true;
     public int TargetCellCount = 4000;
 
-    public List<IGridDiagnostic> Diagnostics = [new FTLEGridDiagnostic(), new VelocityMagnitudeGridDiagnostic(), new CustomGridDiagnostic()];
+    public List<IGridDiagnostic> Diagnostics = [new FTLEGridDiagnostic(), new VelocityMagnitudeGridDiagnostic(), new CustomGridDiagnostic(), new FTLEvsCustomGridDiagnostic()];
 
     public InterpolatedRenderGrid<T> GetRenderGrid<T>() where T : struct
     {

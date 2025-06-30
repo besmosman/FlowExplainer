@@ -2,9 +2,8 @@ namespace FlowExplainer;
 
 public interface IEditabalePeriodicVectorField<TInput, TOutput> : IPeriodicVectorField<TInput, TOutput>
 {
-    public  void OnImGuiEdit();
+    public void OnImGuiEdit();
 }
-
 
 public interface IPeriodicVectorField<TInput, TOutput> : IVectorField<TInput, TOutput>
 {

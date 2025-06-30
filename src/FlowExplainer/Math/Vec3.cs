@@ -8,7 +8,8 @@ public struct Vec3 :
     IVec<Vec3>,
     IEquatable<Vec3>,
     IVecUpDimension<Vec4>,
-    IVecDownDimension<Vec2>
+    IVecDownDimension<Vec2>,
+    IVecIntegerEquivelant<Vec3i>
 {
     public float X;
     public float Y;
@@ -16,9 +17,44 @@ public struct Vec3 :
 
     public static int SizeInBytes { get; } = 12;
     public int Dimensions => 3;
-    
+
     public float Last => Z;
-    
+
+    public float this[int n]
+    {
+        get
+        {
+            switch (n)
+            {
+                case 0:
+                    return X;
+                case 1:
+                    return Y;
+                case 2:
+                    return Z;
+                default:
+                    throw new Exception();
+            }
+        }
+        set
+        {
+            switch (n)
+            {
+                case 0:
+                    X = value;
+                    return;
+                case 1:
+                    Y = value;
+                    return;
+                case 2:
+                    Z = value;
+                    return;
+                default:
+                    throw new Exception();
+            }
+        }
+    }
+
     public static Vec3 operator *(float left, Vec3 right)
     {
         return right * left;
@@ -168,6 +204,19 @@ public struct Vec3 :
 
     public Vec2 Down() => XY;
 
+
+    public float GetDimension(int n)
+    {
+        switch (n)
+        {
+            case 0: return X;
+            case 1: return Y;
+            case 2: return Z;
+            default: throw new Exception();
+        }
+    }
+
+
     //source NeuroTrace ????
     public static Matrix4x4 LookAtDirection(Vector3 direction)
     {
@@ -176,7 +225,7 @@ public struct Vec3 :
         Vector3 rotationAxis = Vector3.Cross(forward, direction);
         float dotProduct = Vector3.Dot(forward, direction);
         float angle = MathF.Acos(dotProduct);
-        
+
         if (rotationAxis.LengthSquared() > 0.0001f)
         {
             rotationAxis = Vector3.Normalize(rotationAxis);
@@ -189,5 +238,15 @@ public struct Vec3 :
             else
                 return Matrix4x4.Identity;
         }
+    }
+
+    public Vec3i Floor()
+    {
+        return new Vec3i((int)MathF.Floor(X), (int)MathF.Floor(Y), (int)MathF.Floor(Z));
+    }
+
+    public Vec3i Round()
+    {
+        return new Vec3i((int)MathF.Round(X), (int)MathF.Round(Y), (int)MathF.Round(Z));
     }
 }

@@ -32,16 +32,14 @@ public class ImGUIViewRenderer
             view.RelativeMousePosition = (Vec2)(ImGui.GetMousePos() - min);
 
 
-          
-
-
+            ImGui.PopStyleVar();
             if (!view.Name.Contains("Presentation"))
             {
                 if (ImGui.IsWindowDocked())
                     ImGui.SetNextWindowPos(min + new Vec2(15, 15));
                 else
                     ImGui.SetNextWindowPos(ImGui.GetWindowPos() + new Vec2(0, -35));
-                
+
                 if (ImGui.Begin(view.Name + " overlay", ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoSavedSettings))
                 {
                     ImGui.Text(view.Name);
@@ -52,11 +50,15 @@ public class ImGUIViewRenderer
                         ImGui.EndPopup();
                     }
                 }
+
                 ImGui.End();
             }
         }
+        else
+        {
+            ImGui.PopStyleVar();
+        }
 
-        ImGui.PopStyleVar();
         ImGui.End();
 
 
