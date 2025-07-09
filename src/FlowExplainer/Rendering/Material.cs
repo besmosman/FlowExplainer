@@ -117,6 +117,9 @@ namespace FlowExplainer
                 case Vec3 v:
                     GL.ProgramUniform3(ProgramHandle, loc, v.X, v.Y, v.Z);
                     break;
+                case Vec3i v:
+                    GL.ProgramUniform3(ProgramHandle, loc, v.X, v.Y, v.Z);
+                    break;
                 case Vector2 v:
                     GL.ProgramUniform2(ProgramHandle, loc, v.X, v.Y);
                     break;

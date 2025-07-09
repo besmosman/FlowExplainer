@@ -4,24 +4,28 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="de64a90b-d37e-448c-ab79-56558d5f35b9" name="Changes" comment="Preparations for the demo.">
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/IVecDownDimension.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/IVecUpDimension.cs" afterDir="false" />
+    <list default="true" id="de64a90b-d37e-448c-ab79-56558d5f35b9" name="Changes" comment="RegularGridVectorField and tests.">
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Assets/Shaders/volume.frag" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/FiniteDifferences.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/RegularGridVectorField.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/Vec4i.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.FlowExplainer/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FlowExplainer/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer.sln" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer.sln" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGUIViewRenderer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGUIViewRenderer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/AxisVisualizer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/AxisVisualizer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer.Tests/RegularGridVectorFieldTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer.Tests/RegularGridVectorFieldTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Assets/Shaders/worldspace.vert" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Assets/Shaders/worldspace.vert" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/FlowExplainer.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/FlowExplainer.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Gizmos.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Gizmos.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/AnalyticalEvolvingVelocityField.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/AnalyticalEvolvingVelocityField.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/DataService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/DataService.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/FTLEGridDiagnostic.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/FTLEGridDiagnostic.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/GridVisualizer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/GridVisualizer.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/HeatSimulation3DVisualizer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/HeatSimulation3DVisualizer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/IVectorField.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/IVectorField.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/PoincareComputer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/PoincareComputer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Test1Service.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Vec1.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Vec1.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Vec1.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Vec2.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Vec2.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Vec2i.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Vec2i.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Vec3.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Vec3.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Vector3i.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Vector3i.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/VectorExtensions.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/VectorExtensions.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Vec4.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Vec4.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Vector3i.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Vec3i.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Msfd/MsdfRenderer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Msfd/MsdfRenderer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Rendering/Material.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Rendering/Material.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Services/Global/VisualizationManagerService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Services/Global/VisualizationManagerService.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -62,6 +66,7 @@
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Lazy.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Math.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/MathF.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Number.Parsing.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Numerics/IAdditionOperators.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Numerics/IDivisionOperators.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Numerics/IIncrementOperators.cs" root0="SKIP_HIGHLIGHTING" />
@@ -73,10 +78,12 @@
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Numerics/Vector3.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Numerics/Vector4.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Reflection/MethodBaseInvoker.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Runtime/CompilerServices/Unsafe.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Runtime/ExceptionServices/ExceptionDispatchInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Single.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/Threading/Overlapped.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Private.CoreLib/src/System/ThrowHelper.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$USER_HOME$/AppData/Local/Symbols/src/dotnet/runtime/c8acea22626efab11c13778c028975acdc34678f/src/libraries/System.Runtime.Numerics/src/System/Numerics/Complex.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4895374e001d46f7a8a2faacf82484924ba8/fa/18f7badd/Program.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/56fce2c682e9454c8c16a88f90e06a2d4da000/08/fdb6135b/GL.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/8243060d9bfb43bd93c81caad5fecadf4d800/1f/ff0b5ec2/ImGui.cs" root0="SKIP_HIGHLIGHTING" />
@@ -84,6 +91,7 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/90b5cb34f6ce4e99b990e953631a5a9920938/3d/12ddfad8/Parallel.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/ba5a62274184491dacbff186935d11a833600/c6/08b3302c/MemoryPackableAttribute.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/e3157c720a4245958cf8a1b12c4b4a27e90928/3b/83d42aeb/IntrinsicAttribute.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/e3157c720a4245958cf8a1b12c4b4a27e90928/72/9bad9da2/StringComparison.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/e3157c720a4245958cf8a1b12c4b4a27e90928/c9/361682ad/IMultiplicativeIdentity`2.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/e3157c720a4245958cf8a1b12c4b4a27e90928/e3/6f87ae5f/IAdditiveIdentity`2.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/356e901355d061ec467328ae269cbf165ffb989756b3994a1e6f68cd96ace6/Keys.cs" root0="SKIP_HIGHLIGHTING" />
@@ -92,14 +100,15 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/8e90945a2ba4efdf63ecd291a2f18cd731eed131712ff33639f91dd0574d3d/DeflaterEngine.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/997d2c0341d69df6df6b6a4dacfef2a38986a28984a4cb5cd220d86eaaa98d/NativeWindowSettings.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/9ac61952e0eca9986ce4a54183743ce515bb71015edc74339daa6df759ebe6d/Vector2.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/ad8b2779652854276d03ec153d51377686c7193799d1688e119272770d0cf/EqualityAsserts.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/b7c389586d39108cdb7250c6a81462b9292f5776b2f86e360e4504d42229b40/PaethFilter.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/d1b3e93ee7eac7c9d2d20ef1717971cf696d48d9b6162855dbd38e6806e74/MathHelper.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/f8a2bf751a396d21bcb21b7e5acae9ef6951e260923390dce380bf366bf241/Vector2i.cs" root0="SKIP_HIGHLIGHTING" />
   </component>
-  <component name="KubernetesApiPersistence"><![CDATA[{}]]></component>
-  <component name="KubernetesApiProvider"><![CDATA[{
-  "isMigrated": true
-}]]></component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
   <component name="MetaFilesCheckinStateConfiguration" checkMetaFiles="true" />
   <component name="ProjectColorInfo">{
   &quot;customColor&quot;: &quot;&quot;,
@@ -117,6 +126,7 @@
   "keyToString": {
     ".NET Project.FlowExplainer.executor": "Debug",
     "21493ac8-4fff-4f66-9a15-a1559856a671.executor": "Debug",
+    "2b49c320-4b93-40a8-a832-a1cedfe6a50a.executor": "Debug",
     "ASKED_ADD_EXTERNAL_FILES": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "ffe2c817-3d72-4b81-b96a-9dfb89469151.executor": "Debug",
@@ -137,7 +147,7 @@
     ]
   }
 }]]></component>
-  <component name="RunManager" selected=".NET Project.FlowExplainer">
+  <component name="RunManager">
     <configuration name="FlowExplainer" type="DotNetProject" factoryName=".NET Project" activateToolWindowBeforeRun="false">
       <option name="EXE_PATH" value="$PROJECT_DIR$/FlowExplainer/bin/Debug/net9.0/FlowExplainer.exe" />
       <option name="PROGRAM_PARAMETERS" value="" />
@@ -195,7 +205,14 @@
       <workItem from="1750921411355" duration="17224000" />
       <workItem from="1751006348824" duration="438000" />
       <workItem from="1751006805875" duration="1794000" />
-      <workItem from="1751281600399" duration="13830000" />
+      <workItem from="1751281600399" duration="14070000" />
+      <workItem from="1751369283510" duration="13083000" />
+      <workItem from="1751454188471" duration="6325000" />
+      <workItem from="1751526616887" duration="24158000" />
+      <workItem from="1751716962179" duration="7569000" />
+      <workItem from="1751817809104" duration="906000" />
+      <workItem from="1751980992154" duration="121000" />
+      <workItem from="1752066957496" duration="3262000" />
     </task>
     <task id="LOCAL-00001" summary="Custom vectors and testing stuff">
       <option name="closed" value="true" />
@@ -301,7 +318,15 @@
       <option name="project" value="LOCAL" />
       <updated>1750944161172</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="RegularGridVectorField and tests.">
+      <option name="closed" value="true" />
+      <created>1751296788333</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1751296788333</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -333,7 +358,8 @@
     <MESSAGE value="Presentation setup" />
     <MESSAGE value="Progress." />
     <MESSAGE value="Preparations for the demo." />
-    <option name="LAST_COMMIT_MESSAGE" value="Preparations for the demo." />
+    <MESSAGE value="RegularGridVectorField and tests." />
+    <option name="LAST_COMMIT_MESSAGE" value="RegularGridVectorField and tests." />
   </component>
   <component name="XDebuggerManager">
     <pin-to-top-manager>

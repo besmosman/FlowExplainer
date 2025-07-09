@@ -8,13 +8,13 @@ public static class Gizmos
 {
     public static Material debugMat = Material.NewDefaultUnlit;
     public static Mesh sphereMesh;
-    private static Mesh debugCube;
+    public static Mesh UnitCube;
 
     static Gizmos()
     {        
         sphereMesh = new Mesh(GeometryGen.UVSphere(6, 6));
-        debugCube = new Mesh(GeometryGen.TriangleCube(Vec3.Zero, Vec3.One, Vec4.One));
-        debugCube.PrimitiveType = PrimitiveType.Triangles;
+        UnitCube = new Mesh(GeometryGen.TriangleCube(Vec3.Zero, Vec3.One, Vec4.One));
+        UnitCube.PrimitiveType = PrimitiveType.Triangles;
     }
 
     public static void DrawSphere(View view, Vector3 pos, Vector3 size, Color color)
@@ -40,7 +40,7 @@ public static class Gizmos
             Matrix4x4.CreateScale(new Vector3(thickness, thickness, dis)) *
             Vec3.LookAtDirection(Vec3.Normalize(p2 - p1)) *
             Matrix4x4.CreateTranslation(p1 + (p2 - p1) / 2));
-        debugCube.Draw();
+        UnitCube.Draw();
     }
 
 

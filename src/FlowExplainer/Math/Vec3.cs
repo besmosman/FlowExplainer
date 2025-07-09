@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace FlowExplainer;
 
+
 [Serializable]
 public struct Vec3 :
     IVec<Vec3>,
@@ -16,44 +17,12 @@ public struct Vec3 :
     public float Z;
 
     public static int SizeInBytes { get; } = 12;
-    public int Dimensions => 3;
-
+    public int ElementCount => 3;
     public float Last => Z;
 
-    public float this[int n]
-    {
-        get
-        {
-            switch (n)
-            {
-                case 0:
-                    return X;
-                case 1:
-                    return Y;
-                case 2:
-                    return Z;
-                default:
-                    throw new Exception();
-            }
-        }
-        set
-        {
-            switch (n)
-            {
-                case 0:
-                    X = value;
-                    return;
-                case 1:
-                    Y = value;
-                    return;
-                case 2:
-                    Z = value;
-                    return;
-                default:
-                    throw new Exception();
-            }
-        }
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public float Sum() => X + Y+Z;
+    
 
     public static Vec3 operator *(float left, Vec3 right)
     {
@@ -76,6 +45,7 @@ public struct Vec3 :
         Z = z;
     }
 
+    
 
     public static bool operator ==(Vec3 v1, Vec3 v2)
     {
@@ -152,6 +122,28 @@ public struct Vec3 :
         return $"({X}, {Y}, {Z})";
     }
 
+    public float this[int n]
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        get
+        {
+#if DEBUG
+            if (n < 0 || n >= ElementCount)
+                throw new IndexOutOfRangeException();
+#endif
+            return Unsafe.Add(ref X, n);
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        set
+        {
+#if DEBUG
+            if (n < 0 || n >= ElementCount)
+                throw new IndexOutOfRangeException();
+#endif
+            Unsafe.Add(ref X, n) = value;
+        }
+    }
+    
     /*
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static explicit operator Vec3(Vec2 v)

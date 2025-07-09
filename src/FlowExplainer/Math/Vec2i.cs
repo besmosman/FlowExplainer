@@ -1,8 +1,8 @@
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using Vector2 = OpenTK.Mathematics.Vector2;
 
 namespace FlowExplainer;
-
 
 public interface IVecFloatEquivelant<TVecF>
 {
@@ -15,13 +15,11 @@ public struct Vec2i :
     IVecFloatEquivelant<Vec2>, IVec<Vec2i, int>
 
 {
-      
-
     public int X;
     public int Y;
 
-    public static readonly Vec2i Zero = new(0, 0);
-    public static readonly Vec2i One = new(1, 1);
+    public static Vec2i Zero { get; } = new(0, 0);
+    public static Vec2i One { get; } = new(1, 1);
     public static readonly Vec2i Right = new(1, 0);
     public static readonly Vec2i Left = new(-1, 0);
     public static readonly Vec2i Up = new(0, 1);
@@ -38,7 +36,10 @@ public struct Vec2i :
     {
         return new Vec2(X, Y);
     }
-        
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public int Sum() => X + Y;
+
     public static bool operator ==(Vec2i left, Vec2i right)
     {
         return left.Equals(right);
@@ -77,12 +78,12 @@ public struct Vec2i :
     {
         return obj is Vec2i other && Equals(other);
     }
-        
+
     public bool Equals(Vec2i other)
     {
         return X.Equals(other.X) && Y.Equals(other.Y);
     }
-        
+
     public bool IsBetweenRect(Vec2i rectBegin, Vec2i rectEnd)
     {
         return X > rectBegin.X && X < rectEnd.X && Y > rectBegin.Y && Y < rectEnd.Y;
@@ -115,10 +116,10 @@ public struct Vec2i :
         return new Vec2i(int.Max(X, b.X), int.Max(Y, b.Y));
     }
 
-    public int Dimensions => 2;
+    public int ElementCount => 2;
     public int Last => Y;
-    
-    
+
+
     public int this[int n]
     {
         get
@@ -148,7 +149,7 @@ public struct Vec2i :
             }
         }
     }
-    
+
 
     public static Vec2i operator *(int left, Vec2i right)
     {

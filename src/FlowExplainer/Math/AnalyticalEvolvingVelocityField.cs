@@ -6,7 +6,7 @@ namespace FlowExplainer;
 //https://shaddenlab.berkeley.edu/uploads/LCS-tutorial/examples.html#x1-1200812
 public class AnalyticalEvolvingVelocityField : IEditabalePeriodicVectorField<Vec3, Vec2>
 {
-    public float elipson = 0f;
+    public float epsilon = 0f;
     public float A = 1f;
     public float w = 1f;
 
@@ -16,7 +16,7 @@ public class AnalyticalEvolvingVelocityField : IEditabalePeriodicVectorField<Vec
     public void OnImGuiEdit()
     {
         ImGuiHelpers.SliderFloat("A", ref A, 0, 10);
-        ImGuiHelpers.SliderFloat("Elipson", ref elipson, 0, 2);
+        ImGuiHelpers.SliderFloat("Epsilon", ref epsilon, 0, 2);
         ImGuiHelpers.SliderFloat("w", ref w, 0, 2);
     }
 
@@ -30,12 +30,12 @@ public class AnalyticalEvolvingVelocityField : IEditabalePeriodicVectorField<Vec
 
     float a(float t)
     {
-        return elipson * Sin(w * t);
+        return epsilon * Sin(w * t);
     }
 
     float b(float t)
     {
-        return 1f - 2 * elipson * Sin(w * t);
+        return 1f - 2 * epsilon * Sin(w * t);
     }
 
     public float f(float x, float t)

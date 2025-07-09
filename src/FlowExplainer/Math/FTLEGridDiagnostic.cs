@@ -65,10 +65,10 @@ public class CustomGridDiagnostic : IGridDiagnostic
                 var start_up = renderGrid.AtCoords(new Vec2i(i, j - 1)).StartPosition;
                 float dX = start_left.X - start_right.X;
                 float dY = (start_down.Y - start_up.Y);
-                
+
                 {
-                    float length = new Vec2(Vec2.Distance(end_left, end_right) / dX, Vec2.Distance(end_up, end_down)/ dY).Length();
-                    center.FTLE = 1f / float.Abs(tau - t) * length  *.14f;
+                    float length = new Vec2(Vec2.Distance(end_left, end_right) / dX, Vec2.Distance(end_up, end_down) / dY).Length();
+                    center.FTLE = 1f / float.Abs(tau - t) * length * .14f;
                 }
             }
             else
@@ -147,44 +147,82 @@ public class FTLEvsCustomGridDiagnostic : IGridDiagnostic
             ref var center = ref renderGrid.AtCoords(new Vec2i(i, j));
             if (i > 0 && j > 0 && i < renderGrid.GridSize.X - 1 && j < renderGrid.GridSize.Y - 1)
             {
-                var end_left = renderGrid.AtCoords(new Vec2i(i - 1, j)).FinalPosition;
-                var end_right = renderGrid.AtCoords(new Vec2i(i + 1, j)).FinalPosition;
-                var end_up = renderGrid.AtCoords(new Vec2i(i, j - 1)).FinalPosition;
-                var end_down = renderGrid.AtCoords(new Vec2i(i, j + 1)).FinalPosition;
-
-                var start_right = renderGrid.AtCoords(new Vec2i(i - 1, j)).StartPosition;
-                var start_left = renderGrid.AtCoords(new Vec2i(i + 1, j)).StartPosition;
-                var start_down = renderGrid.AtCoords(new Vec2i(i, j + 1)).StartPosition;
-                var start_up = renderGrid.AtCoords(new Vec2i(i, j - 1)).StartPosition;
-                float dX = start_left.X - start_right.X;
-                float dY = (start_down.Y - start_up.Y);
-
-                Matrix2 gradient = new Matrix2(
-                    (end_left.X - end_right.X) / dX,
-                    (end_down.X - end_up.X) / dY,
-                    (end_left.Y - end_right.Y) / dX,
-                    (end_down.Y - end_up.Y) / dY
-                );
-
-                var delta = gradient * gradient.Transposed();
-
-                var m = delta.Trace * .5f;
-                var p = delta.Determinant;
-                var n = m * m - p;
-
-                if (n < 1e-05)
-                    n = 0;
-
-                var right = float.Sqrt(n);
-                var max_eigen = float.Max(m + right, m - right);
-                center.FTLE = (1f / float.Abs(T)) * float.Log(float.Sqrt(max_eigen));
-
-                float xSlciec = renderGrid.GridSize.X/2f + float.Sin((float)gridVisualizer.FlowExplainer.Time.TotalSeconds)*  0;
-                if(i > xSlciec)
+                float xSlciec = renderGrid.GridSize.X / 2f + float.Sin((float)gridVisualizer.FlowExplainer.Time.TotalSeconds) * 0;
+                if (i > xSlciec)
                 {
-                    float length = new Vec2(Vec2.Distance(end_left, end_right) / dX, Vec2.Distance(end_up, end_down)/ dY).Length();
-                    float abs = 1f / float.Abs(tau - t);
-                    center.FTLE = abs * float.Sqrt(length) * length * .17f;
+                    var end_left = renderGrid.AtCoords(new Vec2i(i - 1, j)).FinalPosition;
+                    var end_right = renderGrid.AtCoords(new Vec2i(i + 1, j)).FinalPosition;
+                    var end_up = renderGrid.AtCoords(new Vec2i(i, j - 1)).FinalPosition;
+                    var end_down = renderGrid.AtCoords(new Vec2i(i, j + 1)).FinalPosition;
+
+                    var start_right = renderGrid.AtCoords(new Vec2i(i - 1, j)).StartPosition;
+                    var start_left = renderGrid.AtCoords(new Vec2i(i + 1, j)).StartPosition;
+                    var start_down = renderGrid.AtCoords(new Vec2i(i, j + 1)).StartPosition;
+                    var start_up = renderGrid.AtCoords(new Vec2i(i, j - 1)).StartPosition;
+                    float dX = start_left.X - start_right.X;
+                    float dY = (start_down.Y - start_up.Y);
+
+                    Matrix2 gradient = new Matrix2(
+                        (end_left.X - end_right.X) / dX,
+                        (end_down.X - end_up.X) / dY,
+                        (end_left.Y - end_right.Y) / dX,
+                        (end_down.Y - end_up.Y) / dY
+                    );
+
+                    var d = new Vec2(Vec2.DistanceSquared(end_left, end_right)/dX,Vec2.DistanceSquared(end_up, end_down)/dY);
+                    
+                    var delta = gradient * gradient.Transposed();
+
+                    var p_0 = (delta.Row0.X + delta.Row1.Y);
+                    var p_1 = (delta.Row0.X + delta.Row1.Y) * .5f;
+                    var p_2 = gradient.Row0;
+                    var p_3 = gradient.Row1;
+                    
+                    var m = (delta.Row0.X + delta.Row1.Y) *.5f;// delta.Trace * .5f;
+                    var p = delta.Determinant;
+                    var n = m * m - p;
+
+                    if (n < 1e-05)
+                        n = 0;
+
+                    var right = float.Sqrt(n);
+                    var max_eigen = float.Max(m + right, m - right);
+                    center.FTLE = (1f / float.Abs(T)) * float.Log(d.Length()*1f + 0f);
+                   // center.FTLE = (1f / float.Abs(T)) * float.Log(float.Sqrt(max_eigen));
+                }
+                else
+                {
+                    var end_left = renderGrid.AtCoords(new Vec2i(i - 1, j)).FinalPosition;
+                    var end_right = renderGrid.AtCoords(new Vec2i(i + 1, j)).FinalPosition;
+                    var end_up = renderGrid.AtCoords(new Vec2i(i, j - 1)).FinalPosition;
+                    var end_down = renderGrid.AtCoords(new Vec2i(i, j + 1)).FinalPosition;
+
+                    var start_right = renderGrid.AtCoords(new Vec2i(i - 1, j)).StartPosition;
+                    var start_left = renderGrid.AtCoords(new Vec2i(i + 1, j)).StartPosition;
+                    var start_down = renderGrid.AtCoords(new Vec2i(i, j + 1)).StartPosition;
+                    var start_up = renderGrid.AtCoords(new Vec2i(i, j - 1)).StartPosition;
+                    float dX = start_left.X - start_right.X;
+                    float dY = (start_down.Y - start_up.Y);
+
+                    Matrix2 gradient = new Matrix2(
+                        (end_left.X - end_right.X) / dX,
+                        (end_down.X - end_up.X) / dY,
+                        (end_left.Y - end_right.Y) / dX,
+                        (end_down.Y - end_up.Y) / dY
+                    );
+
+                    var delta = gradient * gradient.Transposed();
+
+                    var m = delta.Trace * .5f;
+                    var p = delta.Determinant;
+                    var n = m * m - p;
+
+                    if (n < 1e-05)
+                        n = 0;
+
+                    var right = float.Sqrt(n);
+                    var max_eigen = float.Max(m + right, m - right);
+                    center.FTLE = (1f / float.Abs(T)) * float.Log(float.Sqrt(max_eigen));
                 }
             }
             else
@@ -212,7 +250,6 @@ public class FTLEvsCustomGridDiagnostic : IGridDiagnostic
         ImGuiHelpers.SliderFloat("T", ref T, -dat.VelocityField.Period * 4, dat.VelocityField.Period * 4);
     }
 }
-
 
 public class FTLEGridDiagnostic : IGridDiagnostic
 {

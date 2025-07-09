@@ -32,9 +32,8 @@ void main()
    
    incoming = getIncoming(view * model);
 
-   mat2x3 pp = getPos(gl_Position, projection, view, model);
-   worldPos = pp[0];
-   objPos = pp[1];
+   worldPos = (model * vec4(in_position, 1.0)).xyz;
+   objPos = in_position;
 
-   cameraPos = (inverse(view) * model * vec4(0, 0, 0, 1)).xyz;
+   cameraPos = (inverse(view) * vec4(0, 0, 0, 1)).xyz;
 }

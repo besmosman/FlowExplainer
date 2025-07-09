@@ -20,20 +20,38 @@ public interface IVec<TVec, TNumber> :
     IDivisionOperators<TVec, TNumber, TVec>,
     IAdditionOperators<TVec, TVec, TVec>
     where TVec : IVec<TVec, TNumber>
+    where TNumber : INumber<TNumber>
 {
     public TVec Max(TVec b);
-    public int Dimensions { get; }
+    public int ElementCount { get; }
 
-    public TNumber Last => this[Dimensions - 1];
+    public TNumber Sum();
+    public abstract static TVec Zero { get; }
+    public abstract static TVec One { get; }
+    public TNumber Last => this[ElementCount - 1];
     public TNumber this[int n] { get; set; }
+
     static abstract TVec operator *(TNumber left, TVec right);
+    static abstract TVec operator *(TVec left, TVec right);
+
+    public TNumber Volume()
+    {
+        TNumber n = TNumber.One;
+
+        for (int i = 0; i < ElementCount; i++)
+            n *= this[i];
+
+        return n;
+    }
 }
 
 public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>, IVecIntegerEquivelant<Vec2i>
 {
     public float X;
     public float Y;
-    public int Dimensions => 2;
+    public int ElementCount => 2;
+
+
     public float Last => Y;
 
     public Vec2(float x, float y)
@@ -76,6 +94,9 @@ public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>,
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public float Sum() => X + Y;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vec2 operator *(Vec2 v1, float f) => new(v1.X * f, v1.Y * f);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -83,31 +104,23 @@ public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>,
 
     public float this[int n]
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
         {
-            switch (n)
-            {
-                case 0:
-                    return X;
-                case 1:
-                    return Y;
-                default:
-                    throw new Exception();
-            }
+#if DEBUG
+            if (n < 0 || n >= ElementCount)
+                throw new IndexOutOfRangeException();
+#endif
+            return Unsafe.Add(ref X, n);
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         set
         {
-            switch (n)
-            {
-                case 0:
-                    X = value;
-                    return;
-                case 1:
-                    Y = value;
-                    return;
-                default:
-                    throw new Exception();
-            }
+#if DEBUG
+            if (n < 0 || n >= ElementCount)
+                throw new IndexOutOfRangeException();
+#endif
+            Unsafe.Add(ref X, n) = value;
         }
     }
 
@@ -134,6 +147,8 @@ public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>,
         return MathF.Sqrt((X * X) + (Y * Y));
     }
 
+
+    public static Func<Vec2, Vec2, bool> ApproximateComparer => (a, b) => { return (a - b).LengthSquared() < 1e-6f; };
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public float LengthSquared()

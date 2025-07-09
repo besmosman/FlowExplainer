@@ -9,7 +9,7 @@ public class DataService : WorldService
     public ColorGradient ColorGradient { get; set; } = Gradients.GetGradient("matlab_jet");
     public float SimulationTime;
 
-    public float TimeMultiplier = .1f;
+    public float TimeMultiplier = .0f;
 
     public override ToolCategory Category => ToolCategory.Data;
     

@@ -10,7 +10,7 @@ public static class MsdfRenderer
     public static Material Material;
     public static Mesh textMesh = new Mesh(new Geometry([], []), true, true);
     public static Dictionary<int, MsdfFont> fonts = new();
-    private static bool forceRegenerate = true;
+    private static bool forceRegenerate = false;
 
     static MsdfRenderer()
     {

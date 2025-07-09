@@ -92,41 +92,35 @@ namespace FlowExplainer
             return new Vec3i(int.Max(X, b.X), int.Max(Y, b.Y), int.Max(Z, b.Z));
         }
 
-        public int Dimensions => 3;
+        public int ElementCount => 3;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int Sum() => X + Y + Z;
+
+        public static Vec3i Zero { get; } = default;
+        public static Vec3i One { get; } = new Vec3i(1,1,1);
+
         public int Last => Z;
 
         public int this[int n]
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                switch (n)
-                {
-                    case 0:
-                        return X;
-                    case 1:
-                        return Y;
-                    case 2:
-                        return Z;
-                    default:
-                        throw new Exception();
-                }
+#if DEBUG
+                if (n < 0 || n >= ElementCount)
+                    throw new IndexOutOfRangeException();
+#endif
+                return Unsafe.Add(ref X, n);
             }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             set
             {
-                switch (n)
-                {
-                    case 0:
-                        X = value;
-                        return;
-                    case 1:
-                        Y = value;
-                        return;
-                    case 2:
-                        Z = value;
-                        return;
-                    default:
-                        throw new Exception();
-                }
+#if DEBUG
+                if (n < 0 || n >= ElementCount)
+                    throw new IndexOutOfRangeException();
+#endif
+                Unsafe.Add(ref X, n) = value;
             }
         }
 
@@ -134,6 +128,16 @@ namespace FlowExplainer
         public static Vec3i operator *(int left, Vec3i right)
         {
             return right * left;
+        }
+
+        public static Vec3i operator *(Vec3i left, Vec3i right)
+        {
+            return new Vec3i(left.X * right.X, left.Y * right.Y, left.Z * right.Z);
+        }
+
+        public int Volume()
+        {
+            return X * Y * Z;
         }
     }
 }
