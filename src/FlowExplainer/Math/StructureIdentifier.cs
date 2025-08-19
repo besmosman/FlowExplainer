@@ -24,7 +24,6 @@ public class StructureIdentifier : WorldService
 
     public override void Draw(RenderTexture rendertarget, View view)
     {
-        return;
         
         var window = GetRequiredGlobalService<WindowService>();
         var grid = GetRequiredWorldService<GridVisualizer>();
@@ -35,7 +34,7 @@ public class StructureIdentifier : WorldService
             {
                 SeedCoords = grid.RegularGrid.ToVoxelCoord(CoordinatesConverter2D.ViewToWorld(view, view.RelativeMousePosition)).Floor(),
                 lastFilled = null,
-                dis = .04f,
+                dis = radius,
             };
         }
 
@@ -43,7 +42,7 @@ public class StructureIdentifier : WorldService
         {
             if (structure.lastFilled != null)
             {
-                int samples = 164;
+                int samples = 64;
                 var bestScore = 0f;
                 var bestdis = 0f;
                 var bestOffset = new Vec2i(0, 0);
@@ -141,5 +140,11 @@ public class StructureIdentifier : WorldService
             }
         }
         return filled;
+    }
+    private float radius = .1f;
+    public override void DrawImGuiEdit()
+    {
+        ImGuiHelpers.SliderFloat("Identify radius", ref radius, 0, .3f);
+        base.DrawImGuiEdit();
     }
 }

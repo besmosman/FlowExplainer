@@ -31,8 +31,12 @@ int GetIndex(vec2 coords) {
 int GetCellAt(vec2 p) {
     return GetIndex(floor(p * gridSize));
 }
+vec4 ColorGradient(float f) {
+    float m = (f - minGrad) / (maxGrad-minGrad);
+    return texture(colorgradient, vec2(min(0.9999, max(0, m)), .5));
+}
 
-float Bilinear(vec2 uvv) {
+vec4 Bilinear(vec2 uvv) {
     vec2 p = uvv * (gridSize -  vec2(1));
     vec2 coords = floor(p);
     vec2 m = p - coords;
@@ -45,13 +49,11 @@ float Bilinear(vec2 uvv) {
 
     float marked =(mix(mix(lt.Marker, rt.Marker, m.x), mix(lb.Marker, rb.Marker, m.x), m.y));
     //return linear(linear(lt, lb, m.y), linear(rt, rb, m.y), m.x);
-    return mix(mix(lt.Value, rt.Value, m.x), mix(lb.Value, rb.Value, m.x), m.y);
+    float val = mix(mix(lt.Value, rt.Value, m.x), mix(lb.Value, rb.Value, m.x), m.y);
+    return mix( ColorGradient(val), vec4(1,1,1,1), marked);
 }
 
-vec4 ColorGradient(float f) {
-    float m = (f - minGrad) / (maxGrad-minGrad);
-    return texture(colorgradient, vec2(min(0.9999, max(0, m)), .5));
-}
+
 
 void main()
 {
@@ -62,7 +64,7 @@ void main()
     color = ColorGradient(Dat.Value);
     
     if (interpolate) {
-        color = ColorGradient(Bilinear(uv));
+        color = Bilinear(uv);
     }
     
     if(Dat.Marker > .5f)

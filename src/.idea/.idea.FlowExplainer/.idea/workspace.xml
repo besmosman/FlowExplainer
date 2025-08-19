@@ -4,64 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="de64a90b-d37e-448c-ab79-56558d5f35b9" name="Changes" comment="RegularGridVectorField and tests.">
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Assets/Shaders/grid-reg.frag" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/BubbleMlLoader.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/Heat3DViewer.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/LAVDGridDiagnostic.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/LCS_VelocityMagnitudeGridDiagnostic.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/PhaseComputer.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/RegularGrid.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/StructureIdentifier.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/FlowExplainer/NcLoader.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.FlowExplainer/.idea/projectSettingsUpdater.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FlowExplainer/.idea/projectSettingsUpdater.xml" afterDir="false" />
+    <list default="true" id="de64a90b-d37e-448c-ab79-56558d5f35b9" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.FlowExplainer/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FlowExplainer/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer.Tests/FlowExplainer.Tests.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer.Tests/FlowExplainer.Tests.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer.Tests/RegularGridVectorFieldTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer.Tests/RegularGridVectorFieldTests.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Assets/Shaders/volume.frag" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Assets/Shaders/volume.frag" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/FlowExplainer.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/FlowExplainer.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Gizmos2D.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Gizmos2D.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Gizmos2DInstanced.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Gizmos2DInstanced.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGUIRenderService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGUIRenderService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGUIService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGUIService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGuiToolWindows.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGuiToolWindows.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/AnalyticalEvolvingVelocityField.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/AnalyticalEvolvingVelocityField.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/AxisVisualizer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/AxisVisualizer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/BasicLagrangianHeatSim.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/BasicLagrangianHeatSim.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/BickleyJet2.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/BickleyJet2.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/DataService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/DataService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/FTLEGridDiagnostic.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/FTLEGridDiagnostic.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/FiniteDifferences.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/FiniteDifferences.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/FlowFieldVisualizer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/FlowFieldVisualizer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/GridVisualizer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/GridVisualizer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/HeatSimulation3DVisualizer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/HeatSimulation3DVisualizer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/HeatSimulationService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/HeatSimulationService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/IGridDiagnostic.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/IGridDiagnostic.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/IIntegrator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/IIntegrator.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/IVectorField.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/IVectorField.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/ImGuiHelpers.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/ImGuiHelpers.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/InterpolatedRenderGrid.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/InterpolatedRenderGrid.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/PeriodicDiscritizedField.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/PeriodicDiscretizedField.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/PoincareVisualizer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/PoincareVisualizer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/RegularGridVectorField.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/RegularGridVectorField.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/SpeetjensVelocityField.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/SpeetjensVelocityField.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Utils.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Utils.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Vec1.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Vec1.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Vec2.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Vec2.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Vec2i.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Vec2i.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Vec3.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Vec3.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Vec3i.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Vec3i.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Vec4.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Vec4.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Vec4i.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Vec4i.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/VelocityMagnitudeGridDiagnostic.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/VelocityMagnitudeGridDiagnostic.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Msfd/MsdfRenderer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Msfd/MsdfRenderer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Rendering/AssetWatcher.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Rendering/AssetWatcher.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Rendering/StorageBuffer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Rendering/StorageBuffer.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Services/Global/PreferencesService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Services/Global/PreferencesService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Assets/Shaders/grid-reg.frag" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Assets/Shaders/grid-reg.frag" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/StructureIdentifier.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/StructureIdentifier.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Services/Global/DefaultViewController.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Services/Global/DefaultViewController.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/Services/Global/VisualizationManagerService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Services/Global/VisualizationManagerService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Services/Global/WindowService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Services/Global/WindowService.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/FlowExplainer/Services/Preferences.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Services/Preferences.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -237,7 +185,7 @@
       <workItem from="1755083059118" duration="6425000" />
       <workItem from="1755090783972" duration="2018000" />
       <workItem from="1755159666085" duration="1000" />
-      <workItem from="1755170868935" duration="65197000" />
+      <workItem from="1755170868935" duration="66333000" />
     </task>
     <task id="LOCAL-00001" summary="Custom vectors and testing stuff">
       <option name="closed" value="true" />
@@ -351,7 +299,15 @@
       <option name="project" value="LOCAL" />
       <updated>1751296788333</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="voordat het crashed.">
+      <option name="closed" value="true" />
+      <created>1755617271893</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1755617271893</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -385,7 +341,8 @@
     <MESSAGE value="Progress." />
     <MESSAGE value="Preparations for the demo." />
     <MESSAGE value="RegularGridVectorField and tests." />
-    <option name="LAST_COMMIT_MESSAGE" value="RegularGridVectorField and tests." />
+    <MESSAGE value="voordat het crashed." />
+    <option name="LAST_COMMIT_MESSAGE" value="voordat het crashed." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

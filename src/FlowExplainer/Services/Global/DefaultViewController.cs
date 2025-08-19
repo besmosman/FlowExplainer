@@ -31,7 +31,7 @@ public class DefaultViewController : IViewController
     {
         var nt = view.World.FlowExplainer;
 
-        if (view.IsSelected && !view.CameraLocked && view.CameraSync == null)
+        if (view.IsSelected && !view.CameraLocked && view.CameraSync == null && view.Is3DCamera)
         {
             if (window.IsMouseButtonDown(MouseButton.Left))
             {
