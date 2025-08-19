@@ -65,6 +65,12 @@ public struct Vec3 :
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vec3 operator *(Vec3 v1, Vec3 v2) => new(v1.X * v2.X, v1.Y * v2.Y, v1.Z * v2.Z);
+   
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator >(Vec3 left, Vec3 right) => left.X > right.X && left.Y > right.Y && left.Z > right.Z;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator <(Vec3 left, Vec3 right) => left.X < right.X && left.Y < right.Y && left.Z < right.Z;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vec3 operator /(Vec3 v1, Vec3 v2) => new(v1.X / v2.X, v1.Y / v2.Y, v1.Z / v2.Z);
@@ -191,6 +197,14 @@ public struct Vec3 :
             float.Max(X, b.X),
             float.Max(Y, b.Y),
             float.Max(Z, b.Z)
+        );
+    }
+    public Vec3 Min(Vec3 b)
+    {
+        return new Vec3(
+            float.Min(X, b.X),
+            float.Min(Y, b.Y),
+            float.Min(Z, b.Z)
         );
     }
 

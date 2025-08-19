@@ -4,14 +4,14 @@ using static System.Single;
 namespace FlowExplainer;
 
 //https://shaddenlab.berkeley.edu/uploads/LCS-tutorial/examples.html#x1-1200812
-public class AnalyticalEvolvingVelocityField : IEditabalePeriodicVectorField<Vec3, Vec2>
+public class AnalyticalEvolvingVelocityField : IVectorField<Vec3, Vec2>
 {
     public float epsilon = 0f;
     public float A = 1f;
     public float w = 1f;
 
     public float Period => (2f * Pi) / w;
-    public Rect Domain => new Rect(new Vec2(0, 0), new Vec2(2, 1));
+    public IDomain<Vec3> Domain => new RectDomain<Vec3>(new Vec3(0, 0, 0), new Vec3(2, 1f, Period));
 
     public void OnImGuiEdit()
     {

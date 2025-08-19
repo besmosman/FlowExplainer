@@ -18,7 +18,6 @@ public class ImGuiRenderData
     public bool[] ShowToolServices = new bool[Enum.GetValues<ToolCategory>().Length];
     public int SelectedVisualiationIndex;
     public bool showTCKMetaDataPopup;
-    public Preferences editingPreferences;
 
     public ImGuiRenderData()
     {
@@ -101,9 +100,7 @@ public class ImGUIService : GlobalService
 
 
         ImGuiToolWindows.Draw(this);
-
-        DrawPreferencesWindow();
-
+        
 
         DrawLogger();
     }
@@ -116,6 +113,7 @@ public class ImGUIService : GlobalService
             window.WindowState = OpenTK.Windowing.Common.WindowState.Fullscreen;
     }
 
+    /*
     private void DrawPreferencesWindow()
     {
         if (!RenderData.showPreferencesWindow)
@@ -147,6 +145,7 @@ public class ImGUIService : GlobalService
             ImGui.End();
         }
     }
+    */
 
 
     Dictionary<LogLevel, Vec4> LogColours = new()

@@ -79,7 +79,7 @@ public class InterpolatedRenderGrid<T> : InterpolatedRenderGrid where T : struct
         material.SetUniform("model", Matrix4x4.CreateScale(size.X, size.Y, .4f) * Matrix4x4.CreateTranslation(start.X, start.Y, 0));
         buffer.Use();
 
-        Gizmos2D.imageQuad.Draw();
+        Gizmos2D.imageQuadInvertedY.Draw();
     }
 
     public override void Resize(Vec2i newSize)

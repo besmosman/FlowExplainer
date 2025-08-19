@@ -22,19 +22,19 @@ public class BasicLagrangianHeatSim
     public float cellSize = .1f;
     private Dictionary<Vec2i, List<int>> grid = new();
 
-    private Rect domain;
+    private Rect<Vec2> rect;
 
     public float HeatDiffusionFactor = 0.0f; //heat diffusion
     public float RadiationFactor = .0f; //heat radiation strength;
     public float KernelRadius = .0f;
 
-    public void Setup(Rect domain, float spacing)
+    public void Setup(Rect<Vec2> rect, float spacing)
     {
-        this.domain = domain;
+        this.rect = rect;
         List<Vec2> positions = new();
-        float m = domain.Size.X / 100f;
-        for (float x = domain.Min.X; x <= domain.Max.X; x += spacing)
-        for (float y = domain.Min.Y; y <= domain.Max.Y; y += spacing)
+        float m = rect.Size.X / 100f;
+        for (float x = rect.Min.X; x <= rect.Max.X; x += spacing)
+        for (float y = rect.Min.Y; y <= rect.Max.Y; y += spacing)
         {
             var r = new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()) - new Vec2(.5f, .5f);
             positions.Add(new Vec2(x, y) + r * m);
@@ -48,7 +48,7 @@ public class BasicLagrangianHeatSim
             p.Position = positions[i];
             p.Heat = .5f;
             p.LastHeat = p.Heat;
-            p.Tag = p.Position.X < domain.Center.X ? 1 : 0;
+            p.Tag = p.Position.X < rect.Center.X ? 1 : 0;
         }
     }
 
@@ -89,26 +89,26 @@ public class BasicLagrangianHeatSim
 
 
             //bounds shouldnt be needed though
-            if (p.Position.X < domain.Min.X)
-                p.Position.X = domain.Min.X + float.Epsilon;
-            if (p.Position.X > domain.Max.X)
-                p.Position.X = domain.Max.X - float.Epsilon;
+            if (p.Position.X < rect.Min.X)
+                p.Position.X = rect.Min.X + float.Epsilon;
+            if (p.Position.X > rect.Max.X)
+                p.Position.X = rect.Max.X - float.Epsilon;
 
-            if (p.Position.Y < domain.Min.Y)
+            if (p.Position.Y < rect.Min.Y)
                 p.Position.Y = float.Epsilon;
-            if (p.Position.Y > domain.Max.Y)
-                p.Position.Y = domain.Max.Y - float.Epsilon;
+            if (p.Position.Y > rect.Max.Y)
+                p.Position.Y = rect.Max.Y - float.Epsilon;
             //var r = new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()) - new Vec2(.5f, .5f);
             // p.Position += r * .001f * dt;
             float eps = .00001f;
 
             //bottom hot wall
-            float dis = p.Position.Y - domain.Min.Y;
+            float dis = p.Position.Y - rect.Min.Y;
             var intensity = (1f / (dis * dis + eps));
             p.RadiationHeatFlux += (1 - p.Heat) * Single.Min(1, intensity * dt * RadiationFactor);
 
             //top cold wall
-            dis = domain.Max.Y - p.Position.Y;
+            dis = rect.Max.Y - p.Position.Y;
             intensity = (1f / (dis * dis + eps));
             p.RadiationHeatFlux += (0 - p.Heat) * Single.Min(1, intensity * dt * RadiationFactor);
         });

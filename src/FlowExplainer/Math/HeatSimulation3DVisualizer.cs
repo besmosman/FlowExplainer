@@ -1,7 +1,7 @@
+using System.Globalization;
 using System.Numerics;
 using ImGuiNET;
 using OpenTK.Graphics.OpenGL4;
-using ShaderType = OpenTK.Graphics.OpenGL4.ShaderType;
 
 namespace FlowExplainer;
 
@@ -12,7 +12,7 @@ public static class SpeetjensSpectralImporter
         return 2 * x / Pi5 - 1;
     }
 
-    public static float InterpFourCheb(Vec2 pos, DataGrid<Vec2i, Complex> Usp, float Pi5)
+    public static float InterpFourCheb(Vec2 pos, RegularGrid<Vec2i, Complex> Usp, float Pi5)
     {
         int N = Usp.GridSize.X - 1;
         int M = 2 * (Usp.GridSize.Y - 1);
@@ -23,7 +23,7 @@ public static class SpeetjensSpectralImporter
         for (int p = 0; p <= N; p++)
         {
             int n = p;
-            u += Usp.AtCoords(new Vec2i(p, 0)).Real * float.Cos(n * acosy); // Assuming 0-indexed for m=0       
+            u += Usp.AtCoords(new Vec2i(p, 0)).Real * float.Cos(n * acosy);      
         }
 
         for (int p = 0; p <= N; p++)
@@ -56,7 +56,7 @@ public static class SpeetjensSpectralImporter
         float Pi5 = D; // probaly Domain in Y axis right?
 
 
-        Dictionary<string, DataGrid<Vec2i, Complex>> spectralGrids = new();
+        Dictionary<string, RegularGrid<Vec2i, Complex>> spectralGrids = new();
 
 
         foreach (var p in Directory.GetFiles(folderPath))
@@ -65,7 +65,7 @@ public static class SpeetjensSpectralImporter
             {
                 var range = (p.IndexOf("t=", StringComparison.InvariantCulture) + 2)..(p.IndexOf("EPS", StringComparison.InvariantCulture));
                 string tString = p[range];
-                var t = float.Parse(tString);
+                var t = float.Parse(tString,  CultureInfo.InvariantCulture);
                 var t_index = (int)float.Round(t * 100);
 
                 if (!spectralGrids.ContainsKey(tString))
@@ -84,7 +84,7 @@ public static class SpeetjensSpectralImporter
                     for (int y = 0; y < N; y++)
                     {
                         ref var at = ref spectralGrid.AtCoords(new Vec2i(x, y));
-                        var v = float.Parse(splitted[y]);
+                        var v = float.Parse(splitted[y], CultureInfo.InvariantCulture);
                         if (isRealFile)
                             at = new Complex(v, at.Imaginary);
                         else
@@ -101,7 +101,7 @@ public static class SpeetjensSpectralImporter
         RegularGridVectorField<Vec3, Vec3i, float> heatGrid = new(gridSize, min, max);
         Parallel.ForEach(spectralGrids, (p) =>
         {
-            var t = (int)(float.Round(float.Parse(p.Key) * 100f));
+            var t = (int)(float.Round(float.Parse(p.Key, CultureInfo.InvariantCulture) * 100f));
             var spectralGrid = p.Value;
             for (int x = 0; x < p.Value.GridSize.X; x++)
             {
@@ -109,7 +109,7 @@ public static class SpeetjensSpectralImporter
                 {
                     var pos = heatGrid.ToWorldPos(new Vec3(x, y, 0));
                     var h = InterpFourCheb(pos.XY, spectralGrid, Pi5);
-                    heatGrid.DataGrid.AtCoords(new Vec3i(x, y, t)) = h;
+                    heatGrid.Data.AtCoords(new Vec3i(x, y, t)) = h;
                 }
             }
         });
@@ -134,7 +134,7 @@ public class HeatSimulationToField
                 var h = state.ParticleHeat[i];
                 var t = state.Time;
                 var voxelCoord = heatField.ToVoxelCoord(new Vec3(x, y, t)).Round();
-                ref var dat = ref heatField.DataGrid.AtCoords(voxelCoord);
+                ref var dat = ref heatField.Data.AtCoords(voxelCoord);
                 if (dat == 0)
                 {
                     dat = h;
@@ -154,7 +154,7 @@ public class FDTest : WorldService
 {
     public override void Initialize()
     {
-        Temprature = new DataGrid<Vec2i, float>(new Vec2i(64, 32));
+        Temprature = new RegularGrid<Vec2i, float>(new Vec2i(64, 32));
         for (int x = 0; x < 64; x++)
         {
             for (int y = 0; y < 32; y++)
@@ -169,7 +169,7 @@ public class FDTest : WorldService
         }
     }
 
-    private DataGrid<Vec2i, float> Temprature;
+    private RegularGrid<Vec2i, float> Temprature;
 
     public override void Draw(RenderTexture rendertarget, View view)
     {
@@ -198,118 +198,6 @@ public class FDTest : WorldService
 
         Gizmos2D.Instanced.RenderRects(view.Camera2D);
     }
-}
-
-public class Heat3DViewer : WorldService
-{
-    private List<(Vec3, float h)> particles = new();
-    private RegularGridVectorField<Vec3, Vec3i, float> heat3d;
-    private StorageBuffer<float> StorageBuffer;
-
-    private Material mat = new Material(Shader.DefaultWorldSpaceVertex, new Shader("Assets/Shaders/volume.frag", ShaderType.FragmentShader));
-
-    public override void Initialize()
-    {
-        //   heat3d = HeatSimulationToField.Convert(BinarySerializer.Load<HeatSimulation>("heat.sim"));
-        heat3d = SpeetjensSpectralImporter.Load("C:\\Users\\osman\\Downloads\\ScalarTransportBasicVersion\\ScalarTransportBasicVersion\\DataSet1");
-        StorageBuffer = new StorageBuffer<float>(heat3d.GridSize.Volume());
-        StorageBuffer.Data = heat3d.DataGrid.Data;
-    }
-
-    public override void Draw(RenderTexture rendertarget, View view)
-    {
-        if (!view.Is3DCamera)
-            return;
-
-        // Update();
-
-        var grad = GetRequiredWorldService<DataService>().ColorGradient;
-
-        float c = (MathF.Sin((float)FlowExplainer.Time.TotalSeconds * .8f) + 1) / 2f;
-
-        var th = .02f;
-
-        GL.Enable(EnableCap.DepthTest);
-        Gizmos.DrawLine(view, Vec3.Zero, new Vec3(1, 0, 0), th, new Color(1, 0, 0));
-        Gizmos.DrawLine(view, Vec3.Zero, new Vec3(0, 1, 0), th, new Color(0, 1, 0));
-        Gizmos.DrawLine(view, Vec3.Zero, new Vec3(0, 0, 1), th, new Color(0, 0, 1));
-        
-        GL.Disable(EnableCap.CullFace);
-        GL.Enable(EnableCap.DepthTest);
-        GL.DepthMask(false);
-        
-        /*GL.Enable(EnableCap.DepthTest);
-        GL.DepthMask(false);
-        GL.DepthFunc(DepthFunction.Less);
-        GL.Enable(EnableCap.Blend);
-        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);*/
-        mat.Use();
-        StorageBuffer.Use();
-        StorageBuffer.Upload();
-        mat.SetUniform("tint", Color.White);
-        mat.SetUniform("cameraPosUni", view.Camera.Position);
-        mat.SetUniform("volumeMin", heat3d.MinCellPos);
-        mat.SetUniform("volumeMax", heat3d.MaxCellPos);
-        mat.SetUniform("gridSize", heat3d.GridSize.ToVec3());
-        mat.SetUniform("view", view.Camera.GetViewMatrix());
-        mat.SetUniform("projection", view.Camera.GetProjectionMatrix());
-        var size = heat3d.MaxCellPos - heat3d.MinCellPos;
-        mat.SetUniform("model", Matrix4x4.CreateScale(size) * Matrix4x4.CreateTranslation(size / 2));
-        mat.SetUniform("colorgradient", GetRequiredWorldService<DataService>().ColorGradient.Texture.Value);
-        Gizmos.UnitCube.Draw();
-        /*
-
-        GL.DepthMask(true);
-        GL.DepthFunc(DepthFunction.Less);*/
-
-        /*
-        for (int x = 0; x < heat3d.GridSize.X; x++)
-        for (int y = 0; y < heat3d.GridSize.Y; y++)
-        for (int t = 0; t < heat3d.GridSize.Z; t++)
-        {
-            var coords = new Vec3(x, y, t);
-            var worldPos = heat3d.ToWorldPos(coords);
-
-            if (heat3d.Evaluate(worldPos) > .4f)
-                Gizmos.Instanced.RegisterSphere(new Vec3(worldPos.X, worldPos.Y, worldPos.Z), 1f / heat3d.GridSize.X / 1.4f, grad.GetCached(worldPos.Z));
-        }
-        */
-
-
-     
-
-
-        foreach (var p in particles)
-        {
-            var z = p.Item1;
-            Gizmos.Instanced.RegisterSphere(z, .01f, grad.GetCached(p.h));
-        }
-
-        Gizmos.Instanced.DrawSpheres(view.Camera);
-    }
-
-    /*private void Update()
-    {
-        particles.Clear();
-        //thresh *= .001f;
-        for (int s = 1; s < loaded.Value.States.Length - 1; s++)
-        {
-            var states = loaded.Value.States;
-            var state = states[s];
-            for (int i = 0; i < state.ParticleHeat.Length; i++)
-            {
-                var flux = (states[s].ParticleHeat[i] - states[s - 1].ParticleHeat[i]) / (states[s].Time - states[s - 1].Time);
-                var fluxNext = (states[s + 1].ParticleHeat[i] - states[s].ParticleHeat[i]) / (states[s + 1].Time - states[s].Time);
-                var thresh = .8f;
-
-                if (flux >= thresh
-                   )
-                {
-                    particles.Add((new Vec3(states[s].ParticleX[i], states[s].ParticleY[i], states[s].Time), flux));
-                }
-            }
-        }
-    }*/
 }
 
 public class HeatSimulation3DVisualizer : WorldService
@@ -359,7 +247,7 @@ public class HeatSimulation3DVisualizer : WorldService
         if (!loaded.HasValue)
             return;
         float rad = .01f;
-        view.CameraOffset = -dat.VelocityField.Domain.Size.Up(-(loaded.Value.States.Length * rad)) / 2;
+        view.CameraOffset = -dat.VelocityField.Domain.Boundary.Center;
 //            view.CameraOffset = new Vec3(-.5f, .25f, -.25f);
 
         GL.Enable(EnableCap.DepthTest);

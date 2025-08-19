@@ -26,6 +26,7 @@
             v.AddVisualisationService(new FlowFieldVisualizer() { IsEnabled = false});
             v.AddVisualisationService(new PoincareVisualizer(){ IsEnabled = false});
             v.AddVisualisationService(new AxisVisualizer());
+            v.AddVisualisationService(new StructureIdentifier());
             //v.AddVisualisationService(new FDTest());
             v.AddVisualisationService(new Heat3DViewer());
             Worlds.Add(v);

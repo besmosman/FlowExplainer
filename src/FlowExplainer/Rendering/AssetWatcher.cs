@@ -87,7 +87,7 @@ public static class AssetWatcher
         queuedFilesChanged.Clear();
         while (events.TryDequeue(out var q))
         {
-            Thread.Sleep(64);
+            Thread.Sleep(1);
             OnChange?.Invoke(q);
         }
     }

@@ -91,6 +91,12 @@ namespace FlowExplainer
         {
             return new Vec3i(int.Max(X, b.X), int.Max(Y, b.Y), int.Max(Z, b.Z));
         }
+        
+        public Vec3i Min(Vec3i b)
+        {
+            return new Vec3i(int.Min(X, b.X), int.Min(Y, b.Y), int.Min(Z, b.Z));
+        }
+
 
         public int ElementCount => 3;
 
@@ -134,6 +140,12 @@ namespace FlowExplainer
         {
             return new Vec3i(left.X * right.X, left.Y * right.Y, left.Z * right.Z);
         }
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator >(Vec3i left, Vec3i right) => left.X > right.X && left.Y > right.Y && left.Z > right.Z;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator <(Vec3i left, Vec3i right) => left.X < right.X && left.Y < right.Y && left.Z < right.Z;
 
         public int Volume()
         {

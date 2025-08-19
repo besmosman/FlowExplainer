@@ -48,6 +48,15 @@ namespace FlowExplainer
             GL.BindBuffer(BufferTarget.ShaderStorageBuffer, Id);
             GL.BufferData(BufferTarget.ShaderStorageBuffer, Data.Length * Marshal.SizeOf<T>(), Data, BufferUsageHint.DynamicDraw);
         }
+        
+        public StorageBuffer(T[] data)
+        {
+            Id = GL.GenBuffer();
+            Data = data;
+            Length = Data.Length;
+            GL.BindBuffer(BufferTarget.ShaderStorageBuffer, Id);
+            GL.BufferData(BufferTarget.ShaderStorageBuffer, Data.Length * Marshal.SizeOf<T>(), Data, BufferUsageHint.DynamicDraw);
+        }
 
         public void Resize(int length)
         {

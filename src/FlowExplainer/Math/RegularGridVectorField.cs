@@ -1,71 +1,8 @@
 using System.Buffers;
 using System.Numerics;
+using MemoryPack;
 
 namespace FlowExplainer;
-
-public class DataGrid<Veci, TData> where Veci : IVec<Veci, int>
-{
-    public TData[] Data { get; private set; }
-    public Veci GridSize { get; private set; }
-
-    private Veci multipliers;
-
-    public DataGrid(Veci gridSize)
-    {
-        GridSize = gridSize;
-        Data = new TData[GridSize.Volume()];
-        multipliers = ComputeMultipliers();
-    }
-
-    public DataGrid(TData[] data, Veci gridSize)
-    {
-        GridSize = gridSize;
-        Data = data;
-        multipliers = ComputeMultipliers();
-    }
-
-    private Veci ComputeMultipliers()
-    {
-        Veci m = Veci.Zero;
-        m[0] = 1;
-        for (int i = 1; i < GridSize.ElementCount; i++)
-            m[i] = m[i - 1] * GridSize[i - 1];
-        return m;
-    }
-
-
-    public ref TData AtCoords(Veci x)
-    {
-        int index = GetCoordsIndex(x);
-        return ref Data[index];
-    }
-
-
-    public int GetCoordsIndex(Veci x)
-    {
-        return (x * multipliers).Sum();
-    }
-
-    public Veci GetIndexCoords(int i)
-    {
-        Veci coords = default!;
-        int remaining = i;
-
-        for (int d = 0; d < GridSize.ElementCount; d++)
-        {
-            int value = remaining % GridSize[d];
-            coords[d] = value;
-            remaining /= GridSize[d];
-        }
-
-        return coords;
-    }
-
-    public void Gradient()
-    {
-        
-    }
-}
 
 /// <summary>
 /// Arbitrary dimension grid based vector field with mutlivariate interpolator
@@ -75,29 +12,31 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
     where Veci : IVec<Veci, int>
     where TData : IMultiplyOperators<TData, float, TData>, IAdditionOperators<TData, TData, TData>
 {
-    public DataGrid<Veci, TData> DataGrid { get; private set; }
-    public Veci GridSize => DataGrid.GridSize;
+    public RegularGrid<Veci, TData> Data { get; private set; }
+    public Veci GridSize => Data.GridSize;
 
-    public bool Interpolate { get; set; } = true;
+    public bool Interpolate = true;
 
     public Vec MinCellPos { get; set; }
     public Vec MaxCellPos { get; set; }
 
+    public IDomain<Vec> Domain => new RectDomain<Vec>(MinCellPos, MaxCellPos);
 
+    
     public RegularGridVectorField(TData[] data, Veci gridSize, Vec minCellPos, Vec maxCellPos)
     {
-        DataGrid = new DataGrid<Veci, TData>(data, gridSize);
+        Data = new RegularGrid<Veci, TData>(data, gridSize);
         MinCellPos = minCellPos;
         MaxCellPos = maxCellPos;
     }
 
     public RegularGridVectorField(Veci gridSize, Vec minCellPos, Vec maxCellPos)
     {
-        DataGrid = new DataGrid<Veci, TData>(gridSize);
+        Data = new RegularGrid<Veci, TData>(gridSize);
         MinCellPos = minCellPos;
         MaxCellPos = maxCellPos;
     }
-    
+
     public TData Evaluate(Vec x)
     {
         x = ToVoxelCoord(x);
@@ -131,7 +70,7 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
             var max = MaxCellPos[i];
             var min = MinCellPos[i];
             var voxelCoord = coords[i];
-            var percentile = voxelCoord / (GridSize[i] - 1);
+            var percentile = voxelCoord / (GridSize[i] - 0);
             worldPos[i] = min + percentile * (max - min);
         }
 
@@ -141,16 +80,16 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
 
     private TData Nearest(Vec x)
     {
-        return DataGrid.AtCoords(x.Round());
+        return Data.AtCoords(x.Round());
     }
 
     public RegularGridVectorField<Vec, Veci, TOut2> Select<TOut2>(Func<Veci, TOut2> selector)
         where TOut2 : IMultiplyOperators<TOut2, float, TOut2>, IAdditionOperators<TOut2, TOut2, TOut2>
     {
-        TOut2[] data = new TOut2[DataGrid.Data.Length];
-        for (int i = 0; i < DataGrid.Data.Length; i++)
+        TOut2[] data = new TOut2[Data.Data.Length];
+        for (int i = 0; i < Data.Data.Length; i++)
         {
-            var coords = DataGrid.GetIndexCoords(i);
+            var coords = Data.GetIndexCoords(i);
             data[i] = selector(coords);
         }
         return new RegularGridVectorField<Vec, Veci, TOut2>(data, GridSize, MinCellPos, MaxCellPos);
@@ -179,15 +118,15 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
                 corner[i] = baseCoord[i] + offset;
             }
 
-            var coordsIndex = DataGrid.GetCoordsIndex(corner);
-            if (coordsIndex < 0 || coordsIndex >= DataGrid.Data.Length)
+            var coordsIndex = Data.GetCoordsIndex(corner);
+            if (coordsIndex < 0 || coordsIndex >= Data.Data.Length)
             {
                 //if a neighbor does not exist we just return the nearest neighbor valur for now. 
                 //TODO: make it weighted based on existing neighbors in these cases would be better.
                 return Nearest(x);
             }
 
-            var value = DataGrid.AtCoords(corner);
+            var value = Data.AtCoords(corner);
             result = result + (value * weight);
         }
 

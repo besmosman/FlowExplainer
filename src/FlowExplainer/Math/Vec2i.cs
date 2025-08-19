@@ -53,6 +53,14 @@ public struct Vec2i :
     public static Vec2i operator +(Vec2i v1, Vec2i v2) => new(v1.X + v2.X, v1.Y + v2.Y);
     public static Vec2i operator -(Vec2i v1, Vec2i v2) => new(v1.X - v2.X, v1.Y - v2.Y);
     public static Vec2i operator *(Vec2i v1, Vec2i v2) => new(v1.X * v2.X, v1.Y * v2.Y);
+    public static bool operator >(Vec2i left, Vec2i right)
+    {
+        return left.X > right.X && left.Y > right.Y;
+    }
+    public static bool operator <(Vec2i left, Vec2i right)
+    {
+        return left.X < right.X && left.Y < right.Y;
+    }
     public static Vec2i operator /(Vec2i v1, Vec2i v2) => new(v1.X / v2.X, v1.Y / v2.Y);
 
     public static Vec2i operator /(Vec2i v1, int i) => new(v1.X / i, v1.Y / i);
@@ -115,6 +123,11 @@ public struct Vec2i :
     {
         return new Vec2i(int.Max(X, b.X), int.Max(Y, b.Y));
     }
+    
+    public Vec2i Min(Vec2i b)
+    {
+        return new Vec2i(int.Min(X, b.X), int.Min(Y, b.Y));
+    }
 
     public int ElementCount => 2;
     public int Last => Y;
@@ -122,31 +135,23 @@ public struct Vec2i :
 
     public int this[int n]
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
         {
-            switch (n)
-            {
-                case 0:
-                    return X;
-                case 1:
-                    return Y;
-                default:
-                    throw new Exception();
-            }
+#if DEBUG
+            if (n < 0 || n >= ElementCount)
+                throw new IndexOutOfRangeException();
+#endif
+            return Unsafe.Add(ref X, n);
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         set
         {
-            switch (n)
-            {
-                case 0:
-                    X = value;
-                    return;
-                case 1:
-                    Y = value;
-                    return;
-                default:
-                    throw new Exception();
-            }
+#if DEBUG
+            if (n < 0 || n >= ElementCount)
+                throw new IndexOutOfRangeException();
+#endif
+            Unsafe.Add(ref X, n) = value;
         }
     }
 

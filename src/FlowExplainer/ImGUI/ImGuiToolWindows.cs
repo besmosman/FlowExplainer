@@ -4,6 +4,27 @@ using ImGuiNET;
 
 namespace FlowExplainer;
 
+public static class ExactArrayPool<T>
+{
+    private static Dictionary<int, Stack<T[]>> pools =new();
+
+    public static T[] Rent(int length)
+    {
+        if (!pools.ContainsKey(length))
+            pools.Add(length, new());
+
+        if(pools[length].Count == 0)
+            pools[length].Push(new T[length]);
+        
+        return pools[length].Pop();
+    }
+
+    public static void Return(T[] array)
+    {
+        pools[array.Length].Push(array);
+    }
+}
+
 public static class ImGuiToolWindows
 {
     private static Dictionary<Type, bool> DrawsImGuiElements = new();
@@ -76,6 +97,14 @@ public static class ImGuiToolWindows
                                 s.GetRequiredWorldService<AxisVisualizer>().titler = null;
                             else
                                 s.GetRequiredWorldService<AxisVisualizer>().titler = axisTitle;
+                        }
+                        
+                        if (s is IGradientScaler scaler)
+                        {
+                            if (s.IsEnabled)
+                                s.GetRequiredWorldService<AxisVisualizer>().scaler = null;
+                            else
+                                s.GetRequiredWorldService<AxisVisualizer>().scaler = scaler;
                         }
 
                         s.IsEnabled = sIsEnabled;

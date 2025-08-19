@@ -13,6 +13,15 @@ in vec3 cameraPos;
 uniform vec3 volumeMin;
 uniform vec3 volumeMax;
 
+uniform float heatFilterMin;
+uniform float heatFilterMax;
+uniform float depthScaling;
+
+// Lighting uniforms
+uniform vec3 lightDirection = vec3(0.5, -0.5, 1.0); // Default light direction
+uniform float ambientStrength = 0.3;
+uniform float diffuseStrength = 0.7;
+uniform float gradientThreshold = 0.01; // Minimum gradient magnitude for shading
 
 struct Data {
     float Heat;
@@ -22,19 +31,17 @@ layout (std430, binding = 2)
 buffer InstanceBuffer {
     Data data[];
 };
+
 vec4 ColorGradient(float f) {
     return texture(colorgradient, vec2(min(0.9999, max(0, f)), .5));
 }
+
 int GetIndex(vec3 coords) {
-    return int(coords.z * gridSize.y * gridSize.x + coords.y * gridSize.x + coords.x);
+    return int(round(coords.z * gridSize.y * gridSize.x + coords.y * gridSize.x + coords.x));
 }
 
 vec4 transferFunction(float density) {
-    float s =  max(0,(density-.5)) / 1.5;
-    vec4 c = ColorGradient(s);
-    c.a =.0001;
-    //if(density > 1)
-    //c.a = 1;
+    vec4 c = ColorGradient(density);
     return c;
 }
 
@@ -52,28 +59,26 @@ vec2 rayBoxIntersection(vec3 rayOrigin, vec3 rayDir, vec3 boxMin, vec3 boxMax) {
     return vec2(max(enter, 0.0), exit);
 }
 
-
-float sampleVolume(vec3 pos) {
+float sampleVolumeRaw(vec3 pos) {
     vec3 gridPos = (pos - volumeMin) / (volumeMax - volumeMin) * (gridSize - 1.0);
-    //gridPos.z =gridSize.z-2;
-    // Clamp to valid sampling range
-    gridPos = clamp(gridPos, vec3(0.0), gridSize - 1.0);
+    gridPos.z = gridSize.z - gridPos.z;
 
+    // Boundary check
+    if(pos.x < volumeMin.x || pos.y < volumeMin.y || pos.z < volumeMin.z ||
+    pos.x > volumeMax.x || pos.y > volumeMax.y || pos.z > volumeMax.z)
+    return 0.0;
+    
     ivec3 baseCoord = ivec3(floor(gridPos));
     vec3 t = gridPos - vec3(baseCoord);
 
-    // Ensure we don't go out of bounds - clamp coordinates to valid range
-    ivec3 coord1 = min(baseCoord + ivec3(1), ivec3(gridSize) - 2);
+    ivec3 coord1 = baseCoord + ivec3(1);
 
-    // Adjust interpolation weights when we hit the boundary
-    // If coord1 == baseCoord (meaning we're at the boundary), set t to 0
-    vec3 adjustedT = vec3(
-    (coord1.x == baseCoord.x) ? 0.0 : t.x,
-    (coord1.y == baseCoord.y) ? 0.0 : t.y,
-    (coord1.z == baseCoord.z) ? 0.0 : t.z
-    );
+    if(any(greaterThanEqual(coord1, ivec3(gridSize))) ||
+    any(lessThan(baseCoord, ivec3(0)))) {
+        return 0.0;
+    }
 
-    // Sample using safe coordinates
+    // Sample the 8 corners for trilinear interpolation
     float c000 = data[GetIndex(baseCoord)].Heat;
     float c001 = data[GetIndex(ivec3(baseCoord.x, baseCoord.y, coord1.z))].Heat;
     float c010 = data[GetIndex(ivec3(baseCoord.x, coord1.y, baseCoord.z))].Heat;
@@ -83,17 +88,65 @@ float sampleVolume(vec3 pos) {
     float c110 = data[GetIndex(ivec3(coord1.x, coord1.y, baseCoord.z))].Heat;
     float c111 = data[GetIndex(coord1)].Heat;
 
-    // Trilinear interpolation with adjusted weights
-    float c00 = mix(c000, c100, adjustedT.x);
-    float c01 = mix(c001, c101, adjustedT.x);
-    float c10 = mix(c010, c110, adjustedT.x);
-    float c11 = mix(c011, c111, adjustedT.x);
+    // Standard trilinear interpolation
+    float c00 = mix(c000, c100, t.x);
+    float c01 = mix(c001, c101, t.x);
+    float c10 = mix(c010, c110, t.x);
+    float c11 = mix(c011, c111, t.x);
 
-    float c0 = mix(c00, c10, adjustedT.y);
-    float c1 = mix(c01, c11, adjustedT.y);
+    float c0 = mix(c00, c10, t.y);
+    float c1 = mix(c01, c11, t.y);
 
-    return mix(c0, c1, adjustedT.z);
+    return mix(c0, c1, t.z);
 }
+
+float sampleVolume(vec3 pos) {
+    return sampleVolumeRaw(pos);
+}
+
+// Calculate gradient using central differences
+vec3 calculateGradient(vec3 pos) {
+    vec3 voxelSize = (volumeMax - volumeMin) / gridSize;
+    float delta = 0.001; // Small offset for gradient calculation
+
+    vec3 gradient;
+    gradient.x = sampleVolumeRaw(pos + vec3(delta, 0, 0)) - sampleVolumeRaw(pos - vec3(delta, 0, 0));
+    gradient.y = sampleVolumeRaw(pos + vec3(0, delta, 0)) - sampleVolumeRaw(pos - vec3(0, delta, 0));
+    gradient.z = sampleVolumeRaw(pos + vec3(0, 0, delta)) - sampleVolumeRaw(pos - vec3(0, 0, delta));
+
+    gradient /= (2.0 * delta);
+    return gradient;
+}
+
+//Example lighting found somewhere
+//Apply simple Phong-style lighting
+vec3 applyLighting(vec3 baseColor, vec3 gradient, vec3 viewDir) {
+    float gradientMagnitude = length(gradient);
+
+    // If gradient is too small, just return ambient lighting
+    if (gradientMagnitude < gradientThreshold) {
+        return baseColor * ambientStrength;
+    }
+
+    // Normalize gradient to get surface normal
+    vec3 normal = normalize(gradient);
+    vec3 lightDir = normalize(lightDirection);
+
+    // Ambient component
+    vec3 ambient = baseColor * ambientStrength;
+
+    // Diffuse component (Lambert)
+    float diff = max(dot(normal, lightDir), 0.0);
+    vec3 diffuse = baseColor * diffuseStrength * diff;
+
+    // Optional: Simple specular component
+    // vec3 reflectDir = reflect(-lightDir, normal);
+    // float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32.0);
+    // vec3 specular = vec3(0.2) * spec;
+
+    return ambient + diffuse; // + specular if you want specular
+}
+
 void main()
 {
     vec3 rayDir = normalize(worldPos - cameraPos);
@@ -111,18 +164,21 @@ void main()
     float stepSize = .001;
     int numSteps = int(totalDistance / stepSize);
 
-    for (int i = 0; i < numSteps && accumulatedColor.a < .9999; i++) {
-        float density =sampleVolume(rayPos);
-        
-        if(density > 1.50){
-            vec4 sampleColor = transferFunction(density);
+    for (int i = 0; i < numSteps && accumulatedColor.a < 1; i++) {
+        float density = sampleVolume(rayPos);
 
-            sampleColor.a *= stepSize * 1000000.0;
+        if(density > heatFilterMin && density < heatFilterMax && rayPos.z > volumeMin.z+0.05){
+            vec4 sampleColor = transferFunction(density);
+            // Calculate gradient for lighting
+            //vec3 gradient = calculateGradient(rayPos);
+            //vec3 viewDir = normalize(cameraPos - rayPos);
+            //sampleColor.rgb = applyLighting(sampleColor.rgb, gradient, viewDir);
+            sampleColor.a = 1;
+            sampleColor.a *= stepSize * depthScaling;
             accumulatedColor.rgb += sampleColor.rgb * sampleColor.a * (1.0 - accumulatedColor.a);
             accumulatedColor.a += sampleColor.a * (1.0 - accumulatedColor.a);
         }
         rayPos += rayDir * stepSize;
     }
     color = accumulatedColor;
-    //color = vec4(worldPos, 1.0);
 }

@@ -1,10 +1,10 @@
 namespace FlowExplainer;
 
 //https://coherentstructures.github.io/CoherentStructures.jl/stable/generated/bickley/
-public class BickleyJet2 : IEditabalePeriodicVectorField<Vec3, Vec2>
+public class BickleyJet2 : IVectorField<Vec3, Vec2>
 {
     public float Period => 1;
-    public Rect Domain => new Rect(new Vec2(0, -3), new Vec2(20, 3));
+    public IDomain<Vec3> Domain => new RectDomain<Vec3>(new Vec3(0, -3, 0), new Vec3(20, 3f, 1));
 
     float r0 = 4371e-3f;
     float U0 = 62.66e-3f;

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Numerics;
 using ImGuiNET;
 using OpenTK.Graphics.OpenGL4;
@@ -9,10 +10,11 @@ public class AxisVisualizer : WorldService
     public bool DrawAxis = true;
     public int StepsX = 5;
     public int StepsY = 5;
-    public bool DrawGradient;
+    public bool DrawGradient = true;
 
     public string? Title;
     public IAxisTitle? titler;
+    public IGradientScaler? scaler;
 
     Mesh gradientMesh = new Mesh(new Geometry(
     [
@@ -29,20 +31,19 @@ public class AxisVisualizer : WorldService
     public override void Draw(RenderTexture rendertarget, View view)
     {
         var dat = GetRequiredWorldService<DataService>();
-        var domain = dat.VelocityField.Domain;
+        var domain = dat.VelocityField.Domain.Boundary;
         if (!view.Is2DCamera)
         {
             /*var th = .02f;
             //GL.Disable(EnableCap.DepthTest);
             Gizmos.DrawLine(view, domain.Min.Up(0), new Vec3(domain.Max.X,0, 0), th, Color.White);
             Gizmos.DrawLine(view, domain.Min.Up(0), new Vec3(0, domain.Max.Y, 0), th, Color.White);*/
-           // Gizmos.DrawLine(view, domain.Min.Up(0) + new Vec3(0, -.01f, 0), new Vec3(0, -.01f, 4), th, Color.White);
+            // Gizmos.DrawLine(view, domain.Min.Up(0) + new Vec3(0, -.01f, 0), new Vec3(0, -.01f, 4), th, Color.White);
             // GL.Enable(EnableCap.DepthTest);
 
             return;
         }
-
-
+        
         var color = Color.White;
         var thickness = 4f;
         var margin = 0f;
@@ -56,16 +57,16 @@ public class AxisVisualizer : WorldService
             Gizmos2D.Line(view.ScreenCamera, lb + new Vec2(-thickness / 2, margin), rb + new Vec2(0, margin), color, thickness);
             Gizmos2D.Line(view.ScreenCamera, lb + new Vec2(0, margin), rb + new Vec2(0, margin), color, thickness);
             Gizmos2D.Line(view.ScreenCamera, lb + new Vec2(-margin, 0), lt + new Vec2(-margin, 0), color, thickness);
-            
-            if(titler != null)
-            Gizmos2D.Text(view.ScreenCamera, new Vec2((lb.X + rb.X) /2, lt.Y - lh*2),lh, color, titler.GetTitle(), centered:true);
+
+            if (titler != null)
+                Gizmos2D.Text(view.ScreenCamera, new Vec2((lb.X + rb.X) / 2, lt.Y - lh * 2), lh, color, titler.GetTitle(), centered: true);
 
             for (int i = 0; i <= StepsX; i++)
             {
                 float c = i / (float)StepsX;
                 var value = Utils.Lerp(domain.Min.X, domain.Max.X, c);
                 var pos = Utils.Lerp(lb, rb, c);
-                Gizmos2D.Line(view.ScreenCamera, pos + new Vec2(0, 15), pos + new Vec2(0, -thickness/2f), color, thickness);
+                Gizmos2D.Line(view.ScreenCamera, pos + new Vec2(0, 15), pos + new Vec2(0, -thickness / 2f), color, thickness);
                 Gizmos2D.Text(view.ScreenCamera, pos + new Vec2(0, 10), lh, color, value.ToString("N1"), centered: true);
             }
 
@@ -74,13 +75,13 @@ public class AxisVisualizer : WorldService
                 float c = i / (float)StepsY;
                 var value = Utils.Lerp(domain.Min.Y, domain.Max.Y, c);
                 var pos = Utils.Lerp(lb, lt, c);
-                Gizmos2D.Line(view.ScreenCamera, pos + new Vec2(-15, 0), pos + new Vec2(thickness/2f, 0), color, thickness);
+                Gizmos2D.Line(view.ScreenCamera, pos + new Vec2(-15, 0), pos + new Vec2(thickness / 2f, 0), color, thickness);
                 Gizmos2D.Text(view.ScreenCamera, pos + new Vec2(-10 - lh * 1, -lh / 2f), lh, color, value.ToString("N1"), centered: true);
             }
         }
 
 
-        if (DrawGradient)
+        if (DrawGradient && scaler != null)
         {
             var textr = dat.ColorGradient.Texture.Value;
             //Gizmos2D.ImageCentered(view.ScreenCamera, textr, new Vec2(view.Width-50f, 50), 10000f, 1);
@@ -96,8 +97,10 @@ public class AxisVisualizer : WorldService
             var posY = view.Height / 2f - height / 2f;
             texturedMat.SetUniform("model", Matrix4x4.CreateScale(width, height, .4f) * Matrix4x4.CreateTranslation(posX, posY, 0));
             gradientMesh.Draw();
-            Gizmos2D.Text(view.ScreenCamera, new Vec2(posX + width / 2f, posY - lh - 5), lh, color, "1", centered: true);
-            Gizmos2D.Text(view.ScreenCamera, new Vec2(posX + width / 2f, posY + height + 5), lh, color, "0", centered: true);
+            (float min, float max) = scaler.GetScale();
+            
+            Gizmos2D.Text(view.ScreenCamera, new Vec2(posX + width / 2f, posY - lh - 5), lh, color,  max.ToString("F2", CultureInfo.InvariantCulture), centered: true);
+            Gizmos2D.Text(view.ScreenCamera, new Vec2(posX + width / 2f, posY + height + 5), lh, color, min.ToString("F2", CultureInfo.InvariantCulture), centered: true);
         }
     }
 

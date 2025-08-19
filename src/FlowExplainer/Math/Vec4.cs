@@ -4,24 +4,96 @@ using System.Runtime.InteropServices;
 
 namespace FlowExplainer;
 
-public struct Rect
+public interface IDomain<Vec> where Vec : IVec<Vec>
 {
-    public Vec2 Min;
-    public Vec2 Max;
+    bool IsWithinPhase(Vec p);
+    bool IsWithinSpace<T>(T p) where T : IVec<T>;
+    Rect<Vec> Boundary { get; }
 
-    public Vec2 Size => Max - Min;
-    public Vec2 Center => (Max + Min) / 2;
+    public static IDomain<Vec> Infinite => new InfiniteDomain();
 
-    public Rect(Vec2 min, Vec2 max)
+    private struct InfiniteDomain : IDomain<Vec>
+    {
+        public bool IsWithinPhase(Vec p) => true;
+        public bool IsWithinSpace<T>(T p) where T : IVec<T> => true;
+        public Rect<Vec> Boundary => throw new Exception();
+    }
+
+}
+
+public struct Rect<Vec> where Vec : IVec<Vec>
+{
+    public Vec Min;
+    public Vec Max;
+
+    public Vec Size => Max - Min;
+    public Vec Center => (Max + Min) / 2;
+
+    public Rect(Vec min, Vec max)
     {
         Min = min;
         Max = max;
     }
+
+    public bool IsWithin(Vec p)
+    {
+        return p > Min && p < Max;
+    }
+
+    public Vec Relative(Vec p)
+    {
+        return Min + Size * p;
+    }
+
+    public Rect<T> Reduce<T>() where T : IVec<T>, IVecUpDimension<Vec>
+    {
+        var min = T.Zero;
+        var max = T.Zero;
+        for (int i = 0; i < min.ElementCount; i++)
+        {
+            min[i] = Min[i];
+            max[i] = Max[i];
+        }
+        return new Rect<T>(min, max);
+    }
+}
+
+public struct RectDomain<Vec> : IDomain<Vec> where Vec : IVec<Vec>
+{
+    private Rect<Vec> Rect;
+    private Rect<Vec> boundary;
+
+    public Rect<Vec> Boundary => Rect;
+    public RectDomain(Vec min, Vec max)
+    {
+        Rect = new(min, max);
+    }
+
+
+    public bool IsWithinPhase(Vec p)
+    {
+        return p > Rect.Min && p < Rect.Max;
+    }
+    public bool IsWithinSpace<T>(T p) where T : IVec<T>
+    {
+#if DEBUG
+        if (p.ElementCount != Rect.Min.ElementCount - 1)
+            throw new Exception("Check dimensions");
+#endif
+
+        for (int i = 0; i < p.ElementCount; i++)
+        {
+            if (p[i] < Rect.Min[i] || p[i] > Rect.Max[i])
+                return false;
+        }
+        return true;
+    }
+
 }
 
 [Serializable]
 [StructLayout(LayoutKind.Sequential)]
-public struct Vec4 : IVec<Vec4>, IVecDownDimension<Vec3>, IVecIntegerEquivelant<Vec4i>
+public struct Vec4 : IVec<Vec4>, IVecDownDimension<Vec3>, IVecIntegerEquivelant<Vec4i>, IEquatable<Vec4>
 {
     public float X;
     public float Y;
@@ -99,6 +171,10 @@ public struct Vec4 : IVec<Vec4>, IVecDownDimension<Vec3>, IVecIntegerEquivelant<
     {
         return new Vec4(float.Max(X, b.X), float.Max(Y, b.Y), float.Max(Z, b.Z), float.Max(W, b.W));
     }
+    public Vec4 Min(Vec4 b)
+    {
+        return new Vec4(float.Min(X, b.X), float.Min(Y, b.Y), float.Min(Z, b.Z), float.Min(W, b.W));
+    }
 
     public int ElementCount => 4;
 
@@ -138,6 +214,15 @@ public struct Vec4 : IVec<Vec4>, IVecDownDimension<Vec3>, IVecIntegerEquivelant<
         return new Vec4(left.X * right.X, left.Y * right.Y, left.Z * right.Z, left.W * right.W);
     }
 
+    public static bool operator >(Vec4 left, Vec4 right)
+    {
+        return left.X > right.X && left.Y > right.Y && left.Z > right.Z && left.W > right.W;
+    }
+    public static bool operator <(Vec4 left, Vec4 right)
+    {
+        return left.X < right.X && left.Y < right.Y && left.Z < right.Z && left.W < right.W;
+    }
+
     public Vec3 Down()
     {
         return new Vec3(X, Y, Z);
@@ -151,5 +236,27 @@ public struct Vec4 : IVec<Vec4>, IVecDownDimension<Vec3>, IVecIntegerEquivelant<
     public Vec4i Round()
     {
         return new Vec4i((int)Math.Round(X), (int)Math.Round(Y), (int)Math.Round(Z), (int)Math.Round(W));
+    }
+    public bool Equals(Vec4 other)
+    {
+        return X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z) && W.Equals(other.W);
+    }
+    public override bool Equals(object? obj)
+    {
+        return obj is Vec4 other && Equals(other);
+    }
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(X, Y, Z, W);
+    }
+
+    public static bool operator ==(Vec4 left, Vec4 right)
+    {
+        return left.Equals(right);
+    }
+
+    public static bool operator !=(Vec4 left, Vec4 right)
+    {
+        return !(left == right);
     }
 }

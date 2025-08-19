@@ -17,7 +17,7 @@ public static class Gizmos2D
 
     public static Mesh quadMeshCentered;
     public static Mesh imageQuad;
-    private static Mesh imageQuadInvertedY;
+    public static Mesh imageQuadInvertedY;
     public static Mesh circleMesh;
     private static Mesh debugTria;
     private static Mesh streamtube;

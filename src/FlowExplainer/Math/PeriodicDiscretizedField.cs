@@ -2,16 +2,15 @@ using System.Collections.Concurrent;
 
 namespace FlowExplainer;
 
-public class PeriodicDiscritizedField : IPeriodicVectorField<Vec3, Vec2>
+public class PeriodicDiscretizedField : IVectorField<Vec3, Vec2>
 {
-    public float Period => Original.Period;
-    public Rect Domain => Original.Domain;
-    public IPeriodicVectorField<Vec3, Vec2> Original;
+    public IVectorField<Vec3, Vec2> Original;
+    public IDomain<Vec3> Domain => Original.Domain;
     public Vec3 CellSize;
 
     private ConcurrentDictionary<Vec3i, Vec2> samples = new();
 
-    public PeriodicDiscritizedField(IPeriodicVectorField<Vec3, Vec2> original, Vec3 cellSize)
+    public PeriodicDiscretizedField(IVectorField<Vec3, Vec2> original, Vec3 cellSize)
     {
         Original = original;
         CellSize = cellSize;
@@ -25,7 +24,7 @@ public class PeriodicDiscritizedField : IPeriodicVectorField<Vec3, Vec2>
 
         var curT = LinearInterpolateXY(c, rel.XY);
         var nextT = LinearInterpolateXY(c + new Vec3i(0, 0, 1), rel.XY);
-        var value = Utils.Lerp(curT, nextT, rel.Z); 
+        var value = Utils.Lerp(curT, nextT, rel.Z);
         return value;
     }
 

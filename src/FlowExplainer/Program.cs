@@ -1,4 +1,6 @@
-﻿namespace FlowExplainer
+﻿using Newtonsoft.Json.Linq;
+
+namespace FlowExplainer
 {
     /*
     public struct FragmentInput
@@ -16,22 +18,29 @@
         }
     }
     */
-    
-    
+
     public class AssetWatcherService : GlobalService
     {
-        public override void Initialize() { }
+        public override void Initialize()
+        {
+        }
 
         public override void Draw()
         {
             AssetWatcher.Execute();
         }
     }
-    
+
     internal class Program
     {
         static void Main(string[] _)
         {
+            if (File.Exists("config.json"))
+                Config.Load("config.json");
+            else
+                Config.Load(new Dictionary<string, JValue>());
+
+
             var neuroTrace = new FlowExplainer();
             neuroTrace.AddGlobalService(new AssetWatcherService());
             neuroTrace.AddGlobalService(new PreferencesService());

@@ -8,7 +8,7 @@ namespace FlowExplainer.Msdf;
 public static class MsdfRenderer
 {
     public static Material Material;
-    public static Mesh textMesh = new Mesh(new Geometry([], []), true, true);
+    public static Mesh textMesh = new Mesh(new Geometry(ExactArrayPool<Vertex>.Rent(0), []), true, true);
     public static Dictionary<int, MsdfFont> fonts = new();
     private static bool forceRegenerate = false;
 
@@ -19,7 +19,7 @@ public static class MsdfRenderer
 
     public static MsdfFont GetClosestFont(ICamera cam, float lh)
     {
-        var target = lh*0;
+        var target = lh * 0;
         var minDis = float.MaxValue;
         MsdfFont minFont = null;
         foreach (var p in fonts)
@@ -50,7 +50,7 @@ public static class MsdfRenderer
             File.Copy(charsetFilePath, genCharsetFilePath);
             Directory.Delete(genFolderPath, true);
         }
-            GenererateFont(32);
+        GenererateFont(32);
     }
 
     private static void GenererateFont(int size)
@@ -128,7 +128,7 @@ public static class MsdfRenderer
 
     public static void UpdateMesh(string text, ICamera cam, MsdfFont font, bool centered = false)
     {
-        var vertices = new Vertex[text.Length * 6];
+        var vertices = ExactArrayPool<Vertex>.Rent(text.Length * 6);
         float currentX = 0;
         bool invertY = !cam.InvertedY();
 
@@ -206,6 +206,7 @@ public static class MsdfRenderer
             indices[i] = i;
         }
 
+        ExactArrayPool<Vertex>.Return(textMesh.Vertices);
         textMesh.Vertices = vertices;
         textMesh.Indices = indices;
         textMesh.Upload();

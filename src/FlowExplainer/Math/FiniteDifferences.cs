@@ -3,12 +3,12 @@ namespace FlowExplainer;
 public static class FiniteDifferences
 {
     
-    public static void Test(IPeriodicVectorField<Vec3, Vec2> velocityField, DataGrid<Vec2i, float> temprature, float t, float dt)
+    public static void Test(IVectorField<Vec3, Vec2> velocityField, RegularGrid<Vec2i, float> temprature, float t, float dt)
     {
         var u = velocityField.Evaluate;
 
-        DataGrid<Vec2i, Vec2> vel = new DataGrid<Vec2i, Vec2>(new(64, 32));
-        DataGrid<Vec2i, float> laplacianT = new DataGrid<Vec2i, float>(new(64, 32));
+        RegularGrid<Vec2i, Vec2> vel = new RegularGrid<Vec2i, Vec2>(new(64, 32));
+        RegularGrid<Vec2i, float> laplacianT = new RegularGrid<Vec2i, float>(new(64, 32));
         var delta = (1f / vel.GridSize.ToVec2()) * new Vec2(1, .5f);
 
 
@@ -19,7 +19,7 @@ public static class FiniteDifferences
             vel.AtCoords(new Vec2i(x, y)) = u(pos.Up(t));
         }
 
-        var tempGradient = new DataGrid<Vec2i, Vec2>(temprature.GridSize);
+        var tempGradient = new RegularGrid<Vec2i, Vec2>(temprature.GridSize);
 
         for (int x = 1; x < laplacianT.GridSize.X - 1; x++)
         for (int y = 1; y < laplacianT.GridSize.Y - 1; y++)
@@ -38,7 +38,7 @@ public static class FiniteDifferences
         }
 
         var Pe = 100;
-        var rhs = new DataGrid<Vec2i, float>(temprature.GridSize);
+        var rhs = new RegularGrid<Vec2i, float>(temprature.GridSize);
         var lhs = laplacianT;
         for (int x = 0; x < tempGradient.GridSize.X; x++)
         for (int y = 0; y < tempGradient.GridSize.Y; y++)

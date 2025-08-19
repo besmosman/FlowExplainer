@@ -8,7 +8,7 @@ public class ImGuiHelpers
     public static string LastMessage;
     public static DateTime MessageTime;
 
-    public static void SliderFloat(string name, ref float f, float min, float max)
+    public static bool SliderFloat(string name, ref float f, float min, float max)
     {
         if (ImGui.SliderFloat(name, ref f, min, max))
         {
@@ -17,7 +17,9 @@ public class ImGuiHelpers
                 format = "N3";
             
             UpdateMsg(name, f.ToString(format, CultureInfo.InvariantCulture));
+            return true;
         }
+        return false;
     }
 
     private static void UpdateMsg(string name, string value)

@@ -23,16 +23,20 @@ public interface IVec<TVec, TNumber> :
     where TNumber : INumber<TNumber>
 {
     public TVec Max(TVec b);
+    public TVec Min(TVec b);
     public int ElementCount { get; }
 
     public TNumber Sum();
     public abstract static TVec Zero { get; }
     public abstract static TVec One { get; }
+
     public TNumber Last => this[ElementCount - 1];
     public TNumber this[int n] { get; set; }
 
     static abstract TVec operator *(TNumber left, TVec right);
     static abstract TVec operator *(TVec left, TVec right);
+    static abstract bool operator >(TVec left, TVec right);
+    static abstract bool operator <(TVec left, TVec right);
 
     public TNumber Volume()
     {
@@ -54,6 +58,12 @@ public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>,
 
     public float Last => Y;
 
+    public Vec2(float c)
+    {
+        X = c;
+        Y = c;
+    }
+    
     public Vec2(float x, float y)
     {
         X = x;
@@ -80,6 +90,14 @@ public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>,
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vec2 operator *(Vec2 v1, Vec2 v2) => new(v1.X * v2.X, v1.Y * v2.Y);
+    public static bool operator >(Vec2 left, Vec2 right)
+    {
+        return left.X > right.X && left.Y > right.Y;
+    }
+    public static bool operator <(Vec2 left, Vec2 right)
+    {
+        return left.X < right.X && left.Y < right.Y;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vec2 operator /(Vec2 v1, Vec2 v2) => new(v1.X / v2.X, v1.Y / v2.Y);
@@ -169,6 +187,10 @@ public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>,
         return new Vec2i((int)float.Ceiling(X), (int)float.Ceiling(Y));
     }
 
+    public Vec2 Min(Vec2 b)
+    {
+        return new Vec2(float.Min(X, b.X), float.Min(Y, b.Y));
+    }
 
     public Vec2 Max(Vec2 b)
     {

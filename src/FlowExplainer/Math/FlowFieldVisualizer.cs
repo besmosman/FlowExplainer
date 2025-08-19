@@ -9,14 +9,14 @@ using GL = OpenTK.Graphics.OpenGL.GL;
 namespace FlowExplainer;
 
 //Implementation of https://en.wikipedia.org/wiki/Bickley_jet 
-public class BickleyJet : IEditabalePeriodicVectorField<Vec3, Vec2>
+public class BickleyJet : IVectorField<Vec3, Vec2>
 {
     public float M = 0.001f;
     public float v = 1.5e-5f;
     public float p = 1.225f;
 
     public float Period => 1;
-    public Rect Domain => new Rect(new Vec2(.1f, -2), new Vec2(5f, 2));
+    public IDomain<Vec3> Domain => new RectDomain<Vec3>(new Vec3(.1f, -2, 0), new Vec3(5f, 2, 1));
 
     public float sech(float x)
     {
@@ -44,12 +44,12 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
     public override void DrawImGuiEdit()
     {
         var dat = GetRequiredWorldService<DataService>();
-        var domainArea = dat.VelocityField.Domain.Size.X * dat.VelocityField.Domain.Size.Y;
+        var domainArea = dat.VelocityField.Domain.Boundary.Size.X * dat.VelocityField.Domain.Boundary.Size.Y;
 
 
         ImGui.SliderInt("Grid Cells", ref GridCells, 0, 1500);
         ImGuiHelpers.SliderFloat("Length", ref Length, 0, 1);
-        ImGuiHelpers.SliderFloat("Thickness", ref Thickness, 0, dat.VelocityField.Domain.Size.Length() / 10f);
+        ImGuiHelpers.SliderFloat("Thickness", ref Thickness, 0, dat.VelocityField.Domain.Boundary.Size.Length() / 10f);
         ImGui.Checkbox("Auto Resize", ref AutoResize);
         base.DrawImGuiEdit();
     }
@@ -67,20 +67,23 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
     {
         var dat = GetRequiredWorldService<DataService>();
 
-        var domain = dat.VelocityField.Domain;
-        var domainArea = domain.Size.X * domain.Size.Y;
+        var domain = dat.VelocityField.Domain.Boundary;
+        var domainSize = domain.Size.Down();
+        var domainArea = domainSize.X * domainSize.Y;
         var spacing = MathF.Sqrt(domainArea / GridCells);
         var maxDirLenght2 = 0f;
-        var gridSize = (domain.Size / spacing).CeilInt();
-        var cellSize = domain.Size / gridSize.ToVec2();
+        var gridSize = (domainSize / spacing).CeilInt();
+        var cellSize = domainSize / gridSize.ToVec2();
         for (int x = 0; x < gridSize.X; x++)
         {
             for (int y = 0; y < gridSize.Y; y++)
             {
                 var rel = new Vec2(x + .5f, y + .5f) / gridSize.ToVec2();
                 //if (y % 2 == 0) rel.X += .5f / gridSize.X;
-                var pos = rel * domain.Size + domain.Min;
+                var pos = rel * domainSize + domain.Min.Down();
                 var dir = dat.VelocityField.Evaluate(pos.Up(dat.SimulationTime));
+                if(float.IsNaN(dir.X) || float.IsNaN(dir.Y))
+                    continue;
                 maxDirLenght2 = MathF.Max(maxDirLenght2, dir.LengthSquared());
                 var color = dat.ColorGradient.Get(dir.Length() * 1);
                 //color = new Color((dir + new Vec2(.1f,.1f)).Up(0).Up(1));

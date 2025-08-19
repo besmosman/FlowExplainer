@@ -6,7 +6,7 @@ namespace FlowExplainer;
 public class Gizmos2DInstanced
 {
     [StructLayout(LayoutKind.Sequential)]
-    struct CircleRenderInfo
+    private struct CircleRenderInfo
     {
         public Vec2 Position;
         public float Radius;
@@ -15,7 +15,7 @@ public class Gizmos2DInstanced
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    struct RectCenteredRenderInfo
+    private struct RectCenteredRenderInfo
     {
         public Vec2 Center;
         public Vec2 Size;
@@ -81,7 +81,7 @@ public class Gizmos2DInstanced
     public void RegisterLine(Vec2 start, Vec2 end, Color color, float thickness)
     {
         var dir = end - start;
-        float length = dir.Length();
+        var length = dir.Length();
         var s2 = start + dir/2;
 
         rectCenteredStorage.Register(new RectCenteredRenderInfo

@@ -32,6 +32,8 @@ public class ImGUIRenderService : GlobalService
     private void WindowOnResize(ResizeEventArgs obj)
     {
         var window = GetRequiredGlobalService<WindowService>().Window;
+        Config.UpdateValue("window-width", obj.Width);
+        Config.UpdateValue("window-height", obj.Height);
         controller.WindowResized(window.ClientSize.X, window.ClientSize.Y);
     }
         
