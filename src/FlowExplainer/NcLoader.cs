@@ -10,7 +10,8 @@ public class NcLoader
 
     public void Load()
     {
-         var d = DataSet.Open("C:\\Users\\20183493\\Downloads\\cmems_mod_glo_phy_anfc_0.083deg_PT1H-m_1755250746269.nc");
+        var ncpath = Config.GetValue<string>("nc-path");
+         var d = DataSet.Open( Path.Combine(ncpath,"cmems_mod_glo_phy_anfc_0.083deg_PT1H-m_1755250746269.nc"));
         // var d = DataSet.Open("C:\\Users\\20183493\\Downloads\\cmems_mod_glo_phy_anfc_0.083deg_PT1H-m_1755591489763.nc");
         //var d = DataSet.Open("C:\\Users\\20183493\\Downloads\\cmems_mod_glo_phy_anfc_0.083deg_PT1H-m_1755506053802.nc");
         //var d = DataSet.Open("C:\\Users\\20183493\\Downloads\\cmems_mod_glo_phy_anfc_0.083deg_PT1H-m_1755528087715.nc");
