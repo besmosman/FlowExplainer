@@ -38,10 +38,10 @@ public class RegularGridVectorFieldTests
     public void RegularGridVectorField2DTest()
     {
         RegularGridVectorField<Vec2, Vec2i, float> grid = new([0, 1, 2, 3], new Vec2i(2, 2), Vec2.Zero, Vec2.One);
-        Assert.Equal(0, grid.Data.GetCoordsIndex(new Vec2i(0, 0)));
-        Assert.Equal(1, grid.Data.GetCoordsIndex(new Vec2i(1, 0)));
-        Assert.Equal(2, grid.Data.GetCoordsIndex(new Vec2i(0, 1)));
-        Assert.Equal(3, grid.Data.GetCoordsIndex(new Vec2i(1, 1)));
+        Assert.Equal(0, grid.Grid.GetCoordsIndex(new Vec2i(0, 0)));
+        Assert.Equal(1, grid.Grid.GetCoordsIndex(new Vec2i(1, 0)));
+        Assert.Equal(2, grid.Grid.GetCoordsIndex(new Vec2i(0, 1)));
+        Assert.Equal(3, grid.Grid.GetCoordsIndex(new Vec2i(1, 1)));
         
         Assert.Equal(0, grid.Evaluate(new Vec2(0, 0)));
         Assert.Equal(1, grid.Evaluate(new Vec2(1, 0)));

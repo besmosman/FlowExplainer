@@ -5,8 +5,44 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="de64a90b-d37e-448c-ab79-56558d5f35b9" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/LICGridDiagnostic.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/ParallelGrid.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Math/SquirrelNoise5.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/FlowExplainer/Services/Global/Scripting.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.FlowExplainer/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.FlowExplainer/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer.Tests/RegularGridVectorFieldTests.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer.Tests/RegularGridVectorFieldTests.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Assets/Images/Colormaps/matlab_jet.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Assets/Images/Colormaps/matlab_parula.png" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Assets/Images/Colormaps/matlab_parula.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Assets/Images/Colormaps/matlab_turbo.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/BubbleMlLoader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/BubbleMlLoader.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGuiToolWindows.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/ImGUI/ImGuiToolWindows.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/BasicLagrangianHeatSim.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/BasicLagrangianHeatSim.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/DataService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/DataService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/FTLEGridDiagnostic.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/FTLEGridDiagnostic.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Gradients.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Gradients.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/GridVisualizer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/GridVisualizer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Heat3DViewer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Heat3DViewer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/HeatSimulation3DVisualizer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/HeatSimulation3DVisualizer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/IIntegrator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/IIntegrator.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/InterpolatedRenderGrid.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/InterpolatedRenderGrid.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/LAVDGridDiagnostic.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/LAVDGridDiagnostic.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/LCS_VelocityMagnitudeGridDiagnostic.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/LCS_VelocityMagnitudeGridDiagnostic.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/PhaseComputer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/PhaseComputer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/PoincareComputer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/PoincareComputer.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/RegularGrid.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/RegularGrid.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/RegularGridVectorField.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/RegularGridVectorField.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/RungeKutta4Integrator.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/RungeKutta4Integrator.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/SpeetjensVelocityField.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/SpeetjensVelocityField.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/StructureIdentifier.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/StructureIdentifier.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Test2Service.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Test2Service.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Test3Service.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Test3Service.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Math/Vec4.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Math/Vec4.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Msfd/MsdfRenderer.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Msfd/MsdfRenderer.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/FlowExplainer/NcLoader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/NcLoader.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Services/Global/VisualizationManagerService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Services/Global/VisualizationManagerService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Services/WorldService.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Services/WorldService.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/FlowExplainer/Visualization.cs" beforeDir="false" afterPath="$PROJECT_DIR$/FlowExplainer/Visualization.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,8 +75,11 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/2f1e7f2dceec12b078c1d12d93ab6d9effb16270e92b9fa2b4dea7ca44eec4b6/Comparer.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/326755fc341d349c24999b4c209d69fbe4317313d563859abe51f4ded75c97b/FileSystemEnumerator.Windows.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/33c7888d7577a0c0b6783f97c6f8d226ffe458923b8e56e6e81d763c04951f9/IH5GroupExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/36fd1a9641998bb3afbf2091e26eafa6aaafabcb494bc746c0ba7471db513143/Parallel.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/5259d3b492565eee74334a7de8f55cbaac1fe860ecd250567891931a1ab5b7e/ArrayPool.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/5312b7dc7ccab3a0b2d7bdcd98932d454ad09ddd5fdce7429655ed6b2b37c611/NativeDataset.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/5acc345db3c207bc9d886a36ff14867ef8d65557432172c2a42f19aeac04d1b/Nullable.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/5bdfaa497523ebcddd2c477767e9cd33a9424cf57c28f84cfb772c237982/Math.CoreCLR.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/6354a7b35d7821629924d3676acd7e67a6f7f94343e0e66ec439aa2bd6ed5/ThrowHelper.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/69ba5438e03a0e3a5d2f133f37405f9e32f9e0abb1fbe0a8cb7145514ff85f/MethodBaseInvoker.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/6ef8e7d549f6bfb5b9eafaaa0ff48d8cbfc564f32be26323b5f60e63aef4dd1/SafeFileHandle.Windows.cs" root0="FORCE_HIGHLIGHTING" />
@@ -49,18 +88,20 @@
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/8e90945a2ba4efdf63ecd291a2f18cd731eed131712ff33639f91dd0574d3d/DeflaterEngine.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/9c2288bc8ea0677932ccae48ea993a782c1859fe9581a74e617f43f9c48cd/NativeGroup.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/9f36f47319b32af838b2a5d575986ff83918e428931b1ed44ad662b6bc8a/HashSet.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/aa74b2b4e9988ce29825f798c3ef4254a9bde18b81c60754798e520d5445a27/Span.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/bb2a94dce7ca55a596694df58d3ca91c6d9c9c9c9813775e4d1abd0f91dc59/ThrowHelpers.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/c7102cd0ffb8973777e61b1942c3fffac7e14016a511d055c3adf73ff91748/ThrowHelper.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/de533de9e7b3ea79d36aeac96b6426559cfe9f3a96b1ab66b51ce3febeda25f/TimeSpan.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/df5a153ebd63f4865446bf1e8e549b7c26e4f9fa37d06d9269889d463ecf97a1/OverflowException.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/e22bcf169adb524555a64f74392d7b4eba35ddbdb0126ae71bf1508fd2ce/Math.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/e27543f11ad92fdb62cde92eebaa1afb3de86a016ad85f76d1554b0389cd3f3/Single.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/FlowExplainer/BubbleMlLoader.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/20183493/RiderProjects/FlowExplainer/src/FlowExplainer/Math/DataService.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/20183493/RiderProjects/FlowExplainer/src/FlowExplainer/Math/FTLEGridDiagnostic.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/20183493/RiderProjects/FlowExplainer/src/FlowExplainer/Math/HeatSimulation3DVisualizer.cs" root0="SKIP_HIGHLIGHTING" />
-    <setting file="mock://C:/Users/20183493/RiderProjects/FlowExplainer/src/FlowExplainer/Math/HeatSimulation3DVisualizer.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/FlowExplainer/Math/AxisVisualizer.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/FlowExplainer/Math/LICGridDiagnostic.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/FlowExplainer/Math/SpeetjensVelocityField.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/FlowExplainer/Math/Vec4.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/FlowExplainer/Program.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/FlowExplainer/Services/Global/Scripting.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/FlowExplainer/Services/Preferences.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="KubernetesApiPersistence">{}</component>
@@ -85,7 +126,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
-    ".NET Project.FlowExplainer.executor": "Run",
+    ".NET Project.FlowExplainer.executor": "Debug",
     "21493ac8-4fff-4f66-9a15-a1559856a671.executor": "Debug",
     "2b49c320-4b93-40a8-a832-a1cedfe6a50a.executor": "Debug",
     "ASKED_ADD_EXTERNAL_FILES": "true",
@@ -182,7 +223,15 @@
       <workItem from="1755083059118" duration="6425000" />
       <workItem from="1755090783972" duration="2018000" />
       <workItem from="1755159666085" duration="1000" />
-      <workItem from="1755170868935" duration="67783000" />
+      <workItem from="1755170868935" duration="75220000" />
+      <workItem from="1755692395155" duration="3694000" />
+      <workItem from="1755696821407" duration="3372000" />
+      <workItem from="1756110229466" duration="441000" />
+      <workItem from="1756299376155" duration="5023000" />
+      <workItem from="1756304426595" duration="1111000" />
+      <workItem from="1757058166024" duration="10384000" />
+      <workItem from="1757097365190" duration="520000" />
+      <workItem from="1757183630356" duration="429000" />
     </task>
     <task id="LOCAL-00001" summary="Custom vectors and testing stuff">
       <option name="closed" value="true" />
@@ -312,7 +361,15 @@
       <option name="project" value="LOCAL" />
       <updated>1755619019873</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="loader config.">
+      <option name="closed" value="true" />
+      <created>1755619938594</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1755619938594</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -348,7 +405,8 @@
     <MESSAGE value="RegularGridVectorField and tests." />
     <MESSAGE value="voordat het crashed." />
     <MESSAGE value="okay" />
-    <option name="LAST_COMMIT_MESSAGE" value="okay" />
+    <MESSAGE value="loader config." />
+    <option name="LAST_COMMIT_MESSAGE" value="loader config." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

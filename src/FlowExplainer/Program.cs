@@ -48,11 +48,12 @@ namespace FlowExplainer
 
             var visualisations = new WorldManagerService();
             neuroTrace.AddGlobalService(visualisations);
-            visualisations.NewWorld();
+            var mainworld =visualisations.NewWorld();
             neuroTrace.AddGlobalService(new ImGUIService());
             neuroTrace.AddGlobalService(new ViewsService());
             neuroTrace.AddGlobalService(new ImGUIRenderService());
             neuroTrace.AddGlobalService(new PresentationService());
+            Scripting.Startup(mainworld);
             neuroTrace.Run();
         }
     }

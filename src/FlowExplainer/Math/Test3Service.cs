@@ -31,13 +31,13 @@ public class Test3Service : WorldService
     public override void Draw(RenderTexture rendertarget, View view)
     {
         var velocity = new AnalyticalEvolvingVelocityField();
-        var integrator = new RungeKutta4Integrator();
+        var integrator = IIntegrator<Vec3, Vec2>.Rk4;
         float dt = .1f;
 
         Parallel.ForEach(Particles, (p) =>
         {
             for (int i = 0; i < 32; i++)
-                p.Position = integrator.Integrate(velocity.Evaluate, p.Position.Up(t + dt * i), dt / 32f);
+                p.Position = integrator.Integrate(velocity, p.Position.Up(t + dt * i), dt / 32f);
         });
 
 

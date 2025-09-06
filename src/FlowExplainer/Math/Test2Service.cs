@@ -13,7 +13,7 @@ public class Test2Service : WorldService
     public override void Initialize()
     {
         velocity = new AnalyticalEvolvingVelocityField();
-        var integrator = new RungeKutta4Integrator();
+        var integrator = IIntegrator<Vec3, Vec2>.Rk4;
         poincare = new(velocity, integrator);
 
         trajects = new();

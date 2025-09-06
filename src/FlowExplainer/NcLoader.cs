@@ -47,9 +47,9 @@ public class NcLoader
             for (int x = 0; x < nX; x++)
             for (int y = 0; y < nY; y++)
             {
-                VelocityField.Data.AtCoords(new Vec3i(x, y, t)) = new Vec2(uo[t, 0, y, x], vo[t, 0, y, x]);
+                VelocityField.Grid.AtCoords(new Vec3i(x, y, t)) = new Vec2(uo[t, 0, y, x], vo[t, 0, y, x]);
                 float temper = temp[t, 0, y, x];
-                HeatField.Data.AtCoords(new Vec3i(x, y, t)) = temper;
+                HeatField.Grid.AtCoords(new Vec3i(x, y, t)) = temper;
                 if (float.IsRealNumber(temper))
                 {
                     minTemp = float.Min(minTemp, temper);
@@ -62,12 +62,12 @@ public class NcLoader
         for (int x = 0; x < nX; x++)
         for (int y = 0; y < nY; y++)
         {
-            HeatField.Data.AtCoords(new Vec3i(x, y, t)) = (HeatField.Data.AtCoords(new Vec3i(x, y, t)) - minTemp) / (maxTemp - minTemp);
+            HeatField.Grid.AtCoords(new Vec3i(x, y, t)) = (HeatField.Grid.AtCoords(new Vec3i(x, y, t)) - minTemp) / (maxTemp - minTemp);
         }
 
-        for (int i = 0; i < VelocityField.Data.Data.Length; i++)
+        for (int i = 0; i < VelocityField.Grid.Data.Length; i++)
         {
-            ref var f = ref VelocityField.Data.Data[i];
+            ref var f = ref VelocityField.Grid.Data[i];
             if (!float.IsRealNumber(f.Sum()))
                 f = Vec2.Zero;
         }

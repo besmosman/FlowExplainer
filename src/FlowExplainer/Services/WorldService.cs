@@ -15,6 +15,12 @@ public abstract class WorldService : Service
     public virtual void OnEnable()
     {
     }
+
+    public void Enable()
+    {
+        IsEnabled = true;
+        OnEnable();
+    }
     
     public virtual void OnDisable()
     {

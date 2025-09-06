@@ -3,34 +3,19 @@ using static System.Single;
 
 namespace FlowExplainer;
 
-public class SpeetjensAdaptedVelocityField : IVectorField<Vec3, Vec2>
+public class SpeetjensVelocityField : IVectorField<Vec3, Vec2>
 {
-    public float elipson = 0f;
-    public float w = 2 * Pi;
-
+    public float epsilon = 0f;
     public float Period => 1;
+    
     public IDomain<Vec3> Domain => new RectDomain<Vec3>(new Vec3(0, 0, 0), new Vec3(1, .5f, 1));
+    
+    
     public void OnImGuiEdit()
     {
-        ImGuiHelpers.SliderFloat("Elipson", ref elipson, 0, 2);
+        ImGuiHelpers.SliderFloat("Epsilon", ref epsilon, 0, 2);
     }
-
-
-    float a(float t)
-    {
-        return elipson * Sin(w * t);
-    }
-
-    float b(float t)
-    {
-        return 1f - 2 * elipson * Sin(w * t);
-    }
-
-    public float f(float x, float t)
-    {
-        return a(t) * x * x + b(t) * x;
-    }
-
+    
     public Vec2 Evaluate(Vec3 x)
     {
         return Velocity(x.X, x.Y, x.Z);
@@ -38,50 +23,11 @@ public class SpeetjensAdaptedVelocityField : IVectorField<Vec3, Vec2>
 
     public Vec2 Velocity(float x, float y, float t)
     {
-        x *= 2;
-        y *= 2;
-        //var dx = x + elipson * Sin(2 * Pi * t);
-        var u = Sin(Pi * f(x, t)) * -Cos(Pi * y);
-        var dfdx = 2 * a(t) * x + b(t);
-        var v = Cos(Pi * f(x, t)) * Sin(Pi * y) * dfdx;
+        var D = 0.5f;
+        var K = 2f;
+        var L = epsilon * Sin(2 * Pi * t);
+        var u = Sin(K * Pi * (x - L)) * Cos(Pi * y / D);
+        var v = -Cos(K * Pi * (x - L)) * Sin(Pi * y / D);
         return -new Vec2(u, v);
-    }
-}
-
-public class SpeetjensVelocityField : IVectorField<Vec3, Vec2>
-{
-    public float Epsilon = 0.0f;
-
-    public float Period => 1;
-    public IDomain<Vec3> Domain => new RectDomain<Vec3>(new Vec3(0, 0, 0), new Vec3(1, .5f, 1));
-
-    public void OnImGuiEdit()
-    {
-        ImGuiHelpers.SliderFloat("Epsilon", ref Epsilon, 0, 1);
-    }
-
-
-    public Vec2 ubar(Vec2 x, float t)
-    {
-        var ux = Sin(2 * Pi * x.X) * Cos(2 * Pi * x.Y);
-        var uy = -Cos(2 * Pi * x.X) * Sin(2 * Pi * x.Y);
-        return new Vec2(ux, uy);
-    }
-
-
-    public float DeltaX(float t)
-    {
-        return Epsilon * Sin(2 * Pi * t);
-    }
-
-    public Vec2 Evaluate(Vec3 p)
-    {
-        var x = p.X;
-        var y = p.Y;
-        var t = p.Z;
-
-        var x_plus = new Vec2(x, y) - new Vec2(1 / 4f - DeltaX(t), 1 / 4f);
-        var x_minus = new Vec2(x, y) - new Vec2(3 / 4f - DeltaX(t), 1 / 4f);
-        return ubar(x_plus, t) + ubar(x_minus, t);
     }
 }

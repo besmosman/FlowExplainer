@@ -4,26 +4,6 @@ using ImGuiNET;
 
 namespace FlowExplainer;
 
-public static class ExactArrayPool<T>
-{
-    private static Dictionary<int, Stack<T[]>> pools =new();
-
-    public static T[] Rent(int length)
-    {
-        if (!pools.ContainsKey(length))
-            pools.Add(length, new());
-
-        if(pools[length].Count == 0)
-            pools[length].Push(new T[length]);
-        
-        return pools[length].Pop();
-    }
-
-    public static void Return(T[] array)
-    {
-        pools[array.Length].Push(array);
-    }
-}
 
 public static class ImGuiToolWindows
 {

@@ -259,7 +259,7 @@ public class TemperatureGridDiagnostic : IGridDiagnostic
 {
     public void UpdateGridData(GridVisualizer gridVisualizer)
     {
-        var renderGrid = gridVisualizer.RegularGrid.Data;
+        var renderGrid = gridVisualizer.RegularGrid.Grid;
         var dat = gridVisualizer.GetRequiredWorldService<DataService>();
         var tempratureField = dat.TempratureField;
         var spaceBounds = dat.VelocityField.Domain.Boundary.Reduce<Vec2>();
@@ -285,7 +285,7 @@ public class LagrangianTemperatureGridDiagnostic : IGridDiagnostic
 
     public void UpdateGridData(GridVisualizer gridVisualizer)
     {
-        var renderGrid = gridVisualizer.RegularGrid.Data;
+        var renderGrid = gridVisualizer.RegularGrid.Grid;
         var dat = gridVisualizer.GetRequiredWorldService<DataService>();
         var tempratureField = dat.TempratureField;
         var spaceBounds = dat.VelocityField.Domain.Boundary.Reduce<Vec2>();
@@ -337,7 +337,7 @@ public class FTLEGridDiagnostic : IGridDiagnostic
     {
         //var renderGrid = Data;
 
-        var renderGrid = gridVisualizer.RegularGrid.Data;
+        var renderGrid = gridVisualizer.RegularGrid.Grid;
         var dat = gridVisualizer.GetWorldService<DataService>()!;
         var domain = dat.VelocityField.Domain;
 

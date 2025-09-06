@@ -19,7 +19,7 @@ public class LAVDGridDiagnostic : IGridDiagnostic
     {
         //var renderGrid = Data;
 
-        var renderGrid = gridVisualizer.RegularGrid.Data;
+        var renderGrid = gridVisualizer.RegularGrid.Grid;
         var dat = gridVisualizer.GetWorldService<DataService>()!;
         var domain = dat.VelocityField.Domain;
 

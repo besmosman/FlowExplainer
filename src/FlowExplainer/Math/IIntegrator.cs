@@ -25,8 +25,8 @@ public class Trajectory<T> where T : IVec<T>
         var tau = Entries.Last().Last;
         return sum * (1f / float.Abs(t - tau));
     }
-    
-    
+
+
 }
 
 public interface IFlowOperator<X, P>
@@ -52,10 +52,7 @@ public interface IFlowOperator<X, P>
             for (int i = 1; i < Steps; i++)
             {
                 float t = ((float)i / Steps) * duration + t_start;
-                cur = Integrator.Integrate(v.Evaluate, cur.Up(t), dt);
-                /*if (!float.IsRealNumber(cur.Sum()))
-                    return new Trajectory<P>(points.ToArray());*/
-
+                cur = Integrator.Integrate(v, cur.Up(t), dt);
                 points.Add(cur.Up(t));
             }
 

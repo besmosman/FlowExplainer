@@ -37,7 +37,7 @@ public class PhaseComputer
                 var ddt = dt / subSteps;
                 for (int j = 0; j < subSteps; j++)
                 {
-                    t.CurPosition = integrator.Integrate(vectorField.Evaluate, t.CurPosition.Up(time), ddt);
+                    t.CurPosition = integrator.Integrate(vectorField, t.CurPosition.Up(time), ddt);
                 }
 
                 t.Trajectory.Add(t.CurPosition.Up(time));

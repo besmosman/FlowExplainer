@@ -1,8 +1,33 @@
 using System.Buffers;
+using System.Collections.Concurrent;
 using System.Numerics;
 using MemoryPack;
 
 namespace FlowExplainer;
+
+public static class Rental<T>
+{
+    private static Dictionary<int, ConcurrentStack<T[]>> stacks = new();
+
+    public static T[] Rent(int length)
+    {
+        if (!stacks.TryGetValue(length, out var stack))
+        {
+            stack = new();
+            stacks[length] = stack;
+        }
+
+        if (stack.TryPop(out var ts))
+            return ts;
+
+        return new T[length];
+    }
+
+    public static void Return(T[] array)
+    {
+        stacks[array.Length].Push(array);
+    }
+}
 
 /// <summary>
 /// Arbitrary dimension grid based vector field with mutlivariate interpolator
@@ -12,29 +37,24 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
     where Veci : IVec<Veci, int>
     where TData : IMultiplyOperators<TData, float, TData>, IAdditionOperators<TData, TData, TData>
 {
-    public RegularGrid<Veci, TData> Data { get; private set; }
-    public Veci GridSize => Data.GridSize;
+    public RegularGrid<Veci, TData> Grid { get; private set; }
+    public Veci GridSize => Grid.GridSize;
 
     public bool Interpolate = true;
-
-    public Vec MinCellPos { get; set; }
-    public Vec MaxCellPos { get; set; }
-
-    public IDomain<Vec> Domain => new RectDomain<Vec>(MinCellPos, MaxCellPos);
-
     
+    public RectDomain<Vec> RectDomain { get; set; }
+    public IDomain<Vec> Domain => RectDomain;
+
     public RegularGridVectorField(TData[] data, Veci gridSize, Vec minCellPos, Vec maxCellPos)
     {
-        Data = new RegularGrid<Veci, TData>(data, gridSize);
-        MinCellPos = minCellPos;
-        MaxCellPos = maxCellPos;
+        Grid = new RegularGrid<Veci, TData>(data, gridSize);
+        RectDomain = new RectDomain<Vec>(minCellPos, maxCellPos);
     }
 
     public RegularGridVectorField(Veci gridSize, Vec minCellPos, Vec maxCellPos)
     {
-        Data = new RegularGrid<Veci, TData>(gridSize);
-        MinCellPos = minCellPos;
-        MaxCellPos = maxCellPos;
+        Grid = new RegularGrid<Veci, TData>(gridSize);
+        RectDomain = new RectDomain<Vec>(minCellPos, maxCellPos);
     }
 
     public TData Evaluate(Vec x)
@@ -47,16 +67,20 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
         return MultivariateInterpolation(x);
     }
 
+    public ref TData AtCoords(Veci v)
+    {
+        return ref Grid.AtCoords(v);
+    }
     public Vec ToVoxelCoord(Vec worldpos)
     {
         var voxelPos = default(Vec)!;
         for (int i = 0; i < GridSize.ElementCount; i++)
         {
-            var max = MaxCellPos[i];
-            var min = MinCellPos[i];
+            var max = RectDomain.MaxPos[i];
+            var min = RectDomain.MinPos[i];
             var wpos = worldpos[i];
             var percentiel = (wpos - min) / (max - min);
-            voxelPos[i] = percentiel * (GridSize[i] - 1);
+            voxelPos[i] = percentiel * GridSize[i];
         }
 
         return voxelPos;
@@ -67,8 +91,8 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
         var worldPos = default(Vec)!;
         for (int i = 0; i < GridSize.ElementCount; i++)
         {
-            var max = MaxCellPos[i];
-            var min = MinCellPos[i];
+            var max = RectDomain.MaxPos[i];
+            var min = RectDomain.MinPos[i];
             var voxelCoord = coords[i];
             var percentile = voxelCoord / (GridSize[i] - 0);
             worldPos[i] = min + percentile * (max - min);
@@ -80,19 +104,19 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
 
     private TData Nearest(Vec x)
     {
-        return Data.AtCoords(x.Round());
+        return Grid.AtCoords(x.Round());
     }
 
     public RegularGridVectorField<Vec, Veci, TOut2> Select<TOut2>(Func<Veci, TOut2> selector)
         where TOut2 : IMultiplyOperators<TOut2, float, TOut2>, IAdditionOperators<TOut2, TOut2, TOut2>
     {
-        TOut2[] data = new TOut2[Data.Data.Length];
-        for (int i = 0; i < Data.Data.Length; i++)
+        TOut2[] data = new TOut2[Grid.Data.Length];
+        for (int i = 0; i < Grid.Data.Length; i++)
         {
-            var coords = Data.GetIndexCoords(i);
+            var coords = Grid.GetIndexCoords(i);
             data[i] = selector(coords);
         }
-        return new RegularGridVectorField<Vec, Veci, TOut2>(data, GridSize, MinCellPos, MaxCellPos);
+        return new RegularGridVectorField<Vec, Veci, TOut2>(data, GridSize, RectDomain.MinPos, RectDomain.MaxPos);
     }
 
     //modified from random online source. Tested for 2D and 3D cases.
@@ -100,7 +124,8 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
     {
         var dim = GridSize.ElementCount;
         var baseCoord = x.Floor();
-        var weights = ArrayPool<float>.Shared.Rent(dim);
+        var weights = Vec.Zero;
+
         for (int i = 0; i < dim; i++)
             weights[i] = x[i] - baseCoord[i];
 
@@ -118,19 +143,23 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
                 corner[i] = baseCoord[i] + offset;
             }
 
-            var coordsIndex = Data.GetCoordsIndex(corner);
-            if (coordsIndex < 0 || coordsIndex >= Data.Data.Length)
+            var coordsIndex = Grid.GetCoordsIndex(corner);
+            if (coordsIndex < 0 || coordsIndex >= Grid.Data.Length)
             {
                 //if a neighbor does not exist we just return the nearest neighbor valur for now. 
                 //TODO: make it weighted based on existing neighbors in these cases would be better.
                 return Nearest(x);
             }
 
-            var value = Data.AtCoords(corner);
+            var value = Grid.AtCoords(corner);
             result = result + (value * weight);
         }
-
-        ArrayPool<float>.Shared.Return(weights);
         return result;
+    }
+    
+    public void Resize(Veci gridSize, RectDomain<Vec> domain)
+    {
+        Grid.Resize(gridSize);
+        RectDomain = domain;
     }
 }

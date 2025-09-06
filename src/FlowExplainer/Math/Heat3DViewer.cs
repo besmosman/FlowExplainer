@@ -20,7 +20,7 @@ public class Heat3DViewer : WorldService
         //heat3d = SpeetjensSpectralImporter.Load(Config.GetValue<string>("spectral-data-path"));
         heat3d = (RegularGridVectorField<Vec3, Vec3i, float>)GetRequiredWorldService<DataService>().TempratureField;
         StorageBuffer = new StorageBuffer<float>(heat3d.GridSize.Volume());
-        StorageBuffer.Data = heat3d.Data.Data;
+        StorageBuffer.Data = heat3d.Grid.Data;
     }
     private object lastVelField;
 
@@ -60,8 +60,8 @@ public class Heat3DViewer : WorldService
         StorageBuffer.Upload();
         mat.SetUniform("tint", Color.White);
         mat.SetUniform("cameraPosUni", view.Camera.Position);
-        var heat3dMaxCellPos = heat3d.MaxCellPos;
-        var heat3dMinCellPos = heat3d.MinCellPos;
+        var heat3dMaxCellPos = heat3d.RectDomain.MaxPos;
+        var heat3dMinCellPos = heat3d.RectDomain.MinPos;
         heat3dMinCellPos.Z = 0;
         heat3dMaxCellPos.Z = zScale;
         view.CameraOffset = -(heat3dMaxCellPos + heat3dMinCellPos)/2;

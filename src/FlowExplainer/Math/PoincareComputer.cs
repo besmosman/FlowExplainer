@@ -27,7 +27,7 @@ public class PoincareComputer
             for (int i = 0; i < stepsPerPeriod; i++)
             {
                 float t = (p * stepsPerPeriod + i) * dt + startPhase.Z;
-                pos = Integrator.Integrate(VectorField.Evaluate, pos.Up(t), dt);
+                pos = Integrator.Integrate(VectorField, pos.Up(t), dt);
             }
             positions.Add(pos);
         }

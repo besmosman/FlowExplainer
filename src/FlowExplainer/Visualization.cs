@@ -41,8 +41,8 @@ namespace FlowExplainer
             service.Deinitialize();
             Services.Remove(service);
         }
-
-        public T? GetWorldService<T>() where T : WorldService
+        
+        public T GetWorldService<T>() where T : WorldService
         {
             foreach (var s in Services)
             {
@@ -51,7 +51,8 @@ namespace FlowExplainer
                     return t;
                 }
             }
-
+            //Auto add?
+            throw new Exception();
             return null;
         }
 

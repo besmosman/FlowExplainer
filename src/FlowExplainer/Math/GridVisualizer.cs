@@ -44,6 +44,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
     public List<IGridDiagnostic> Diagnostics =
     [
         //new VelocityMagnitudeGridDiagnostic(),
+        new LICGridDiagnostic(),
         new LagrangianTemperatureGridDiagnostic(),
         new TemperatureGridDiagnostic(),
         new FTLEGridDiagnostic(),
@@ -68,7 +69,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         int width = Math.Max(1, (int)Math.Round(aspect.X * scale));
         int height = Math.Max(1, (int)Math.Round(aspect.Y * scale));
         RegularGrid = new(new Vec2i(width, height), dat.VelocityField.Domain.Boundary.Min.XY, dat.VelocityField.Domain.Boundary.Max.XY);
-        gridbuffer = new StorageBuffer<CellData>(RegularGrid.Data.Data);
+        gridbuffer = new StorageBuffer<CellData>(RegularGrid.Grid.Data);
     }
 
     private object lastVelField;
@@ -182,8 +183,10 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         float scale = MathF.Sqrt(TargetCellCount / (aspect.X * aspect.Y));
         int width = Math.Max(1, (int)Math.Round(aspect.X * scale));
         int height = Math.Max(1, (int)Math.Round(aspect.Y * scale));
+        bool interpolate = RegularGrid.Interpolate;
         RegularGrid = new(new Vec2i(width, height), dat.VelocityField.Domain.Boundary.Min.XY, dat.VelocityField.Domain.Boundary.Max.XY);
-        gridbuffer = new(RegularGrid.Data.Data);
+        RegularGrid.Interpolate = interpolate;
+        gridbuffer = new(RegularGrid.Grid.Data);
     }
 
     public string GetTitle()

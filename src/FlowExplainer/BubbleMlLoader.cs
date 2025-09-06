@@ -41,24 +41,24 @@ public class GribLoader
             {
                 var x = i % nx;
                 var y = ny - i / nx;
-                VelocityField.Data.AtCoords(new Vec3i(x, y, t)) = new Vec2(velX[i].Value, velY[y].Value);
-                HeatField.Data.AtCoords(new Vec3i(x, y, t)) = tempK[i].Value;
+                VelocityField.Grid.AtCoords(new Vec3i(x, y, t)) = new Vec2(velX[i].Value, velY[y].Value);
+                HeatField.Grid.AtCoords(new Vec3i(x, y, t)) = tempK[i].Value;
             }
             t++;
         }
 
 
-        var minTemp = HeatField.Data.Data.Min();
-        var maxTemp = HeatField.Data.Data.Max();
+        var minTemp = HeatField.Grid.Data.Min();
+        var maxTemp = HeatField.Grid.Data.Max();
 
-        for (int i = 0; i < HeatField.Data.Data.Length; i++)
-            HeatField.Data.Data[i] = (HeatField.Data.Data[i] - minTemp) / (maxTemp - minTemp);
+        for (int i = 0; i < HeatField.Grid.Data.Length; i++)
+            HeatField.Grid.Data[i] = (HeatField.Grid.Data[i] - minTemp) / (maxTemp - minTemp);
 
         int c = 5;
     }
 }
 
-public class BubbleMlLoader
+/*public class BubbleMlLoader
 {
     public RegularGridVectorField<Vec3, Vec3i, Vec2> VelocityField;
     public RegularGridVectorField<Vec3, Vec3i, float> TemperatureField;
@@ -105,9 +105,9 @@ public class BubbleMlLoader
             var vY = (float)velY[t, y, x];
             var tem = (float)temp[t, y, x];
             var pres = (float)pressure[t, y, x];
-            VelocityField.Data.AtCoords(new Vec3i(x, y, t)) = new Vec2(vX, vY);
-            TemperatureField.Data.AtCoords(new Vec3i(x, y, t)) = tem;
-            PressureField.Data.AtCoords(new Vec3i(x, y, t)) = pres;
+            VelocityField.Grid.AtCoords(new Vec3i(x, y, t)) = new Vec2(vX, vY);
+            TemperatureField.Grid.AtCoords(new Vec3i(x, y, t)) = tem;
+            PressureField.Grid.AtCoords(new Vec3i(x, y, t)) = pres;
         }
 
         VelocityField.MinCellPos = new Vec3(minX, minY, 0);
@@ -117,4 +117,4 @@ public class BubbleMlLoader
         PressureField.MinCellPos = new Vec3(minX, minY, 0);
         PressureField.MaxCellPos = new Vec3(maxX, maxY, timeSteps);
     }
-}
+}*/

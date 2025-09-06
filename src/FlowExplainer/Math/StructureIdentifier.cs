@@ -85,12 +85,12 @@ public class StructureIdentifier : WorldService
             }
             var filled = FindStructure(grid, structure.SeedCoords, structure.dis);
 
-            for (int i = 0; i < grid.RegularGrid.Data.Data.Length; i++)
-                grid.RegularGrid.Data.Data[i].Marked = 0;
+            for (int i = 0; i < grid.RegularGrid.Grid.Data.Length; i++)
+                grid.RegularGrid.Grid.Data[i].Marked = 0;
 
             foreach (var c in filled)
             {
-                grid.RegularGrid.Data.AtCoords(c).Marked = 1;
+                grid.RegularGrid.Grid.AtCoords(c).Marked = 1;
                 // if (filled.Contains(c - new Vec2i(0, 1)) && filled.Contains(c - new Vec2i(0, -1)) && filled.Contains(c - new Vec2i(1, 0)) && filled.Contains(c - new Vec2i(-1, 0)))
                 //     continue;
                 /*var start = grid.RegularGrid.ToWorldPos(c.ToVec2());
@@ -116,7 +116,7 @@ public class StructureIdentifier : WorldService
     private static HashSet<Vec2i> FindStructure(GridVisualizer grid, Vec2i coord, float dis)
     {
 
-        var centerVal = grid.RegularGrid.Data.AtCoords(coord);
+        var centerVal = grid.RegularGrid.Grid.AtCoords(coord);
         HashSet<Vec2i> filled = new();
         Queue<Vec2i> toCheck = new();
         toCheck.Enqueue(coord);
@@ -127,10 +127,10 @@ public class StructureIdentifier : WorldService
                 if (!filled.Add(c))
                     continue;
 
-                if (!grid.RegularGrid.Data.IsWithin(c))
+                if (!grid.RegularGrid.Grid.IsWithin(c))
                     continue;
 
-                if (float.Abs(grid.RegularGrid.Data.AtCoords(c).Value - centerVal.Value) < dis)
+                if (float.Abs(grid.RegularGrid.Grid.AtCoords(c).Value - centerVal.Value) < dis)
                 {
                     if (!toCheck.Contains(c + new Vec2i(1, 0))) toCheck.Enqueue(c + new Vec2i(1, 0));
                     if (!toCheck.Contains(c + new Vec2i(-1, 0))) toCheck.Enqueue(c + new Vec2i(-1, 0));

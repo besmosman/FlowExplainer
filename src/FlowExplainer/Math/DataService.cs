@@ -6,7 +6,7 @@ public class DataService : WorldService
 {
     public IVectorField<Vec3, Vec2> VelocityField;
     public IVectorField<Vec3, float> TempratureField;
-    public IIntegrator<Vec3, Vec2> Integrator = new RungeKutta4Integrator();
+    public IIntegrator<Vec3, Vec2> Integrator = IIntegrator<Vec3, Vec2>.Rk4;
     public ColorGradient ColorGradient { get; set; } = Gradients.GetGradient("matlab_parula");
     public float SimulationTime;
 
@@ -104,9 +104,9 @@ public class DataService : WorldService
     private void SetGyreDataset()
     {
 
-        VelocityField = new SpeetjensAdaptedVelocityField()
+        VelocityField = new SpeetjensVelocityField()
         {
-            elipson = .1f,
+            epsilon = .1f,
         };
         TempratureField = SpeetjensSpectralImporter.Load(Config.GetValue<string>("spectral-data-path"));
         dataset = "Spectral Double Gyre";

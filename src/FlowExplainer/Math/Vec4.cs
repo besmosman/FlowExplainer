@@ -63,6 +63,9 @@ public struct RectDomain<Vec> : IDomain<Vec> where Vec : IVec<Vec>
     private Rect<Vec> Rect;
     private Rect<Vec> boundary;
 
+    public Vec MinPos => Rect.Min;
+    public Vec MaxPos => Rect.Max;
+
     public Rect<Vec> Boundary => Rect;
     public RectDomain(Vec min, Vec max)
     {

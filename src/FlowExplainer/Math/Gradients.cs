@@ -13,10 +13,12 @@ public static class Gradients
         {
             grads.Add(Path.GetFileNameWithoutExtension(f), new Lazy<ColorGradient>(() => LoadGradient(f)));
         }
+        
     }
 
     public static IEnumerable<ColorGradient> All => grads.Select(s => s.Value.Value);
-    
+
+    public static ColorGradient Grayscale => GetGradient("grayscale");
     public static ColorGradient GetGradient(string name) => grads[name].Value;
 
     private static ColorGradient LoadGradient(string path)

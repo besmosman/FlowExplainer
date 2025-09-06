@@ -7,7 +7,7 @@ namespace FlowExplainer;
 public abstract class InterpolatedRenderGrid
 {
     protected Material material;
-    public bool BilinearInterpolation { get; set; } = true;
+    public bool BilinearInterpolation { get; set; } = false;
 
     public abstract void UploadData();
     public abstract void Draw(ICamera camera, Vec2 start, Vec2 size);

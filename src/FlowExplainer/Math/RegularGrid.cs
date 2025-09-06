@@ -73,4 +73,10 @@ public class RegularGrid<Veci, TData> where Veci : IVec<Veci, int>
         
         return true;
     }
+    public void Resize(Veci gridSize)
+    {
+        GridSize = gridSize;
+        Data = new TData[GridSize.Volume()];
+        multipliers = ComputeMultipliers();
+    }
 }

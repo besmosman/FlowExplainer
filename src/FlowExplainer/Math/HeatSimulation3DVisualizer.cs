@@ -109,7 +109,7 @@ public static class SpeetjensSpectralImporter
                 {
                     var pos = heatGrid.ToWorldPos(new Vec3(x, y, 0));
                     var h = InterpFourCheb(pos.XY, spectralGrid, Pi5);
-                    heatGrid.Data.AtCoords(new Vec3i(x, y, t)) = h;
+                    heatGrid.Grid.AtCoords(new Vec3i(x, y, t)) = h;
                 }
             }
         });
@@ -134,7 +134,7 @@ public class HeatSimulationToField
                 var h = state.ParticleHeat[i];
                 var t = state.Time;
                 var voxelCoord = heatField.ToVoxelCoord(new Vec3(x, y, t)).Round();
-                ref var dat = ref heatField.Data.AtCoords(voxelCoord);
+                ref var dat = ref heatField.Grid.AtCoords(voxelCoord);
                 if (dat == 0)
                 {
                     dat = h;

@@ -18,7 +18,7 @@ public class BasicLagrangianHeatSim
     }
 
     public Particle[] Particles = new Particle[0];
-    public IIntegrator<Vec3, Vec2> Integrator = new RungeKutta4Integrator();
+    public IIntegrator<Vec3, Vec2> Integrator = new RungeKutta4IntegratorGen<Vec3, Vec2>();
     public float cellSize = .1f;
     private Dictionary<Vec2i, List<int>> grid = new();
 
@@ -85,7 +85,7 @@ public class BasicLagrangianHeatSim
             ref var p = ref Particles[i];
             p.RadiationHeatFlux = 0f;
             p.DiffusionHeatFlux = 0f;
-            p.Position = Integrator.Integrate(velocityField.Evaluate, new(p.Position, time), dt);
+            p.Position = Integrator.Integrate(velocityField, new(p.Position, time), dt);
 
 
             //bounds shouldnt be needed though
