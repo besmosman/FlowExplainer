@@ -90,6 +90,12 @@ public class BickleyJet2 : IVectorField<Vec3, Vec2>
         return new Vec2(u, v);
     }
 
+    public bool TryEvaluate(Vec3 x, out Vec2 value)
+    {
+        value = Evaluate(x);
+        return true;
+    }
+
     private Vec2 FiniteDifferences(Vec3 x)
     {
         var d = .01f;

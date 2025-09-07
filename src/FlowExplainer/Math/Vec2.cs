@@ -14,6 +14,7 @@ public interface IVecIntegerEquivelant<TVeci> where TVeci : IVec<TVeci, int>
     TVeci Round();
 }
 
+
 public interface IVec<TVec, TNumber> :
     IMultiplyOperators<TVec, TNumber, TVec>,
     ISubtractionOperators<TVec, TVec, TVec>,

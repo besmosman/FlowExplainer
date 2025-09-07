@@ -264,6 +264,7 @@ public class TemperatureGridDiagnostic : IGridDiagnostic
         var tempratureField = dat.TempratureField;
         var spaceBounds = dat.VelocityField.Domain.Boundary.Reduce<Vec2>();
 
+       
         Parallel.For(0, renderGrid.GridSize.X * renderGrid.GridSize.Y, c =>
         {
             var i = c % renderGrid.GridSize.X;

@@ -1,3 +1,4 @@
+using System.Numerics;
 using ImGuiNET;
 
 namespace FlowExplainer;
@@ -108,7 +109,9 @@ public class DataService : WorldService
         {
             epsilon = .1f,
         };
-        TempratureField = SpeetjensSpectralImporter.Load(Config.GetValue<string>("spectral-data-path"));
+        string folderPath = Config.GetValue<string>("spectral-data-path")!;
+ 
+       // TempratureField = temprature;
         dataset = "Spectral Double Gyre";
     }
 

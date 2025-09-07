@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 
 namespace FlowExplainer;
 
+/*
 public class PeriodicDiscretizedField : IVectorField<Vec3, Vec2>
 {
     public IVectorField<Vec3, Vec2> Original;
@@ -47,4 +48,4 @@ public class PeriodicDiscretizedField : IVectorField<Vec3, Vec2>
     {
         return Original.Evaluate(k.ToVec3() * CellSize);
     }
-}
+}*/

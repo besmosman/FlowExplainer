@@ -93,7 +93,7 @@ public class AxisVisualizer : WorldService
             texturedMat.SetUniform("mainTex", textr);
             var width = 40;
             var height = 200;
-            var posX = view.Width - width - 20f;
+            var posX = view.Width - width - 50f;
             var posY = view.Height / 2f - height / 2f;
             texturedMat.SetUniform("model", Matrix4x4.CreateScale(width, height, .4f) * Matrix4x4.CreateTranslation(posX, posY, 0));
             gradientMesh.Draw();

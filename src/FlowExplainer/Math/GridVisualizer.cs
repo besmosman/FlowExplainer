@@ -56,7 +56,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
 
     public override void Initialize()
     {
-        SetGridDiagnostic(new FTLEGridDiagnostic());
+        SetGridDiagnostic(new TemperatureGridDiagnostic());
         material = new Material(Shader.DefaultWorldSpaceVertex, new Shader("Assets/Shaders/grid-reg.frag", ShaderType.FragmentShader));
     }
 

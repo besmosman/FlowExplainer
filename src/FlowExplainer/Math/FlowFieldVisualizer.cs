@@ -33,6 +33,12 @@ public class BickleyJet : IVectorField<Vec3, Vec2>
         return new Vec2(vel_x, vel_y);
     }
 
+    public bool TryEvaluate(Vec3 x, out Vec2 value)
+    {
+        value =Evaluate(x);
+        return true;
+    }
+
     public void OnImGuiEdit()
     {
         ImGuiHelpers.SliderFloat("M", ref M, 0, .1f);

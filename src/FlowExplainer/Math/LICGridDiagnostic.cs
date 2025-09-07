@@ -41,12 +41,27 @@ public static class LIC
             var steps = float.Abs(T) / dt;
             for (int k = 0; k < steps; k++)
             {
-                cur = integrator.Integrate(convolution, cur.Up(t), dt);
+                if (k != 0)
+                {
+                    var diff = (integrator.Integrate(convolution, cur.Up(t), dt) - cur);
+                    if (diff.Length() > 0)
+                    {
+                        cur = cur + (diff / diff.Length()) * cellSize * .1f;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
                 float weight = Kernel(k / steps * .1f);
-                var noise = noiseF.Evaluate(cur);
-                noiseSum += noise * weight;
-                weightSum += weight;
+                if (noiseF.TryEvaluate(cur, out var noise))
+                {
+                    noiseSum += noise * weight;
+                    weightSum += weight;
+                }
             }
+
             var lic = noiseSum / weightSum;
             atCoords = lic;
         });
@@ -64,9 +79,17 @@ public class NoiseField : IVectorField<Vec2, float>
     public IDomain<Vec2> Domain => IDomain<Vec2>.Infinite;
 
     FastNoise noise = new FastNoise();
+
     public float Evaluate(Vec2 x)
-    { 
-        return ((noise.GetSimplex(x.X*5000,x.Y*5000))+1) * 1;
+    {
+        TryEvaluate(x, out var v);
+        return v;
+    }
+
+    public bool TryEvaluate(Vec2 x, out float value)
+    {
+        value = ((noise.GetSimplex(x.X * 5000, x.Y * 5000)) + 1) * 1;
+        return true;
     }
 }
 
@@ -76,6 +99,7 @@ public class LICGridDiagnostic : IGridDiagnostic
 
     private RegularGridVectorField<Vec2, Vec2i, float> licField = new(Vec2i.One, default, default);
     private IVectorField<Vec2, float> NoiseField = new NoiseField();
+
     public void UpdateGridData(GridVisualizer gridVisualizer)
     {
         var renderGrid = gridVisualizer.RegularGrid;
@@ -88,8 +112,8 @@ public class LICGridDiagnostic : IGridDiagnostic
 
         if (licField.GridSize != gridVisualizer.RegularGrid.GridSize)
             licField.Resize(gridVisualizer.RegularGrid.GridSize, gridVisualizer.RegularGrid.RectDomain);
-        
-        
+
+
         LIC.Compute(NoiseField, dat.VelocityField, licField, t, T);
         for (int i = 0; i < licField.Grid.Data.Length; i++)
             renderGrid.Grid.Data[i].Value = licField.Grid.Data[i];
@@ -123,6 +147,7 @@ public class LICGridDiagnostic : IGridDiagnostic
                     noiseSum += noise * weight;
                     weightSum += weight;
                 }
+
                 var lic = noiseSum / weightSum;
                 renderGrid.AtCoords(new Vec2i(x, y)).Value = lic;
             }
@@ -135,11 +160,13 @@ public class LICGridDiagnostic : IGridDiagnostic
 //            renderGrid.Grid.AtCoords(new Vec2i(x, y)).Value =  NoiseField.AtCoords(new Vec2i(x,y));
         }*/
     }
+
     float Kernel(float dis)
     {
         float sigma = 0.3f;
         return (float)Math.Exp(-(dis * dis) / (2 * sigma * sigma));
     }
+
     public void OnImGuiEdit(GridVisualizer vis)
     {
         var dat = vis.GetRequiredWorldService<DataService>()!;

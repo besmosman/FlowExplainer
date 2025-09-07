@@ -13,6 +13,12 @@ public class AnalyticalEvolvingVelocityField : IVectorField<Vec3, Vec2>
     public float Period => (2f * Pi) / w;
     public IDomain<Vec3> Domain => new RectDomain<Vec3>(new Vec3(0, 0, 0), new Vec3(2, 1f, Period));
 
+    public bool TryEvaluate(Vec3 x, out Vec2 value)
+    {
+        value = Velocity(x.X, x.Y, x.Z);
+        return true;
+    }
+
     public void OnImGuiEdit()
     {
         ImGuiHelpers.SliderFloat("A", ref A, 0, 10);
@@ -61,6 +67,6 @@ public class AnalyticalEvolvingVelocityField : IVectorField<Vec3, Vec2>
         var u = -Pi * A * Sin(Pi * f(x, t)) * Cos(Pi * y);
         var dfdx = 2 * a(t) * x + b(t);
         var v = Pi * A * Cos(Pi * f(x, t)) * Sin(Pi * y) * dfdx;
-        return -new Vec2(u, v);
+        return new Vec2(u, v);
     }
 }

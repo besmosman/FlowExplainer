@@ -1,6 +1,9 @@
+using System.Runtime.CompilerServices;
 using MemoryPack;
 
 namespace FlowExplainer;
+
+
 
 public class RegularGrid<Veci, TData> where Veci : IVec<Veci, int>
 {
@@ -8,6 +11,11 @@ public class RegularGrid<Veci, TData> where Veci : IVec<Veci, int>
     public Veci GridSize { get; private set; }
 
     private Veci multipliers;
+
+    public ref TData this[Veci index]
+    {
+        get => ref AtCoords(index);
+    }
 
     public RegularGrid(Veci gridSize)
     {
@@ -33,9 +41,15 @@ public class RegularGrid<Veci, TData> where Veci : IVec<Veci, int>
     }
 
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ref TData AtCoords(Veci x)
     {
-        x = Utils.Clamp<Veci, int>(x, Veci.Zero, GridSize - Veci.One);
+        //x = Utils.Clamp<Veci, int>(x, Veci.Zero, GridSize - Veci.One);
+        if (!IsWithin(x))
+        {
+            throw new Exception("Not within bounds");
+        }
+            
         int index = GetCoordsIndex(x);
         return ref Data[index];
     }
@@ -61,22 +75,26 @@ public class RegularGrid<Veci, TData> where Veci : IVec<Veci, int>
         return coords;
     }
 
-    public void Gradient()
-    {
-
-    }
     public bool IsWithin(Veci coord)
     {
         for (int i = 0; i < GridSize.ElementCount; i++)
             if (coord[i] < 0 || coord[i] >= GridSize[i])
                 return false;
-        
+
         return true;
     }
+
     public void Resize(Veci gridSize)
     {
         GridSize = gridSize;
         Data = new TData[GridSize.Volume()];
         multipliers = ComputeMultipliers();
+    }
+    
+
+    private static void ValidateSize(RegularGrid<Veci,TData> a, RegularGrid<Veci, TData> b)
+    {
+        if (!a.GridSize.Equals(b.GridSize))
+            throw new Exception("Different sizes");
     }
 }

@@ -78,7 +78,13 @@ namespace FlowExplainer
             var width = Config.GetValue<int?>("window-width") ?? 1920;
             var height = Config.GetValue<int?>("window-height") ?? 1080;
 
-            SWindow = new(new NativeWindowSettings
+            if (width <= 0 || height <= 0)
+            {
+                width = 1920;
+                height = 1080;
+            }
+
+        SWindow = new(new NativeWindowSettings
             {
                 Title = nameof(FlowExplainer),
                 StartFocused = true,

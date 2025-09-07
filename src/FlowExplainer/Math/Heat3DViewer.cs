@@ -18,7 +18,7 @@ public class Heat3DViewer : WorldService
         //   heat3d = HeatSimulationToField.Convert(BinarySerializer.Load<HeatSimulation>("heat.sim"));
         //heat3d = SpeetjensSpectralImporter.Load("C:\\Users\\osman\\Downloads\\ScalarTransportBasicVersion\\ScalarTransportBasicVersion\\DataSet1");
         //heat3d = SpeetjensSpectralImporter.Load(Config.GetValue<string>("spectral-data-path"));
-        heat3d = (RegularGridVectorField<Vec3, Vec3i, float>)GetRequiredWorldService<DataService>().TempratureField;
+       // heat3d = GetRequiredWorldService<DataService>().TempratureField;
         StorageBuffer = new StorageBuffer<float>(heat3d.GridSize.Volume());
         StorageBuffer.Data = heat3d.Grid.Data;
     }

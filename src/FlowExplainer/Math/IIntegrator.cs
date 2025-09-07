@@ -53,6 +53,9 @@ public interface IFlowOperator<X, P>
             {
                 float t = ((float)i / Steps) * duration + t_start;
                 cur = Integrator.Integrate(v, cur.Up(t), dt);
+                if(!v.Domain.IsWithinSpace(cur))
+                    break;
+                
                 points.Add(cur.Up(t));
             }
 

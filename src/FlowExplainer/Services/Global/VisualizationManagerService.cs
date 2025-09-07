@@ -29,7 +29,7 @@
             v.AddVisualisationService(new AxisVisualizer());
             v.AddVisualisationService(new StructureIdentifier(){ IsEnabled = false});
             //v.AddVisualisationService(new FDTest());
-            v.AddVisualisationService(new Heat3DViewer());
+            //v.AddVisualisationService(new Heat3DViewer());
             Worlds.Add(v);
             return v;
         }

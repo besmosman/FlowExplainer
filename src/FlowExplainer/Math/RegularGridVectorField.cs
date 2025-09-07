@@ -34,15 +34,55 @@ public static class Rental<T>
 /// </summary>
 public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
     where Vec : IVec<Vec>, IVecIntegerEquivelant<Veci>
-    where Veci : IVec<Veci, int>
+    where Veci : IVec<Veci, int>, IVecFloatEquivelant<Vec>
     where TData : IMultiplyOperators<TData, float, TData>, IAdditionOperators<TData, TData, TData>
 {
     public RegularGrid<Veci, TData> Grid { get; private set; }
     public Veci GridSize => Grid.GridSize;
 
     public bool Interpolate = true;
-    
+
     public RectDomain<Vec> RectDomain { get; set; }
+
+    public TData Evaluate(Vec x)
+    {        
+        x = ToVoxelCoord(x);
+        x = Utils.Clamp<Vec, float>(x, Vec.Zero, GridSize.ToVecF() - Vec.One);
+        if (!Interpolate)
+        {
+            var coord = x.Round();
+            return Grid.AtCoords(coord);
+        }
+
+        if (!TryMultivariateInterpolation(x, out var value))
+            throw new Exception();
+        
+        return value;
+    }
+
+    public bool TryEvaluate(Vec x, out TData value)
+    {
+        x = ToVoxelCoord(x);
+        if (!Interpolate)
+        {
+            var coord = x.Round();
+            if (Grid.IsWithin(coord))
+            {
+                value = Grid.AtCoords(coord);
+                return true;
+            }
+            else
+            {
+                value = default!;
+                return false;
+            }
+        }
+        else
+        {
+            return TryMultivariateInterpolation(x, out value);
+        }
+    }
+
     public IDomain<Vec> Domain => RectDomain;
 
     public RegularGridVectorField(TData[] data, Veci gridSize, Vec minCellPos, Vec maxCellPos)
@@ -57,20 +97,24 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
         RectDomain = new RectDomain<Vec>(minCellPos, maxCellPos);
     }
 
-    public TData Evaluate(Vec x)
+    public RegularGridVectorField(RegularGrid<Veci, TData> grid, RectDomain<Vec> rectDomain)
     {
-        x = ToVoxelCoord(x);
-
-        if (!Interpolate)
-            return Nearest(x);
-
-        return MultivariateInterpolation(x);
+        Grid = grid;
+        RectDomain = rectDomain;
     }
+
+    public RegularGridVectorField(Veci gridSize, RectDomain<Vec> rectDomain)
+    {
+        Grid = new RegularGrid<Veci, TData>(gridSize);
+        RectDomain = rectDomain;
+    }
+
 
     public ref TData AtCoords(Veci v)
     {
         return ref Grid.AtCoords(v);
     }
+
     public Vec ToVoxelCoord(Vec worldpos)
     {
         var voxelPos = default(Vec)!;
@@ -101,6 +145,10 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
         return worldPos;
     }
 
+    public Vec ToWorldPos(Veci coords)
+    {
+        return ToWorldPos(coords.ToVecF());
+    }
 
     private TData Nearest(Vec x)
     {
@@ -116,25 +164,35 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
             var coords = Grid.GetIndexCoords(i);
             data[i] = selector(coords);
         }
+
         return new RegularGridVectorField<Vec, Veci, TOut2>(data, GridSize, RectDomain.MinPos, RectDomain.MaxPos);
     }
 
-    //modified from random online source. Tested for 2D and 3D cases.
-    private TData MultivariateInterpolation(Vec x)
+    //modified from random online source. Tested for 2D and 3D cases, should work in any dimension.
+    private bool TryMultivariateInterpolation(Vec coords, out TData result)
     {
         var dim = GridSize.ElementCount;
-        var baseCoord = x.Floor();
+        var baseCoord = coords.Floor();
+
+
         var weights = Vec.Zero;
 
         for (int i = 0; i < dim; i++)
-            weights[i] = x[i] - baseCoord[i];
+            weights[i] = coords[i] - baseCoord[i];
 
-        TData result = default!;
+        if (baseCoord.Last == GridSize.Last)
+        {
+            baseCoord[coords.ElementCount - 1] -= 1;
+        }
+
+        float totalWeight = 0.0f;
         int numCorners = 1 << dim;
+
         for (int c = 0; c < numCorners; c++)
         {
             float weight = 1.0f;
             var corner = baseCoord;
+
             for (int i = 0; i < dim; i++)
             {
                 int bit = (c >> i) & 1;
@@ -143,20 +201,41 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
                 corner[i] = baseCoord[i] + offset;
             }
 
-            var coordsIndex = Grid.GetCoordsIndex(corner);
-            if (coordsIndex < 0 || coordsIndex >= Grid.Data.Length)
+            if (Grid.IsWithin(corner))
             {
-                //if a neighbor does not exist we just return the nearest neighbor valur for now. 
-                //TODO: make it weighted based on existing neighbors in these cases would be better.
-                return Nearest(x);
+                totalWeight += weight;
+            }
+        }
+
+        result = default!;
+
+        if (totalWeight == 0.0f)
+            return false;
+
+        for (int c = 0; c < numCorners; c++)
+        {
+            float weight = 1.0f;
+            var corner = baseCoord;
+
+            for (int i = 0; i < dim; i++)
+            {
+                int bit = (c >> i) & 1;
+                int offset = bit;
+                weight *= bit == 1 ? weights[i] : (1 - weights[i]);
+                corner[i] = baseCoord[i] + offset;
             }
 
-            var value = Grid.AtCoords(corner);
-            result = result + (value * weight);
+            if (Grid.IsWithin(corner))
+            {
+                float normalizedWeight = weight / totalWeight;
+                var value = Grid.AtCoords(corner);
+                result = result + (value * normalizedWeight);
+            }
         }
-        return result;
+
+        return true;
     }
-    
+
     public void Resize(Veci gridSize, RectDomain<Vec> domain)
     {
         Grid.Resize(gridSize);

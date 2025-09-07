@@ -2,7 +2,7 @@
 
 namespace FlowExplainer
 {
-    public struct Vec3i : IEquatable<Vec3i>, IVec<Vec3i, int>
+    public struct Vec3i : IEquatable<Vec3i>, IVec<Vec3i, int>, IVecFloatEquivelant<Vec3>
     {
         public int X;
         public int Y;
@@ -13,6 +13,11 @@ namespace FlowExplainer
             X = x;
             Y = y;
             Z = z;
+        }
+
+        public Vec3 ToVecF()
+        {
+            return new Vec3(X, Y, Z);
         }
 
         public override bool Equals(object? obj)

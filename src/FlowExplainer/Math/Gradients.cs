@@ -19,6 +19,7 @@ public static class Gradients
     public static IEnumerable<ColorGradient> All => grads.Select(s => s.Value.Value);
 
     public static ColorGradient Grayscale => GetGradient("grayscale");
+    public static ColorGradient Parula => GetGradient("matlab_parula");
     public static ColorGradient GetGradient(string name) => grads[name].Value;
 
     private static ColorGradient LoadGradient(string path)

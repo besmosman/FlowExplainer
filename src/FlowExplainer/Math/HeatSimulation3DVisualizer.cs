@@ -5,6 +5,74 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
 
+public static class SpeetjensSpectralImporterSpectral
+{
+    public static SpectralField Load(string folderPath, bool noFlow)
+    {
+        int coefX = 33;
+        int coefY = 33;
+        
+        Dictionary<string, RegularGrid<Vec2i, Complex>> spectralGrids = new();
+        
+        foreach (var p in Directory.GetFiles(folderPath))
+        {
+            if (p.Contains("NoFlow") == noFlow)
+            {
+                var range = (p.IndexOf("t=", StringComparison.InvariantCulture) + 2)..(p.IndexOf("EPS", StringComparison.InvariantCulture));
+                string tString = p[range];
+                var t = float.Parse(tString, CultureInfo.InvariantCulture);
+                var t_index = (int)float.Round(t * 100);
+
+                if (!spectralGrids.ContainsKey(tString))
+                {
+                    spectralGrids.Add(tString, new(new Vec2i(coefX, coefY)));
+                }
+
+                var spectralGrid = spectralGrids[tString];
+
+                var dat = File.ReadLines(p).ToArray();
+
+                bool isRealFile = p.EndsWith("RE.dat");
+                for (int x = 0; x < coefX; x++)
+                {
+                    var splitted = dat[x].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                    for (int y = 0; y < coefY; y++)
+                    {
+                        ref var at = ref spectralGrid.AtCoords(new Vec2i(x, y));
+                        var v = float.Parse(splitted[y], CultureInfo.InvariantCulture);
+                        if (isRealFile)
+                            at = new Complex(v, at.Imaginary);
+                        else
+                            at = new Complex(at.Real, v);
+                    }
+                }
+            }
+        }
+
+
+        var grids = spectralGrids.OrderBy(o =>
+        {
+            var t = (int)(float.Round(float.Parse(o.Key, CultureInfo.InvariantCulture) * 100f));
+            return t;
+        }).Select(s => s.Value).ToArray();
+        
+        var grid = new RegularGrid<Vec3i, Complex>(new Vec3i(grids[0].GridSize.X, grids[0].GridSize.Y, grids.Length));
+        for (int i = 0; i < grids.Length; i++)
+        {
+            for (int x = 0; x < grids[i].GridSize.X; x++)
+            {
+                for (int y = 0; y < grids[i].GridSize.Y; y++)
+                {
+                    grid[new Vec3i(x, y, i)] = grids[i][new Vec2i(x, y)];
+                }
+            }
+        }
+
+
+        return new SpectralField(grid, new Rect<Vec3>(new Vec3(0, 0, 0), new Vec3(1, .5f, 1)));
+    }
+}
+
 public static class SpeetjensSpectralImporter
 {
     public static float PhysicalSpectral(float x, float Pi5)
@@ -23,7 +91,7 @@ public static class SpeetjensSpectralImporter
         for (int p = 0; p <= N; p++)
         {
             int n = p;
-            u += Usp.AtCoords(new Vec2i(p, 0)).Real * float.Cos(n * acosy);      
+            u += Usp.AtCoords(new Vec2i(p, 0)).Real * float.Cos(n * acosy);
         }
 
         for (int p = 0; p <= N; p++)
@@ -65,7 +133,7 @@ public static class SpeetjensSpectralImporter
             {
                 var range = (p.IndexOf("t=", StringComparison.InvariantCulture) + 2)..(p.IndexOf("EPS", StringComparison.InvariantCulture));
                 string tString = p[range];
-                var t = float.Parse(tString,  CultureInfo.InvariantCulture);
+                var t = float.Parse(tString, CultureInfo.InvariantCulture);
                 var t_index = (int)float.Round(t * 100);
 
                 if (!spectralGrids.ContainsKey(tString))
@@ -185,7 +253,7 @@ public class FDTest : WorldService
 
         for (int i = 0; i < 336; i++)
         {
-            FiniteDifferences.Test(vel, Temprature, dat.SimulationTime, dat.DeltaTime/336f);
+            FiniteDifferences.Test(vel, Temprature, dat.SimulationTime, dat.DeltaTime / 336f);
         }
 
         for (int x = 0; x < 64; x++)
