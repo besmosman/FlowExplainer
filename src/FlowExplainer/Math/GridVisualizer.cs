@@ -11,12 +11,14 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         public float Value;
         public float Marked;
         public Vec2 Padding;
+        public Color Color;
 
         public static CellData operator *(CellData left, float right)
         {
             return new CellData
             {
                 Value = left.Value * right,
+                Color = left.Color * right,
                 Marked = left.Marked * right,
             };
         }
@@ -25,6 +27,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             return new CellData
             {
                 Value = left.Value * right.Value,
+                Color = left.Color * right.Color,
                 Marked = left.Marked * right.Marked,
             };
         }
@@ -101,6 +104,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             material.SetUniform("interpolate", RegularGrid.Interpolate);
             material.SetUniform("view", camera.GetViewMatrix());
             material.SetUniform("projection", camera.GetProjectionMatrix());
+            material.SetUniform("useCustomColor", diagnostic.UseCustomColoring);
             material.SetUniform("colorgradient", dat.ColorGradient.Texture.Value);
             material.SetUniform("minGrad", AutoScale ? min : 0f);
             material.SetUniform("maxGrad", AutoScale ? max : 1f);
@@ -198,5 +202,11 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         if (AutoScale)
             return (min, max);
         return (0, 1);
+    }
+    public float ScaleScaler(float value)
+    {
+        if(AutoScale)
+            return (value - min) / (max-min);
+        return value;
     }
 }

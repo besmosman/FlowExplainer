@@ -15,6 +15,7 @@ public static class GridComputations
     }
 }
 
+
 public static class Scripting
 {
     public static void Startup(World world)
@@ -61,9 +62,9 @@ public static class Scripting
 
         var field = new ArbitraryField<Vec3, Vec2>(tempTot.Domain, (p) => new Vec2(diffFluxX.Evaluate(p), diffFluxY.Evaluate(p)));
 
-        dataService.VelocityField = new DiscritizedField<Vec3,Vec3i,Vec2>(new Vec3i(32, 32, 4),field );
-        dataService.TempratureField =  new DiscritizedField<Vec3,Vec3i,float>(new Vec3i(32, 32, 4), tempConvection);
-       ///dataService.VelocityField = velocityField;
+        dataService.VelocityField = new DiscritizedField<Vec3,Vec3i,Vec2>(new Vec3i(32, 32, 32),field );
+        dataService.TempratureField =  new DiscritizedField<Vec3,Vec3i,float>(new Vec3i(32, 32, 32), tempConvection);
+       //dataService.VelocityField = velocityField;
        ///dataService.TempratureField = tempTot;
       
        //dataService.VelocityField = field ;

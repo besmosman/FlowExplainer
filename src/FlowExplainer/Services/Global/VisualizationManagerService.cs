@@ -21,6 +21,7 @@
             v.AddVisualisationService(new HeatSimulationViewData());
             v.AddVisualisationService(new HeatSimulationVisualizer());
             v.AddVisualisationService(new GridVisualizer() { IsEnabled = false});
+            v.AddVisualisationService(new FlowDirectionVisualization(){ IsEnabled = true});
             v.AddVisualisationService(new HeatSimulation3DVisualizer() );
             v.AddVisualisationService(new HeatSimulationService(){ IsEnabled = false});
             v.AddVisualisationService(new HeatSimulationReplayer());
