@@ -44,7 +44,7 @@ public class AxisVisualizer : WorldService
             return;
         }
         
-        var color = Color.White;
+        var color = new Color(1,1,1,1);
         var thickness = 4f;
         var margin = 0f;
 

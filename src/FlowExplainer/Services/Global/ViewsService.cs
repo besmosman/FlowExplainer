@@ -6,6 +6,7 @@
 
         public override void Draw()
         {
+            
             if (!Views.Any(n => n.IsFullScreen))
                 foreach (var view in Views)
                 {

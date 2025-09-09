@@ -129,6 +129,7 @@ public static class MsdfRenderer
     public static void UpdateMesh(string text, ICamera cam, MsdfFont font, bool centered = false)
     {
         var vertices = Rental<Vertex>.Rent(text.Length * 6);
+        vertices.AsSpan().Fill(default);
         float currentX = 0;
         bool invertY = !cam.InvertedY();
 

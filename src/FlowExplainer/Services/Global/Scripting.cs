@@ -15,7 +15,6 @@ public static class GridComputations
     }
 }
 
-
 public static class Scripting
 {
     public static void Startup(World world)
@@ -26,9 +25,25 @@ public static class Scripting
         dataService.ColorGradient = Gradients.GetGradient("BlueGrayRed");
         gridVisualizer.SetGridDiagnostic(new TemperatureGridDiagnostic());
 
-        string folderPath = Config.GetValue<string>("spectral-data-path")!;
-        var tempTot = SpeetjensSpectralImporterSpectral.Load(folderPath, false); //TspTOT
-        var tempNoFlow = SpeetjensSpectralImporterSpectral.Load(folderPath, true); //TDIFFspTOT
+        string fieldsFolder = "speetjens-computed-fields";
+        //ComputeSpeetjensFields(dataService, fieldsFolder);
+
+        var diffFlux = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "diffFlux.field"));
+        var tempTot = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
+        dataService.VelocityField = diffFlux;
+        dataService.TempratureField = tempTot;
+
+        //dataService.VelocityField = velocityField;
+        ///dataService.TempratureField = tempTot;
+
+        //dataService.VelocityField = field ;
+        //dataService.TempratureField =  tempConvection;
+    }
+    private static void ComputeSpeetjensFields(DataService dataService, string folder)
+    {
+        string datasetPath = Config.GetValue<string>("spectral-data-path")!;
+        var tempTot = SpeetjensSpectralImporterSpectral.Load(datasetPath, false); //TspTOT
+        var tempNoFlow = SpeetjensSpectralImporterSpectral.Load(datasetPath, true); //TDIFFspTOT
 
         var P = 32;
         var Pe = 100;
@@ -46,7 +61,7 @@ public static class Scripting
         float t = .9f;
         var heatFlux = new ArbitraryField<Vec3, Vec2>(tempTot.Domain, pos =>
             velocityField.Evaluate(pos) * tempTot.Evaluate(pos));
-        
+
 
         var D1 = DerivY(P);
 
@@ -62,16 +77,25 @@ public static class Scripting
 
         var field = new ArbitraryField<Vec3, Vec2>(tempTot.Domain, (p) => new Vec2(diffFluxX.Evaluate(p), diffFluxY.Evaluate(p)));
 
-        dataService.VelocityField = new DiscritizedField<Vec3,Vec3i,Vec2>(new Vec3i(32, 32, 32),field );
-        dataService.TempratureField =  new DiscritizedField<Vec3,Vec3i,float>(new Vec3i(32, 32, 32), tempConvection);
-       //dataService.VelocityField = velocityField;
-       ///dataService.TempratureField = tempTot;
-      
-       //dataService.VelocityField = field ;
-       //dataService.TempratureField =  tempConvection;
+        var gridSize = new Vec3i(64, 32, 103);
+        if (!Directory.Exists(folder))
+            Directory.CreateDirectory(folder);
+
+        DiscretizeAndSave(Path.Combine(folder, "diffFlux.field"), gridSize, field);
+        DiscretizeAndSave(Path.Combine(folder, "tempTot.field"), gridSize, tempTot);
+        DiscretizeAndSave(Path.Combine(folder, "heatFlux.field"), gridSize, heatFlux);
+        DiscretizeAndSave(Path.Combine(folder, "tempConvection.field"), gridSize, tempConvection);
+        DiscretizeAndSave(Path.Combine(folder, "tempNoFlow.field"), gridSize, tempNoFlow);
 
 
-
+        void DiscretizeAndSave<Vec, Veci, TData>(string path, Veci gridSize, IVectorField<Vec, TData> field)
+            where Vec : IVec<Vec>, IVecIntegerEquivelant<Veci>
+            where Veci : IVec<Veci, int>, IVecFloatEquivelant<Vec>
+            where TData : IMultiplyOperators<TData, float, TData>, IAdditionOperators<TData, TData, TData>
+        {
+            var discritized = new DiscritizedField<Vec, Veci, TData>(gridSize, field);
+            discritized.GridField.Save(path);
+        }
     }
 
     public static RegularGrid<Vec2i, float> DerivY(int P)

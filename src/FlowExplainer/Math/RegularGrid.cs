@@ -4,7 +4,6 @@ using MemoryPack;
 namespace FlowExplainer;
 
 
-
 public class RegularGrid<Veci, TData> where Veci : IVec<Veci, int>
 {
     public TData[] Data { get; private set; }

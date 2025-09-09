@@ -1,32 +1,16 @@
 using System.Buffers;
-using System.Collections.Concurrent;
 using System.Numerics;
 using MemoryPack;
 
 namespace FlowExplainer;
 
-public static class Rental<T>
+[MemoryPackable]
+public partial struct RegularGridVectorFieldSave<Vec, Veci, TData>
 {
-    private static Dictionary<int, ConcurrentStack<T[]>> stacks = new();
-
-    public static T[] Rent(int length)
-    {
-        if (!stacks.TryGetValue(length, out var stack))
-        {
-            stack = new();
-            stacks[length] = stack;
-        }
-
-        if (stack.TryPop(out var ts))
-            return ts;
-
-        return new T[length];
-    }
-
-    public static void Return(T[] array)
-    {
-        stacks[array.Length].Push(array);
-    }
+    public TData[] Data;
+    public Veci GridSize;
+    public Vec Min;
+    public Vec Max;
 }
 
 /// <summary>
@@ -45,7 +29,7 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
     public RectDomain<Vec> RectDomain { get; set; }
 
     public TData Evaluate(Vec x)
-    {        
+    {
         x = ToVoxelCoord(x);
         x = Utils.Clamp<Vec, float>(x, Vec.Zero, GridSize.ToVecF() - Vec.One);
         if (!Interpolate)
@@ -56,7 +40,7 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
 
         if (!TryMultivariateInterpolation(x, out var value))
             throw new Exception();
-        
+
         return value;
     }
 
@@ -71,16 +55,10 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
                 value = Grid.AtCoords(coord);
                 return true;
             }
-            else
-            {
-                value = default!;
-                return false;
-            }
+            value = default!;
+            return false;
         }
-        else
-        {
-            return TryMultivariateInterpolation(x, out value);
-        }
+        return TryMultivariateInterpolation(x, out value);
     }
 
     public IDomain<Vec> Domain => RectDomain;
@@ -148,6 +126,25 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
     public Vec ToWorldPos(Veci coords)
     {
         return ToWorldPos(coords.ToVecF());
+    }
+
+    public static RegularGridVectorField<Vec, Veci, TData> Load(string path)
+    {
+        var save = BinarySerializer.Load<RegularGridVectorFieldSave<Vec, Veci, TData>>(path);
+        return new RegularGridVectorField<Vec, Veci, TData>(save.Data, save.GridSize, save.Min, save.Max);
+    }
+
+    public void Save(string path)
+    {
+        var vectorFieldSave = new RegularGridVectorFieldSave<Vec, Veci, TData>()
+        {
+            Data = Grid.Data,
+            GridSize = GridSize,
+            Min = RectDomain.MinPos,
+            Max = RectDomain.MaxPos,
+        };
+
+        BinarySerializer.Save(path, vectorFieldSave);
     }
 
     private TData Nearest(Vec x)

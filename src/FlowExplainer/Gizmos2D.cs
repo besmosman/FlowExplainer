@@ -345,7 +345,6 @@ public static class Gizmos2D
 
     public static void Text(ICamera camera, Vec2 pos, float lh, Color color, string text, float t = 1, bool centered = false)
     {
-        
         var splitted = text.Split("\n");
         var globalT = t;
 

@@ -41,7 +41,7 @@ namespace FlowExplainer
             service.Deinitialize();
             Services.Remove(service);
         }
-        
+
         public T GetWorldService<T>() where T : WorldService
         {
             foreach (var s in Services)
@@ -69,6 +69,14 @@ namespace FlowExplainer
             return null;
         }
 
+        public void Update()
+        {
+            foreach (var service in Services)
+                if (service.IsEnabled)
+                    service.Update();
+        }
+        
+        
         public void Draw(View view)
         {
             //  if (!view.World.FlowExplainer.GetGlobalService<PresentationService>()?.IsPresenting == true)
@@ -87,7 +95,7 @@ namespace FlowExplainer
                     var t = 1.5f + (float)(ImGuiHelpers.MessageTime - DateTime.Now).TotalSeconds;
                     if (t > 0)
                     {
-                        Gizmos2D.Text(view.ScreenCamera, new Vec2(view.RenderTarget.Size.X / 2, view.RenderTarget.Size.Y - 90), 80, new Color(1, 1, 0, 1.5f - (1.5f - t)*(1.5f - t)), ImGuiHelpers.LastMessage, centered: true);
+                        Gizmos2D.Text(view.ScreenCamera, new Vec2(view.RenderTarget.Size.X / 2, view.RenderTarget.Size.Y - 90), 80, new Color(1, 1, 0, 1.5f - (1.5f - t) * (1.5f - t)), ImGuiHelpers.LastMessage, centered: true);
                     }
                 }
             });

@@ -6,8 +6,10 @@ namespace FlowExplainer;
 public class FlowDirectionVisualization : WorldService
 {
     private int posPer = 64;
-    private int amount = 800;
+    private int amount = 1600;
     private Vec2[] centers;
+
+    public float opacity = .18f;
 
     struct Data
     {
@@ -17,8 +19,10 @@ public class FlowDirectionVisualization : WorldService
     public override ToolCategory Category => ToolCategory.Flow;
     public override void DrawImGuiEdit()
     {
+        ImGuiHelpers.SliderFloat("Opacity", ref opacity, 0, 1);
         base.DrawImGuiEdit();
     }
+
 
     private Data[] PerData;
     public override void Initialize()
@@ -59,13 +63,11 @@ public class FlowDirectionVisualization : WorldService
         streamtube = new Mesh(new Geometry(tubeVerts.ToArray(), indicies.ToArray()), dynamicVertices: true);
     }
 
+    float end = 2;
     public float dt = .001f;
-    public override void Draw(RenderTexture rendertarget, View view)
+
+    public override void Update()
     {
-        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
-
-        float end = 2;
-
         var dat = GetRequiredWorldService<DataService>();
         var velField = dat.VelocityField;
         var instantField = new InstantFieldVersion<Vec3, Vec2, Vec2>(velField, dat.SimulationTime);
@@ -84,7 +86,7 @@ public class FlowDirectionVisualization : WorldService
             if (instantField.TryEvaluate(lastPos, out var vel))
             {
                 if (instantField.Domain.IsWithinPhase(lastPos))
-                    newPos += vel * dt*10;
+                    newPos += vel * dt * 10;
             }
             for (int j = 0; j < span.Length - 1; j++)
             {
@@ -93,30 +95,45 @@ public class FlowDirectionVisualization : WorldService
             span[posPer - 1] = newPos;
             PerData[i].TimeAlive += FlowExplainer.DeltaTime;
         }
+        base.Update();
+    }
 
+    public override void Draw(RenderTexture rendertarget, View view)
+    {
+        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
+        var grid = GetRequiredWorldService<GridVisualizer>();
         for (int i = 0; i < amount; i++)
         {
             var span = centers.AsSpan(i * posPer, posPer);
 
-            var color = new Color(1, 1, 1, 1);
+            //grid.ScaleScaler(dat.TempratureField.Evaluate(span[posPer - 1].Up(dat.SimulationTime)));
+            var color = new Color(opacity, opacity,opacity);
             var a = 0f;
             var t = PerData[i].TimeAlive;
 
             if (t < 1 && t > .0f)
-                a = (t - .0f) * 2;
-            if (t >= 1 && t < end)
-                a = 1;
+                a = t * 1;
             if (t >= 1 && t < end)
                 a = 1;
             if (t >= end)
                 a = float.Max(0, 1f - ((t - end) * .5f));
 
-            color.A = a / 2;
-            if (a > 0)
-                StreamTube(view.Camera2D, span, color, .003f);
+            color.A = a;
+
+            if (color.A > 0)
+            {
+
+                if (Vec2.DistanceSquared(span[0], span[span.Length - 1]) > .00001f)
+                {
+                    StreamTube(view.Camera2D, span, color, .003f);
+                }
+                /*else
+                    Gizmos2D.Circle(view.Camera2D, span[^1],color, .003f/2);*/
+            }
+            a = 0;
         }
-        
-        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+          GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
     }
 
     private static Mesh streamtube;
@@ -149,16 +166,6 @@ public class FlowDirectionVisualization : WorldService
         for (int i = 1; i < centers.Length; i++)
         {
             total += Vec2.Distance(centers[i], centers[i - 1]);
-        }
-
-        if (total * 1f < thickness / 8)
-        {
-            /*for (int i = 1; i < centers.Count; i++)
-            {
-                centers[i] = new Vec2(centers[0].X + float.Lerp(-thickness, thickness, i / (float)centers.Count), centers[0].Y);
-            }*/
-            // Gizmos2D.Circle(camera, centers.Last(), color, thickness);
-            return;
         }
 
         for (int i = 0; i < centers.Length; i++)

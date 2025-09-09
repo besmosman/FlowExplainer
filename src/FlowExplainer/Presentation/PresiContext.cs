@@ -2,8 +2,6 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
 
-
-
 public class PresiContext
 {
     public View View = null!;
@@ -31,7 +29,7 @@ public class PresiContext
     }
 
 
-    
+
     public void MainParagraph(string title, [System.Runtime.CompilerServices.CallerFilePath] string filePath = "",
         [System.Runtime.CompilerServices.CallerLineNumber]
         int lineNumber = 0)
@@ -48,17 +46,19 @@ public class PresiContext
         Gizmos2D.AdvText(View.Camera2D, pos, lh, Color.White, title, 1);
     }
 
-    public void ViewPanel(string viewname, Vec2 center, Vec2 size, [System.Runtime.CompilerServices.CallerFilePath] string filePath = "",
+    public void ViewPanel(string viewname, Vec2 center, Vec2 size,  float zoom =1f,[System.Runtime.CompilerServices.CallerFilePath] string filePath = "",
         [System.Runtime.CompilerServices.CallerLineNumber]
         int lineNumber = 0)
     {
-        GL.Enable(EnableCap.Blend);
         var view = GetView(viewname);
-        view.Camera2D.Position = -new Vec2(1, .5f)/2;
-        view.Camera2D.Scale = view.PostProcessingTarget.Size.X/1.3f;
-        view.ClearColor = default;
+        view.Camera2D.Position = -new Vec2(1, .5f) / 2;
+        view.Camera2D.Scale = view.PostProcessingTarget.Size.X * zoom;
+        view.ClearColor = new Color(.1f, .1f, .1f); 
         view.TargetSize = size;
-        Gizmos2D.ImageCenteredInvertedY(View.Camera2D, view.PostProcessingTarget, center, size);
+        //Gizmos2D.ImageCenteredInvertedY(View.Camera2D, Texture.White1x1, center, size);
+        GL.Disable(EnableCap.Blend);
+        Gizmos2D.ImageCenteredInvertedY(View.Camera2D,view.PostProcessingTarget, center, size);
+        GL.Enable(EnableCap.Blend);
     }
 
     public View GetView(string viewname)

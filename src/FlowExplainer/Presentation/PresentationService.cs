@@ -4,6 +4,20 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace FlowExplainer;
 
+public class ContextPresentation : Presentation
+{
+    
+    public class VelocityFieldSlide : Slide
+    {
+        
+    }
+    
+    public override Slide[] GetSlides()
+    {
+        return [];
+    }
+}
+
 public class FirstPresentation : Presentation
 {
     public class ProgressSlide : Slide
@@ -11,7 +25,7 @@ public class FirstPresentation : Presentation
         public override void Draw()
         {
             LayoutMain();
-            Title("Progress");
+            Title("3D visualizations");
             Presi.MainParagraph(
                 @"
 PhD Project (30%)
@@ -19,6 +33,7 @@ PhD Project (30%)
     - Experimenting
     - Double Gyre / Bickley Jet
     - Poincaré sections
+
     - 3D visualizations
     - Simple Heat Simulation
     - Diagnostics: FTLE / Velocity magnitude
@@ -36,6 +51,7 @@ Graduation Paper (70%)
 
     public class RecapSlide : Slide
     {
+
         public override void Draw()
         {
             LayoutMain();
@@ -52,10 +68,46 @@ Graduation Paper (70%)
 
     public class DemoSlide : Slide
     {
+        public override void Load()
+        {
+            /*var newWorld = Presi.View.World.FlowExplainer.GetGlobalService<WorldManagerService>().NewWorld();
+            var newView = Presi.View.World.FlowExplainer.GetGlobalService<ViewsService>().NewView();
+            Presi.GetView("second").World = newWorld;
+            newView.World = newWorld;*/
+            base.Load();
+        }
         public override void Draw()
         {
             LayoutMain();
+            Presi.ViewPanel("second", Presi.CanvasSize / 2, new Vec2(1,.5f) * Presi.CanvasSize.X*.9f, 1.3f);
             Title("Demo");
+            base.Draw();
+        }
+    }
+    
+    public class Demo2Slide : Slide
+    {
+        public override void Load()
+        {
+            /*var newWorld = Presi.View.World.FlowExplainer.GetGlobalService<WorldManagerService>().NewWorld();
+            var newView = Presi.View.World.FlowExplainer.GetGlobalService<ViewsService>().NewView();
+            Presi.GetView("second").World = newWorld;
+            newView.World = newWorld;*/
+            base.Load();
+        }
+
+        public override void OnEnter()
+        {
+            base.OnEnter();
+        }
+        public override void Draw()
+        {
+            LayoutMain();
+            Title("Demo 2");
+            var width = 800;
+            var spacing = 100f;
+            Presi.ViewPanel("left", Presi.CanvasSize / 2 - new Vec2(width/2f + spacing/2f,00), new Vec2(1,.5f) * width, 1f);
+            Presi.ViewPanel("right", Presi.CanvasSize / 2 + new Vec2(width/2f + spacing/2f,00), new Vec2(1,.5f) * width, 1f);
             base.Draw();
         }
     }
@@ -67,6 +119,7 @@ Graduation Paper (70%)
         [
             new RecapSlide(),
             new DemoSlide(),
+            new Demo2Slide(),
             new ProgressSlide(),
         ];
     }
@@ -115,8 +168,10 @@ public class PresentationViewController : IViewController
         {
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             GL.Viewport(0, 0, (int)size.X, (int)size.Y);
-            Gizmos2D.RectCenter(new ScreenCamera(size.RoundInt()), size / 2, size, FlowExplainer.GetGlobalService<WindowService>()!.ClearColor);
+         //   Gizmos2D.RectCenter(new ScreenCamera(size.RoundInt()), size / 2, size, FlowExplainer.GetGlobalService<WindowService>()!.ClearColor);
+            GL.Disable(EnableCap.Blend);
             Gizmos2D.ImageCentered(new ScreenCamera(size.RoundInt()), presiView.PostProcessingTarget, size / 2, size);
+            GL.Enable(EnableCap.Blend);
         }
 
         //presiView.Camera2D.Scale = 1;
@@ -143,8 +198,8 @@ public class PresentationService : GlobalService
 
     public override void Initialize()
     {
-        //LoadPresentation(new FirstPresentation());
-        //StartPresenting();
+        LoadPresentation(new FirstPresentation());
+        StartPresenting();
     }
 
     public void LoadPresentation(Presentation slides)

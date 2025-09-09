@@ -28,10 +28,16 @@ public abstract class WorldService : Service
     }
     
     /// <summary>
-    /// Gets called every frame before executing rendertasks.
+    /// Can be called multiple times each frame (multiple views with same world).
     /// </summary>
     public abstract void Draw(RenderTexture rendertarget, View view);
 
+    
+    /// <summary>
+    /// Gets called once per frame.
+    /// </summary>
+    public virtual void Update() {}
+    
     public T? GetWorldService<T>() where T : WorldService =>
         World.GetWorldService<T>();
 
