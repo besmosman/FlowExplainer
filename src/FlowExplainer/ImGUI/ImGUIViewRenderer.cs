@@ -47,6 +47,15 @@ public class ImGUIViewRenderer
                     if (ImGui.BeginPopup(view.Name + " settings"))
                     {
                         ImGui.Checkbox("3D View", ref view.Is3DCamera);
+                        if (ImGui.BeginMenu("World"))
+                        {
+                            foreach (var vis in flowExplainer.GetGlobalService<WorldManagerService>()!.Worlds)
+                            {
+                                if (ImGui.MenuItem(vis.Name, "", view.World == vis))
+                                    view.World = vis;
+                            }
+                            ImGui.EndMenu();
+                        }
                         ImGui.EndPopup();
                     }
                 }

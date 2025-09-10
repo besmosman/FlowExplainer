@@ -5,7 +5,7 @@ namespace FlowExplainer
     public class World
     {
         private static int worldCount;
-
+        public bool IsViewed;
         public string Name;
         public FlowExplainer FlowExplainer;
 
@@ -79,6 +79,7 @@ namespace FlowExplainer
         
         public void Draw(View view)
         {
+            IsViewed = true;
             //  if (!view.World.FlowExplainer.GetGlobalService<PresentationService>()?.IsPresenting == true)
             view.ResizeToTargetSize();
 

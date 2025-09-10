@@ -74,7 +74,7 @@ public class FlowDirectionVisualization : WorldService
         for (int i = 0; i < amount; i++)
         {
             var span = centers.AsSpan(i * posPer, posPer);
-            if (PerData[i].TimeAlive > end + 2f)
+            if (PerData[i].TimeAlive > end + 2f + ((i*17 + i*1535 + i) % 1000)/1000f )
             {
                 var pos = velField.Domain.Boundary.Reduce<Vec2>().Relative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
                 span.Fill(pos);
@@ -86,7 +86,7 @@ public class FlowDirectionVisualization : WorldService
             if (instantField.TryEvaluate(lastPos, out var vel))
             {
                 if (instantField.Domain.IsWithinPhase(lastPos))
-                    newPos += vel * dt * 10;
+                    newPos += vel * dt * 30;
             }
             for (int j = 0; j < span.Length - 1; j++)
             {
@@ -123,10 +123,13 @@ public class FlowDirectionVisualization : WorldService
             if (color.A > 0)
             {
 
-                if (Vec2.DistanceSquared(span[0], span[span.Length - 1]) > .00001f)
+                float distanceSquared = Vec2.DistanceSquared(span[0], span[span.Length - 1]);
+                if (distanceSquared < .00005f)
                 {
-                    StreamTube(view.Camera2D, span, color, .003f);
+                    color.A *= distanceSquared / .00005f;
                 }
+                    StreamTube(view.Camera2D, span, color, .003f);
+                
                 /*else
                     Gizmos2D.Circle(view.Camera2D, span[^1],color, .003f/2);*/
             }

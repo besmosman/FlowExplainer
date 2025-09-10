@@ -13,13 +13,14 @@ namespace FlowExplainer
         public readonly int? DepthTextureHandle;
         public bool IsMultisampled;
 
-        public const int Samples = 4;
+        public const int Samples = 8;
 
         public RenderTexture(int width, int height, bool depth = true, bool multisample = false) : base(width, height, true)
         {
             IsMultisampled = multisample;
             FramebufferHandle = GL.GenFramebuffer();
-
+            TextureMinFilter = TextureMinFilter.Linear;
+            TextureMagFilter = TextureMagFilter.Linear;
             if (IsMultisampled)
             {
                 TextureHandle = GL.GenTexture();

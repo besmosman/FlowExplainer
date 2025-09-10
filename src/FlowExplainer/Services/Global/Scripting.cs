@@ -19,6 +19,8 @@ public static class Scripting
 {
     public static void Startup(World world)
     {
+        
+        
         var gridVisualizer = world.GetWorldService<GridVisualizer>();
         var dataService = world.GetWorldService<DataService>();
         gridVisualizer.Enable();
@@ -29,8 +31,8 @@ public static class Scripting
         //ComputeSpeetjensFields(dataService, fieldsFolder);
 
         var diffFlux = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "diffFlux.field"));
-        var tempTot = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
-        dataService.VelocityField = diffFlux;
+        var tempTot = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
+        dataService.VelocityField = new SpeetjensVelocityField() { epsilon = .1f};
         dataService.TempratureField = tempTot;
 
         //dataService.VelocityField = velocityField;

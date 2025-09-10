@@ -8,6 +8,6 @@ out vec4 color;
 void main()
 {
 	color = vertexColor * tint;
-	if(color.a == 0)
-		discard;
+	/*if(color.a == 0)
+		discard;*/
 }

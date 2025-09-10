@@ -4,11 +4,18 @@ namespace FlowExplainer;
 
 public class PresiContext
 {
+    public FlowExplainer FlowExplainer;
     public View View = null!;
     private Dictionary<int, WidgetData> widgetsById = new();
 
     private Dictionary<string, View> presiViewsByName = new();
     public Vec2 CanvasSize;
+    public Vec2 CanvasCenter => CanvasSize/2;
+    
+    public PresiContext(FlowExplainer flowExplainer)
+    {
+        FlowExplainer = flowExplainer;
+    }
 
     public IEnumerable<View> ActiveChildViews => presiViewsByName.Values;
 
@@ -25,9 +32,20 @@ public class PresiContext
         var widgetData = GetWidgetData(filePath, lineNumber);
         widgetData.Position = pos;
         widgetData.Size = new Vec2(lh, lh);
-        Gizmos2D.Text(View.Camera2D, pos, lh, color, title, 1, centered);
+        Gizmos2D.AdvText(View.Camera2D, pos, lh, color, title, 1, centered);
     }
 
+
+    public void Image(Texture texture, Vec2 center, float width,  [System.Runtime.CompilerServices.CallerFilePath] string filePath = "",
+        [System.Runtime.CompilerServices.CallerLineNumber]
+        int lineNumber = 0 )
+    {
+        var widgetData = GetWidgetData(filePath, lineNumber);
+        widgetData.Position = center;
+        widgetData.Size.X = width;
+        Gizmos2D.ImageCentered(View.Camera2D, texture, center, width);
+
+    }
 
 
     public void MainParagraph(string title, [System.Runtime.CompilerServices.CallerFilePath] string filePath = "",
@@ -65,7 +83,7 @@ public class PresiContext
     {
         if (!presiViewsByName.ContainsKey(viewname))
         {
-            var world1 = View.World.FlowExplainer.GetGlobalService<WorldManagerService>()!.Worlds[0];
+            var world1 = FlowExplainer.GetGlobalService<WorldManagerService>()!.Worlds[0];
             var v = new View(1, 1, world1)
             {
                 Controller = new PresiChildViewController()

@@ -29,7 +29,7 @@ public struct Color : IMultiplyOperators<Color, float, Color>,
         A = v.W;
     }
 
-    public static Color White => new Color(1, 1, 1);
+    public static readonly Color White = new Color(1, 1, 1);
     public static Color Black => new Color(0, 0, 0);
 
     public static Color operator *(Color left, float right)

@@ -143,8 +143,8 @@ public class LICGridDiagnostic : IGridDiagnostic
             var pos = renderGrid.ToWorldPos(new Vec2(i + .5f, j + .5f));
             var temp = dat.TempratureField.Evaluate(pos.Up(t));
             var v = gridVisualizer.ScaleScaler(temp);
-            cell.Value = temp;
             var licMulti = (lic - licMin) / (licMax - licMin);
+            cell.Value = temp;
             licMulti += .5f;
             cell.Color = dat.ColorGradient.GetCached(v) * new Color(licMulti, licMulti, licMulti, 1);
         });

@@ -298,11 +298,13 @@ public static class Gizmos2D
                     Action<int, int> action = null;
 
                     if (tag == "red")
-                        action = (s, e) => colored(new Color(.8f, .0f, .0f, 1), s, e);
+                        action = (s, e) => colored(new Color(1f, .2f, .1f, 1), s, e);
 
                     if (tag == "green")
                         action = (s, e) => colored(new Color(.0f, .65f, .0f, 1), s, e);
 
+                    if (tag == "blue")
+                        action = (s, e) => colored(new Color(.1f, .5f, 1f, 1), s, e);
 
                     if (tag.StartsWith("#"))
                     {

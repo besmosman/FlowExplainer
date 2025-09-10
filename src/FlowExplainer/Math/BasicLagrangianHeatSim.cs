@@ -90,9 +90,9 @@ public class BasicLagrangianHeatSim
 
             //bounds shouldnt be needed though
             if (p.Position.X < rect.Min.X)
-                p.Position.X = rect.Min.X + float.Epsilon;
-            if (p.Position.X > rect.Max.X)
                 p.Position.X = rect.Max.X - float.Epsilon;
+            if (p.Position.X > rect.Max.X)
+                p.Position.X = rect.Min.X + float.Epsilon;
 
             if (p.Position.Y < rect.Min.Y)
                 p.Position.Y = float.Epsilon;

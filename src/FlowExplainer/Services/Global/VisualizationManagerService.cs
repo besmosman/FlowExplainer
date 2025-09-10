@@ -8,8 +8,12 @@
         public override void Draw()
         {
             foreach (var world in Worlds)
-                world.Update();
-            
+            {
+                if (world.IsViewed)
+                    world.Update();
+
+                world.IsViewed = false;
+            }
             /*            foreach (var v in Visualisation)
                             v.Draw();*/
         }
@@ -20,36 +24,24 @@
                 throw new Exception();
 
             World v = new(FlowExplainer);
-            v.AddVisualisationService(new DataService());
+            v.AddVisualisationService(new DataService()
+            {
+                IsEnabled = true,
+            });
             v.AddVisualisationService(new HeatSimulationViewData());
             v.AddVisualisationService(new HeatSimulationVisualizer());
-            v.AddVisualisationService(new GridVisualizer()
-            {
-                IsEnabled = false
-            });
-            v.AddVisualisationService(new FlowDirectionVisualization()
+            v.AddVisualisationService(new GridVisualizer());
+            v.AddVisualisationService(new FlowDirectionVisualization());
+            v.AddVisualisationService(new HeatSimulation3DVisualizer());
+            v.AddVisualisationService(new HeatSimulationService());
+            v.AddVisualisationService(new HeatSimulationReplayer());
+            v.AddVisualisationService(new FlowFieldVisualizer());
+            v.AddVisualisationService(new PoincareVisualizer());
+            v.AddVisualisationService(new AxisVisualizer()
             {
                 IsEnabled = true
             });
-            v.AddVisualisationService(new HeatSimulation3DVisualizer());
-            v.AddVisualisationService(new HeatSimulationService()
-            {
-                IsEnabled = false
-            });
-            v.AddVisualisationService(new HeatSimulationReplayer());
-            v.AddVisualisationService(new FlowFieldVisualizer()
-            {
-                IsEnabled = false
-            });
-            v.AddVisualisationService(new PoincareVisualizer()
-            {
-                IsEnabled = false
-            });
-            v.AddVisualisationService(new AxisVisualizer());
-            v.AddVisualisationService(new StructureIdentifier()
-            {
-                IsEnabled = false
-            });
+            v.AddVisualisationService(new StructureIdentifier());
             //v.AddVisualisationService(new FDTest());
             //v.AddVisualisationService(new Heat3DViewer());
             Worlds.Add(v);

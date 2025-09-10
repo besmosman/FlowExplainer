@@ -36,8 +36,7 @@ public static class ImGuiToolWindows
 
             ImGui.Begin(Enum.GetName(category), ref imguiService.RenderData.ShowToolServices[ind]);
 
-            var vis = visualizationService.Worlds[imguiService.RenderData.SelectedVisualiationIndex];
-
+            var vis = imguiService.GetGlobalService<ViewsService>().Views[0].World;
             foreach (var s in vis.Services)
             {
                 if (OverridesImGuiDrawCall(s.GetType()) && s.Category == category)

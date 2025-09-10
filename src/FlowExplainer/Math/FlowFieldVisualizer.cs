@@ -88,7 +88,7 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
                 //if (y % 2 == 0) rel.X += .5f / gridSize.X;
                 var pos = rel * domainSize + domain.Min.Down();
                 var dir = dat.VelocityField.Evaluate(pos.Up(dat.SimulationTime));
-                if(float.IsNaN(dir.X) || float.IsNaN(dir.Y))
+                if (float.IsNaN(dir.X) || float.IsNaN(dir.Y))
                     continue;
                 maxDirLenght2 = MathF.Max(maxDirLenght2, dir.LengthSquared());
                 var color = dat.ColorGradient.Get(dir.Length() * 1);
@@ -106,25 +106,20 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
 
                 color = new Color(0, 0, avgSpeed.LengthSquared(), 1);
                   color = dat.ColorGradient.Get(avgSpeed.LengthSquared());*/
-
-
-                var top = pos + dir * Length;
-                var dirPerp = new Vec2(-dir.Y, dir.X);
-                float length = 1;
-                Gizmos2D.Instanced.RegisterCircle(pos, Thickness * .7f, color);
-                Gizmos2D.Instanced.RegisterLine(pos, pos + dir * Length, color, Thickness * length);
-                //Gizmos2D.Instanced.RegisterLine(top, top + (dirPerp + -dir) /2 *Thickness*3*length,  color, Thickness * length);
-                //Gizmos2D.Instanced.RegisterLine(top, top + (-dirPerp + -dir) /2 * Thickness*3*length,  color, Thickness * length);
-                //Gizmos2D.Instanced.RegisterCircle(top, Thickness * .5f * length, color);
-                //Gizmos2D.Instanced.RegisterLineCentered(pos + dir * Length, new Vec2(-dir.Y, dir.X) * Length/2, color, Thickness);
-
-
-                //var end = pos + dir * Length / 2;
-                // Gizmos2D.Circle(view.Camera2D, pos + dir*Length, new Color(1, 1, 1, 1), Thickness/2);
-                //var line = StreamLineGenerator.Generate(dat.VelocityField, dat.Integrator, pos, dat.SimulationTime, 0.3f, 64);
-                //var traj = IFlowOperator<Vec2, Vec3>.Default.Compute(dat.SimulationTime, dat.SimulationTime + .1f, pos, dat.VelocityField);
-                //Gizmos2D.StreamTube(view.Camera2D, traj.Entries.Select(s => s.XY).ToList(), color, Thickness);
+                dir = Vec2.Normalize(dir)/1.3f;
+                var thick = Thickness * (dir.Length() + Thickness*.0f);
+                var bot = pos - dir * Length/2 - Vec2.Normalize(dir)*Length*.1f;
+                var top = pos + dir * Length/2 + Vec2.Normalize(dir)*Length*.1f;
+                var perpDir = new Vec2(dir.Y, -dir.X) * Length*.8f;
+                var targetPos = perpDir/2 + (top*.6f + bot*.4f);
+                var targetPos2 = -perpDir/2 + (top*.6f + bot*.4f);
+                var offset =  Vec2.Normalize(-(targetPos - top)) *thick/2;
+                Gizmos2D.Instanced.RegisterLine(bot, top,color, thick);
+                Gizmos2D.Instanced.RegisterLine(top+offset,targetPos,color, thick);
+                Gizmos2D.Instanced.RegisterLine(top,targetPos2,color, thick);
+                
             }
+
         }
 
         Gizmos2D.Instanced.RenderCircles(view.Camera2D);
@@ -132,8 +127,8 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
 
         if (AutoResize)
         {
-            Length = (spacing / .7f) / Sqrt(maxDirLenght2);
-            Thickness = cellSize.X / 4;
+            Length = (spacing / 1.5f) / Sqrt(maxDirLenght2);
+            Thickness = cellSize.X / 5;
         }
     }
 

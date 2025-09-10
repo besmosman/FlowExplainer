@@ -11,7 +11,7 @@ namespace FlowExplainer
         public TextureMagFilter TextureMagFilter = TextureMagFilter.Linear;
         public TextureTarget TextureTarget = TextureTarget.Texture2D;
 
-        public static Texture White1x1 => RgbArrayTexture.White1x1;
+        public  static Texture White1x1 => RgbArrayTexture.White1x1;
         
         public Texture(int width, int height, bool skipGeneration = false)
         {
