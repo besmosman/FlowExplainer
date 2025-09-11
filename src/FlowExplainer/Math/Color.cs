@@ -1,4 +1,3 @@
-
 using System.Numerics;
 
 namespace FlowExplainer;
@@ -72,7 +71,7 @@ public struct Color : IMultiplyOperators<Color, float, Color>,
     {
         return new Color(left.R - right.R, left.G - right.G, left.B - right.B, left.A - right.A);
     }
-    
+
     public static Color FromHexString(string hex)
     {
         float r = GetFloat(hex, 0);
@@ -91,5 +90,10 @@ public struct Color : IMultiplyOperators<Color, float, Color>,
     public Vec4 ToVec4()
     {
         return new Vec4(R, G, B, A);
+    }
+    public string ToHex()
+    {
+        var c = this * 255f;
+        return $"{(int)c.R:X2}{(int)c.G:X2}{(int)c.B:X2}";
     }
 }

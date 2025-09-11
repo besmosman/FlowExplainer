@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Numerics;
 using FlowExplainer;
+using ImGuiNET;
 
 namespace FlowExplainer;
 
@@ -43,14 +44,14 @@ public static class LIC
             var weightSum = 0f;
             var cur = domainBoundary.Relative(new Vec2(x + .5f, y + .5f) / output.GridSize.ToVec2());
             float stepSizePerCell = cellSize * .5f;
-            var steps = float.Ceiling(arcLength / stepSizePerCell)+1;
+            var steps = float.Ceiling(arcLength / stepSizePerCell) + 1;
             for (int k = 0; k < steps; k++)
             {
                 if (k != 0)
                 {
                     if (!convolution.TryEvaluate(cur.Up(t), out var dir) || dir.LengthSquared() == 0)
                         break;
-                    
+
                     cur += (dir / dir.Length()) * stepSizePerCell;
                 }
 
@@ -61,13 +62,13 @@ public static class LIC
                     weightSum += weight;
                 }
             }
-            
+
             for (int k = 0; k < steps; k++)
             {
-                    if (!convolution.TryEvaluate(cur.Up(t), out var dir) || dir.LengthSquared() == 0)
-                        break;
-                    
-                    cur += -(dir / dir.Length()) * stepSizePerCell;
+                if (!convolution.TryEvaluate(cur.Up(t), out var dir) || dir.LengthSquared() == 0)
+                    break;
+
+                cur += -(dir / dir.Length()) * stepSizePerCell;
 
                 float weight = Kernel(k / steps);
                 if (noiseF.TryEvaluate(cur, out var noise))
@@ -77,7 +78,7 @@ public static class LIC
                 }
             }
 
-      
+
             var lic = noiseSum / weightSum;
             atCoords = lic;
         });
@@ -116,6 +117,8 @@ public class LICGridDiagnostic : IGridDiagnostic
 
     private RegularGridVectorField<Vec2, Vec2i, float> licField = new(Vec2i.One, default, default);
     private IVectorField<Vec2, float> NoiseField = new NoiseField();
+    public bool modulateByTemp = false;
+
 
     public void UpdateGridData(GridVisualizer gridVisualizer)
     {
@@ -144,9 +147,18 @@ public class LICGridDiagnostic : IGridDiagnostic
             var temp = dat.TempratureField.Evaluate(pos.Up(t));
             var v = gridVisualizer.ScaleScaler(temp);
             var licMulti = (lic - licMin) / (licMax - licMin);
-            cell.Value = temp;
-            licMulti += .5f;
-            cell.Color = dat.ColorGradient.GetCached(v) * new Color(licMulti, licMulti, licMulti, 1);
+            if (modulateByTemp)
+            {
+
+                cell.Value = temp;
+                licMulti += .5f;
+                cell.Color = dat.ColorGradient.GetCached(v) * new Color(licMulti, licMulti, licMulti, 1);
+            }
+            else
+            {
+                cell.Color = new Color(licMulti, licMulti, licMulti, 1);
+
+            }
         });
         /*for (int i = 0; i < licField.Grid.Data.Length; i++)
         {
@@ -168,6 +180,7 @@ public class LICGridDiagnostic : IGridDiagnostic
     {
         var dat = vis.GetRequiredWorldService<DataService>()!;
         float period = dat.VelocityField.Domain.Boundary.Size.Last;
-        ImGuiHelpers.SliderFloat("arc length", ref arcLength, 0, dat.VelocityField.Domain.Boundary.Size.X/5);
+        ImGuiHelpers.SliderFloat("arc length", ref arcLength, 0, dat.VelocityField.Domain.Boundary.Size.X / 5);
+        ImGui.Checkbox("modulate by temp", ref modulateByTemp);
     }
 }

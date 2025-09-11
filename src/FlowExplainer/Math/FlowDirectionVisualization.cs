@@ -1,4 +1,5 @@
 using System.Numerics;
+using ImGuiNET;
 using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
@@ -7,9 +8,11 @@ public class FlowDirectionVisualization : WorldService
 {
     private int posPer = 64;
     private int amount = 1600;
+    private float thickness = .003f;
+    private float speed = 1;
     private Vec2[] centers;
 
-    public float opacity = .18f;
+    public float opacity = .21f;
 
     struct Data
     {
@@ -19,6 +22,9 @@ public class FlowDirectionVisualization : WorldService
     public override ToolCategory Category => ToolCategory.Flow;
     public override void DrawImGuiEdit()
     {
+        ImGui.SliderInt("Amount", ref amount, 100, 10_000);
+        ImGuiHelpers.SliderFloat("Thickness", ref thickness, 0, .01f);
+        ImGuiHelpers.SliderFloat("Speed", ref speed, 0, 5);
         ImGuiHelpers.SliderFloat("Opacity", ref opacity, 0, 1);
         base.DrawImGuiEdit();
     }
@@ -27,18 +33,7 @@ public class FlowDirectionVisualization : WorldService
     private Data[] PerData;
     public override void Initialize()
     {
-        PerData = new Data[amount];
-        centers = new Vec2[amount * posPer];
-        var dat = GetRequiredWorldService<DataService>();
-        var velField = dat.VelocityField;
-        for (int i = 0; i < amount; i++)
-        {
-            var span = centers.AsSpan(i * posPer, posPer);
-            var pos = velField.Domain.Boundary.Reduce<Vec2>().Relative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
-
-            span.Fill(pos);
-            PerData[i].TimeAlive = -Random.Shared.NextSingle() * 5;
-        }
+        Init();
         var tubeVerts = new List<Vertex>();
         var indicies = new List<uint>();
         int segments = posPer;
@@ -62,15 +57,32 @@ public class FlowDirectionVisualization : WorldService
 
         streamtube = new Mesh(new Geometry(tubeVerts.ToArray(), indicies.ToArray()), dynamicVertices: true);
     }
+    private void Init()
+    {
+
+        PerData = new Data[amount];
+        centers = new Vec2[amount * posPer];
+        var dat = GetRequiredWorldService<DataService>();
+        var velField = dat.VelocityField;
+        for (int i = 0; i < amount; i++)
+        {
+            var span = centers.AsSpan(i * posPer, posPer);
+            var pos = velField.Domain.Boundary.Reduce<Vec2>().Relative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
+
+            span.Fill(pos);
+            PerData[i].TimeAlive = -Random.Shared.NextSingle() * 5;
+        }
+    }
 
     float end = 2;
     public float dt = .001f;
-
+    public float avgSpeed = 0f;
     public override void Update()
     {
         var dat = GetRequiredWorldService<DataService>();
         var velField = dat.VelocityField;
         var instantField = new InstantFieldVersion<Vec3, Vec2, Vec2>(velField, dat.SimulationTime);
+        var velMag = 0f;
         for (int i = 0; i < amount; i++)
         {
             var span = centers.AsSpan(i * posPer, posPer);
@@ -83,10 +95,11 @@ public class FlowDirectionVisualization : WorldService
 
             var lastPos = span[posPer - 1];
             var newPos = lastPos;
-            if (instantField.TryEvaluate(lastPos, out var vel))
+            if (instantField.TryEvaluate(lastPos, out var vel) && float.IsRealNumber(vel.X))
             {
+                velMag += vel.Length();
                 if (instantField.Domain.IsWithinPhase(lastPos))
-                    newPos += vel * dt * 30;
+                    newPos += vel * (speed/ avgSpeed);
             }
             for (int j = 0; j < span.Length - 1; j++)
             {
@@ -95,6 +108,7 @@ public class FlowDirectionVisualization : WorldService
             span[posPer - 1] = newPos;
             PerData[i].TimeAlive += FlowExplainer.DeltaTime;
         }
+        avgSpeed = velMag;
         base.Update();
     }
 
@@ -102,6 +116,9 @@ public class FlowDirectionVisualization : WorldService
     {
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
         var grid = GetRequiredWorldService<GridVisualizer>();
+        if (amount != PerData.Length)
+            Init();
+        
         for (int i = 0; i < amount; i++)
         {
             var span = centers.AsSpan(i * posPer, posPer);
@@ -128,7 +145,7 @@ public class FlowDirectionVisualization : WorldService
                 {
                     color.A *= distanceSquared / .00005f;
                 }
-                    StreamTube(view.Camera2D, span, color, .003f);
+                    StreamTube(view.Camera2D, span, color, thickness);
                 
                 /*else
                     Gizmos2D.Circle(view.Camera2D, span[^1],color, .003f/2);*/

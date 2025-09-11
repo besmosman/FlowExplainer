@@ -55,6 +55,7 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
 
         ImGui.SliderInt("Grid Cells", ref GridCells, 0, 1500);
         ImGuiHelpers.SliderFloat("Length", ref Length, 0, 1);
+        ImGui.Checkbox("Color by gradient", ref colorByGradient);
         ImGuiHelpers.SliderFloat("Thickness", ref Thickness, 0, dat.VelocityField.Domain.Boundary.Size.Length() / 10f);
         ImGui.Checkbox("Auto Resize", ref AutoResize);
         base.DrawImGuiEdit();
@@ -64,6 +65,7 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
     public float Length;
     public float Thickness;
     public bool AutoResize = true;
+    public bool colorByGradient = true;
 
     public override void Initialize()
     {
@@ -85,13 +87,27 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
             for (int y = 0; y < gridSize.Y; y++)
             {
                 var rel = new Vec2(x + .5f, y + .5f) / gridSize.ToVec2();
-                //if (y % 2 == 0) rel.X += .5f / gridSize.X;
                 var pos = rel * domainSize + domain.Min.Down();
                 var dir = dat.VelocityField.Evaluate(pos.Up(dat.SimulationTime));
                 if (float.IsNaN(dir.X) || float.IsNaN(dir.Y))
                     continue;
                 maxDirLenght2 = MathF.Max(maxDirLenght2, dir.LengthSquared());
+            }
+        }
+        for (int x = 0; x < gridSize.X; x++)
+        {
+            for (int y = 0; y < gridSize.Y; y++)
+            {
+                var rel = new Vec2(x + .5f, y + .5f) / gridSize.ToVec2();
+                var pos = rel * domainSize + domain.Min.Down();
+                var dir = dat.VelocityField.Evaluate(pos.Up(dat.SimulationTime));
+                if (float.IsNaN(dir.X) || float.IsNaN(dir.Y))
+                    continue;
+
+                dir = float.Clamp(((dir.Length()) / (float.Sqrt(maxDirLenght2))), .2f,.9f) * Vec2.Normalize(dir);
                 var color = dat.ColorGradient.Get(dir.Length() * 1);
+                if (!colorByGradient)
+                    color = Color.White;
                 //color = new Color((dir + new Vec2(.1f,.1f)).Up(0).Up(1));
                 /*var traj = IFlowOperator<Vec2, Vec3>.Default.Compute(dat.SimulationTime, dat.SimulationTime + .05f, pos, dat.VelocityField);
                 var sum = 0f;
@@ -106,29 +122,27 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
 
                 color = new Color(0, 0, avgSpeed.LengthSquared(), 1);
                   color = dat.ColorGradient.Get(avgSpeed.LengthSquared());*/
-                dir = Vec2.Normalize(dir)/1.3f;
-                var thick = Thickness * (dir.Length() + Thickness*.0f);
-                var bot = pos - dir * Length/2 - Vec2.Normalize(dir)*Length*.1f;
-                var top = pos + dir * Length/2 + Vec2.Normalize(dir)*Length*.1f;
-                var perpDir = new Vec2(dir.Y, -dir.X) * Length*.8f;
-                var targetPos = perpDir/2 + (top*.6f + bot*.4f);
-                var targetPos2 = -perpDir/2 + (top*.6f + bot*.4f);
-                var offset =  Vec2.Normalize(-(targetPos - top)) *thick/2;
-                Gizmos2D.Instanced.RegisterLine(bot, top,color, thick);
-                Gizmos2D.Instanced.RegisterLine(top+offset,targetPos,color, thick);
-                Gizmos2D.Instanced.RegisterLine(top,targetPos2,color, thick);
-                
+                //dir = Vec2.Normalize(dir)/1.3f;
+                var thick = Thickness;
+                var bot = pos - dir * Length / 2 - dir * Length * .1f;
+                var top = pos + dir * Length / 2 + dir * Length * .1f;
+                var perpDir = new Vec2(dir.Y, -dir.X) * Length * .8f;
+                var targetPos = perpDir / 2 + (top * .6f + bot * .4f);
+                var targetPos2 = -perpDir / 2 + (top * .6f + bot * .4f);
+                var offset = Vec2.Normalize(-(targetPos - top)) * thick / 2;
+                Gizmos2D.Instanced.RegisterLine(bot, top, color, thick);
+                Gizmos2D.Instanced.RegisterLine(top + offset, targetPos, color, thick);
+                Gizmos2D.Instanced.RegisterLine(top, targetPos2, color, thick);
+
             }
-
         }
-
         Gizmos2D.Instanced.RenderCircles(view.Camera2D);
         Gizmos2D.Instanced.RenderRects(view.Camera2D);
 
         if (AutoResize)
         {
-            Length = (spacing / 1.5f) / Sqrt(maxDirLenght2);
-            Thickness = cellSize.X / 5;
+            Length = cellSize.X*1;
+            Thickness = cellSize.X / 10;
         }
     }
 

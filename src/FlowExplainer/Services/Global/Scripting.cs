@@ -31,9 +31,11 @@ public static class Scripting
         //ComputeSpeetjensFields(dataService, fieldsFolder);
 
         var diffFlux = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "diffFlux.field"));
+        var convFlux = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "convectiveHeatFlux.field"));
         var tempTot = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
-        dataService.VelocityField = new SpeetjensVelocityField() { epsilon = .1f};
-        dataService.TempratureField = tempTot;
+        var tempConvection = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
+        dataService.VelocityField =convFlux;
+        dataService.TempratureField = tempConvection;
 
         //dataService.VelocityField = velocityField;
         ///dataService.TempratureField = tempTot;
@@ -59,7 +61,8 @@ public static class Scripting
         var tempConvection = new SpectralField(new RegularGrid<Vec3i, Complex>(tempTot.Usps.GridSize), tempTot.Rect); //TCONVspTOT
         for (int i = 0; i < tempConvection.Usps.Data.Length; i++)
             tempConvection.Usps.Data[i] = tempTot.Usps.Data[i] - tempNoFlow.Usps.Data[i];
-
+        
+        
         float t = .9f;
         var heatFlux = new ArbitraryField<Vec3, Vec2>(tempTot.Domain, pos =>
             velocityField.Evaluate(pos) * tempTot.Evaluate(pos));
@@ -77,17 +80,19 @@ public static class Scripting
         var diffFluxX = new SpectralField(dCdX, tempTot.Rect);
         var diffFluxY = new SpectralField(dCdY, tempTot.Rect);
 
-        var field = new ArbitraryField<Vec3, Vec2>(tempTot.Domain, (p) => new Vec2(diffFluxX.Evaluate(p), diffFluxY.Evaluate(p)));
+        var diffFlux = new ArbitraryField<Vec3, Vec2>(tempTot.Domain, (p) => new Vec2(diffFluxX.Evaluate(p), diffFluxY.Evaluate(p)));
+        var convectiveHeatFlux = new ArbitraryField<Vec3, Vec2>(tempTot.Domain, (p) => tempConvection.Evaluate(p) * velocityField.Evaluate(p));
 
         var gridSize = new Vec3i(64, 32, 103);
         if (!Directory.Exists(folder))
             Directory.CreateDirectory(folder);
 
-        DiscretizeAndSave(Path.Combine(folder, "diffFlux.field"), gridSize, field);
+        DiscretizeAndSave(Path.Combine(folder, "diffFlux.field"), gridSize, diffFlux);
         DiscretizeAndSave(Path.Combine(folder, "tempTot.field"), gridSize, tempTot);
         DiscretizeAndSave(Path.Combine(folder, "heatFlux.field"), gridSize, heatFlux);
         DiscretizeAndSave(Path.Combine(folder, "tempConvection.field"), gridSize, tempConvection);
         DiscretizeAndSave(Path.Combine(folder, "tempNoFlow.field"), gridSize, tempNoFlow);
+        DiscretizeAndSave(Path.Combine(folder, "convectiveHeatFlux.field"), gridSize, convectiveHeatFlux);
 
 
         void DiscretizeAndSave<Vec, Veci, TData>(string path, Veci gridSize, IVectorField<Vec, TData> field)

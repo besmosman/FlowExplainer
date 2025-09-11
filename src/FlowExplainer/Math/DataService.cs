@@ -34,7 +34,24 @@ public class DataService : WorldService
         TempratureField = bubble.TemperatureField;
         */
 
-
+    }
+    private float timeAbove = 0f;
+    public override void Update()
+    {
+        if (SimulationTime > VelocityField.Domain.Boundary.Max.Z)
+        {
+            timeAbove += FlowExplainer.DeltaTime;
+            if (timeAbove > 1)
+            {
+                SimulationTime = 0;
+                timeAbove = 0;
+            }
+        }
+        else
+        {
+            timeAbove = 0;
+        }
+        base.Update();
     }
     private bool firstDraw = true;
     public override void Draw(RenderTexture rendertarget, View view)
@@ -42,7 +59,7 @@ public class DataService : WorldService
         if (firstDraw)
         {
             view.Camera2D.Position = -VelocityField.Domain.Boundary.Center.Down();
-            view.Camera2D.Scale =  float.Min(view.Width / VelocityField.Domain.Boundary.Size.X/1.4f, view.Height / VelocityField.Domain.Boundary.Size.Y/1.4f);
+            view.Camera2D.Scale = float.Min(view.Width / VelocityField.Domain.Boundary.Size.X / 1.4f, view.Height / VelocityField.Domain.Boundary.Size.Y / 1.4f);
             firstDraw = false;
         }
         //VelocityField = new PeriodicDiscritizedField(new AnalyticalEvolvingVelocityField(), new Vec3(.01f, .01f, .01f));
@@ -57,10 +74,7 @@ public class DataService : WorldService
     {
         ImGuiHelpers.SliderFloat("Time Multiplier", ref TimeMultiplier, 0, 10);
         ImGuiHelpers.SliderFloat("Time", ref SimulationTime, 0, VelocityField.Domain.Boundary.Size.Z);
-        if (SimulationTime > VelocityField.Domain.Boundary.Max.Z)
-        {
-            SimulationTime = 0;
-        }
+
         VelocityField.OnImGuiEdit();
 
         if (ImGui.BeginCombo("Dataset", dataset))
@@ -79,7 +93,7 @@ public class DataService : WorldService
             }
             ImGui.EndCombo();
         }
-        
+
 
         ImGui.Columns(2);
         ImGui.SetColumnWidth(0, ImGui.GetTextLineHeightWithSpacing() * 1.4f);
@@ -110,8 +124,8 @@ public class DataService : WorldService
             epsilon = .1f,
         };
         string folderPath = Config.GetValue<string>("spectral-data-path")!;
- 
-       // TempratureField = temprature;
+
+        // TempratureField = temprature;
         dataset = "Spectral Double Gyre";
     }
 

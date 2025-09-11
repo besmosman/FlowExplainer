@@ -32,15 +32,19 @@ public interface IVectorField<TInput, TOutput> where TInput : IVec<TInput>
 
     public IDomain<TInput> Domain { get; }
 
-    public static IVectorField<TInput, TOutput> Constant(TOutput value) => new ConstantField<TInput, TOutput>(value);
+    public static IVectorField<TInput, TOutput> Constant(TOutput value) => new ConstantField<TInput, TOutput>(value, IDomain<TInput>.Infinite);
+    public static IVectorField<TInput, TOutput> Constant(TOutput value, IDomain<TInput> domain) => new ConstantField<TInput, TOutput>(value, domain);
 
     private readonly struct ConstantField<TInput, TOutput> : IVectorField<TInput, TOutput> where TInput : IVec<TInput>
     {
         private readonly TOutput Value;
+        private readonly IDomain<TInput> domain;
+        public IDomain<TInput> Domain => domain;
 
-        public ConstantField(TOutput value)
+        public ConstantField(TOutput value, IDomain<TInput> domain)
         {
             Value = value;
+            this.domain = domain;
         }
 
         public TOutput Evaluate(TInput x)
@@ -54,6 +58,5 @@ public interface IVectorField<TInput, TOutput> where TInput : IVec<TInput>
             return true;
         }
 
-        public IDomain<TInput> Domain => IDomain<TInput>.Infinite;
     }
 }

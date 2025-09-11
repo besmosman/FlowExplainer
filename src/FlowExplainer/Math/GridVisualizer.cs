@@ -37,7 +37,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
     // public InterpolatedRenderGrid gridData;
     public bool Continous = true;
     public bool MarkDirty = false;
-    public int TargetCellCount = 4000;
+    public int TargetCellCount = 10000;
 
     public RegularGridVectorField<Vec2, Vec2i, CellData> RegularGrid;
     public StorageBuffer<CellData> gridbuffer;
