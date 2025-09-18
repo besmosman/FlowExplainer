@@ -42,6 +42,7 @@
                 IsEnabled = true
             });
             v.AddVisualisationService(new StructureIdentifier());
+            v.AddVisualisationService(new FlowVisService());
             //v.AddVisualisationService(new FDTest());
             //v.AddVisualisationService(new Heat3DViewer());
             Worlds.Add(v);

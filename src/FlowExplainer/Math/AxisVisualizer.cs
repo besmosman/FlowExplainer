@@ -44,8 +44,8 @@ public class AxisVisualizer : WorldService
 
             return;
         }
-        
-        var color = new Color(1,1,1,1);
+
+        var color = new Color(1, 1, 1, 1);
         var thickness = 4f;
         var margin = 0f;
 
@@ -59,9 +59,26 @@ public class AxisVisualizer : WorldService
             Gizmos2D.Line(view.ScreenCamera, lb + new Vec2(0, margin), rb + new Vec2(0, margin), color, thickness);
             Gizmos2D.Line(view.ScreenCamera, lb + new Vec2(-margin, 0), lt + new Vec2(-margin, 0), color, thickness);
 
-            if (titler != null)
-                Gizmos2D.Text(view.ScreenCamera, new Vec2((lb.X + rb.X) / 2, lt.Y - lh * 2), lh, color, titler.GetTitle(), centered: true);
+            //if (titler != null)
+            //    Gizmos2D.Text(view.ScreenCamera, new Vec2((lb.X + rb.X) / 2, lt.Y - lh * 2), lh, color, titler.GetTitle(), centered: true);
 
+            if (!GetGlobalService<PresentationService>().IsPresenting)
+            {
+                
+            string title = "";
+            var gridVisualizer = GetWorldService<GridVisualizer>();
+            if (gridVisualizer.IsEnabled)
+            {
+                title += $"{gridVisualizer.GetTitle()} ({dat.currentSelectedScaler.Replace("Temperature2", "").Trim()})";
+            }
+
+            if (GetWorldService<FlowFieldVisualizer>().IsEnabled || GetWorldService<FlowDirectionVisualization>().IsEnabled)
+            {
+                title += $" + {dat.currentSelectedVectorField.Replace("Temperature", "").Trim()} field";
+            }
+
+            Gizmos2D.Text(view.ScreenCamera, new Vec2((lb.X + rb.X) / 2, lt.Y - lh * 2), lh, color, title, centered: true);
+            }
             for (int i = 0; i <= StepsX; i++)
             {
                 float c = i / (float)StepsX;
@@ -99,18 +116,17 @@ public class AxisVisualizer : WorldService
             texturedMat.SetUniform("model", Matrix4x4.CreateScale(width, height, .4f) * Matrix4x4.CreateTranslation(posX, posY, 0));
             gradientMesh.Draw();
             (float min, float max) = scaler.GetScale();
-            
-            Gizmos2D.Text(view.ScreenCamera, new Vec2(posX + width / 2f, posY - lh - 5), lh, color,  max.ToString("F2", CultureInfo.InvariantCulture), centered: true);
+
+            Gizmos2D.Text(view.ScreenCamera, new Vec2(posX + width / 2f, posY - lh - 5), lh, color, max.ToString("F2", CultureInfo.InvariantCulture), centered: true);
             Gizmos2D.Text(view.ScreenCamera, new Vec2(posX + width / 2f, posY + height + 5), lh, color, min.ToString("F2", CultureInfo.InvariantCulture), centered: true);
         }
 
         if (DrawWalls)
         {
             var thick = .012f;
-            var off = -thick/2;
-            Gizmos2D.Line(view.Camera2D, new Vec2(domain.Min.X, domain.Max.Y + off + thick/2), new Vec2(domain.Max.X, domain.Max.Y  + off + thick/2), dat.ColorGradient.Get(.00f), thick);
-            Gizmos2D.Line(view.Camera2D, new Vec2(domain.Min.X, domain.Min.Y - off - thick/2), new Vec2(domain.Max.X, domain.Min.Y  - off - thick/2), dat.ColorGradient.Get(1f), thick);
-
+            var off = -thick / 2;
+            Gizmos2D.Line(view.Camera2D, new Vec2(domain.Min.X, domain.Max.Y + off + thick / 2), new Vec2(domain.Max.X, domain.Max.Y + off + thick / 2), dat.ColorGradient.Get(.00f), thick);
+            Gizmos2D.Line(view.Camera2D, new Vec2(domain.Min.X, domain.Min.Y - off - thick / 2), new Vec2(domain.Max.X, domain.Min.Y - off - thick / 2), dat.ColorGradient.Get(1f), thick);
         }
     }
 

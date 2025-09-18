@@ -30,8 +30,6 @@ public static class LIC
         RegularGridVectorField<Vec2, Vec2i, float> output,
         float t, float arcLength)
     {
-        var reverse = new ArbitraryField<Vec3, Vec2>(convolution.Domain, (p) => convolution.Evaluate(-p));
-        var integrator = IIntegrator<Vec3, Vec2>.Rk4;
         var domain = output.Domain;
         var cellSize = domain.Boundary.Size.X / output.GridSize.X;
         var domainBoundary = domain.Boundary;

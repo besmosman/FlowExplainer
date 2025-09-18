@@ -65,6 +65,9 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
 
     public void SetGridDiagnostic(IGridDiagnostic visualizer)
     {
+        if (visualizer.GetType() == typeof(LICGridDiagnostic))
+            Continous = false;
+        
         diagnostic = visualizer;
         var dat = GetRequiredWorldService<DataService>();
         var aspect = Vec2.Normalize(dat.VelocityField.Domain.Boundary.Size.Down());
@@ -195,6 +198,8 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
 
     public string GetTitle()
     {
+        if (diagnostic.GetType() == typeof(LICGridDiagnostic))
+            return $"LIC {GetRequiredWorldService<DataService>().currentSelectedVectorField}";
         return diagnostic?.Name ?? "";
     }
     public (float min, float max) GetScale()

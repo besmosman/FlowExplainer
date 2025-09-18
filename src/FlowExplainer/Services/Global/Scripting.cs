@@ -19,7 +19,10 @@ public static class Scripting
 {
     public static void Startup(World world)
     {
+        var v = world.GetWorldService<FlowVisService>();
+        v.Enable();
         
+        return;
         
         var gridVisualizer = world.GetWorldService<GridVisualizer>();
         var dataService = world.GetWorldService<DataService>();
@@ -28,15 +31,19 @@ public static class Scripting
         gridVisualizer.SetGridDiagnostic(new TemperatureGridDiagnostic());
 
         string fieldsFolder = "speetjens-computed-fields";
-        //ComputeSpeetjensFields(dataService, fieldsFolder);
+       // ComputeSpeetjensFields(dataService, fieldsFolder);
 
         var diffFlux = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "diffFlux.field"));
         var convFlux = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "convectiveHeatFlux.field"));
         var tempTot = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
         var tempConvection = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
+        /*
         dataService.VelocityField =convFlux;
         dataService.TempratureField = tempConvection;
+        */
 
+        
+        
         //dataService.VelocityField = velocityField;
         ///dataService.TempratureField = tempTot;
 

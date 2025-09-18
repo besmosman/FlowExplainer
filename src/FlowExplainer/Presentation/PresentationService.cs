@@ -17,8 +17,8 @@ public class PresentationService : GlobalService
     public override void Initialize()
     {
         Presi = new PresiContext(FlowExplainer);
-        LoadPresentation(new DatasetPresentation());
-        StartPresenting();
+        //LoadPresentation(new DatasetPresentation());
+        //StartPresenting();
     }
 
     public void LoadPresentation(Presentation presentation)

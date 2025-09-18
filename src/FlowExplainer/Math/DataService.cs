@@ -5,8 +5,21 @@ namespace FlowExplainer;
 
 public class DataService : WorldService
 {
-    public IVectorField<Vec3, Vec2> VelocityField;
-    public IVectorField<Vec3, float> TempratureField;
+    public IVectorField<Vec3, Vec2> VelocityField
+    {
+        get
+        {
+                return VectorFields[currentSelectedVectorField];
+        }
+    }
+
+    public IVectorField<Vec3, float> TempratureField => ScalerFields[currentSelectedScaler];
+
+    public string currentSelectedScaler = "Total Temperature";
+    public string currentSelectedVectorField = "Velocity";
+    public Dictionary<string, IVectorField<Vec3, float>> ScalerFields = new();
+    public Dictionary<string, IVectorField<Vec3, Vec2>> VectorFields = new();
+
     public IIntegrator<Vec3, Vec2> Integrator = IIntegrator<Vec3, Vec2>.Rk4;
     public ColorGradient ColorGradient { get; set; } = Gradients.GetGradient("matlab_parula");
     public float SimulationTime;
@@ -33,9 +46,10 @@ public class DataService : WorldService
         VelocityField = bubble.VelocityField;
         TempratureField = bubble.TemperatureField;
         */
-
     }
+
     private float timeAbove = 0f;
+
     public override void Update()
     {
         if (SimulationTime > VelocityField.Domain.Boundary.Max.Z)
@@ -51,9 +65,12 @@ public class DataService : WorldService
         {
             timeAbove = 0;
         }
+
         base.Update();
     }
+
     private bool firstDraw = true;
+
     public override void Draw(RenderTexture rendertarget, View view)
     {
         if (firstDraw)
@@ -62,6 +79,7 @@ public class DataService : WorldService
             view.Camera2D.Scale = float.Min(view.Width / VelocityField.Domain.Boundary.Size.X / 1.4f, view.Height / VelocityField.Domain.Boundary.Size.Y / 1.4f);
             firstDraw = false;
         }
+
         //VelocityField = new PeriodicDiscritizedField(new AnalyticalEvolvingVelocityField(), new Vec3(.01f, .01f, .01f));
         float dt = FlowExplainer.DeltaTime;
         //dt = 1f / 90f;
@@ -70,6 +88,7 @@ public class DataService : WorldService
     }
 
     private string dataset;
+
     public override void DrawImGuiEdit()
     {
         ImGuiHelpers.SliderFloat("Time Multiplier", ref TimeMultiplier, 0, 10);
@@ -77,22 +96,38 @@ public class DataService : WorldService
 
         VelocityField.OnImGuiEdit();
 
-        if (ImGui.BeginCombo("Dataset", dataset))
+        if (ImGui.BeginCombo("Scaler Field", currentSelectedScaler))
         {
-            if (ImGui.Selectable("Spectral Double Gyre"))
-            {
-                SetGyreDataset();
-            }
-            if (ImGui.Selectable("Weather Data 1"))
-            {
-                var ncLoader = new NcLoader();
-                ncLoader.Load();
-                VelocityField = ncLoader.VelocityField;
-                TempratureField = ncLoader.HeatField;
-                dataset = "Weather Data 1";
-            }
+            foreach (var v in ScalerFields)
+                if (ImGui.Selectable(v.Key))
+                    currentSelectedScaler = v.Key;
             ImGui.EndCombo();
         }
+
+        if (ImGui.BeginCombo("Vector Field", currentSelectedVectorField))
+        {
+            foreach (var v in VectorFields)
+                if (ImGui.Selectable(v.Key))
+                    currentSelectedVectorField = v.Key;
+            ImGui.EndCombo();
+        }
+
+
+        /*
+        if (ImGui.Selectable("Spectral Double Gyre"))
+        {
+            SetGyreDataset();
+        }
+
+        if (ImGui.Selectable("Weather Data 1"))
+        {
+            var ncLoader = new NcLoader();
+            ncLoader.Load();
+            VelocityField = ncLoader.VelocityField;
+            TempratureField = ncLoader.HeatField;
+            dataset = "Weather Data 1";
+        }
+        */
 
 
         ImGui.Columns(2);
@@ -111,24 +146,37 @@ public class DataService : WorldService
                     ColorGradient = grad;
                 }
             }
+
             ImGui.EndCombo();
         }
+
         ImGui.Columns(1);
         base.DrawImGuiEdit();
     }
+
     private void SetGyreDataset()
     {
-
-        VelocityField = new SpeetjensVelocityField()
+        VectorFields.Add("Velocity", new SpeetjensVelocityField()
         {
             epsilon = .1f,
-        };
-        string folderPath = Config.GetValue<string>("spectral-data-path")!;
+        });
+
+        string fieldsFolder = "speetjens-computed-fields";
+        var DiffFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "diffFlux.field"));
+        var ConvFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "convectiveHeatFlux.field"));
+        var TempConvection = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
+        var TempTot = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
+        var TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));
+        var totalFlux = new ArbitraryField<Vec3, Vec2>(DiffFluxField.Domain, p => DiffFluxField.Evaluate(p) + ConvFluxField.Evaluate(p));
+
+        VectorFields.Add("Diffusion Flux", DiffFluxField);
+        VectorFields.Add("Convection Flux", ConvFluxField);
+        VectorFields.Add("Total Flux", totalFlux);
+        ScalerFields.Add("Total Temperature", TempTot);
+        ScalerFields.Add("Convective Temperature", TempConvection);
+        ScalerFields.Add("No Flow Temperature", TempTotNoFlow);
 
         // TempratureField = temprature;
         dataset = "Spectral Double Gyre";
     }
-
-
-
 }

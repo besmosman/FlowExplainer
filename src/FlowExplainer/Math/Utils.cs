@@ -46,4 +46,14 @@ public static class Utils
         }
         return new Rect<Vec2>(min, max);
     }
+
+    public static Vec Random<Vec>(Rect<Vec> bounds) where Vec : IVec<Vec>
+    {
+        var r = Vec.Zero;
+        
+        for (int i = 0; i < r.ElementCount; i++) 
+            r[i] = System.Random.Shared.NextSingle();
+
+        return bounds.Min + bounds.Size * r;
+    }
 }

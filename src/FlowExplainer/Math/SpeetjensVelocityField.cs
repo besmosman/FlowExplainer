@@ -23,7 +23,7 @@ public class SpeetjensVelocityField : IVectorField<Vec3, Vec2>
 
     public void OnImGuiEdit()
     {
-        ImGuiHelpers.SliderFloat("Epsilon", ref epsilon, 0, 2);
+        //ImGuiHelpers.SliderFloat("Epsilon", ref epsilon, 0, 2);
     }
 
     public Vec2 Velocity(float x, float y, float t)

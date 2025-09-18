@@ -4,13 +4,23 @@ namespace FlowExplainer;
 
 public class DatasetPresentation : Presentation
 {
+    public class IntroSlide : Slide
+    {
+        public override void Draw()
+        {
+            LayoutTitle();
+            Presi.Text("Dataset Presentation", new Vec2(Presi.CanvasCenter.X, Presi.CanvasCenter.Y + 75), 100, true, Color.White);
+            base.Draw();
+        }
+    }
+
     public class VelocityField1Slide : Slide
     {
         public override void Draw()
         {
             LayoutMain();
             Title("Velocity Field");
-            Presi.Text("u(x,y) =  sin(2πx)cos(2πy) \r\n v(x,y) = -cos(2πx)sin(2πy) \r\n x : [0, 1],  y : [0, 0.5]  ", new Vec2(Presi.CanvasCenter.X, 700), 96, true, Color.White);
+            Presi.Text("u(@blue[x],@red[y]) =  sin(2π@blue[x])cos(2π@red[y]) \r\n v(@blue[x],@red[y]) = -cos(2π@blue[x])sin(2π@red[y]) \r\n @blue[x] : [0, 1],  @red[y] : [0, 0.5]  ", new Vec2(Presi.CanvasCenter.X, 700), 96, true, Color.White);
             base.Draw();
         }
     }
@@ -29,22 +39,24 @@ public class DatasetPresentation : Presentation
 
     public class VelocityField3Slide : Slide
     {
-
         public override void OnEnter()
         {
             Presi.GetView("v0").World.GetWorldService<FlowFieldVisualizer>().Enable();
             Presi.GetView("v0").World.GetWorldService<FlowFieldVisualizer>().colorByGradient = true;
             Presi.GetView("v0").World.GetWorldService<DataService>().ColorGradient = Gradients.Parula;
-            Presi.GetView("v0").World.GetWorldService<DataService>().TimeMultiplier = .1f;
+            Presi.GetView("v0").World.GetWorldService<DataService>().TimeMultiplier = .4f;
             Presi.GetView("v0").World.GetWorldService<DataService>().SimulationTime = .0f;
+            Presi.GetView("v0").World.GetWorldService<AxisVisualizer>().DrawWalls = false;
             base.OnEnter();
         }
+
         public override void OnLeave()
         {
             Presi.GetView("v0").World.GetWorldService<DataService>().TimeMultiplier = 0f;
             Presi.GetView("v0").World.GetWorldService<DataService>().SimulationTime = .0f;
             base.OnLeave();
         }
+
         public override void Draw()
         {
             LayoutMain();
@@ -70,12 +82,14 @@ public class DatasetPresentation : Presentation
             };
             base.Load();
         }
+
         public override void OnEnter()
         {
             Presi.GetView("v0").World.GetWorldService<FlowFieldVisualizer>().Disable();
             //Presi.GetView("v0").World.GetWorldService<DataService>().ColorGradient = Gradients.GetGradient("BlueGrayRed");
             Presi.GetView("v0").World.GetWorldService<DataService>().SimulationTime = .0f;
             Presi.GetView("v0").World.GetWorldService<DataService>().TimeMultiplier = .0f;
+            Presi.GetView("v0").World.GetWorldService<GridVisualizer>().Disable();
             Presi.GetView("v0").World.GetWorldService<AxisVisualizer>().DrawWalls = true;
             base.OnEnter();
         }
@@ -101,7 +115,6 @@ public class DatasetPresentation : Presentation
     }
 
 
-
     public class HeatNoFlowSlide : Slide
     {
         public override void OnEnter()
@@ -114,10 +127,10 @@ public class DatasetPresentation : Presentation
             gridVisualizer.Enable();
             gridVisualizer.AutoScale = true;
             gridVisualizer.SetGridDiagnostic(new TemperatureGridDiagnostic());
-            dat.VelocityField = IVectorField<Vec3, Vec2>.Constant(default, TempTot.Domain);
-            dat.TempratureField = TempTotNoFlow;
+            dat.currentSelectedScaler = "No Flow Temperature";
             base.Load();
         }
+
         public override void Draw()
         {
             LayoutMain();
@@ -141,10 +154,11 @@ public class DatasetPresentation : Presentation
             var gridVisualizer = world.GetWorldService<GridVisualizer>();
             gridVisualizer.Enable();
             gridVisualizer.SetGridDiagnostic(new TemperatureGridDiagnostic());
-            dat.VelocityField = VelocityField;
-            dat.TempratureField = TempTot;
+            dat.currentSelectedVectorField = "Velocity";
+            dat.currentSelectedScaler = "Total Temperature";
             base.Load();
         }
+
         public override void Draw()
         {
             LayoutMain();
@@ -157,15 +171,22 @@ public class DatasetPresentation : Presentation
 
     public class ConvectiveConvFluxSlide : Slide
     {
+        public float t;
+
+        public ConvectiveConvFluxSlide(float t)
+        {
+            this.t = t;
+        }
+
         public override void OnEnter()
         {
             Presi.GetView("v0").World.GetWorldService<AxisVisualizer>().DrawWalls = false;
             var world = Presi.GetView("v0").World;
             var dat = world.GetWorldService<DataService>();
-            dat.SimulationTime = .9f;
+            dat.SimulationTime = t;
             dat.TimeMultiplier = .0f;
-            dat.VelocityField = ConvFluxField;
-            dat.TempratureField = TempConvection;
+            dat.currentSelectedVectorField = "Convection Flux";
+            dat.currentSelectedScaler = "Convective Temperature";
             var flowFieldVisualizer = world.GetWorldService<FlowFieldVisualizer>();
             flowFieldVisualizer.Enable();
             flowFieldVisualizer.colorByGradient = false;
@@ -175,7 +196,7 @@ public class DatasetPresentation : Presentation
         public override void Draw()
         {
             LayoutMain();
-            Title("Convective Temperature + Flux (t=0.9)");
+            Title($"Convective Temperature + Convective Flux (t={t})");
             Presi.ViewPanel("v0", Presi.CanvasSize / 2 + new Vec2(0, 00), new Vec2(1, .5f) * Presi.CanvasSize.X * .9f, .8f);
             //Presi.Text("u(x,y,t) = 0", new Vec2(Presi.CanvasCenter.X, 220), 80, true, Color.White);
             base.Draw();
@@ -184,15 +205,22 @@ public class DatasetPresentation : Presentation
 
     public class ConvectiveDiffFluxSlide : Slide
     {
+        public float t;
+
+        public ConvectiveDiffFluxSlide(float t)
+        {
+            this.t = t;
+        }
+
         public override void OnEnter()
         {
             Presi.GetView("v0").World.GetWorldService<AxisVisualizer>().DrawWalls = false;
             var world = Presi.GetView("v0").World;
             var dat = world.GetWorldService<DataService>();
-            dat.SimulationTime = .9f;
+            dat.SimulationTime = t;
             dat.TimeMultiplier = .0f;
-            dat.VelocityField = DiffFluxField;
-            dat.TempratureField = TempConvection;
+            dat.currentSelectedVectorField = "Diffusion Flux";
+            dat.currentSelectedScaler = "Convective Temperature";
             var flowFieldVisualizer = world.GetWorldService<FlowFieldVisualizer>();
             flowFieldVisualizer.Enable();
             flowFieldVisualizer.colorByGradient = false;
@@ -202,7 +230,7 @@ public class DatasetPresentation : Presentation
         public override void Draw()
         {
             LayoutMain();
-            Title("Convective Temperature + diffusion flux (t=0.9)");
+            Title($"Convective Temperature + Diffusion flux (t={t})");
             Presi.ViewPanel("v0", Presi.CanvasSize / 2 + new Vec2(0, 00), new Vec2(1, .5f) * Presi.CanvasSize.X * .9f, .8f);
             //Presi.Text("u(x,y,t) = 0", new Vec2(Presi.CanvasCenter.X, 220), 80, true, Color.White);
             base.Draw();
@@ -228,14 +256,16 @@ public class DatasetPresentation : Presentation
                 var gridVisualizer = w.GetWorldService<GridVisualizer>();
                 gridVisualizer.Enable();
                 gridVisualizer.SetGridDiagnostic(new TemperatureGridDiagnostic());
-                dat.VelocityField = VelocityField;
+                dat.currentSelectedVectorField = "Velocity";
             }
 
-            w1.GetWorldService<DataService>().TempratureField = TempTot;
-            w2.GetWorldService<DataService>().TempratureField = TempTotNoFlow;
-            w0.GetWorldService<DataService>().TempratureField = TempConvection;
+            w0.GetWorldService<FlowFieldVisualizer>().Disable();
+            w1.GetWorldService<DataService>().currentSelectedScaler = "Total Temperature";
+            w0.GetWorldService<DataService>().currentSelectedScaler = "Convective Temperature";
+            w2.GetWorldService<DataService>().currentSelectedScaler = "No Flow Temperature";
             base.Load();
         }
+
         public override void Draw()
         {
             LayoutMain();
@@ -243,8 +273,8 @@ public class DatasetPresentation : Presentation
             Presi.ViewPanel("v1", new Vec2(Presi.CanvasCenter.X - 481, 740), new Vec2(1, .5f) * Presi.CanvasSize.X * .5f, .8f);
             Presi.ViewPanel("v2", new Vec2(Presi.CanvasCenter.X + 481, 740), new Vec2(1, .5f) * Presi.CanvasSize.X * .5f, .8f);
             Presi.ViewPanel("v0", new Vec2(Presi.CanvasCenter.X, 260), new Vec2(1, .5f) * Presi.CanvasSize.X * .5f, .8f);
-            Presi.Text("Temprature with Flow", new Vec2(Presi.CanvasCenter.X - 470, 990), 64, true, Color.White);
-            Presi.Text("Temprature without Flow", new Vec2(Presi.CanvasCenter.X + 470, 990), 64, true, Color.White);
+            Presi.Text("Temperature with Flow", new Vec2(Presi.CanvasCenter.X - 470, 990), 64, true, Color.White);
+            Presi.Text("Temperature without Flow", new Vec2(Presi.CanvasCenter.X + 470, 990), 64, true, Color.White);
             Presi.Text("-", new Vec2(Presi.CanvasCenter.X - 30, 710), 204, true, Color.White);
             Presi.Text("=", new Vec2(Presi.CanvasCenter.X - 530, 250), 204, true, Color.White);
             //Presi.Text("u(x,y,t) = 0", new Vec2(Presi.CanvasCenter.X, 220), 80, true, Color.White);
@@ -253,12 +283,11 @@ public class DatasetPresentation : Presentation
     }
 
 
-
     public override Slide[] GetSlides()
     {
-
         return
         [
+            new IntroSlide(),
             new VelocityField1Slide(),
             new VelocityField2Slide(),
             new VelocityField3Slide(),
@@ -266,8 +295,10 @@ public class DatasetPresentation : Presentation
             new HeatFlowSlide(),
             new HeatNoFlowSlide(),
             new HeatSubtractSlide(),
-            new ConvectiveConvFluxSlide(),
-            new ConvectiveDiffFluxSlide(),
+            new ConvectiveConvFluxSlide(.9f),
+            new ConvectiveDiffFluxSlide(.9f),
+            new ConvectiveConvFluxSlide(.2f),
+            new ConvectiveDiffFluxSlide(.2f),
         ];
     }
 
@@ -281,6 +312,7 @@ public class DatasetPresentation : Presentation
     {
         epsilon = .1f
     };
+
     public override void Setup(FlowExplainer flowExplainer)
     {
         var presentationService = flowExplainer.GetGlobalService<PresentationService>();
@@ -292,21 +324,20 @@ public class DatasetPresentation : Presentation
         string fieldsFolder = "speetjens-computed-fields";
         //ComputeSpeetjensFields(dataService, fieldsFolder);
 
-        DiffFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "diffFlux.field"));
+        /*DiffFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "diffFlux.field"));
         ConvFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "convectiveHeatFlux.field"));
         TempConvection = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
         TempTot = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
-        TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));
+        TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));*/
 
-        w0.GetWorldService<DataService>().VelocityField = DiffFluxField;
-        w0.GetWorldService<DataService>().VelocityField = VelocityField;
+        w0.GetWorldService<DataService>().currentSelectedVectorField = "Diffusion Flux";
+        w0.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
 
         w0.GetWorldService<FlowFieldVisualizer>().Enable();
 
-        w1.GetWorldService<DataService>().TempratureField = TempTot;
+        w1.GetWorldService<DataService>().currentSelectedScaler = "Total Temperature";
         presentationService.Presi.GetView("v0").World = w0;
         presentationService.Presi.GetView("v1").World = w1;
         presentationService.Presi.GetView("v2").World = w2;
-
     }
 }
