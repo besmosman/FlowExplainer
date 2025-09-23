@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 
 namespace FlowExplainer;
 
-public struct Vec1 : IVec<Vec1, float>
+public struct Vec1 : IVec<Vec1>
 {
     public float X;
 
@@ -11,7 +11,7 @@ public struct Vec1 : IVec<Vec1, float>
         X = x;
     }
 
-   
+
     public int ElementCount => 1;
     public static Vec1 One => 1;
     public static Vec1 Zero => 0;
@@ -21,14 +21,18 @@ public struct Vec1 : IVec<Vec1, float>
     {
         get
         {
+#if DEBUG
             if (n != 0)
                 throw new Exception();
+#endif
             return X;
         }
         set
         {
+#if DEBUG
             if (n != 0)
                 throw new Exception();
+#endif
             X = value;
         }
     }
@@ -37,7 +41,7 @@ public struct Vec1 : IVec<Vec1, float>
     public float Sum() => X;
 
     public static Vec1 operator *(Vec1 left, float right) => left.X * right;
-    public static Vec1 operator -(Vec1 left, Vec1 right) => left.X * right;
+    public static Vec1 operator -(Vec1 left, Vec1 right) => left.X - right.X;
     public static Vec1 operator /(Vec1 left, float right) => left.X / right;
     public static Vec1 operator +(Vec1 left, Vec1 right) => left.X + right.X;
 

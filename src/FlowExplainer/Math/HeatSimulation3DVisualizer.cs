@@ -242,7 +242,7 @@ public class FDTest : WorldService
     public override void Draw(RenderTexture rendertarget, View view)
     {
         var dat = GetRequiredWorldService<DataService>();
-        var vel = dat.VelocityField;
+        var vel = dat.VectorField;
 
         for (int x = 0; x < 64; x++)
         {
@@ -315,7 +315,7 @@ public class HeatSimulation3DVisualizer : WorldService
         if (!loaded.HasValue)
             return;
         float rad = .01f;
-        view.CameraOffset = -dat.VelocityField.Domain.Boundary.Center;
+        view.CameraOffset = -dat.VectorField.Domain.Boundary.Center;
 //            view.CameraOffset = new Vec3(-.5f, .25f, -.25f);
 
         GL.Enable(EnableCap.DepthTest);

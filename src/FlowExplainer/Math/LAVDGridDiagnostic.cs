@@ -21,7 +21,7 @@ public class LAVDGridDiagnostic : IGridDiagnostic
 
         var renderGrid = gridVisualizer.RegularGrid.Grid;
         var dat = gridVisualizer.GetWorldService<DataService>()!;
-        var domain = dat.VelocityField.Domain;
+        var domain = dat.VectorField.Domain;
 
         var t = dat.SimulationTime;
         var tau = dat.SimulationTime + T;
@@ -43,10 +43,10 @@ public class LAVDGridDiagnostic : IGridDiagnostic
             int jp = Math.Min(j + 1, renderGrid.GridSize.Y - 1);
             int jm = Math.Max(j - 1, 0);
 
-            var v_right = dat.VelocityField.Evaluate(gridVisualizer.RegularGrid.ToWorldPos(new Vec2(ip, j)).Up(t));
-            var v_left  = dat.VelocityField.Evaluate(gridVisualizer.RegularGrid.ToWorldPos(new Vec2(im, j)).Up(t));
-            var v_up    = dat.VelocityField.Evaluate(gridVisualizer.RegularGrid.ToWorldPos(new Vec2(i, jp)).Up(t));
-            var v_down  = dat.VelocityField.Evaluate(gridVisualizer.RegularGrid.ToWorldPos(new Vec2(i, jm)).Up(t));
+            var v_right = dat.VectorField.Evaluate(gridVisualizer.RegularGrid.ToWorldPos(new Vec2(ip, j)).Up(t));
+            var v_left  = dat.VectorField.Evaluate(gridVisualizer.RegularGrid.ToWorldPos(new Vec2(im, j)).Up(t));
+            var v_up    = dat.VectorField.Evaluate(gridVisualizer.RegularGrid.ToWorldPos(new Vec2(i, jp)).Up(t));
+            var v_down  = dat.VectorField.Evaluate(gridVisualizer.RegularGrid.ToWorldPos(new Vec2(i, jm)).Up(t));
 
             var du_dy = (v_up.X - v_down.X) / (2 * dy);
             var dv_dx = (v_right.Y - v_left.Y) / (2 * dx);
@@ -73,7 +73,7 @@ public class LAVDGridDiagnostic : IGridDiagnostic
     public void OnImGuiEdit(GridVisualizer vis)
     {
         var dat = vis.GetRequiredWorldService<DataService>()!;
-        float period = dat.VelocityField.Domain.Boundary.Size.Last;
+        float period = dat.VectorField.Domain.Boundary.Size.Last;
         if (ImGuiHelpers.SliderFloat("T", ref T, -period * 1, period * 1))
             vis.MarkDirty = true;
     }

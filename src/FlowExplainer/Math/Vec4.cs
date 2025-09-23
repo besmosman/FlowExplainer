@@ -35,7 +35,7 @@ public struct Rect<Vec> where Vec : IVec<Vec>
         Max = max;
     }
 
-    public bool IsWithin(Vec p)
+    public bool Contains(Vec p)
     {
         return p > Min && p < Max;
     }

@@ -63,7 +63,7 @@ public class FlowDirectionVisualization : WorldService
         PerData = new Data[amount];
         centers = new Vec2[amount * posPer];
         var dat = GetRequiredWorldService<DataService>();
-        var velField = dat.VelocityField;
+        var velField = dat.VectorField;
         for (int i = 0; i < amount; i++)
         {
             var span = centers.AsSpan(i * posPer, posPer);
@@ -80,8 +80,8 @@ public class FlowDirectionVisualization : WorldService
     public override void Update()
     {
         var dat = GetRequiredWorldService<DataService>();
-        var velField = dat.VelocityField;
-        var instantField = new InstantFieldVersion<Vec3, Vec2, Vec2>(velField, dat.SimulationTime);
+        var velField = dat.VectorField;
+        var instantField = new InstantFieldVersionLowerDim<Vec3, Vec2, Vec2>(velField, dat.SimulationTime);
         var velMag = 0f;
         for (int i = 0; i < amount; i++)
         {

@@ -31,6 +31,11 @@ public interface IVectorField<TInput, TOutput> where TInput : IVec<TInput>
     }
 
     public IDomain<TInput> Domain { get; }
+    public enum Boundary
+    {
+        Undefined,
+        
+    }
 
     public static IVectorField<TInput, TOutput> Constant(TOutput value) => new ConstantField<TInput, TOutput>(value, IDomain<TInput>.Infinite);
     public static IVectorField<TInput, TOutput> Constant(TOutput value, IDomain<TInput> domain) => new ConstantField<TInput, TOutput>(value, domain);

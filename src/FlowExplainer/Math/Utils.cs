@@ -34,7 +34,7 @@ public static class Utils
             v[i] = value;
         return v;
     }
-
+    
     public static Rect<Vec2> GetBounds(IEnumerable<Vec2> filled)
     {
         var min = new Vec2(float.PositiveInfinity);

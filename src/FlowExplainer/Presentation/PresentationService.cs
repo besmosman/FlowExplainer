@@ -1,4 +1,5 @@
 using ImGuiNET;
+using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace FlowExplainer;
@@ -72,6 +73,8 @@ public class PresentationService : GlobalService
         var window = GetRequiredGlobalService<WindowService>().Window;
         PresiView.Camera2D.Scale = (window.ClientSize.Y / CanvasSize.Y) * .9f;
         CurrentSlide.OnEnter();
+        if (!PresiView.IsFullScreen)
+            ToggleFullScreen();
     }
 
     public override void Draw()
@@ -117,17 +120,21 @@ public class PresentationService : GlobalService
 
             if (window.IsKeyPressed(Keys.F12))
             {
-                PresiView.IsFullScreen = !PresiView.IsFullScreen;
-                if (PresiView.IsFullScreen)
-                    PresiView.Camera2D.Scale = (window.ClientSize.Y / CanvasSize.Y) * .9f;
-                else
-                    Task.Run(() =>
-                    {
-                        Thread.Sleep(50);
-                        PresiView.Camera2D.Scale = (PresiView.TargetSize.X / CanvasSize.X) * .9f;
-                    }); 
-
+                ToggleFullScreen();
             }
         }
+    }
+    private void ToggleFullScreen()
+    {
+        var window = FlowExplainer.GetGlobalService<WindowService>()!.Window;
+        PresiView.IsFullScreen = !PresiView.IsFullScreen;
+        if (PresiView.IsFullScreen)
+            PresiView.Camera2D.Scale = (window.ClientSize.Y / CanvasSize.Y) * .9f;
+        else
+            Task.Run(() =>
+            {
+                Thread.Sleep(50);
+                PresiView.Camera2D.Scale = (PresiView.TargetSize.X / CanvasSize.X) * .9f;
+            });
     }
 }

@@ -38,14 +38,14 @@ public class HeatSimulationService : WorldService
     public override void DrawImGuiEdit()
     {
         var dat = GetRequiredWorldService<DataService>();
-        ImGuiHelpers.SliderFloat("Particle Spacing", ref particleSpacing, 0, dat.VelocityField.Domain.Boundary.Size.X / 4f);
+        ImGuiHelpers.SliderFloat("Particle Spacing", ref particleSpacing, 0, dat.VectorField.Domain.Boundary.Size.X / 4f);
         ImGuiHelpers.SliderFloat("Radiation Factor", ref basicLagrangianHeatSim.RadiationFactor, 0, .05f);
         ImGuiHelpers.SliderFloat("Conduction Factor", ref basicLagrangianHeatSim.HeatDiffusionFactor, 0, .1f);
         ImGuiHelpers.SliderFloat("Kernel Radius", ref basicLagrangianHeatSim.KernelRadius, 0, .5f);
 
         if (ImGui.Button("Reset"))
         {
-            basicLagrangianHeatSim.Setup(dat.VelocityField.Domain.Boundary.Reduce<Vec2>(), particleSpacing);
+            basicLagrangianHeatSim.Setup(dat.VectorField.Domain.Boundary.Reduce<Vec2>(), particleSpacing);
             GetRequiredWorldService<HeatSimulationViewData>().Controller = this;
             GetRequiredWorldService<HeatSimulationViewData>().ViewParticles = basicLagrangianHeatSim.Particles;
         }
@@ -75,7 +75,7 @@ public class HeatSimulationService : WorldService
                 sim.RadiationFactor = basicLagrangianHeatSim.RadiationFactor;
                 sim.HeatDiffusionFactor = basicLagrangianHeatSim.HeatDiffusionFactor;
                 sim.KernelRadius = basicLagrangianHeatSim.KernelRadius;
-                sim.Setup(dat.VelocityField.Domain.Boundary.Reduce<Vec2>(), .01f);
+                sim.Setup(dat.VectorField.Domain.Boundary.Reduce<Vec2>(), .01f);
                 int steps = 80;
                 int substeps = 10;
                 float dt = 1 / 30f;
@@ -85,7 +85,7 @@ public class HeatSimulationService : WorldService
 
                 while (t < prewarmTime)
                 {
-                    sim.Update(dat.VelocityField, t, h);
+                    sim.Update(dat.VectorField, t, h);
                     t += h;
                 }
 
@@ -95,7 +95,7 @@ public class HeatSimulationService : WorldService
 
                     for (int j = 0; j < substeps; j++)
                     {
-                        sim.Update(dat.VelocityField, t, h);
+                        sim.Update(dat.VectorField, t, h);
                         entries.Add(Snapshot(t, sim));
                         t += h;
                     }
@@ -126,7 +126,7 @@ public class HeatSimulationService : WorldService
             return;
         
         var dat = GetRequiredWorldService<DataService>();
-        basicLagrangianHeatSim.Update(dat.VelocityField, dat.SimulationTime, dat.DeltaTime);
+        basicLagrangianHeatSim.Update(dat.VectorField, dat.SimulationTime, dat.DeltaTime);
 
         var viewer = GetRequiredWorldService<HeatSimulationViewData>();
 
@@ -137,7 +137,7 @@ public class HeatSimulationService : WorldService
         {
             var off = .01f;
             var thick = .012f;
-            var domain = dat.VelocityField.Domain.Boundary.Reduce<Vec2>();
+            var domain = dat.VectorField.Domain.Boundary.Reduce<Vec2>();
             Gizmos2D.Line(view.Camera2D, new Vec2(domain.Min.X, domain.Max.Y + off + thick/2), new Vec2(domain.Max.X, domain.Max.Y  + off + thick/2), dat.ColorGradient.Get(.00f), thick);
             Gizmos2D.Line(view.Camera2D, new Vec2(domain.Min.X, domain.Min.Y - off - thick/2), new Vec2(domain.Max.X, domain.Min.Y  - off - thick/2), dat.ColorGradient.Get(1f), thick);
         }

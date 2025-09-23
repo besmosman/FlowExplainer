@@ -255,30 +255,6 @@ public class FTLEvsCustomGridDiagnostic : IGridDiagnostic
     }
 }
 */
-public class TemperatureGridDiagnostic : IGridDiagnostic
-{
-    public void UpdateGridData(GridVisualizer gridVisualizer)
-    {
-        var renderGrid = gridVisualizer.RegularGrid.Grid;
-        var dat = gridVisualizer.GetRequiredWorldService<DataService>();
-        var tempratureField = dat.TempratureField;
-        var spaceBounds = dat.VelocityField.Domain.Boundary.Reduce<Vec2>();
-
-       
-        Parallel.For(0, renderGrid.GridSize.X * renderGrid.GridSize.Y, c =>
-        {
-            var i = c % renderGrid.GridSize.X;
-            var j = c / renderGrid.GridSize.X;
-            var pos = (new Vec2(i, j) / renderGrid.GridSize.ToVec2()) * spaceBounds.Size + spaceBounds.Min;
-            renderGrid.AtCoords(new Vec2i(i, j)).Value = tempratureField.Evaluate(new Vec3(pos, dat.SimulationTime));
-        });
-    }
-    public void OnImGuiEdit(GridVisualizer gridVisualizer)
-    {
-
-    }
-
-}
 
 public class LagrangianTemperatureGridDiagnostic : IGridDiagnostic
 {
@@ -289,7 +265,7 @@ public class LagrangianTemperatureGridDiagnostic : IGridDiagnostic
         var renderGrid = gridVisualizer.RegularGrid.Grid;
         var dat = gridVisualizer.GetRequiredWorldService<DataService>();
         var tempratureField = dat.TempratureField;
-        var spaceBounds = dat.VelocityField.Domain.Boundary.Reduce<Vec2>();
+        var spaceBounds = dat.VectorField.Domain.Boundary.Reduce<Vec2>();
         var t = dat.SimulationTime;
         var tau = dat.SimulationTime + T;
         Parallel.For(0, renderGrid.GridSize.X * renderGrid.GridSize.Y, c =>
@@ -297,24 +273,24 @@ public class LagrangianTemperatureGridDiagnostic : IGridDiagnostic
             var i = c % renderGrid.GridSize.X;
             var j = c / renderGrid.GridSize.X;
             var pos = (new Vec2(i, j) / renderGrid.GridSize.ToVec2()) * spaceBounds.Size + spaceBounds.Min;
-            var center = IFlowOperator<Vec2, Vec3>.Default.Compute(t, tau, pos, dat.VelocityField);
+            var center = IFlowOperator<Vec2, Vec3>.Default.Compute(t, tau, pos, dat.VectorField);
             //change in temprature compared to neighbros doe..
             var first = center.Entries.First();
             var last = center.Entries.Last();
-            renderGrid.AtCoords(new Vec2i(i, j)).Value = (tempratureField.Evaluate(last) - tempratureField.Evaluate(first)) / (last-first).Z;
+            renderGrid.AtCoords(new Vec2i(i, j)).Value = (tempratureField.Evaluate(last) - tempratureField.Evaluate(first)) / (last - first).Z;
         });
         var average = renderGrid.Data.Average(d => d.Value);
         for (int i = 0; i < renderGrid.Data.Length; i++)
         {
             renderGrid.Data[i].Value -= average;
             renderGrid.Data[i].Value *= 10;
-            
+
         }
     }
     public void OnImGuiEdit(GridVisualizer gridVisualizer)
     {
         var dat = gridVisualizer.GetRequiredWorldService<DataService>()!;
-        float period = dat.VelocityField.Domain.Boundary.Size.Last;
+        float period = dat.VectorField.Domain.Boundary.Size.Last;
         ImGuiHelpers.SliderFloat("T", ref T, -period, period);
     }
 
@@ -340,21 +316,21 @@ public class FTLEGridDiagnostic : IGridDiagnostic
 
         var renderGrid = gridVisualizer.RegularGrid.Grid;
         var dat = gridVisualizer.GetWorldService<DataService>()!;
-        var domain = dat.VelocityField.Domain;
+        var vectorField = dat.VectorField;
+        var domain = vectorField.Domain;
 
         var t = dat.SimulationTime;
         var tau = dat.SimulationTime + T;
         if (Data == null || Data.Length != renderGrid.Data.Length)
             Data = new FTLEData[renderGrid.Data.Length];
 
-        Parallel.For(0, renderGrid.GridSize.X * renderGrid.GridSize.Y, c =>
-        {
-            var i = c % renderGrid.GridSize.X;
-            var j = c / renderGrid.GridSize.X;
-            var pos = domain.Boundary.Relative((new Vec2(i, j) / renderGrid.GridSize.ToVec2()).Up(0)).XY;
-            pos = domain.Boundary.Reduce<Vec2>().Relative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());
+        var spatialBounds = domain.Boundary.Reduce<Vec2>();
+        var flowOperator = IFlowOperator<Vec2, Vec3>.Default;
 
-            var center = IFlowOperator<Vec2, Vec3>.Default.Compute(t, tau, pos, dat.VelocityField);
+        ParallelGrid.For(renderGrid.GridSize, (i, j) =>
+        {
+            var pos = spatialBounds.Relative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());
+            var center = flowOperator.Compute(t, tau, pos, vectorField);
             var index = renderGrid.GetCoordsIndex(new Vec2i(i, j));
             Data[index] = new FTLEData
             {
@@ -363,11 +339,8 @@ public class FTLEGridDiagnostic : IGridDiagnostic
             };
         });
 
-        Parallel.For(0, renderGrid.GridSize.X * renderGrid.GridSize.Y, c =>
+        ParallelGrid.For(renderGrid.GridSize, (i, j) =>
         {
-            var i = c % renderGrid.GridSize.X;
-            var j = c / renderGrid.GridSize.X;
-
             ref var center = ref renderGrid.AtCoords(new Vec2i(i, j));
             if (i > 0 && j > 0 && i < renderGrid.GridSize.X - 1 && j < renderGrid.GridSize.Y - 1)
             {
@@ -427,7 +400,7 @@ public class FTLEGridDiagnostic : IGridDiagnostic
     public void OnImGuiEdit(GridVisualizer vis)
     {
         var dat = vis.GetRequiredWorldService<DataService>()!;
-        float period = dat.VelocityField.Domain.Boundary.Size.Last;
+        float period = dat.VectorField.Domain.Boundary.Size.Last;
         if (ImGuiHelpers.SliderFloat("T", ref T, -period * 1, period * 1))
             vis.MarkDirty = true;
     }

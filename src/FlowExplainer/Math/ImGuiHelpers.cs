@@ -22,6 +22,16 @@ public class ImGuiHelpers
         return false;
     }
 
+    public static bool SliderInt(string name, ref int f, int min, int max)
+    {
+        if (ImGui.SliderInt(name, ref f, min, max))
+        {
+            UpdateMsg(name, f.ToString(CultureInfo.InvariantCulture));
+            return true;
+        }
+        return false;
+    }
+    
     private static void UpdateMsg(string name, string value)
     {
         LastMessage = name + ": " + value;

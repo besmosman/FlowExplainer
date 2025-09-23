@@ -52,6 +52,7 @@ public class RegularGrid<Veci, TData> where Veci : IVec<Veci, int>
         int index = GetCoordsIndex(x);
         return ref Data[index];
     }
+    
 
 
     public int GetCoordsIndex(Veci x)

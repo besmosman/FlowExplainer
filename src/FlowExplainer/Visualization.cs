@@ -26,7 +26,6 @@ namespace FlowExplainer
 
             service.FlowExplainer = FlowExplainer;
             service.World = this;
-            service.Initialize();
         }
 
         public void ReplaceVisualizationService(WorldService old, WorldService service)
@@ -73,10 +72,17 @@ namespace FlowExplainer
         {
             foreach (var service in Services)
                 if (service.IsEnabled)
+                {
+                    if (!service.IsInitialzied)
+                    {
+                        service.Initialize();
+                        service.IsInitialzied = true;
+                    }
                     service.Update();
+                }
         }
-        
-        
+
+
         public void Draw(View view)
         {
             IsViewed = true;
@@ -88,15 +94,24 @@ namespace FlowExplainer
                 GL.ClearColor(view.ClearColor.R, view.ClearColor.G, view.ClearColor.B, view.ClearColor.A);
                 GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
                 foreach (var service in Services)
+                {
                     if (service.IsEnabled)
+                    {
+                        if (!service.IsInitialzied)
+                        {
+                            service.Initialize();
+                            service.IsInitialzied = true;
+                        }
                         service.Draw(view.RenderTarget, view);
+                    }
+                }
 
                 if (!string.IsNullOrEmpty(ImGuiHelpers.LastMessage))
                 {
                     var t = 1.5f + (float)(ImGuiHelpers.MessageTime - DateTime.Now).TotalSeconds;
                     if (t > 0)
                     {
-                        Gizmos2D.Text(view.ScreenCamera, new Vec2(view.RenderTarget.Size.X / 2, view.RenderTarget.Size.Y - 90), 80, new Color(1, 1, 0, 1.5f - (1.5f - t) * (1.5f - t)), ImGuiHelpers.LastMessage, centered: true);
+                        Gizmos2D.Text(view.ScreenCamera, new Vec2(view.RenderTarget.Size.X / 2f, view.RenderTarget.Size.Y - 90), 80, new Color(1, 1, 0, 1.5f - (1.5f - t) * (1.5f - t)), ImGuiHelpers.LastMessage, centered: true);
                     }
                 }
             });

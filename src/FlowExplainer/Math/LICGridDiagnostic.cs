@@ -7,18 +7,26 @@ namespace FlowExplainer;
 
 public static class ParallelGrid
 {
-    public static void Run(Vec2i grid, Action<int, int> action)
+    public static void For(Vec2i gridSize, Action<int, int> action)
     {
-        Parallel.ForEach(Partitioner.Create(0, grid.X * grid.Y), range =>
+        Parallel.ForEach(Partitioner.Create(0, gridSize.X * gridSize.Y), range =>
         {
             for (int i = range.Item1; i < range.Item2; i++)
             {
-                var x = i % grid.X;
-                var y = i / grid.X;
+                var x = i % gridSize.X;
+                var y = i / gridSize.X;
                 action(x, y);
             }
         });
+    }
 
+    public static void RunMainThread(Vec2i grid, Action<int, int> action)
+    {
+        for (int i = 0; i < grid.X; i++)
+        for (int j = 0; j < grid.Y; j++)
+        {
+            action(i, j);
+        }
     }
 }
 
@@ -33,7 +41,7 @@ public static class LIC
         var domain = output.Domain;
         var cellSize = domain.Boundary.Size.X / output.GridSize.X;
         var domainBoundary = domain.Boundary;
-        ParallelGrid.Run(output.GridSize, (x, y) =>
+        ParallelGrid.For(output.GridSize, (x, y) =>
         {
             ref var atCoords = ref output.AtCoords(new Vec2i(x, y));
             atCoords = 0;
@@ -123,7 +131,7 @@ public class LICGridDiagnostic : IGridDiagnostic
         var renderGrid = gridVisualizer.RegularGrid;
 
         var dat = gridVisualizer.GetRequiredWorldService<DataService>()!;
-        var domain = dat.VelocityField.Domain;
+        var domain = dat.VectorField.Domain;
 
 
 
@@ -134,10 +142,10 @@ public class LICGridDiagnostic : IGridDiagnostic
             licField.Resize(gridVisualizer.RegularGrid.GridSize, gridVisualizer.RegularGrid.RectDomain);
 
 
-        LIC.Compute(NoiseField, dat.VelocityField, licField, t, arcLength);
+        LIC.Compute(NoiseField, dat.VectorField, licField, t, arcLength);
         var licMin = licField.Grid.Data.Min();
         var licMax = licField.Grid.Data.Max();
-        ParallelGrid.Run(renderGrid.GridSize, (i, j) =>
+        ParallelGrid.For(renderGrid.GridSize, (i, j) =>
         {
             var lic = licField.Grid[new Vec2i(i, j)];
             ref var cell = ref renderGrid.Grid.AtCoords(new Vec2i(i, j));
@@ -177,8 +185,8 @@ public class LICGridDiagnostic : IGridDiagnostic
     public void OnImGuiEdit(GridVisualizer vis)
     {
         var dat = vis.GetRequiredWorldService<DataService>()!;
-        float period = dat.VelocityField.Domain.Boundary.Size.Last;
-        ImGuiHelpers.SliderFloat("arc length", ref arcLength, 0, dat.VelocityField.Domain.Boundary.Size.X / 5);
+        float period = dat.VectorField.Domain.Boundary.Size.Last;
+        ImGuiHelpers.SliderFloat("arc length", ref arcLength, 0, dat.VectorField.Domain.Boundary.Size.X / 5);
         ImGui.Checkbox("modulate by temp", ref modulateByTemp);
     }
 }

@@ -28,10 +28,10 @@ public class Heat3DViewer : WorldService
     {
         if (!view.Is3DCamera)
             return;
-        if (lastVelField != GetRequiredWorldService<DataService>().VelocityField)
+        if (lastVelField != GetRequiredWorldService<DataService>().VectorField)
         {
             Initialize();
-            lastVelField = GetRequiredWorldService<DataService>().VelocityField;
+            lastVelField = GetRequiredWorldService<DataService>().VectorField;
         }
         // Update();
 

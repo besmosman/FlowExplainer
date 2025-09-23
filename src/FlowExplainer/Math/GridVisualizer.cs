@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Numerics;
 using ImGuiNET;
 using OpenTK.Graphics.OpenGL4;
@@ -43,7 +44,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
     public StorageBuffer<CellData> gridbuffer;
     private Material material;
 
-    public bool AutoScale =true;
+    public bool AutoScale = true;
     public List<IGridDiagnostic> Diagnostics =
     [
         //new VelocityMagnitudeGridDiagnostic(),
@@ -53,6 +54,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         new FTLEGridDiagnostic(),
         new LAVDGridDiagnostic(),
         new LcsVelocityMagnitudeGridDiagnostic(),
+        new HeatStructureGridDiagnostic(),
         // new CustomGridDiagnostic(),
         //new FTLEvsCustomGridDiagnostic(),
     ];
@@ -70,11 +72,11 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         
         diagnostic = visualizer;
         var dat = GetRequiredWorldService<DataService>();
-        var aspect = Vec2.Normalize(dat.VelocityField.Domain.Boundary.Size.Down());
+        var aspect = Vec2.Normalize(dat.VectorField.Domain.Boundary.Size.Down());
         float scale = MathF.Sqrt(TargetCellCount / (aspect.X * aspect.Y));
         int width = Math.Max(1, (int)Math.Round(aspect.X * scale));
         int height = Math.Max(1, (int)Math.Round(aspect.Y * scale));
-        RegularGrid = new(new Vec2i(width, height), dat.VelocityField.Domain.Boundary.Min.XY, dat.VelocityField.Domain.Boundary.Max.XY);
+        RegularGrid = new(new Vec2i(width, height), dat.VectorField.Domain.Boundary.Min.XY, dat.VectorField.Domain.Boundary.Max.XY);
         gridbuffer = new StorageBuffer<CellData>(RegularGrid.Grid.Data);
     }
 
@@ -88,10 +90,10 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         if (diagnostic != null)
         {
             var dat = GetRequiredWorldService<DataService>();
-            if (lastVelField != dat.VelocityField)
+            if (lastVelField != dat.VectorField)
             {
                 MarkDirty = true;
-                lastVelField = dat.VelocityField;
+                lastVelField = dat.VectorField;
                 Resize();
             }
 
@@ -117,19 +119,22 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             gridbuffer.Use();
 
             Gizmos2D.imageQuadInvertedY.Draw();
-            var boundary = dat.VelocityField.Domain.Boundary;
+            var boundary = dat.VectorField.Domain.Boundary;
         }
     }
 
     private float min;
     private float max;
-
+    private Stopwatch s = new();
     private void UpdateData()
     {
         if (diagnostic == null)
             throw new Exception();
 
+        s.Restart();
         diagnostic.UpdateGridData(this);
+        if (s.Elapsed.TotalSeconds > 1 / 5f)
+            Continous = false;
         gridbuffer.Use();
         gridbuffer.Upload();
         min = float.MaxValue;
@@ -186,12 +191,12 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
     private void Resize()
     {
         var dat = GetRequiredWorldService<DataService>();
-        var aspect = Vec2.Normalize(dat.VelocityField.Domain.Boundary.Size.Down());
+        var aspect = Vec2.Normalize(dat.VectorField.Domain.Boundary.Size.Down());
         float scale = MathF.Sqrt(TargetCellCount / (aspect.X * aspect.Y));
         int width = Math.Max(1, (int)Math.Round(aspect.X * scale));
         int height = Math.Max(1, (int)Math.Round(aspect.Y * scale));
         bool interpolate = RegularGrid.Interpolate;
-        RegularGrid = new(new Vec2i(width, height), dat.VelocityField.Domain.Boundary.Min.XY, dat.VelocityField.Domain.Boundary.Max.XY);
+        RegularGrid = new(new Vec2i(width, height), dat.VectorField.Domain.Boundary.Min.XY, dat.VectorField.Domain.Boundary.Max.XY);
         RegularGrid.Interpolate = interpolate;
         gridbuffer = new(RegularGrid.Grid.Data);
     }
@@ -210,8 +215,8 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
     }
     public float ScaleScaler(float value)
     {
-        if(AutoScale)
-            return (value - min) / (max-min);
+        if (AutoScale)
+            return (value - min) / (max - min);
         return value;
     }
 }

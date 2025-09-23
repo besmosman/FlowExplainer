@@ -48,7 +48,7 @@ public class BasicLagrangianHeatSim
             p.Position = positions[i];
             p.Heat = .5f;
             p.LastHeat = p.Heat;
-            p.Tag = p.Position.X < rect.Center.X ? 1 : 0;
+            p.Tag = p.Position.Y > rect.Center.Y ? 1 : 0;
         }
     }
 

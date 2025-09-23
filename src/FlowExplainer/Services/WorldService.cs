@@ -11,7 +11,8 @@ public abstract class WorldService : Service
     public virtual ToolCategory Category => ToolCategory.Flow;
     public World World { get; internal set; } = null!;
     public bool IsEnabled { get; set; } = false;
-
+    public bool IsInitialzied { get; set; }
+    
     public virtual void OnEnable()
     {
     }
@@ -19,6 +20,11 @@ public abstract class WorldService : Service
     public void Enable()
     {
         IsEnabled = true;
+        if (!IsInitialzied)
+        {
+            Initialize();
+            IsInitialzied = true;
+        }
         OnEnable();
     }
     

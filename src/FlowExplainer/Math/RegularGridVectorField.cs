@@ -92,6 +92,11 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
     {
         return ref Grid.AtCoords(v);
     }
+    
+    public ref TData AtPos(Vec v)
+    {
+        return ref Grid.AtCoords(ToVoxelCoord(v).Floor());
+    }
 
     public Vec ToVoxelCoord(Vec worldpos)
     {
@@ -102,7 +107,7 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
             var min = RectDomain.MinPos[i];
             var wpos = worldpos[i];
             var percentiel = (wpos - min) / (max - min);
-            voxelPos[i] = percentiel * GridSize[i];
+            voxelPos[i] = percentiel * (GridSize[i]-1);
         }
 
         return voxelPos;

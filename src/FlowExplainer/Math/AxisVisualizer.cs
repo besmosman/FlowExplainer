@@ -32,7 +32,7 @@ public class AxisVisualizer : WorldService
     public override void Draw(RenderTexture rendertarget, View view)
     {
         var dat = GetRequiredWorldService<DataService>();
-        var domain = dat.VelocityField.Domain.Boundary;
+        var domain = dat.VectorField.Domain.Boundary;
         if (!view.Is2DCamera)
         {
             /*var th = .02f;
@@ -45,7 +45,7 @@ public class AxisVisualizer : WorldService
             return;
         }
 
-        var color = new Color(1, 1, 1, 1);
+        var color = Color.White;
         var thickness = 4f;
         var margin = 0f;
 

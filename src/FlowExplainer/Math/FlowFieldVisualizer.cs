@@ -16,7 +16,7 @@ public class BickleyJet : IVectorField<Vec3, Vec2>
     public float p = 1.225f;
 
     public float Period => 1;
-    public IDomain<Vec3> Domain => new RectDomain<Vec3>(new Vec3(.1f, -2, 0), new Vec3(5f, 2, 1));
+    public IDomain<Vec3> Domain => new RectDomain<Vec3>(new Vec3(.1f, -.2f, 0), new Vec3(5f, .2f, 1));
 
     public float sech(float x)
     {
@@ -50,13 +50,13 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
     public override void DrawImGuiEdit()
     {
         var dat = GetRequiredWorldService<DataService>();
-        var domainArea = dat.VelocityField.Domain.Boundary.Size.X * dat.VelocityField.Domain.Boundary.Size.Y;
+        var domainArea = dat.VectorField.Domain.Boundary.Size.X * dat.VectorField.Domain.Boundary.Size.Y;
 
 
         ImGui.SliderInt("Grid Cells", ref GridCells, 0, 1500);
         ImGuiHelpers.SliderFloat("Length", ref Length, 0, 1);
         ImGui.Checkbox("Color by gradient", ref colorByGradient);
-        ImGuiHelpers.SliderFloat("Thickness", ref Thickness, 0, dat.VelocityField.Domain.Boundary.Size.Length() / 10f);
+        ImGuiHelpers.SliderFloat("Thickness", ref Thickness, 0, dat.VectorField.Domain.Boundary.Size.Length() / 10f);
         ImGui.Checkbox("Auto Resize", ref AutoResize);
         base.DrawImGuiEdit();
     }
@@ -75,7 +75,7 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
     {
         var dat = GetRequiredWorldService<DataService>();
 
-        var domain = dat.VelocityField.Domain.Boundary;
+        var domain = dat.VectorField.Domain.Boundary;
         var domainSize = domain.Size.Down();
         var domainArea = domainSize.X * domainSize.Y;
         var spacing = MathF.Sqrt(domainArea / GridCells);
@@ -88,7 +88,7 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
             {
                 var rel = new Vec2(x + .5f, y + .5f) / gridSize.ToVec2();
                 var pos = rel * domainSize + domain.Min.Down();
-                var dir = dat.VelocityField.Evaluate(pos.Up(dat.SimulationTime));
+                var dir = dat.VectorField.Evaluate(pos.Up(dat.SimulationTime));
                 if (float.IsNaN(dir.X) || float.IsNaN(dir.Y))
                     continue;
                 maxDirLenght2 = MathF.Max(maxDirLenght2, dir.LengthSquared());
@@ -100,7 +100,7 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
             {
                 var rel = new Vec2(x + .5f, y + .5f) / gridSize.ToVec2();
                 var pos = rel * domainSize + domain.Min.Down();
-                var dir = dat.VelocityField.Evaluate(pos.Up(dat.SimulationTime));
+                var dir = dat.VectorField.Evaluate(pos.Up(dat.SimulationTime));
                 if (float.IsNaN(dir.X) || float.IsNaN(dir.Y))
                     continue;
 

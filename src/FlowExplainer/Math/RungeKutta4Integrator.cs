@@ -27,6 +27,7 @@ public class RungeKutta4IntegratorGen<TInput, TOutput> : IIntegrator<TInput, TOu
             return p + (dt / 6) * (k1 + 2 * k2 + 2 * k3 + k4);
         }
         
-        return p + f.Evaluate(p.Up(t));
+        return p + dt * f.Evaluate(p.Up(t));
+        
     }
 }

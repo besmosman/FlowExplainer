@@ -26,7 +26,7 @@ public class FlowVisService : WorldService
     {
         Particles = new Particle[10000];
         var dat = GetRequiredWorldService<DataService>();
-        var bounds = dat.VelocityField.Domain;
+        var bounds = dat.VectorField.Domain;
         foreach (ref var p in Particles.AsSpan())
         {
             p.StartPos = Utils.Random(bounds.Boundary.Reduce<Vec2>());
@@ -42,10 +42,9 @@ public class FlowVisService : WorldService
     public override void Update()
     {
         var dat = GetRequiredWorldService<DataService>();
-        var velField = dat.VelocityField;
-        var instantField = new InstantFieldVersion<Vec3, Vec2, Vec2>(velField, dat.SimulationTime);
+        var velField = new ArbitraryField<Vec3, Vec2>(dat.VectorField.Domain, (p)=> dat.VectorField.Evaluate(p)*100);
 
-        float dt = .001f;
+        float dt = 1/100f;
         foreach (ref var p in Particles.AsSpan())
         {
             p.CurPos = IIntegrator<Vec3, Vec2>.Rk4.Integrate(velField, p.CurPos.Up(t), dt);
@@ -64,7 +63,7 @@ public class FlowVisService : WorldService
         var dat = GetRequiredWorldService<DataService>();
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
 
-        t += FlowExplainer.DeltaTime / 150f;
+        t += FlowExplainer.DeltaTime / 100;
         RenderTexture.DrawTo(() =>
         {
             //GL.Clear(ClearBufferMask.ColorBufferBit);
@@ -75,10 +74,10 @@ public class FlowVisService : WorldService
                 Gizmos2D.Instanced.RegisterCircle(p.CurPos, .001f, col);
             }
 
-            Gizmos2D.Instanced.RenderCircles(view.Camera2D.RenderTargetRelative(RenderTexture, dat.VelocityField.Domain.Boundary.Reduce<Vec2>()));
+            Gizmos2D.Instanced.RenderCircles(view.Camera2D.RenderTargetRelative(RenderTexture, dat.VectorField.Domain.Boundary.Reduce<Vec2>()));
         });
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-        Gizmos2D.ImageCentered(view.Camera2D, RenderTexture, dat.VelocityField.Domain.Boundary.Center.XY, dat.VelocityField.Domain.Boundary.Size.XY);
+        Gizmos2D.ImageCenteredInvertedY(view.Camera2D, RenderTexture, dat.VectorField.Domain.Boundary.Center.XY, dat.VectorField.Domain.Boundary.Size.XY);
 
     }
 
@@ -87,7 +86,7 @@ public class FlowVisService : WorldService
         ImGui.Text("wo");
         if (ImGui.Button("init"))
         {
-            t = 0;
+            t = GetRequiredWorldService<DataService>().SimulationTime;
             Init();
         }
         

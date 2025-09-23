@@ -31,6 +31,7 @@
             v.AddVisualisationService(new HeatSimulationViewData());
             v.AddVisualisationService(new HeatSimulationVisualizer());
             v.AddVisualisationService(new GridVisualizer());
+            v.AddVisualisationService(new ParticleLagrangianTest());
             v.AddVisualisationService(new FlowDirectionVisualization());
             v.AddVisualisationService(new HeatSimulation3DVisualizer());
             v.AddVisualisationService(new HeatSimulationService());

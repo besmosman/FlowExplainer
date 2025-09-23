@@ -2,54 +2,60 @@ using System.Numerics;
 
 namespace FlowExplainer;
 
-public static class GridComputations
-{
-    public static RegularGrid<Veci, TData> Multiply<Veci, TData, TN>(TN v, RegularGrid<Veci, TData> grid)
-        where Veci : IVec<Veci, int>
-        where TData : IMultiplyOperators<TData, TN, TData>
-    {
-        var r = new RegularGrid<Veci, TData>(grid.GridSize);
-        for (int i = 0; i < grid.Data.Length; i++)
-            r.Data[i] = grid.Data[i] * v;
-        return r;
-    }
-}
-
 public static class Scripting
 {
     public static void Startup(World world)
     {
-        var v = world.GetWorldService<FlowVisService>();
-        v.Enable();
-        
+        SetGyreDataset(world);
+        var presentationService = world.FlowExplainer.GetGlobalService<PresentationService>()!;
+        //presentationService.LoadPresentation(new TestPresentation());
+        //presentationService.StartPresenting();
         return;
+        SetGyreDataset(world);
+        world.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
+        var v = world.GetWorldService<GridVisualizer>();
+        v.Enable();
+        v.SetGridDiagnostic(new FunctionGridDiagnostic()
+        {
+            T = 950,
+        });
         
-        var gridVisualizer = world.GetWorldService<GridVisualizer>();
-        var dataService = world.GetWorldService<DataService>();
-        gridVisualizer.Enable();
-        dataService.ColorGradient = Gradients.GetGradient("BlueGrayRed");
-        gridVisualizer.SetGridDiagnostic(new TemperatureGridDiagnostic());
-
-        string fieldsFolder = "speetjens-computed-fields";
-       // ComputeSpeetjensFields(dataService, fieldsFolder);
-
-        var diffFlux = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "diffFlux.field"));
-        var convFlux = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "convectiveHeatFlux.field"));
-        var tempTot = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
-        var tempConvection = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
-        /*
-        dataService.VelocityField =convFlux;
-        dataService.TempratureField = tempConvection;
-        */
-
-        
-        
-        //dataService.VelocityField = velocityField;
-        ///dataService.TempratureField = tempTot;
-
-        //dataService.VelocityField = field ;
-        //dataService.TempratureField =  tempConvection;
+        world.GetWorldService<DataService>().ColorGradient = Gradients.GetGradient("matlab_jet");
     }
+    
+    
+    private static void SetBickly(World world)
+    {
+        var dat = world.GetWorldService<DataService>();
+        dat.VectorFields.Add("Velocity", new BickleyJet2());
+    }
+
+    private static void SetGyreDataset(World world)
+    {
+        var dat = world.GetWorldService<DataService>();
+        string fieldsFolder = "speetjens-computed-fields";
+        var DiffFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "diffFlux.field"));
+        var ConvFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "convectiveHeatFlux.field"));
+        var TempConvection = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
+        var TempTot = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
+        var TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));
+        var totalFlux = new ArbitraryField<Vec3, Vec2>(DiffFluxField.Domain, p => DiffFluxField.Evaluate(p) + ConvFluxField.Evaluate(p));
+
+        dat.VectorFields.Add("Velocity", new SpeetjensVelocityField()
+        {
+            epsilon = .1f,
+        });
+
+        dat.VectorFields.Add("Diffusion Flux", DiffFluxField);
+        dat.VectorFields.Add("Convection Flux", ConvFluxField);
+        dat.VectorFields.Add("Total Flux", totalFlux);
+        dat.ScalerFields.Add("Total Temperature", TempTot);
+        dat.ScalerFields.Add("Convective Temperature", TempConvection);
+        dat.ScalerFields.Add("No Flow Temperature", TempTotNoFlow);
+
+        // TempratureField = temprature;
+    }
+
     private static void ComputeSpeetjensFields(DataService dataService, string folder)
     {
         string datasetPath = Config.GetValue<string>("spectral-data-path")!;
@@ -68,8 +74,8 @@ public static class Scripting
         var tempConvection = new SpectralField(new RegularGrid<Vec3i, Complex>(tempTot.Usps.GridSize), tempTot.Rect); //TCONVspTOT
         for (int i = 0; i < tempConvection.Usps.Data.Length; i++)
             tempConvection.Usps.Data[i] = tempTot.Usps.Data[i] - tempNoFlow.Usps.Data[i];
-        
-        
+
+
         float t = .9f;
         var heatFlux = new ArbitraryField<Vec3, Vec2>(tempTot.Domain, pos =>
             velocityField.Evaluate(pos) * tempTot.Evaluate(pos));
