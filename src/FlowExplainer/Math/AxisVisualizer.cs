@@ -45,7 +45,7 @@ public class AxisVisualizer : WorldService
             return;
         }
 
-        var color = Color.White;
+        var color = Style.Current.TextColor;
         var thickness = 4f;
         var margin = 0f;
 
@@ -64,20 +64,20 @@ public class AxisVisualizer : WorldService
 
             if (!GetGlobalService<PresentationService>().IsPresenting)
             {
-                
-            string title = "";
-            var gridVisualizer = GetWorldService<GridVisualizer>();
-            if (gridVisualizer.IsEnabled)
-            {
-                title += $"{gridVisualizer.GetTitle()} ({dat.currentSelectedScaler.Replace("Temperature2", "").Trim()})";
-            }
 
-            if (GetWorldService<FlowFieldVisualizer>().IsEnabled || GetWorldService<FlowDirectionVisualization>().IsEnabled)
-            {
-                title += $" + {dat.currentSelectedVectorField.Replace("Temperature", "").Trim()} field";
-            }
+                string title = "";
+                var gridVisualizer = GetWorldService<GridVisualizer>();
+                if (gridVisualizer.IsEnabled)
+                {
+                    title += $"{gridVisualizer.GetTitle()} ({dat.currentSelectedScaler.Replace("Temperature2", "").Trim()})";
+                }
 
-            Gizmos2D.Text(view.ScreenCamera, new Vec2((lb.X + rb.X) / 2, lt.Y - lh * 2), lh, color, title, centered: true);
+                if (GetWorldService<FlowFieldVisualizer>().IsEnabled || GetWorldService<FlowDirectionVisualization>().IsEnabled)
+                {
+                    title += $" + {dat.currentSelectedVectorField.Replace("Temperature", "").Trim()} field";
+                }
+
+                Gizmos2D.Text(view.ScreenCamera, new Vec2((lb.X + rb.X) / 2, lt.Y - lh * 2), lh, color, title, centered: true);
             }
             for (int i = 0; i <= StepsX; i++)
             {

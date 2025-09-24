@@ -6,10 +6,10 @@ namespace FlowExplainer;
 
 public class FlowDirectionVisualization : WorldService
 {
-    private int posPer = 64;
-    private int amount = 1600;
-    private float thickness = .003f;
-    private float speed = 1;
+    private int posPer = 32;
+    public int amount = 1600;
+    public float thickness = .003f;
+    public float speed = 1;
     private Vec2[] centers;
 
     public float opacity = .21f;
@@ -70,19 +70,32 @@ public class FlowDirectionVisualization : WorldService
             var pos = velField.Domain.Boundary.Reduce<Vec2>().Relative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
 
             span.Fill(pos);
-            PerData[i].TimeAlive = -Random.Shared.NextSingle() * 5;
+            PerData[i].TimeAlive = Random.Shared.NextSingle() * 5;
         }
     }
 
     float end = 2;
     public float dt = .001f;
     public float avgSpeed = 0f;
+    public float lastSimTime = 0f;
     public override void Update()
     {
         var dat = GetRequiredWorldService<DataService>();
         var velField = dat.VectorField;
         var instantField = new InstantFieldVersionLowerDim<Vec3, Vec2, Vec2>(velField, dat.SimulationTime);
         var velMag = 0f;
+        if (dat.SimulationTime != lastSimTime)
+        {
+            for (int i = 0; i < amount; i++)
+            {
+                PerData[i].TimeAlive =  -Random.Shared.NextSingle()*4;
+                var pos = velField.Domain.Boundary.Reduce<Vec2>().Relative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
+                var span = centers.AsSpan(i * posPer, posPer);
+                span.Fill(pos);
+            }
+        }
+        lastSimTime = dat.SimulationTime;
+        int c = 0;
         for (int i = 0; i < amount; i++)
         {
             var span = centers.AsSpan(i * posPer, posPer);
@@ -90,25 +103,29 @@ public class FlowDirectionVisualization : WorldService
             {
                 var pos = velField.Domain.Boundary.Reduce<Vec2>().Relative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
                 span.Fill(pos);
-                PerData[i].TimeAlive = -Random.Shared.NextSingle();
+                PerData[i].TimeAlive = -Random.Shared.NextSingle()*5;
             }
 
-            var lastPos = span[posPer - 1];
-            var newPos = lastPos;
-            if (instantField.TryEvaluate(lastPos, out var vel) && float.IsRealNumber(vel.X))
+            if (PerData[i].TimeAlive > 0)
             {
-                velMag += vel.Length();
-                if (instantField.Domain.IsWithinPhase(lastPos))
-                    newPos += vel * (speed/ avgSpeed);
+                var lastPos = span[posPer - 1];
+                var newPos = lastPos;
+                if (instantField.TryEvaluate(lastPos, out var vel) && float.IsRealNumber(vel.X))
+                {
+                    velMag += vel.Length();
+                    if (instantField.Domain.IsWithinPhase(lastPos))
+                        newPos += vel * (speed / avgSpeed) * FlowExplainer.DeltaTime * .01f;
+                }
+                for (int j = 0; j < span.Length - 1; j++)
+                {
+                    span[j] = span[j + 1];
+                }
+                span[posPer - 1] = newPos;
+                c++;
             }
-            for (int j = 0; j < span.Length - 1; j++)
-            {
-                span[j] = span[j + 1];
-            }
-            span[posPer - 1] = newPos;
             PerData[i].TimeAlive += FlowExplainer.DeltaTime;
         }
-        avgSpeed = velMag;
+        avgSpeed = velMag/c;
         base.Update();
     }
 

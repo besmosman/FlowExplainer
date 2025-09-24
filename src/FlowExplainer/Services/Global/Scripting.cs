@@ -8,29 +8,55 @@ public static class Scripting
     {
         SetGyreDataset(world);
         var presentationService = world.FlowExplainer.GetGlobalService<PresentationService>()!;
-        //presentationService.LoadPresentation(new TestPresentation());
-        //presentationService.StartPresenting();
-        return;
-        SetGyreDataset(world);
+        presentationService.LoadPresentation(new HeatStructuresPresentation());
+        presentationService.StartPresenting();
+      return;
+      
         world.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
         var v = world.GetWorldService<GridVisualizer>();
         v.Enable();
-        v.SetGridDiagnostic(new FunctionGridDiagnostic()
-        {
-            T = 950,
-        });
+        v.TargetCellCount = 100000;
         
-        world.GetWorldService<DataService>().ColorGradient = Gradients.GetGradient("matlab_jet");
+        var dat = world.GetWorldService<DataService>();
+        dat.currentSelectedVectorField = "Diffusion Flux";
+        var heatStructureGridDiagnostic = new HeatStructureGridDiagnostic()
+        {
+            T = .0001f,
+            M = 4,
+            // K = 25,
+        };
+        v.SetGridDiagnostic(heatStructureGridDiagnostic);
+
+        /*
+        v.Save("diffusion-sinks.field", .0f, 1f, 100);
+        heatStructureGridDiagnostic.Reverse = true;
+        v.Save("diffusion-sources.field", .0f, 1f, 100);
+        */
+        
+        
+        dat.currentSelectedVectorField = "Convection Flux";
+        heatStructureGridDiagnostic.Reverse = false;
+        v.Save("convection-sinks.field", .0f, 1f, 100);
+        heatStructureGridDiagnostic.Reverse = true;
+        v.Save("convection-sources.field", .0f, 1f, 100);
+        
+        world.GetWorldService<DataService>().ColorGradient = Gradients.Parula;
+        var regularGridVectorField = RegularGridVectorField<Vec3, Vec3i, float>.Load("sources.field");
+        dat.ScalerFields.Add("sources", regularGridVectorField);
+        dat.currentSelectedScaler = "sources";
+        v.SetGridDiagnostic(new TemperatureGridDiagnostic());
+        v.Continous = true;
     }
-    
-    
-    private static void SetBickly(World world)
+
+
+    public static void SetBickly(World world)
     {
         var dat = world.GetWorldService<DataService>();
         dat.VectorFields.Add("Velocity", new BickleyJet2());
     }
 
-    private static void SetGyreDataset(World world)
+
+    public static void SetGyreDataset(World world)
     {
         var dat = world.GetWorldService<DataService>();
         string fieldsFolder = "speetjens-computed-fields";
@@ -40,12 +66,14 @@ public static class Scripting
         var TempTot = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
         var TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));
         var totalFlux = new ArbitraryField<Vec3, Vec2>(DiffFluxField.Domain, p => DiffFluxField.Evaluate(p) + ConvFluxField.Evaluate(p));
-
-        dat.VectorFields.Add("Velocity", new SpeetjensVelocityField()
+        var velocityField = new SpeetjensVelocityField()
         {
             epsilon = .1f,
-        });
+        };
 
+        dat.VectorFields.Clear();
+        dat.ScalerFields.Clear();
+        dat.VectorFields.Add("Velocity", velocityField);
         dat.VectorFields.Add("Diffusion Flux", DiffFluxField);
         dat.VectorFields.Add("Convection Flux", ConvFluxField);
         dat.VectorFields.Add("Total Flux", totalFlux);

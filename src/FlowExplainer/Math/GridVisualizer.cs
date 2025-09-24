@@ -27,9 +27,9 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         {
             return new CellData
             {
-                Value = left.Value * right.Value,
-                Color = left.Color * right.Color,
-                Marked = left.Marked * right.Marked,
+                Value = left.Value + right.Value,
+                Color = left.Color + right.Color,
+                Marked = left.Marked + right.Marked,
             };
         }
     }
@@ -69,7 +69,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
     {
         if (visualizer.GetType() == typeof(LICGridDiagnostic))
             Continous = false;
-        
+
         diagnostic = visualizer;
         var dat = GetRequiredWorldService<DataService>();
         var aspect = Vec2.Normalize(dat.VectorField.Domain.Boundary.Size.Down());
@@ -78,6 +78,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         int height = Math.Max(1, (int)Math.Round(aspect.Y * scale));
         RegularGrid = new(new Vec2i(width, height), dat.VectorField.Domain.Boundary.Min.XY, dat.VectorField.Domain.Boundary.Max.XY);
         gridbuffer = new StorageBuffer<CellData>(RegularGrid.Grid.Data);
+        MarkDirty = true;
     }
 
     private object lastVelField;
@@ -218,5 +219,30 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         if (AutoScale)
             return (value - min) / (max - min);
         return value;
+    }
+    public void Save(string path, float t_start, float t_end, int timeSteps)
+    {
+        MarkDirty = true;
+        UpdateData();
+        
+        var gridSize = new Vec3i(RegularGrid.Grid.GridSize.X /1, RegularGrid.Grid.GridSize.Y / 1, timeSteps);
+        var domain = new Rect<Vec3>(RegularGrid.Domain.Boundary.Min.Up(t_start), RegularGrid.Domain.Boundary.Max.Up(t_end));
+        var spatialDomain = domain.Reduce<Vec2>();
+        var field = new RegularGridVectorField<Vec3, Vec3i, float>(gridSize, new RectDomain<Vec3>(domain));
+
+        for (int i_t = 0; i_t < timeSteps-1; i_t++)
+        {
+            float t = float.Lerp(t_start, t_end, i_t / (float)(timeSteps - 1));
+            GetRequiredWorldService<DataService>().SimulationTime = t;
+            MarkDirty = true;
+            UpdateData();
+            ParallelGrid.For(gridSize.XY, (i_x, i_y) =>
+            {
+                var pos = spatialDomain.Relative(new Vec2(i_x + .5f, i_y + .5f) / gridSize.XY.ToVec2());
+                field.AtCoords(new Vec3i(i_x, i_y, i_t)) = RegularGrid.Evaluate(pos).Value;
+            });
+        }
+
+        field.Save(path);
     }
 }

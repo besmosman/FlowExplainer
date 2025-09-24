@@ -31,7 +31,7 @@ namespace FlowExplainer
         public bool Is2DCamera => !Is3DCamera;
         public Camera Camera = new();
         public Camera2D Camera2D = new();
-        public Color ClearColor = new(15 / 255f, 15 / 255f, 15 / 255f);
+        public Color? AltClearColor;
         public World World;
         public readonly RenderTexture RenderTarget;
         public readonly RenderTexture PostProcessingTarget;
@@ -39,6 +39,9 @@ namespace FlowExplainer
         public IViewController Controller = new DefaultViewController();
 
         public Vec2 lastClickPos = Vec2.Zero;
+        public bool IsMouseButtonDownLeft;
+        public bool IsMouseButtonPressedLeft;
+        public Vec2 MousePosition;
         public Vec2 startCamPos = Vec2.Zero;
 
         /// <summary>

@@ -8,6 +8,7 @@ public class PresiChildViewController : IViewController
 {
     public void UpdateAndDraw(View view)
     {
+      
         view.ResizeToTargetSize();
         view.World.Draw(view);
     }

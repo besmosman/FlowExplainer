@@ -1,4 +1,5 @@
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace FlowExplainer;
 
@@ -15,12 +16,28 @@ public class PresentationViewController : IViewController
         if (presiView.IsFullScreen)
         {
             presiView.TargetSize = size;
+            presiView.RelativeMousePosition = new Vec2(window.MousePosition.X, window.MousePosition.Y);
         }
         else
         {
             ImGUIViewRenderer.Render(presiView, FlowExplainer);
         }
 
+        if (presiView.RelativeMousePosition.X >= 0 &&
+            presiView.RelativeMousePosition.Y >= 0 &&
+            presiView.RelativeMousePosition.X < presiView.Size.X &&
+            presiView.RelativeMousePosition.Y < presiView.Size.Y)
+        {
+            var mousePos = CoordinatesConverter2D.ViewToWorld(presiView, presiView.RelativeMousePosition);
+            presiView.MousePosition = mousePos;
+            presiView.IsMouseButtonDownLeft = window.IsMouseButtonDown(MouseButton.Left);
+            presiView.IsMouseButtonPressedLeft = window.IsMouseButtonPressed(MouseButton.Left);
+
+            if (window.IsMouseButtonPressed(MouseButton.Right))
+            {
+                presiView.startCamPos = presiView.Camera2D.Position;
+            }
+        }
         presiView.ResizeToTargetSize();
 
         var pre = FlowExplainer.GetGlobalService<PresentationService>()!;
@@ -28,7 +45,8 @@ public class PresentationViewController : IViewController
 
         presiView.RenderTarget.DrawTo(() =>
         {
-            GL.ClearColor(presiView.ClearColor.R, presiView.ClearColor.G, presiView.ClearColor.B, presiView.ClearColor.A);
+            var clearColor = presiView.AltClearColor ?? Style.Current.BackgroundColor;
+            GL.ClearColor(clearColor.R, clearColor.G, clearColor.B, clearColor.A);
             GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
             pre.CurrentSlide.Draw();
         });

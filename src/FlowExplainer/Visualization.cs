@@ -91,7 +91,8 @@ namespace FlowExplainer
 
             view.RenderTarget.DrawTo(() =>
             {
-                GL.ClearColor(view.ClearColor.R, view.ClearColor.G, view.ClearColor.B, view.ClearColor.A);
+                var clearColor = view.AltClearColor ?? Style.Current.BackgroundColor;
+                GL.ClearColor(clearColor.R, clearColor.G,clearColor.B,clearColor.A);
                 GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
                 foreach (var service in Services)
                 {

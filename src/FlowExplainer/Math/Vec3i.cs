@@ -7,6 +7,7 @@ namespace FlowExplainer
         public int X;
         public int Y;
         public int Z;
+        public Vec2i XY => new(X,Y);
 
         public Vec3i(int x, int y, int z)
         {

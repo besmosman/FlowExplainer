@@ -43,6 +43,7 @@ public class ParticleLagrangianTest : WorldService
             {
                 float t = Utils.Lerp(entry.Trajectory.Entries[0].Z, entry.Trajectory.Entries[^1].Z, f);
                 entry.ValueAt = entry.TrajectoryValues.AtTime(t).X;
+               // entry.ValueAt = entry.TrajectoryValues.Entries.Select(s => s.X).Average();
             }
 
             foreach (var entry in Entries)
@@ -92,8 +93,8 @@ public class ParticleLagrangianTest : WorldService
         var datVectorFieldBack = new ArbitraryField<Vec3, Vec2>(dat.VectorField.Domain, x => dat.VectorField.Evaluate(x));
         var spatialbounds = datVectorField.Domain.Boundary.Reduce<Vec2>();
 
-        spatialbounds.Min -= new Vec2(1.6f, 0);
-        spatialbounds.Max += new Vec2(1.6f, 0);
+       // spatialbounds.Min -= new Vec2(1.6f, 0);
+       // spatialbounds.Max += new Vec2(1.6f, 0);
         //for (int i = 0; i < Entries.Length; i++)
 
 
@@ -101,10 +102,10 @@ public class ParticleLagrangianTest : WorldService
         {
             if (cur.Z == x.Z)
                 return 0;
-            //float ftle = FTLEComputer.Compute(x.XY, x.Z, cur.Z, dat.VectorField, new Vec2(1f / 400f));
-            //return ftle;
-            return (cur - last).Down().Length();
-           // return float.Sin((cur.X - cur.Y * 3) / 1);
+            float ftle = FTLEComputer.Compute(x.XY, x.Z, cur.Z, dat.VectorField, new Vec2(1f / 400f));
+            return ftle;
+            //return (cur - last).Down().Length();
+            return float.Sin(((cur.X) * 4) / 1);
         }
 
         Parallel.For(0, Entries.Length, i =>
@@ -129,6 +130,10 @@ public class ParticleLagrangianTest : WorldService
                 Trajectory = traj,
                 TrajectoryValues = traj.Select((l, s) => new Vec2(F(pos.Up(dat.SimulationTime), l, s), s.Z)),
             };
+            for (int j = 0; j < Entries[i].TrajectoryValues.Entries.Length; j++)
+            {
+                //Entries[i].TrajectoryValues.Entries[j] = Entries[i].TrajectoryValues.Entries[5];
+            }
         });
     }
 }

@@ -26,7 +26,7 @@ public class PresentationService : GlobalService
     {
         Slides = presentation.GetSlides();
         presentation.Setup(FlowExplainer);
-
+        presentation.Presi = Presi;
         PresiView = GetGlobalService<ViewsService>()!.NewView();
         PresiView.Name = "Presentation";
         PresiView.Controller = new PresentationViewController();
@@ -84,7 +84,7 @@ public class PresentationService : GlobalService
         {
             if (window.IsKeyDown(Keys.LeftControl))
             {
-                LoadPresentation(new FirstPresentation());
+                LoadPresentation(new HeatStructuresPresentation());
             }
 
             if (!IsPresenting)

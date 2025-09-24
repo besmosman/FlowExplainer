@@ -30,6 +30,7 @@ public struct Color : IMultiplyOperators<Color, float, Color>,
 
     public static readonly Color White = new Color(1, 1, 1);
     public static Color Black => new Color(0, 0, 0);
+    public static Color Grey(float f) => new Color(f, f, f);
 
     public static Color operator *(Color left, float right)
     {
@@ -90,6 +91,11 @@ public struct Color : IMultiplyOperators<Color, float, Color>,
     public Vec4 ToVec4()
     {
         return new Vec4(R, G, B, A);
+    }
+    
+    public System.Numerics.Vector4 ToNumerics()
+    {
+        return new System.Numerics.Vector4(R, G, B, A);
     }
     public string ToHex()
     {

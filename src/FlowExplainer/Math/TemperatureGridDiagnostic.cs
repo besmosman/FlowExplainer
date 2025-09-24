@@ -9,7 +9,8 @@ public class HeatStructureGridDiagnostic : IGridDiagnostic
     public bool Reverse;
     public float T;
     public float M;
-    public int K;
+    public int K = 1;
+
     public void UpdateGridData(GridVisualizer gridVisualizer)
     {
         var renderGrid = gridVisualizer.RegularGrid;
@@ -17,26 +18,29 @@ public class HeatStructureGridDiagnostic : IGridDiagnostic
         var spaceBounds = dat.VectorField.Domain.Boundary.Reduce<Vec2>();
         float t = dat.SimulationTime;
         var tempratureField = dat.TempratureFieldInstant;
-        var datVectorFieldInstant = new ArbitraryField<Vec3, Vec2>(dat.VectorField.Domain, p => dat.VectorField.Evaluate(p) * (M / T) / K);
+        var datVectorFieldInstant = new ArbitraryField<Vec3, Vec2>(dat.VectorField.Domain, p => dat.VectorField.Evaluate(p) * (M / T));
         if (Reverse)
-            datVectorFieldInstant = new ArbitraryField<Vec3, Vec2>(dat.VectorField.Domain, p => -dat.VectorField.Evaluate(p) * (M / T) / K);
+            datVectorFieldInstant = new ArbitraryField<Vec3, Vec2>(dat.VectorField.Domain, p => -dat.VectorField.Evaluate(p) * (M / T) );
 
         ParallelGrid.For(renderGrid.GridSize, (i, j) => { renderGrid.AtCoords(new Vec2i(i, j)).Value = 0; });
         ParallelGrid.For(renderGrid.GridSize, (i, j) =>
         {
-            for (int k = 0; k < K; k++)
+            //for (int k = 0; k < K; k++)
             {
-
                 var pos = (new Vec2(i, j) / renderGrid.GridSize.ToVec2()) * spaceBounds.Size + spaceBounds.Min;
-                // pos = Utils.RandomInRect(spaceBounds);
-                var trajectory = IFlowOperator<Vec2, Vec3>.Default.Compute(t, t + T * (K + 1) / K, pos, datVectorFieldInstant);
+               // pos = Utils.Random(spaceBounds);
+                var trajectory = IFlowOperator<Vec2, Vec3>.Default.Compute(t, t + T, pos, datVectorFieldInstant);
                 var endPos = trajectory.Entries.Last().Down();
-                //  if (Vec2.Distance(pos, endPos) > .00f /*&& trajectory.Entries.Length == 64 */)
+                for (int index = trajectory.Entries.Length-2; index < trajectory.Entries.Length; index++)
                 {
-                    renderGrid.AtPos(endPos).Value = float.Lerp(renderGrid.AtPos(endPos).Value, 1, .01f / K);
+                    var e = trajectory.Entries[index];
+                    if (spaceBounds.Contains(e.XY) /*&&  Vec2.Distance(pos, endPos) > .00f */ /*&& trajectory.Entries.Length == 64 */)
+                    {
+                        renderGrid.AtPos(e.XY).Value = float.Lerp(renderGrid.AtPos(e.XY).Value, 1, .001f * ((float)index / trajectory.Entries.Length));
+                        //renderGrid.AtPos(endPos).Value += 1;
+                    }
                 }
             }
-            //renderGrid.AtCoords(new Vec2i(i, j)).Value = tempratureField.Evaluate(pos.Up(t)) - tempratureField.Evaluate(trajectory.Entries.Last());
         });
 
         /*

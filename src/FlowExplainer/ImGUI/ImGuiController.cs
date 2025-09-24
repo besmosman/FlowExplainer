@@ -6,11 +6,11 @@ using OpenTK.Mathematics;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using ErrorCode = OpenTK.Graphics.OpenGL4.ErrorCode;
-
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
 using Image = SixLabors.ImageSharp.Image;
 using Vector2 = System.Numerics.Vector2;
+using Vector4 = System.Numerics.Vector4;
 
 namespace FlowExplainer;
 
@@ -67,7 +67,7 @@ public class ImGuiController : IDisposable
         ImGui.SetCurrentContext(context);
         var io = ImGui.GetIO();
         //io.Fonts.AddFontFromFileTTF("Assets\\InterTight\\InterTight.ttf", 18);
-        
+
         io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
         // Enable Docking
         io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
@@ -84,11 +84,103 @@ public class ImGuiController : IDisposable
 
     public static Vec4 highlightColor = new Vec4(.0f, .5f, 1f, 1);
 
-    public static void SetupImGuiStyle()
+public static void SetupImGuiStyle()
+{
+	// test style from ImThemes
+	var style = ImGuiNET.ImGui.GetStyle();
+	
+	style.Alpha = 1.0f;
+	style.DisabledAlpha = 0.800000011920929f;
+	style.WindowPadding = new Vector2(8.0f, 8.0f);
+	style.WindowRounding = 0.0f;
+	style.WindowBorderSize = 0.0f;
+	style.WindowMinSize = new Vector2(32.0f, 32.0f);
+	style.WindowTitleAlign = new Vector2(0.0f, 0.5f);
+	style.WindowMenuButtonPosition = ImGuiDir.Left;
+	style.ChildRounding = 0.0f;
+	style.ChildBorderSize = 0.0f;
+	style.PopupRounding = 0.0f;
+	style.PopupBorderSize = 0.0f;
+	style.FramePadding = new Vector2(4.0f, 3.0f);
+	style.FrameRounding = 0.0f;
+	style.FrameBorderSize = 0.0f;
+	style.ItemSpacing = new Vector2(8.0f, 4.0f);
+	style.ItemInnerSpacing = new Vector2(4.0f, 4.0f);
+	style.CellPadding = new Vector2(4.0f, 2.0f);
+	style.IndentSpacing = 21.0f;
+	style.ColumnsMinSpacing = 6.0f;
+	style.ScrollbarSize = 14.0f;
+	style.ScrollbarRounding = 9.0f;
+	style.GrabMinSize = 10.0f;
+	style.GrabRounding = 0.0f;
+	style.TabRounding = 4.0f;
+	style.TabBorderSize = 0.0f;
+	style.TabMinWidthForCloseButton = 0.0f;
+	style.ColorButtonPosition = ImGuiDir.Right;
+	style.ButtonTextAlign = new Vector2(0.5f, 0.5f);
+	style.SelectableTextAlign = new Vector2(0.0f, 0.0f);
+
+    var textColor = Style.Current.TextColor.ToNumerics();
+    var backgroundColor = Style.Current.BackgroundColor.ToNumerics();
+    var highlightColor = new Color(.6f, .4f, .9f).ToNumerics();
+    style.Colors[(int)ImGuiCol.Text] = textColor;
+    style.Colors[(int)ImGuiCol.TextDisabled] = textColor;
+    style.Colors[(int)ImGuiCol.WindowBg] = backgroundColor;
+    style.Colors[(int)ImGuiCol.ChildBg] = backgroundColor;
+	style.Colors[(int)ImGuiCol.PopupBg] = new Vector4(1.0f, 1.0f, 1.0f, 0.9800000190734863f);
+	style.Colors[(int)ImGuiCol.Border] = new Vector4(0.0f, 0.0f, 0.0f, 0.300000011920929f);
+	style.Colors[(int)ImGuiCol.BorderShadow] = new Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+	style.Colors[(int)ImGuiCol.FrameBg] = new Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+	style.Colors[(int)ImGuiCol.FrameBgHovered] = new Vector4(0.4765606820583344f, 0.4803148508071899f, 0.4806867241859436f, 0.4000000059604645f);
+	style.Colors[(int)ImGuiCol.FrameBgActive] = new Vector4(0.2588235437870026f, 0.5882353186607361f, 0.9764705896377563f, 0.6700000166893005f);
+	style.Colors[(int)ImGuiCol.TitleBg] = new Vector4(0.95686274766922f, 0.95686274766922f, 0.95686274766922f, 1.0f);
+	style.Colors[(int)ImGuiCol.TitleBgActive] = new Vector4(0.8196078538894653f, 0.8196078538894653f, 0.8196078538894653f, 1.0f);
+	style.Colors[(int)ImGuiCol.TitleBgCollapsed] = new Vector4(1.0f, 1.0f, 1.0f, 0.5099999904632568f);
+	style.Colors[(int)ImGuiCol.MenuBarBg] = new Vector4(0.8588235378265381f, 0.8588235378265381f, 0.8588235378265381f, 1.0f);
+	style.Colors[(int)ImGuiCol.ScrollbarBg] = new Vector4(0.9764705896377563f, 0.9764705896377563f, 0.9764705896377563f, 0.5299999713897705f);
+	style.Colors[(int)ImGuiCol.ScrollbarGrab] = new Vector4(0.686274528503418f, 0.686274528503418f, 0.686274528503418f, 0.800000011920929f);
+	style.Colors[(int)ImGuiCol.ScrollbarGrabHovered] = new Vector4(0.4862745106220245f, 0.4862745106220245f, 0.4862745106220245f, 0.800000011920929f);
+	style.Colors[(int)ImGuiCol.ScrollbarGrabActive] = new Vector4(0.4862745106220245f, 0.4862745106220245f, 0.4862745106220245f, 1.0f);
+	style.Colors[(int)ImGuiCol.CheckMark] = new Vector4(0.3725490272045135f, 0.5882353186607361f, 0.9803921580314636f, 1.0f);
+	style.Colors[(int)ImGuiCol.SliderGrab] = new Vector4(0.7137255072593689f, 0.4823529422283173f, 0.8784313797950745f, 1.0f);
+	style.Colors[(int)ImGuiCol.SliderGrabActive] = new Vector4(0.4392156898975372f, 0.3529411852359772f, 0.9803921580314636f, 1.0f);
+	style.Colors[(int)ImGuiCol.Button] = new Vector4(0.3921568691730499f, 0.2039215713739395f, 0.9764705896377563f, 0.4000000059604645f);
+	style.Colors[(int)ImGuiCol.ButtonHovered] = new Vector4(0.4980392158031464f, 0.5882353186607361f, 0.9764705896377563f, 1.0f);
+	style.Colors[(int)ImGuiCol.ButtonActive] = new Vector4(0.0f, 0.3529411852359772f, 0.9764705896377563f, 1.0f);
+    style.Colors[(int)ImGuiCol.Header] = highlightColor;
+	style.Colors[(int)ImGuiCol.HeaderHovered] = new Vector4(0.2823529541492462f, 0.5882353186607361f, 0.9764705896377563f, 0.800000011920929f);
+	style.Colors[(int)ImGuiCol.HeaderActive] = new Vector4(0.2431372553110123f, 0.5882353186607361f, 0.9764705896377563f, 1.0f);
+	style.Colors[(int)ImGuiCol.Separator] = new Vector4(0.3254902064800262f, 0.3882353007793427f, 0.3882353007793427f, 0.6196078658103943f);
+	style.Colors[(int)ImGuiCol.SeparatorHovered] = new Vector4(0.09803921729326248f, 0.4392156898975372f, 0.800000011920929f, 0.7803921699523926f);
+	style.Colors[(int)ImGuiCol.SeparatorActive] = new Vector4(0.1803921610116959f, 0.4392156898975372f, 0.800000011920929f, 1.0f);
+	style.Colors[(int)ImGuiCol.ResizeGrip] = new Vector4(0.3490196168422699f, 0.3490196168422699f, 0.3490196168422699f, 0.1700000017881393f);
+	style.Colors[(int)ImGuiCol.ResizeGripHovered] = new Vector4(0.2431372553110123f, 0.5882353186607361f, 0.9764705896377563f, 0.6705882549285889f);
+	style.Colors[(int)ImGuiCol.ResizeGripActive] = new Vector4(0.3333333432674408f, 0.5882353186607361f, 0.9764705896377563f, 0.9490196108818054f);
+	style.Colors[(int)ImGuiCol.Tab] = new Vector4(0.843137264251709f, 0.7960784435272217f, 0.8352941274642944f, 0.929411768913269f);
+	style.Colors[(int)ImGuiCol.TabHovered] = new Vector4(0.2588235437870026f, 0.5882353186607361f, 0.9764705896377563f, 0.800000011920929f);
+	//style.Colors[(int)ImGuiCol.TabActive] = new Vector4(0.6274510025978088f, 0.7254902124404907f, 0.8823529481887817f, 1.0f);
+	//style.Colors[(int)ImGuiCol.TabUnfocused] = new Vector4(0.9176470637321472f, 0.9254902005195618f, 0.9333333373069763f, 0.9861999750137329f);
+	//style.Colors[(int)ImGuiCol.TabUnfocusedActive] = new Vector4(0.7411764860153198f, 0.8196078538894653f, 0.9137254953384399f, 1.0f);
+	style.Colors[(int)ImGuiCol.PlotLines] = new Vector4(0.3882353007793427f, 0.3882353007793427f, 0.3882353007793427f, 1.0f);
+	style.Colors[(int)ImGuiCol.PlotLinesHovered] = new Vector4(1.0f, 0.4274509847164154f, 0.3490196168422699f, 1.0f);
+	style.Colors[(int)ImGuiCol.PlotHistogram] = new Vector4(0.8980392217636108f, 0.6980392336845398f, 0.0f, 1.0f);
+	style.Colors[(int)ImGuiCol.PlotHistogramHovered] = new Vector4(1.0f, 0.4470588266849518f, 0.0f, 1.0f);
+	style.Colors[(int)ImGuiCol.TableHeaderBg] = new Vector4(0.7764706015586853f, 0.8666666746139526f, 0.9764705896377563f, 1.0f);
+	style.Colors[(int)ImGuiCol.TableBorderStrong] = new Vector4(0.5686274766921997f, 0.5686274766921997f, 0.6392157077789307f, 1.0f);
+	style.Colors[(int)ImGuiCol.TableBorderLight] = new Vector4(0.6784313917160034f, 0.6784313917160034f, 0.7372549176216125f, 1.0f);
+	style.Colors[(int)ImGuiCol.TableRowBg] = new Vector4(0.0f, 0.6705882549285889f, 0.0f, 0.0f);
+	style.Colors[(int)ImGuiCol.TableRowBgAlt] = new Vector4(0.2980392277240753f, 0.2980392277240753f, 0.2980392277240753f, 0.09000000357627869f);
+	style.Colors[(int)ImGuiCol.TextSelectedBg] = new Vector4(0.2588235437870026f, 0.5882353186607361f, 0.9764705896377563f, 0.3499999940395355f);
+	style.Colors[(int)ImGuiCol.DragDropTarget] = new Vector4(0.2588235437870026f, 0.5882353186607361f, 0.9764705896377563f, 0.949999988079071f);
+	//style.Colors[(int)ImGuiCol.na] = new Vector4(0.2588235437870026f, 0.5882353186607361f, 0.9764705896377563f, 0.800000011920929f);
+	style.Colors[(int)ImGuiCol.NavWindowingHighlight] = new Vector4(0.6980392336845398f, 0.6980392336845398f, 0.6980392336845398f, 0.699999988079071f);
+	style.Colors[(int)ImGuiCol.NavWindowingDimBg] = new Vector4(0.2000000029802322f, 0.2000000029802322f, 0.2000000029802322f, 0.2000000029802322f);
+	style.Colors[(int)ImGuiCol.ModalWindowDimBg] = new Vector4(0.2000000029802322f, 0.2000000029802322f, 0.2000000029802322f, 0.3499999940395355f);
+}
+    public static void SetupImGuiStyleDark()
     {
         // Purple Comfy styleRegularLunar from ImThemes
         var style = ImGuiNET.ImGui.GetStyle();
-	
         style.Alpha = 1.0f;
         style.DisabledAlpha = 0.1000000014901161f;
         style.WindowPadding = new Vector2(8.0f, 8.0f);
@@ -119,7 +211,7 @@ public class ImGuiController : IDisposable
         style.ColorButtonPosition = ImGuiDir.Right;
         style.ButtonTextAlign = new Vector2(0.5f, 0.5f);
         style.SelectableTextAlign = new Vector2(0.0f, 0.0f);
-	
+
         style.Colors[(int)ImGuiCol.Text] = new Vec4(1.0f, 1.0f, 1.0f, 1.0f);
         style.Colors[(int)ImGuiCol.TextDisabled] = new Vec4(1.0f, 1.0f, 1.0f, 0.3605149984359741f);
         style.Colors[(int)ImGuiCol.WindowBg] = new Vec4(0.09803921729326248f, 0.09803921729326248f, 0.09803921729326248f, 1.0f);
@@ -174,7 +266,7 @@ public class ImGuiController : IDisposable
         style.Colors[(int)ImGuiCol.NavWindowingDimBg] = new Vec4(0.800000011920929f, 0.800000011920929f, 0.800000011920929f, 0.2000000029802322f);
         style.Colors[(int)ImGuiCol.ModalWindowDimBg] = new Vec4(0.800000011920929f, 0.800000011920929f, 0.800000011920929f, 0.3499999940395355f);
     }
-    
+
     private static void RefreshImGuiStyleDark()
     {
         Vec4 darkColor = new Vec4(.01f, .01f, .01f, 1);
@@ -382,7 +474,7 @@ public class ImGuiController : IDisposable
 
 
         io.ConfigFlags = ImGuiConfigFlags.DockingEnable;
-    
+
 
         int mips = (int)Math.Floor(Math.Log(Math.Max(width, height), 2));
 
@@ -422,6 +514,7 @@ public class ImGuiController : IDisposable
     /// </summary>
     public void Render()
     {
+
         if (_frameBegun)
         {
             _frameBegun = false;
@@ -511,7 +604,7 @@ public class ImGuiController : IDisposable
     internal void MouseScroll(OpenTK.Mathematics.Vector2 offset)
     {
         ImGuiIOPtr io = ImGui.GetIO();
-        io.AddMouseWheelEvent(offset.X,offset.Y);
+        io.AddMouseWheelEvent(offset.X, offset.Y);
     }
 
     private void RenderImDrawData(ImDrawDataPtr draw_data)

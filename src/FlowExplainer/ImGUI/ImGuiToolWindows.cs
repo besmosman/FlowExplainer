@@ -4,7 +4,6 @@ using ImGuiNET;
 
 namespace FlowExplainer;
 
-
 public static class ImGuiToolWindows
 {
     private static Dictionary<Type, bool> DrawsImGuiElements = new();
@@ -55,7 +54,9 @@ public static class ImGuiToolWindows
                         ImGui.Separator();*/ /**/
                         if (s.IsEnabled)
                         {
+                            ImGui.PushID(name);
                             s.DrawImGuiEdit();
+                            ImGui.PopID();
                             ImGui.Spacing();
                             ImGui.Spacing();
                         }
@@ -64,12 +65,12 @@ public static class ImGuiToolWindows
 
                     if (s.IsEnabled != sIsEnabled)
                     {
-                        
+
                         if (s.IsEnabled)
                             s.OnDisable();
                         else
                             s.OnEnable();
-                        
+
                         if (s is IAxisTitle axisTitle)
                         {
                             if (s.IsEnabled)
@@ -77,7 +78,7 @@ public static class ImGuiToolWindows
                             else
                                 s.GetRequiredWorldService<AxisVisualizer>().titler = axisTitle;
                         }
-                        
+
                         if (s is IGradientScaler scaler)
                         {
                             if (s.IsEnabled)
@@ -97,14 +98,20 @@ public static class ImGuiToolWindows
 
     static bool CheckableCollapsingHeader(string label, ref bool v, ImGuiTreeNodeFlags flags = 0)
     {
-        ImGui.PushID(label);
-        bool is_open = ImGui.CollapsingHeader("##CollapsingHeader", flags | ImGuiTreeNodeFlags.AllowOverlap);
-        ImGui.SameLine();
-        ImGui.TextColored(new Vector4(1), label);
-        ImGui.SameLine();
-        ImGui.SetCursorPosX(ImGui.GetWindowWidth() - 40);
-        ImGui.Checkbox("##Checkbox", ref v);
-        ImGui.PopID();
-        return is_open;
+        unsafe
+        {
+            ImGui.PushID(label);
+            bool is_open = ImGui.CollapsingHeader("##CollapsingHeader", flags | ImGuiTreeNodeFlags.AllowOverlap);
+            ImGui.SameLine();
+            ImGui.TextColored(new Vector4(1), label);
+            ImGui.SameLine();
+            ImGui.SetCursorPosX(ImGui.GetWindowWidth() - 50);
+            var c = ImGui.GetStyleColorVec4(ImGuiCol.Header);
+            ImGui.PushStyleColor(ImGuiCol.FrameBg, Color.Grey(.2f).ToNumerics());
+            ImGui.Checkbox("##Checkbox", ref v);
+            ImGui.PopStyleColor();
+            ImGui.PopID();
+            return is_open;
+        }
     }
 }
