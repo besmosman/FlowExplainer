@@ -1,11 +1,14 @@
 using System.Net.Http.Headers;
+using ImGuiNET;
 
 namespace FlowExplainer;
 
 public class FunctionGridDiagnostic : IGridDiagnostic
 {
-    public float T = 950;
-
+    public float T = 1;
+    public bool UseGradient;
+    public bool StandardLCS = true;
+    
     public void UpdateGridData(GridVisualizer gridVisualizer)
     {
         var renderGrid = gridVisualizer.RegularGrid.Grid;
@@ -19,19 +22,20 @@ public class FunctionGridDiagnostic : IGridDiagnostic
         float t = dat.SimulationTime;
         float tau = t + T;
         gridVisualizer.RegularGrid.Grid.Data.AsSpan().Fill(default);
-
-        bool random_function = false;
-
+        
         float F_along(Vec3 last, Vec3 cur)
         {
             //return Vec2.Distance(trajectory.Entries.First().XY, trajectory.Entries.Last().XY);
             //return trajectory.AverageAlong((p, c) => (c - p).Down().Length());
             //return trajectory.Entries.Last().X/30f;
-            if (!random_function)
+            if (!UseGradient)
                 return (cur - last).Down().Length();
-            return float.Sin((cur.X + cur.Y) * 2);
+            return float.Sin((cur.X+cur.Y)*8);
         }
 
+        if (StandardLCS)
+        {
+            
         //LCS standard
         ParallelGrid.For(renderGrid.GridSize, (i, j) =>
         {
@@ -39,39 +43,42 @@ public class FunctionGridDiagnostic : IGridDiagnostic
             var trajectory = flowOperator.Compute(t, tau, pos, vectorField);
             gridVisualizer.RegularGrid.Grid.AtCoords(new Vec2i(i, j)).Value = trajectory.AverageAlong(F_along);
         });
-
-        gridVisualizer.RegularGrid.Grid.Data.AsSpan().Fill(default);
-        ParallelGrid.For(renderGrid.GridSize, (i, j) =>
+        }
+        else
         {
-            for (int k = 0; k < 10; k++)
+            gridVisualizer.RegularGrid.Grid.Data.AsSpan().Fill(default);
+            ParallelGrid.For(renderGrid.GridSize, (i, j) =>
             {
-                var pos = spatialBounds.Relative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());
-                pos = Utils.Random(spatialBounds);
-                var traj = flowOperator.Compute(t, tau, pos, vectorField);
-
-                for (int index = 2; index < traj.Entries.Length; index++)
+                for (int k = 0; k < 10; k++)
                 {
-                    var last = traj.Entries[index - 1];
-                    var cur = traj.Entries[index];
+                    var pos = spatialBounds.Relative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());
+                    pos = Utils.Random(spatialBounds);
+                    var traj = flowOperator.Compute(t, tau, pos, vectorField);
 
-                    var last_T = traj.Entries[0];
-                    var cur_T = traj.Entries[1];
-                    /*last_T.Z = traj.Entries[index - 2].Z;
-                    cur_T.Z = traj.Entries[index - 1].Z;*/
-                    var v = F_along(last, cur);
-
-                    var targPos = cur.XY;
-                    if (spatialBounds.Contains(targPos))
+                    for (int index = 2; index < traj.Entries.Length; index++)
                     {
-                        ref var targ = ref gridVisualizer.RegularGrid.AtPos(targPos);
-                        var dis = (float)index / (traj.Entries.Length - 1f);
-                        float weight = 1;
-                        targ.Value += v * weight;
-                        targ.Marked += weight;
+                        var last = traj.Entries[index - 1];
+                        var cur = traj.Entries[index];
+
+                        var last_T = traj.Entries[0];
+                        var cur_T = traj.Entries[1];
+                        /*last_T.Z = traj.Entries[index - 2].Z;
+                        cur_T.Z = traj.Entries[index - 1].Z;*/
+                        var v = F_along(last, cur);
+
+                        var targPos = cur.XY;
+                        if (spatialBounds.Contains(targPos))
+                        {
+                            ref var targ = ref gridVisualizer.RegularGrid.AtPos(targPos);
+                            var dis = (float)index / (traj.Entries.Length - 1f);
+                            float weight = 1;
+                            targ.Value += v * weight;
+                            targ.Marked += weight;
+                        }
                     }
                 }
-            }
-        });
+            });
+       
 
         static float Kernel(float dis)
         {
@@ -91,6 +98,7 @@ public class FunctionGridDiagnostic : IGridDiagnostic
             //atCoords.Value -= v_start;
             atCoords.Marked = 0;
         });
+        }
         /*
         ParallelGrid.For(renderGrid.GridSize, (i, j) =>
         {
@@ -159,5 +167,7 @@ public class FunctionGridDiagnostic : IGridDiagnostic
     public void OnImGuiEdit(GridVisualizer gridVisualizer)
     {
         ImGuiHelpers.SliderFloat("T", ref T, 0, 1000);
+        ImGui.Checkbox("use gradient", ref UseGradient);
+        ImGui.Checkbox("LCS", ref StandardLCS);
     }
 }

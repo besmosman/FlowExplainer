@@ -53,6 +53,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         new TemperatureGridDiagnostic(),
         new FTLEGridDiagnostic(),
         new LAVDGridDiagnostic(),
+        new FunctionGridDiagnostic(),
         new LcsVelocityMagnitudeGridDiagnostic(),
         new HeatStructureGridDiagnostic(),
         // new CustomGridDiagnostic(),

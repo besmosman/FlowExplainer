@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Numerics;
 
 namespace FlowExplainer;
@@ -10,42 +11,51 @@ public static class Scripting
         var presentationService = world.FlowExplainer.GetGlobalService<PresentationService>()!;
         presentationService.LoadPresentation(new HeatStructuresPresentation());
         presentationService.StartPresenting();
-      return;
-      
+        return;
+
+        /*
         world.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
         var v = world.GetWorldService<GridVisualizer>();
         v.Enable();
         v.TargetCellCount = 100000;
-        
+
         var dat = world.GetWorldService<DataService>();
         dat.currentSelectedVectorField = "Diffusion Flux";
-        var heatStructureGridDiagnostic = new HeatStructureGridDiagnostic()
-        {
-            T = .0001f,
-            M = 4,
-            // K = 25,
-        };
-        v.SetGridDiagnostic(heatStructureGridDiagnostic);
 
-        /*
-        v.Save("diffusion-sinks.field", .0f, 1f, 100);
-        heatStructureGridDiagnostic.Reverse = true;
-        v.Save("diffusion-sources.field", .0f, 1f, 100);
+
+        float[] ts = [0.01f, 0.3f];
+
+        int timeSteps = 10;
+        foreach (float t in ts)
+        {
+            var title = t.ToString(CultureInfo.InvariantCulture);
+            var heatStructureGridDiagnostic = new HeatStructureGridDiagnostic()
+            {
+                T = t,
+                M = 4,
+                // K = 25,
+            };
+            v.SetGridDiagnostic(heatStructureGridDiagnostic);
+            
+            v.Save($"diffusion-sinks-T={title}.field", .0f, 1f, timeSteps);
+            heatStructureGridDiagnostic.Reverse = true;
+            v.Save($"diffusion-sources-T={title}.field", .0f, 1f, timeSteps);
+           
+
+            dat.currentSelectedVectorField = "Convection Flux";
+            heatStructureGridDiagnostic.Reverse = false;
+            v.Save($"convection-sinks-T={title}.field", .0f, 1f, timeSteps);
+            heatStructureGridDiagnostic.Reverse = true;
+            v.Save($"convection-sources-T={title}.field", .0f, 1f, timeSteps);
+        }
         */
-        
-        
-        dat.currentSelectedVectorField = "Convection Flux";
-        heatStructureGridDiagnostic.Reverse = false;
-        v.Save("convection-sinks.field", .0f, 1f, 100);
-        heatStructureGridDiagnostic.Reverse = true;
-        v.Save("convection-sources.field", .0f, 1f, 100);
-        
+
         world.GetWorldService<DataService>().ColorGradient = Gradients.Parula;
-        var regularGridVectorField = RegularGridVectorField<Vec3, Vec3i, float>.Load("sources.field");
+        /*var regularGridVectorField = RegularGridVectorField<Vec3, Vec3i, float>.Load("sources.field");
         dat.ScalerFields.Add("sources", regularGridVectorField);
         dat.currentSelectedScaler = "sources";
         v.SetGridDiagnostic(new TemperatureGridDiagnostic());
-        v.Continous = true;
+        v.Continous = true;*/
     }
 
 

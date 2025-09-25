@@ -1,3 +1,6 @@
+using System.Globalization;
+using OpenTK.Graphics.OpenGL4;
+
 namespace FlowExplainer;
 
 public class HeatStructuresPresentation : Presentation
@@ -12,29 +15,169 @@ public class HeatStructuresPresentation : Presentation
             new HeatStructuresIntroSlide(),
             new HeatStructureSlide
             {
-                Title = "Diffusion Sinks",
-                ScalerField = "Diffusion Sinks",
+                Title = "Diffusion Sinks (T=0.01)",
+                ScalerField = "Diffusion Sinks (T=0.01)",
                 VectorField = "Diffusion Flux",
             },
             new HeatStructureSlide
             {
-                Title = "Diffusion Sources",
-                ScalerField = "Diffusion Sources",
+                Title = "Diffusion Sources (T=0.01)",
+                ScalerField = "Diffusion Sources (T=0.01)",
                 VectorField = "Diffusion Flux",
             },
             new HeatStructureSlide
             {
-                Title = "Convection Sinks",
-                ScalerField = "Convection Sinks",
+                Title = "Convection Sinks (T=0.01)",
+                ScalerField = "Convection Sinks (T=0.01)",
                 VectorField = "Convection Flux",
             },
             new HeatStructureSlide
             {
-                Title = "Convection Sources",
-                ScalerField = "Convection Sources",
+                Title = "Convection Sources (T=0.01)",
+                ScalerField = "Convection Sources (T=0.01)",
                 VectorField = "Convection Flux",
             },
+            new HeatStructureSlide
+            {
+                Title = "Convection Sources (T=0.3)",
+                ScalerField = "Convection Sources (T=0.3)",
+                VectorField = "Convection Flux",
+            },
+            new HeatStructureSlide
+            {
+                Title = "Convection Sinks (T=0.3)",
+                ScalerField = "Convection Sinks (T=0.3)",
+                VectorField = "Convection Flux",
+            },
+            new LCSSlide(),
+            new FlowExample(),
+            new GradientSlide(),
+            new GradientLCSSlide(),
+            new FlattenSlide(),
         ];
+    }
+
+    public class FlattenSlide : Slide
+    {
+        public Texture Image;
+        public override void Load()
+        {
+            Image = new ImageTexture("Assets/Images/presi/flatten.png")
+            {
+                TextureMagFilter = TextureMagFilter.Linear,
+                TextureMinFilter = TextureMinFilter.Linear,
+            };
+            base.Load();
+        }
+        public override void Draw()
+        {
+            LayoutMain();
+
+            Title("flatten visualization???");
+            Presi.Image(Image, Presi.CanvasCenter - new Vec2(0, 90), 1700);
+            base.Draw();
+        }
+    }
+
+    public class GradientLCSSlide : Slide
+    {
+        public override void OnEnter()
+        {
+            w0.GetWorldService<GridVisualizer>().SetGridDiagnostic(new FunctionGridDiagnostic()
+            {
+                UseGradient = true,
+                StandardLCS = true,
+                T = 3f,
+            });
+            base.OnEnter();
+        }
+
+        public override void Draw()
+        {
+            LayoutMain();
+            Title("LCS: Arbitrary Gradient");
+            Presi.ViewPanel("v0", new Vec2(Presi.CanvasCenter.X, Presi.CanvasCenter.Y), new Vec2(1, .5f) * Presi.CanvasSize.X * .9f, .8f);
+            Presi.Text("average F(x,y) along trajectory", new Vec2(Presi.CanvasCenter.X, 100), 100, true, Color.White);
+            base.Draw();
+            base.Draw();
+        }
+    }
+
+    public class GradientSlide : Slide
+    {
+        public override void OnEnter()
+        {
+            w0.GetWorldService<GridVisualizer>().SetGridDiagnostic(new FunctionGridDiagnostic()
+            {
+                UseGradient = true,
+                StandardLCS = false,
+                T = 0.01f,
+            });
+            base.OnEnter();
+        }
+
+        public override void Draw()
+        {
+            LayoutMain();
+            Title("Arbitrary Gradient");
+            Presi.ViewPanel("v0", new Vec2(Presi.CanvasCenter.X, Presi.CanvasCenter.Y), new Vec2(1, .5f) * Presi.CanvasSize.X * .9f, .8f);
+            Presi.Text("F(x,y) = sin(8(x+y))", new Vec2(Presi.CanvasCenter.X, 100), 100, true, Color.White);
+            base.Draw();
+            base.Draw();
+        }
+    }
+
+
+    public class FlowExample : Slide
+    {
+        public override void OnEnter()
+        {
+            w0.GetWorldService<GridVisualizer>().TargetCellCount = 10000;
+            w0.GetWorldService<GridVisualizer>().SetGridDiagnostic(new FunctionGridDiagnostic()
+            {
+                UseGradient = false,
+                StandardLCS = true,
+                T = 3
+            });
+            w0.GetWorldService<GridVisualizer>().MarkDirty = true;
+            w0.GetWorldService<GridVisualizer>().Continous = false;
+            w0.GetWorldService<GridVisualizer>().Enable();
+            w0.GetWorldService<DataService>().SimulationTime = 0;
+            w0.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
+            base.OnEnter();
+        }
+
+        public override void Draw()
+        {
+            LayoutMain();
+            Title("LCS: Trajectory Length (T=3)");
+            Presi.ViewPanel("v0", new Vec2(Presi.CanvasCenter.X, Presi.CanvasCenter.Y), new Vec2(1, .5f) * Presi.CanvasSize.X * .9f, .8f);
+            ref float simulationTime = ref w0.GetWorldService<DataService>().SimulationTime;
+            // Presi.Slider($"time = {simulationTime:N2}", ref simulationTime, 0, 1, new Vec2(Presi.CanvasCenter.X, 100f), 500);
+            base.Draw();
+        }
+    }
+
+    public class LCSSlide : Slide
+    {
+        public Texture Image;
+        public override void Load()
+        {
+            Image = new ImageTexture("Assets/Images/presi/lcs.png")
+            {
+                TextureMagFilter = TextureMagFilter.Linear,
+                TextureMinFilter = TextureMinFilter.Linear,
+            };
+            base.Load();
+        }
+        public override void Draw()
+        {
+            LayoutMain();
+
+            Title("LCS");
+            Presi.Image(Image, Presi.CanvasCenter - new Vec2(0, 50), 1500);
+            base.Draw();
+        }
     }
 
     public class HeatStructureSlide : Slide
@@ -85,16 +228,33 @@ public class HeatStructuresPresentation : Presentation
 
     public class HeatStructuresIntroSlide : Slide
     {
+        public Texture Image;
+
+        public override void Load()
+        {
+            Image = new ImageTexture("Assets/Images/presi/trajectory.png")
+            {
+                TextureMagFilter = TextureMagFilter.Linear,
+                TextureMinFilter = TextureMinFilter.Linear,
+            };
+            base.Load();
+        }
         public override void Draw()
         {
             LayoutMain();
             Title("Heat Sources and Sinks");
             MainParagraph(
                 @"
-Heat Sinks/Sources:
-- Instant
-- Over timerange
+
+Sinks: 
+- Flux trajectory for given timerange
+- Visualize heat map of final position
+
+Sources:
+- Along negative flux direction
 ");
+            Presi.Image(Image, Presi.CanvasCenter - new Vec2(-500, 00), 600);
+
             base.Draw();
         }
     }
@@ -217,10 +377,19 @@ Heat Sinks/Sources:
         Scripting.SetGyreDataset(w1);
         Scripting.SetGyreDataset(w2);
         Scripting.SetGyreDataset(w3);
-        w0.GetWorldService<DataService>().ScalerFields.Add("Diffusion Sources", RegularGridVectorField<Vec3, Vec3i, float>.Load("diffusion-sources.field"));
-        w0.GetWorldService<DataService>().ScalerFields.Add("Diffusion Sinks", RegularGridVectorField<Vec3, Vec3i, float>.Load("diffusion-sinks.field"));
-        w0.GetWorldService<DataService>().ScalerFields.Add("Convection Sources", RegularGridVectorField<Vec3, Vec3i, float>.Load("convection-sources.field"));
-        w0.GetWorldService<DataService>().ScalerFields.Add("Convection Sinks", RegularGridVectorField<Vec3, Vec3i, float>.Load("convection-sinks.field"));
+
+
+        float[] ts = [0.01f, 0.3f];
+
+        int timeSteps = 100;
+        foreach (float t in ts)
+        {
+            var title = t.ToString(CultureInfo.InvariantCulture);
+            w0.GetWorldService<DataService>().ScalerFields.Add($"Diffusion Sources (T={title})", RegularGridVectorField<Vec3, Vec3i, float>.Load($"diffusion-sources-T={title}.field"));
+            w0.GetWorldService<DataService>().ScalerFields.Add($"Diffusion Sinks (T={title})", RegularGridVectorField<Vec3, Vec3i, float>.Load($"diffusion-sinks-T={title}.field"));
+            w0.GetWorldService<DataService>().ScalerFields.Add($"Convection Sources (T={title})", RegularGridVectorField<Vec3, Vec3i, float>.Load($"convection-sources-T={title}.field"));
+            w0.GetWorldService<DataService>().ScalerFields.Add($"Convection Sinks (T={title})", RegularGridVectorField<Vec3, Vec3i, float>.Load($"convection-sinks-T={title}.field"));
+        }
 
         w0.GetWorldService<DataService>().currentSelectedVectorField = "Diffusion Flux";
         w0.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";

@@ -15,7 +15,7 @@ public class ImGuiHelpers
             var format = "N2";
             if (float.Abs(max - min) < .6f)
                 format = "N3";
-            
+
             UpdateMsg(name, f.ToString(format, CultureInfo.InvariantCulture));
             return true;
         }
@@ -31,10 +31,27 @@ public class ImGuiHelpers
         }
         return false;
     }
-    
+
     private static void UpdateMsg(string name, string value)
     {
         LastMessage = name + ": " + value;
         MessageTime = DateTime.Now;
+    }
+    public static bool Combo<T>(string name, ref T value) where T : struct, Enum
+    {
+        bool set = false;
+        if (ImGui.BeginCombo(name, Enum.GetName(value)))
+        {
+            foreach (var v in Enum.GetValues<T>())
+            {
+                if (ImGui.Selectable(Enum.GetName(v), value.Equals(v)))
+                {
+                    value = v;
+                    set = true;
+                }
+            }
+            ImGui.EndCombo();
+        }
+        return set;
     }
 }
