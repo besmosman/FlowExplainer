@@ -50,6 +50,7 @@ public class HeatStructuresPresentation : Presentation
                 VectorField = "Convection Flux",
             },
             new LCSSlide(),
+            new CriticalSlide(),
             new FlowExample(),
             new GradientSlide(),
             new GradientLCSSlide(),
@@ -70,11 +71,11 @@ public class HeatStructuresPresentation : Presentation
             base.Load();
         }
         public override void Draw()
-        {
+        {   
             LayoutMain();
 
-            Title("flatten visualization???");
-            Presi.Image(Image, Presi.CanvasCenter - new Vec2(0, 90), 1700);
+            Title("??? visualization");
+            Presi.Image(Image, Presi.CanvasCenter - new Vec2(0, 60), 1700);
             base.Draw();
         }
     }
@@ -95,7 +96,7 @@ public class HeatStructuresPresentation : Presentation
         public override void Draw()
         {
             LayoutMain();
-            Title("LCS: Arbitrary Gradient");
+            Title("LCS: Arbitrary Function");
             Presi.ViewPanel("v0", new Vec2(Presi.CanvasCenter.X, Presi.CanvasCenter.Y), new Vec2(1, .5f) * Presi.CanvasSize.X * .9f, .8f);
             Presi.Text("average F(x,y) along trajectory", new Vec2(Presi.CanvasCenter.X, 100), 100, true, Color.White);
             base.Draw();
@@ -112,6 +113,7 @@ public class HeatStructuresPresentation : Presentation
                 UseGradient = true,
                 StandardLCS = false,
                 T = 0.01f,
+                K = 1,
             });
             base.OnEnter();
         }
@@ -119,7 +121,7 @@ public class HeatStructuresPresentation : Presentation
         public override void Draw()
         {
             LayoutMain();
-            Title("Arbitrary Gradient");
+            Title("Arbitrary Function");
             Presi.ViewPanel("v0", new Vec2(Presi.CanvasCenter.X, Presi.CanvasCenter.Y), new Vec2(1, .5f) * Presi.CanvasSize.X * .9f, .8f);
             Presi.Text("F(x,y) = sin(8(x+y))", new Vec2(Presi.CanvasCenter.X, 100), 100, true, Color.White);
             base.Draw();
@@ -132,12 +134,12 @@ public class HeatStructuresPresentation : Presentation
     {
         public override void OnEnter()
         {
-            w0.GetWorldService<GridVisualizer>().TargetCellCount = 10000;
+            w0.GetWorldService<GridVisualizer>().TargetCellCount = 100000;
             w0.GetWorldService<GridVisualizer>().SetGridDiagnostic(new FunctionGridDiagnostic()
             {
                 UseGradient = false,
                 StandardLCS = true,
-                T = 3
+                T = 3,
             });
             w0.GetWorldService<GridVisualizer>().MarkDirty = true;
             w0.GetWorldService<GridVisualizer>().Continous = false;
@@ -180,6 +182,27 @@ public class HeatStructuresPresentation : Presentation
         }
     }
 
+    public class CriticalSlide : Slide
+    {
+        public Texture Image;
+        public override void Load()
+        {
+            Image = new ImageTexture("Assets/Images/presi/critical.png")
+            {
+                TextureMagFilter = TextureMagFilter.Linear,
+                TextureMinFilter = TextureMinFilter.Linear,
+            };
+            base.Load();
+        }
+        public override void Draw()
+        {
+            LayoutMain();
+            Title("Bias");
+            Presi.Image(Image, Presi.CanvasCenter - new Vec2(0, 50), 1150);
+            base.Draw();
+        }
+    }
+    
     public class HeatStructureSlide : Slide
     {
         public string ScalerField;
@@ -193,6 +216,7 @@ public class HeatStructuresPresentation : Presentation
             w0.GetWorldService<GridVisualizer>().SetGridDiagnostic(new TemperatureGridDiagnostic());
             w0.GetWorldService<GridVisualizer>().Enable();
             w0.GetWorldService<GridVisualizer>().Continous = true;
+            w0.GetWorldService<GridVisualizer>().TargetCellCount =100000;
             w0.GetWorldService<DataService>().TimeMultiplier = 0f;
             var flow = w0.GetWorldService<FlowDirectionVisualization>();
             flow.amount = 3000;
@@ -245,14 +269,14 @@ public class HeatStructuresPresentation : Presentation
             Title("Heat Sources and Sinks");
             MainParagraph(
                 @"
-
-Sinks: 
-- Flux trajectory for given timerange
-- Visualize heat map of final position
+Sinks:
+- Flux trajectory for a given time range
+- Heat map of the trajectory
 
 Sources:
-- Along negative flux direction
-");
+- Along the negative flux direction
+"
+            );
             Presi.Image(Image, Presi.CanvasCenter - new Vec2(-500, 00), 600);
 
             base.Draw();
@@ -264,7 +288,7 @@ Sources:
         public override void Draw()
         {
             LayoutTitle();
-            TitleTitle("Progress", "Heat structures and LCS (26-09-2025)");
+            TitleTitle("Progress", "26-09-2025");
             base.Draw();
         }
     }
@@ -332,9 +356,9 @@ Sources:
                 var dat = w.GetWorldService<DataService>();
                 dat.TimeMultiplier = .1f;
                 dat.SimulationTime = .0000001f;
-                dat.SimulationTime = .0000001f;
                 var gridVisualizer = w.GetWorldService<GridVisualizer>();
                 gridVisualizer.Enable();
+                gridVisualizer.Continous = true;
                 gridVisualizer.SetGridDiagnostic(new TemperatureGridDiagnostic());
                 dat.currentSelectedVectorField = "Velocity";
             }

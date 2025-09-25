@@ -44,7 +44,7 @@ public abstract class Slide
         var canvasSize = Presi.CanvasSize;
         Gizmos2D.RectCenter(Presi.View.Camera2D, canvasSize / 2, canvasSize * 5, new Color(.0f, .0f, .0f));
         Gizmos2D.RectCenter(Presi.View.Camera2D, canvasSize / 2, canvasSize, new Color(.1f, .1f, .1f));
-        Gizmos2D.RectCenter(Presi.View.Camera2D, new Vec2(canvasSize.X / 2, canvasSize.Y / 2 + 80), new Vec2(canvasSize.X, topbarHeight * 1.5f), new Color(.5f, .2f, .7f));
+        Gizmos2D.RectCenter(Presi.View.Camera2D, new Vec2(canvasSize.X / 2, canvasSize.Y / 2 +60), new Vec2(canvasSize.X, topbarHeight * 2.1f), new Color(.4f, .0f, .9f));
     }
 
 
