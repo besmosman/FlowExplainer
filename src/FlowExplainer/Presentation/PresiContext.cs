@@ -85,7 +85,7 @@ public class PresiContext
         var t = (value - minValue) / (maxValue - minValue);
         t = float.Clamp(t, 0, 1);
         Gizmos2D.Circle(View.Camera2D, Utils.Lerp(left, right, t), Color.White, 20);
-        Gizmos2D.AdvText(View.Camera2D, center + new Vec2(0, -40), 48, Color.White, name, centered: true);
+        Gizmos2D.AdvText(View.Camera2D, center + new Vec2(0, -40), 48, Color.White, name + " = " + value.ToString("N2"), centered: true);
         var rect = new Rect<Vec2>(center - new Vec2(width / 2 + 30, height / 2), center + new Vec2(width / 2 + 30, height / 2));
         if (View.IsMouseButtonDownLeft && rect.Contains(View.MousePosition))
         {

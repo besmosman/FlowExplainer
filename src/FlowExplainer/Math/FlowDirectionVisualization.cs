@@ -9,7 +9,7 @@ public class FlowDirectionVisualization : WorldService
     private int posPer = 32;
     public int amount = 1600;
     public float thickness = .003f;
-    public float speed = 1;
+    public float speed = 3;
     private Vec2[] centers;
 
     public float opacity = .21f;

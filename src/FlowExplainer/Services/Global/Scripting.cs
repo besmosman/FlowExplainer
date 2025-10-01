@@ -9,7 +9,7 @@ public static class Scripting
     {
         SetGyreDataset(world);
         var presentationService = world.FlowExplainer.GetGlobalService<PresentationService>()!;
-        presentationService.LoadPresentation(new HeatStructuresPresentation());
+        presentationService.LoadPresentation(new DatasetPresentation2());
         presentationService.StartPresenting();
         return;
 
