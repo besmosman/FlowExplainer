@@ -8,6 +8,7 @@ public class FunctionGridDiagnostic : IGridDiagnostic
     public float T = 1;
     public bool UseGradient;
     public bool StandardLCS = true;
+    public int K = 10;
     
     public void UpdateGridData(GridVisualizer gridVisualizer)
     {
@@ -49,10 +50,10 @@ public class FunctionGridDiagnostic : IGridDiagnostic
             gridVisualizer.RegularGrid.Grid.Data.AsSpan().Fill(default);
             ParallelGrid.For(renderGrid.GridSize, (i, j) =>
             {
-                for (int k = 0; k < 10; k++)
+                for (int k = 0; k < K; k++)
                 {
                     var pos = spatialBounds.Relative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());
-                    pos = Utils.Random(spatialBounds);
+                   // pos = Utils.Random(spatialBounds);
                     var traj = flowOperator.Compute(t, tau, pos, vectorField);
 
                     for (int index = 2; index < traj.Entries.Length; index++)

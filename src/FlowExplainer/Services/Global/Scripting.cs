@@ -13,11 +13,10 @@ public static class Scripting
         presentationService.StartPresenting();
         return;
 
-        /*
         world.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
         var v = world.GetWorldService<GridVisualizer>();
         v.Enable();
-        v.TargetCellCount = 100000;
+        v.TargetCellCount = 200000;
 
         var dat = world.GetWorldService<DataService>();
         dat.currentSelectedVectorField = "Diffusion Flux";
@@ -25,7 +24,7 @@ public static class Scripting
 
         float[] ts = [0.01f, 0.3f];
 
-        int timeSteps = 10;
+        int timeSteps = 100;
         foreach (float t in ts)
         {
             var title = t.ToString(CultureInfo.InvariantCulture);
@@ -48,7 +47,6 @@ public static class Scripting
             heatStructureGridDiagnostic.Reverse = true;
             v.Save($"convection-sources-T={title}.field", .0f, 1f, timeSteps);
         }
-        */
 
         world.GetWorldService<DataService>().ColorGradient = Gradients.Parula;
         /*var regularGridVectorField = RegularGridVectorField<Vec3, Vec3i, float>.Load("sources.field");

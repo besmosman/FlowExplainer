@@ -23,8 +23,8 @@ public class ParticleLagrangianTest : WorldService
     public int amount = 1000;
     public float radius = .1f;
 
-    public PositionEnum positionEnum;
-    public ValueEnum valueEnum;
+    public PositionEnum positionEnum = PositionEnum.Start;
+    public ValueEnum valueEnum = ValueEnum.Avg;
     public bool useGradient;
 
     public enum PositionEnum

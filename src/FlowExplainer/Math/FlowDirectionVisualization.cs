@@ -77,7 +77,7 @@ public class FlowDirectionVisualization : WorldService
     float end = 2;
     public float dt = .001f;
     public float avgSpeed = 0f;
-    public float lastSimTime = 0f;
+    public float lastSimTime = -1f;
     public override void Update()
     {
         var dat = GetRequiredWorldService<DataService>();
@@ -88,7 +88,7 @@ public class FlowDirectionVisualization : WorldService
         {
             for (int i = 0; i < amount; i++)
             {
-                PerData[i].TimeAlive =  -Random.Shared.NextSingle()*4;
+                PerData[i].TimeAlive = -((float)i/amount)*5;
                 var pos = velField.Domain.Boundary.Reduce<Vec2>().Relative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
                 var span = centers.AsSpan(i * posPer, posPer);
                 span.Fill(pos);
