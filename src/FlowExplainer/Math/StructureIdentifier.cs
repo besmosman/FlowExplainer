@@ -127,7 +127,7 @@ public class StructureIdentifier : WorldService
                 if (!filled.Add(c))
                     continue;
 
-                if (!grid.RegularGrid.Grid.IsWithin(c))
+                if (!grid.RegularGrid.Grid.Contains(c))
                     continue;
 
                 if (float.Abs(grid.RegularGrid.Grid.AtCoords(c).Value - centerVal.Value) < dis)

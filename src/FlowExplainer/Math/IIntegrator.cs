@@ -26,7 +26,16 @@ public class Trajectory<T> where T : IVec<T>
         return sum * (1f / float.Abs(t - tau));
     }
 
-    
+    public IEnumerable<(T vector, float c)> Enumerate()
+    {
+        float t_start = Entries[0].Last;
+        float t_end = Entries[^1].Last;
+        foreach (var t in Entries)
+        {
+            yield return (t, (t.Last - t_start) / (t_end - t_start));
+        }
+    }
+
     public Trajectory<Z> Select<Z>(Func<T, Z> selector) where Z : IVec<Z>
     {
         var entries = new Z[Entries.Length];
@@ -37,7 +46,7 @@ public class Trajectory<T> where T : IVec<T>
         return new Trajectory<Z>(entries);
     }
 
-    
+
     public Trajectory<Z> Select<Z>(Func<T, T, Z> selector) where Z : IVec<Z>
     {
         var entries = new Z[Entries.Length];
@@ -58,17 +67,47 @@ public class Trajectory<T> where T : IVec<T>
         }
         return new Trajectory<T>(entries);
     }
+
+
+    private int last_returned_Entry = 0;
+    public T AtC(float c)
+    {
+        return AtTime(c * (Entries[^1].Last - Entries[0].Last) + Entries[0].Last);
+    }
+    
     public T AtTime(float t)
     {
-        for (int i = 0; i < Entries.Length - 1; i++)
+        //So this should be fast for t queries that are increasing or decreasing.
+        //First checking last result - 1 to count. so increasing queries only require 2 checks while
+        //decreasing require one check. 
+
+        int start = last_returned_Entry;
+        for (int i = int.Max(0, last_returned_Entry - 1); i < Entries.Length - 1; i++)
         {
-            if (Entries[i].Last <= t && Entries[i + 1].Last > t)
+            if (Entries[i].Last <= t && Entries[i + 1].Last >= t)
             {
                 var c = (t - Entries[i].Last) / (Entries[i + 1].Last - Entries[i].Last);
+                last_returned_Entry = i;
                 return Utils.Lerp(Entries[i], Entries[i + 1], c);
             }
         }
-        return Entries[^1];
+
+        if (t >= Entries[^1].Last)
+            return Entries[^1];
+        if (t <= Entries[0].Last)
+            return Entries[0];
+
+        for (int i = 0; i < start; i++)
+        {
+            if (Entries[i].Last <= t && Entries[i + 1].Last >= t)
+            {
+                var c = (t - Entries[i].Last) / (Entries[i + 1].Last - Entries[i].Last);
+                last_returned_Entry = i;
+                return Utils.Lerp(Entries[i], Entries[i + 1], c);
+            }
+        }
+
+        throw new Exception();
     }
 }
 

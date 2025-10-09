@@ -50,7 +50,7 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
         if (!Interpolate)
         {
             var coord = x.Round();
-            if (Grid.IsWithin(coord))
+            if (Grid.Contains(coord))
             {
                 value = Grid.AtCoords(coord);
                 return true;
@@ -92,7 +92,7 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
     {
         return ref Grid.AtCoords(v);
     }
-    
+
     public ref TData AtPos(Vec v)
     {
         return ref Grid.AtCoords(ToVoxelCoord(v).Floor());
@@ -107,7 +107,7 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
             var min = RectDomain.MinPos[i];
             var wpos = worldpos[i];
             var percentiel = (wpos - min) / (max - min);
-            voxelPos[i] = percentiel * (GridSize[i]-1);
+            voxelPos[i] = percentiel * (GridSize[i] - 1);
         }
 
         return voxelPos;
@@ -173,22 +173,19 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
     //modified from random online source. Tested for 2D and 3D cases, should work in any dimension.
     private bool TryMultivariateInterpolation(Vec coords, out TData result)
     {
-        var dim = GridSize.ElementCount;
+        int dim = GridSize.ElementCount;
         var baseCoord = coords.Floor();
 
-
         var weights = Vec.Zero;
-
         for (int i = 0; i < dim; i++)
             weights[i] = coords[i] - baseCoord[i];
 
         if (baseCoord.Last == GridSize.Last)
-        {
             baseCoord[coords.ElementCount - 1] -= 1;
-        }
 
-        float totalWeight = 0.0f;
         int numCorners = 1 << dim;
+        float totalWeight = 0.0f;
+        result = default!;
 
         for (int c = 0; c < numCorners; c++)
         {
@@ -198,43 +195,22 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
             for (int i = 0; i < dim; i++)
             {
                 int bit = (c >> i) & 1;
-                int offset = bit;
                 weight *= bit == 1 ? weights[i] : (1 - weights[i]);
-                corner[i] = baseCoord[i] + offset;
+                corner[i] = baseCoord[i] + bit;
             }
 
-            if (Grid.IsWithin(corner))
+            if (Grid.Contains(corner))
             {
                 totalWeight += weight;
+                var value = Grid.AtCoords(corner);
+                result += value * weight;
             }
         }
-
-        result = default!;
 
         if (totalWeight == 0.0f)
             return false;
 
-        for (int c = 0; c < numCorners; c++)
-        {
-            float weight = 1.0f;
-            var corner = baseCoord;
-
-            for (int i = 0; i < dim; i++)
-            {
-                int bit = (c >> i) & 1;
-                int offset = bit;
-                weight *= bit == 1 ? weights[i] : (1 - weights[i]);
-                corner[i] = baseCoord[i] + offset;
-            }
-
-            if (Grid.IsWithin(corner))
-            {
-                float normalizedWeight = weight / totalWeight;
-                var value = Grid.AtCoords(corner);
-                result = result + (value * normalizedWeight);
-            }
-        }
-
+        result *= 1f / totalWeight;
         return true;
     }
 

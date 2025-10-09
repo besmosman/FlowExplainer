@@ -44,7 +44,7 @@ public class RegularGrid<Veci, TData> where Veci : IVec<Veci, int>
     public ref TData AtCoords(Veci x)
     {
         //x = Utils.Clamp<Veci, int>(x, Veci.Zero, GridSize - Veci.One);
-        if (!IsWithin(x))
+        if (!Contains(x))
         {
             throw new Exception("Not within bounds");
         }
@@ -75,7 +75,7 @@ public class RegularGrid<Veci, TData> where Veci : IVec<Veci, int>
         return coords;
     }
 
-    public bool IsWithin(Veci coord)
+    public bool Contains(Veci coord)
     {
         for (int i = 0; i < GridSize.ElementCount; i++)
             if (coord[i] < 0 || coord[i] >= GridSize[i])

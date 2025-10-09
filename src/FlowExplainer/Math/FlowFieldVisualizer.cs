@@ -35,7 +35,7 @@ public class BickleyJet : IVectorField<Vec3, Vec2>
 
     public bool TryEvaluate(Vec3 x, out Vec2 value)
     {
-        value =Evaluate(x);
+        value = Evaluate(x);
         return true;
     }
 
@@ -61,7 +61,7 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
         base.DrawImGuiEdit();
     }
 
-    public int GridCells  =250;
+    public int GridCells = 250;
     public float Length;
     public float Thickness;
     public bool AutoResize = true;
@@ -104,8 +104,11 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
                 if (float.IsNaN(dir.X) || float.IsNaN(dir.Y))
                     continue;
 
-                dir = float.Clamp(((dir.Length()) / (float.Sqrt(maxDirLenght2))), .2f,.9f) * Vec2.Normalize(dir);
-                var color = dat.ColorGradient.Get(dir.Length() * 1);
+                dir = float.Clamp(((dir.Length()) / (float.Sqrt(maxDirLenght2))), .2f, .9f) * Vec2.Normalize(dir);
+                var color = dat.ColorGradient.Get(0);
+                if (maxDirLenght2 != 0)
+                    color = dat.ColorGradient.Get(dir.Length() * 1);
+                
                 if (!colorByGradient)
                     color = Color.White;
                 //color = new Color((dir + new Vec2(.1f,.1f)).Up(0).Up(1));
@@ -141,7 +144,7 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
 
         if (AutoResize)
         {
-            Length = cellSize.X*1;
+            Length = cellSize.X * 1;
             Thickness = cellSize.X / 10;
         }
     }

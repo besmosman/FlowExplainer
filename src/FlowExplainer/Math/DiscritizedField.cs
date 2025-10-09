@@ -13,11 +13,12 @@ public class DiscritizedField<Vec, Veci, TData> : IVectorField<Vec, TData>
     public DiscritizedField(Veci gridSize, IVectorField<Vec, TData> vectorField)
     {
         GridField = new RegularGridVectorField<Vec, Veci, TData>(gridSize, new RectDomain<Vec>(vectorField.Domain.Boundary));
-        for (int i = 0; i < GridField.Grid.Data.Length; i++)
+        //for (int i = 0; i < GridField.Grid.Data.Length; i++)
+        Parallel.For(0, GridField.Grid.Data.Length, i =>
         {
             var pos = GridField.ToWorldPos(GridField.Grid.GetIndexCoords(i));
             GridField.Grid.Data[i] = vectorField.Evaluate(pos);
-        }
+        });
     }
 
     public TData Evaluate(Vec x)
@@ -29,4 +30,5 @@ public class DiscritizedField<Vec, Veci, TData> : IVectorField<Vec, TData>
     {
         return GridField.TryEvaluate(x, out value);
     }
+
 }

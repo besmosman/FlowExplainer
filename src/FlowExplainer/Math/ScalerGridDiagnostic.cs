@@ -63,7 +63,7 @@ public class HeatStructureGridDiagnostic : IGridDiagnostic
     }
 }
 
-public class TemperatureGridDiagnostic : IGridDiagnostic
+public class ScalerGridDiagnostic : IGridDiagnostic
 {
     public void UpdateGridData(GridVisualizer gridVisualizer)
     {

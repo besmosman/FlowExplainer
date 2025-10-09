@@ -34,6 +34,7 @@ public class SpectralField : IVectorField<Vec3, float>
 
     float Pi5 = 0.5f; // probaly Domain in Y axis right?
 
+    
     public SpectralField(RegularGrid<Vec3i, Complex> usps, Rect<Vec3> rect)
     {
         Usps = usps;
@@ -56,6 +57,10 @@ public class SpectralField : IVectorField<Vec3, float>
         value = InterpFourCheb(x);
         return true;
     }
+    
+    
+    static Complex Lerp(Complex a, Complex b, float t) => a + (b - a) * t;
+
 
     private float InterpFourCheb(Vec3 pos)
     {

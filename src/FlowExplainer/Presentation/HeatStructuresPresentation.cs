@@ -83,7 +83,7 @@ public class IntroductionPresentation : Presentation
 
                 gridVisualizer.Disable();
                 gridVisualizer.MarkDirty = true;
-                gridVisualizer.SetGridDiagnostic(new TemperatureGridDiagnostic());
+                gridVisualizer.SetGridDiagnostic(new ScalerGridDiagnostic());
                 gridVisualizer.Continous = false;
             }
             w0.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
@@ -127,7 +127,7 @@ public class IntroductionPresentation : Presentation
                 dat.SimulationTime = .0000001f;
                 var gridVisualizer = w.GetWorldService<GridVisualizer>();
                 gridVisualizer.Enable();
-                gridVisualizer.SetGridDiagnostic(new TemperatureGridDiagnostic());
+                gridVisualizer.SetGridDiagnostic(new ScalerGridDiagnostic());
                 dat.currentSelectedVectorField = "Velocity";
             }
 
@@ -367,7 +367,7 @@ public class HeatStructuresPresentation : Presentation
         {
             w0.GetWorldService<DataService>().currentSelectedScaler = ScalerField;
             w0.GetWorldService<DataService>().currentSelectedVectorField = VectorField;
-            w0.GetWorldService<GridVisualizer>().SetGridDiagnostic(new TemperatureGridDiagnostic());
+            w0.GetWorldService<GridVisualizer>().SetGridDiagnostic(new ScalerGridDiagnostic());
             w0.GetWorldService<GridVisualizer>().Enable();
             w0.GetWorldService<GridVisualizer>().Continous = true;
             w0.GetWorldService<GridVisualizer>().TargetCellCount =100000;
@@ -474,7 +474,7 @@ Sources:
                 w.GetWorldService<DataService>().currentSelectedScaler = "Convective Temperature";
                 gridVisualizer.Disable();
                 gridVisualizer.MarkDirty = true;
-                gridVisualizer.SetGridDiagnostic(new TemperatureGridDiagnostic());
+                gridVisualizer.SetGridDiagnostic(new ScalerGridDiagnostic());
                 gridVisualizer.Continous = false;
             }
             w0.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
@@ -513,7 +513,7 @@ Sources:
                 var gridVisualizer = w.GetWorldService<GridVisualizer>();
                 gridVisualizer.Enable();
                 gridVisualizer.Continous = true;
-                gridVisualizer.SetGridDiagnostic(new TemperatureGridDiagnostic());
+                gridVisualizer.SetGridDiagnostic(new ScalerGridDiagnostic());
                 dat.currentSelectedVectorField = "Velocity";
             }
 

@@ -20,7 +20,8 @@ public class DatasetPresentation2 : Presentation
         {
             LayoutMain();
             Title("Velocity Field");
-            Presi.Text("u(@blue[x],@red[y]) =  sin(2π@blue[x])cos(2π@red[y]) \r\n v(@blue[x],@red[y]) = -cos(2π@blue[x])sin(2π@red[y]) \r\n @blue[x] : [0, 1],  @red[y] : [0, 0.5]  ", new Vec2(Presi.CanvasCenter.X, 700), 96, true, Color.White);
+            Presi.Text("u(@blue[x],@red[y]) =  sin(2π@blue[x])cos(2π@red[y]) \r\n v(@blue[x],@red[y]) = -cos(2π@blue[x])sin(2π@red[y]) \r\n @blue[x] : [0, 1],  @red[y] : [0, 0.5]  ", new Vec2(Presi.CanvasCenter.X, 700), 96, true,
+                Color.White);
             base.Draw();
         }
     }
@@ -126,7 +127,7 @@ public class DatasetPresentation2 : Presentation
             var gridVisualizer = world.GetWorldService<GridVisualizer>();
             gridVisualizer.Enable();
             gridVisualizer.AutoScale = true;
-            gridVisualizer.SetGridDiagnostic(new TemperatureGridDiagnostic());
+            gridVisualizer.SetGridDiagnostic(new ScalerGridDiagnostic());
             dat.currentSelectedScaler = "No Flow Temperature";
             base.Load();
         }
@@ -153,7 +154,7 @@ public class DatasetPresentation2 : Presentation
             dat.TimeMultiplier = .1f;
             var gridVisualizer = world.GetWorldService<GridVisualizer>();
             gridVisualizer.Enable();
-            gridVisualizer.SetGridDiagnostic(new TemperatureGridDiagnostic());
+            gridVisualizer.SetGridDiagnostic(new ScalerGridDiagnostic());
             dat.currentSelectedVectorField = "Velocity";
             dat.currentSelectedScaler = "Total Temperature";
             base.Load();
@@ -164,7 +165,7 @@ public class DatasetPresentation2 : Presentation
             LayoutMain();
             Title("Spectral Simulation Result");
             Presi.ViewPanel("v0", Presi.CanvasSize / 2 + new Vec2(0, 60), new Vec2(1, .5f) * Presi.CanvasSize.X * .8f, .8f);
-            
+
             //Presi.Text("u(x,y,t) = 0", new Vec2(Presi.CanvasCenter.X, 220), 80, true, Color.White);
             base.Draw();
         }
@@ -226,7 +227,7 @@ public class DatasetPresentation2 : Presentation
             Presi.GetView("v0").World.GetWorldService<FlowDirectionVisualization>().amount = 4001;
             Presi.GetView("v0").World.GetWorldService<FlowDirectionVisualization>().Initialize();
             Presi.GetView("v0").World.GetWorldService<FlowDirectionVisualization>().Enable();
-           // dat.SimulationTime = t;
+            // dat.SimulationTime = t;
             dat.TimeMultiplier = .0f;
             dat.currentSelectedVectorField = "Diffusion Flux";
             dat.currentSelectedScaler = "Convective Temperature";
@@ -265,7 +266,7 @@ public class DatasetPresentation2 : Presentation
                 dat.SimulationTime = .0000001f;
                 var gridVisualizer = w.GetWorldService<GridVisualizer>();
                 gridVisualizer.Enable();
-                gridVisualizer.SetGridDiagnostic(new TemperatureGridDiagnostic());
+                gridVisualizer.SetGridDiagnostic(new ScalerGridDiagnostic());
                 dat.currentSelectedVectorField = "Velocity";
             }
 
@@ -292,7 +293,7 @@ public class DatasetPresentation2 : Presentation
         }
     }
 
-        private class VectorFieldsSlide : Slide
+    private class VectorFieldsSlide : Slide
     {
         public override void OnLeave()
         {
@@ -303,7 +304,7 @@ public class DatasetPresentation2 : Presentation
             }
             base.OnLeave();
         }
-        
+
         public override void OnEnter()
         {
             foreach (var w in worlds)
@@ -321,7 +322,7 @@ public class DatasetPresentation2 : Presentation
 
                 gridVisualizer.Disable();
                 gridVisualizer.MarkDirty = true;
-                gridVisualizer.SetGridDiagnostic(new TemperatureGridDiagnostic());
+                gridVisualizer.SetGridDiagnostic(new ScalerGridDiagnostic());
                 gridVisualizer.Continous = false;
             }
             w0.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
@@ -343,13 +344,14 @@ public class DatasetPresentation2 : Presentation
             Presi.Text("Convection Flux", new Vec2(Presi.CanvasCenter.X - 470, 490), 64, true, Color.White);
             Presi.Text("Total Flux", new Vec2(Presi.CanvasCenter.X + 470, 490), 64, true, Color.White);
             Presi.Slider("time", ref w0.GetWorldService<DataService>().SimulationTime, 0, 1, new Vec2(Presi.CanvasCenter.X, 0), 200);
-            
+
             foreach (var w in worlds)
-            w.GetWorldService<DataService>().SimulationTime = w0.GetWorldService<DataService>().SimulationTime;
+                w.GetWorldService<DataService>().SimulationTime = w0.GetWorldService<DataService>().SimulationTime;
 
             base.Draw();
         }
     }
+
     public override Slide[] GetSlides()
     {
         return
@@ -386,7 +388,7 @@ public class DatasetPresentation2 : Presentation
         var w1 = manager.NewWorld();
         var w2 = manager.NewWorld();
 
-        
+
         string fieldsFolder = "speetjens-computed-fields";
         //ComputeSpeetjensFields(dataService, fieldsFolder);
 
@@ -429,7 +431,8 @@ public class DatasetPresentation : Presentation
         {
             LayoutMain();
             Title("Velocity Field");
-            Presi.Text("u(@blue[x],@red[y]) =  sin(2π@blue[x])cos(2π@red[y]) \r\n v(@blue[x],@red[y]) = -cos(2π@blue[x])sin(2π@red[y]) \r\n @blue[x] : [0, 1],  @red[y] : [0, 0.5]  ", new Vec2(Presi.CanvasCenter.X, 700), 96, true, Color.White);
+            Presi.Text("u(@blue[x],@red[y]) =  sin(2π@blue[x])cos(2π@red[y]) \r\n v(@blue[x],@red[y]) = -cos(2π@blue[x])sin(2π@red[y]) \r\n @blue[x] : [0, 1],  @red[y] : [0, 0.5]  ", new Vec2(Presi.CanvasCenter.X, 700), 96, true,
+                Color.White);
             base.Draw();
         }
     }
@@ -535,7 +538,7 @@ public class DatasetPresentation : Presentation
             var gridVisualizer = world.GetWorldService<GridVisualizer>();
             gridVisualizer.Enable();
             gridVisualizer.AutoScale = true;
-            gridVisualizer.SetGridDiagnostic(new TemperatureGridDiagnostic());
+            gridVisualizer.SetGridDiagnostic(new ScalerGridDiagnostic());
             dat.currentSelectedScaler = "No Flow Temperature";
             base.Load();
         }
@@ -562,7 +565,7 @@ public class DatasetPresentation : Presentation
             dat.TimeMultiplier = .1f;
             var gridVisualizer = world.GetWorldService<GridVisualizer>();
             gridVisualizer.Enable();
-            gridVisualizer.SetGridDiagnostic(new TemperatureGridDiagnostic());
+            gridVisualizer.SetGridDiagnostic(new ScalerGridDiagnostic());
             dat.currentSelectedVectorField = "Velocity";
             dat.currentSelectedScaler = "Total Temperature";
             base.Load();
@@ -664,7 +667,7 @@ public class DatasetPresentation : Presentation
                 dat.SimulationTime = .0000001f;
                 var gridVisualizer = w.GetWorldService<GridVisualizer>();
                 gridVisualizer.Enable();
-                gridVisualizer.SetGridDiagnostic(new TemperatureGridDiagnostic());
+                gridVisualizer.SetGridDiagnostic(new ScalerGridDiagnostic());
                 dat.currentSelectedVectorField = "Velocity";
             }
 
@@ -730,7 +733,7 @@ public class DatasetPresentation : Presentation
         var w1 = manager.NewWorld();
         var w2 = manager.NewWorld();
 
-        
+
         string fieldsFolder = "speetjens-computed-fields";
         //ComputeSpeetjensFields(dataService, fieldsFolder);
 

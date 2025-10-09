@@ -131,5 +131,10 @@ public class DataService : WorldService
         base.DrawImGuiEdit();
     }
 
-  
+
+    public void LoadScalerField(string name, string path)
+    {
+        var regularGridVectorField = RegularGridVectorField<Vec3, Vec3i, float>.Load(path);
+        ScalerFields.Add(name, regularGridVectorField);
+    }
 }

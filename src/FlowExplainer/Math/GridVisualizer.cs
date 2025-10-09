@@ -49,8 +49,9 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
     [
         //new VelocityMagnitudeGridDiagnostic(),
         new LICGridDiagnostic(),
+        new LICS(),
         new LagrangianTemperatureGridDiagnostic(),
-        new TemperatureGridDiagnostic(),
+        new ScalerGridDiagnostic(),
         new FTLEGridDiagnostic(),
         new LAVDGridDiagnostic(),
         new FunctionGridDiagnostic(),
@@ -62,7 +63,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
 
     public override void Initialize()
     {
-        SetGridDiagnostic(new TemperatureGridDiagnostic());
+        SetGridDiagnostic(new ScalerGridDiagnostic());
         material = new Material(Shader.DefaultWorldSpaceVertex, new Shader("Assets/Shaders/grid-reg.frag", ShaderType.FragmentShader));
     }
 

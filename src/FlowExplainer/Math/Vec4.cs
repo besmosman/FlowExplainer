@@ -56,6 +56,10 @@ public struct Rect<Vec> where Vec : IVec<Vec>
         }
         return new Rect<T>(min, max);
     }
+    public Vec Clamp(Vec p)
+    {
+        return Utils.Clamp<Vec, float>(p, Min, Max);
+    }
 }
 
 public struct RectDomain<Vec> : IDomain<Vec> where Vec : IVec<Vec>
@@ -67,7 +71,7 @@ public struct RectDomain<Vec> : IDomain<Vec> where Vec : IVec<Vec>
     public Vec MaxPos => Rect.Max;
 
     public Rect<Vec> Boundary => Rect;
-    
+
     public RectDomain(Vec min, Vec max)
     {
         Rect = new(min, max);

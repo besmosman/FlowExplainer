@@ -2,28 +2,6 @@
 
 public class RegularGridVectorFieldTests
 {
-    private void PerfTest()
-    {
-        var a = new Vec3(0, 0, 0);
-        var b = new Vec3(2, 1, 0);
-        for (int i = 0; i < 100000000; i++)
-        {
-            a += b - a * 2;
-        }
-
-        var r = a;
-        a = Vec3.Zero;
-        for (int i = 0; i < 100000000; i++)
-        {
-            for (int d = 0; d < a.ElementCount; d++)
-            {
-                a[d] += b[d] - a[d] * 2;
-            }
-        }
-
-        Assert.Equal(a, r);
-    }
-
     [Fact]
     public void RegularGridVectorFieldCoordsTest()
     {

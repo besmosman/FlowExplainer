@@ -13,7 +13,6 @@ public struct Vec2i :
     IEquatable<Vec2i>,
     IEqualityOperators<Vec2i, Vec2i, bool>,
     IVecFloatEquivelant<Vec2>, IVec<Vec2i, int>
-
 {
     public int X;
     public int Y;
@@ -81,7 +80,7 @@ public struct Vec2i :
     {
         return new Vec2(X, Y);
     }
-
+    
     public override bool Equals(object? obj)
     {
         return obj is Vec2i other && Equals(other);

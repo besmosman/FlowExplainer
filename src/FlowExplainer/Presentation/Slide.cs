@@ -48,7 +48,7 @@ public abstract class Slide
     }
 
 
-    public World MainWorld => Presi.GetView("main").World;
+    public World MainWorld => Presi.FlowExplainer.GetGlobalService<ViewsService>().Views[0].World;
 
     public virtual void Draw()
     {
@@ -62,6 +62,12 @@ public abstract class Slide
     {
     }
 
+    
+    public virtual void Prepare(FlowExplainer flowExplainer)
+    {
+    }
+
+    
     public virtual void OnLeave()
     {
     }

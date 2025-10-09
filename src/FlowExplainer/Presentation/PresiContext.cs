@@ -96,6 +96,35 @@ public class PresiContext
         }
     }
 
+    
+    public void SliderCustomTitle(string title, ref float value, float minValue, float maxValue, Vec2 center, float width,
+        [System.Runtime.CompilerServices.CallerFilePath]
+        string filePath = "",
+        [System.Runtime.CompilerServices.CallerLineNumber]
+        int lineNumber = 0)
+    {
+        float height = 100;
+        var widgetData = GetWidgetData(filePath, lineNumber);
+        widgetData.Position = center;
+        widgetData.Size = new Vec2(width, height);
+
+        var left = new Vec2(widgetData.Position.X - widgetData.Size.X / 2f, widgetData.Position.Y);
+        var right = new Vec2(widgetData.Position.X + widgetData.Size.X / 2f, widgetData.Position.Y);
+        Gizmos2D.Line(View.Camera2D, left, right, Color.White, 10);
+        var t = (value - minValue) / (maxValue - minValue);
+        t = float.Clamp(t, 0, 1);
+        Gizmos2D.Circle(View.Camera2D, Utils.Lerp(left, right, t), Color.White, 20);
+        Gizmos2D.AdvText(View.Camera2D, center + new Vec2(0, -40), 48, Color.White, title, centered: true);
+        var rect = new Rect<Vec2>(center - new Vec2(width / 2 + 30, height / 2), center + new Vec2(width / 2 + 30, height / 2));
+        if (View.IsMouseButtonDownLeft && rect.Contains(View.MousePosition))
+        {
+            float newT = (View.MousePosition.X - left.X) / width;
+            newT = float.Clamp(newT, 0, 1);
+
+            value = float.Lerp(minValue, maxValue, newT);
+        }
+    }
+
     public void MainParagraph(string title, [System.Runtime.CompilerServices.CallerFilePath] string filePath = "",
         [System.Runtime.CompilerServices.CallerLineNumber]
         int lineNumber = 0)

@@ -9,12 +9,33 @@ public static class Scripting
     {
         SetGyreDataset(world);
         var presentationService = world.FlowExplainer.GetGlobalService<PresentationService>()!;
-        presentationService.LoadPresentation(new DatasetPresentation2());
+        var updatePresentation = new UpdatePresentation();
+       // updatePresentation.Prepare(world.FlowExplainer);
+        presentationService.LoadPresentation(updatePresentation);
         presentationService.StartPresenting();
         return;
+    
+        var gridVisualizer = world.GetWorldService<GridVisualizer>();
+        var data = world.GetWorldService<DataService>();
+        
+        //ComputeSpeetjensFields(data, "speetjens-computed-fields");
+        SetGyreDataset(world);
+        data.SimulationTime = .3f;
+        data.ColorGradient = Gradients.Grayscale;
+        data.currentSelectedVectorField = "Velocity"; //"Total Flux";
+        gridVisualizer.TargetCellCount = 20000;
+        gridVisualizer.Enable();
+        gridVisualizer.RegularGrid.Interpolate = false;
+        gridVisualizer.SetGridDiagnostic(new UFLIC()
+        {   
+            //UseUnsteady = true,
+        });
+        return;
+        
+
 
         world.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
-        var v = world.GetWorldService<GridVisualizer>();
+        var v = gridVisualizer;
         v.Enable();
         v.TargetCellCount = 200000;
 
@@ -82,12 +103,53 @@ public static class Scripting
         dat.VectorFields.Clear();
         dat.ScalerFields.Clear();
         dat.VectorFields.Add("Velocity", velocityField);
+        dat.VectorFields.Add("Velocity (contained)", new AnalyticalEvolvingVelocityField
+        {
+            epsilon = 0f
+        });
         dat.VectorFields.Add("Diffusion Flux", DiffFluxField);
         dat.VectorFields.Add("Convection Flux", ConvFluxField);
         dat.VectorFields.Add("Total Flux", totalFlux);
         dat.ScalerFields.Add("Total Temperature", TempTot);
         dat.ScalerFields.Add("Convective Temperature", TempConvection);
         dat.ScalerFields.Add("No Flow Temperature", TempTotNoFlow);
+
+        
+        string datasetPath = Config.GetValue<string>("spectral-data-path")!;
+        var tempTot = SpeetjensSpectralImporterSpectral.Load(datasetPath, false); //TspTOT
+        var tempNoFlow = SpeetjensSpectralImporterSpectral.Load(datasetPath, true); //TDIFFspTOT
+
+        var P = 32;
+        var Pe = 100;
+        
+        //T' = T - T_DIFF:
+        //TCONVspTOT = TspTOT-TDIFFspTOT;
+
+        var tempConvection = new SpectralField(new RegularGrid<Vec3i, Complex>(tempTot.Usps.GridSize), tempTot.Rect); //TCONVspTOT
+        for (int i = 0; i < tempConvection.Usps.Data.Length; i++)
+            tempConvection.Usps.Data[i] = tempTot.Usps.Data[i] - tempNoFlow.Usps.Data[i];
+
+
+        float t = .9f;
+        var heatFlux = new ArbitraryField<Vec3, Vec2>(tempTot.Domain, pos =>
+            velocityField.Evaluate(pos) * tempTot.Evaluate(pos));
+
+
+        var D1 = DerivY(P);
+
+        var (dCdX, dCdY) = Grad(tempConvection, D1);
+        for (int i = 0; i < dCdX.Data.Length; i++)
+        {
+            dCdX.Data[i] = -dCdX.Data[i] / Pe;
+            dCdY.Data[i] = -dCdY.Data[i] / Pe;
+        }
+
+        var diffFluxX = new SpectralField(dCdX, tempTot.Rect);
+        var diffFluxY = new SpectralField(dCdY, tempTot.Rect);
+
+        var diffFlux = new ArbitraryField<Vec3, Vec2>(tempTot.Domain, (p) => new Vec2(diffFluxX.Evaluate(p), diffFluxY.Evaluate(p)));
+        
+        dat.VectorFields.Add("Diffusion Flux (Spectral)", diffFlux);
 
         // TempratureField = temprature;
     }
@@ -132,7 +194,7 @@ public static class Scripting
         var diffFlux = new ArbitraryField<Vec3, Vec2>(tempTot.Domain, (p) => new Vec2(diffFluxX.Evaluate(p), diffFluxY.Evaluate(p)));
         var convectiveHeatFlux = new ArbitraryField<Vec3, Vec2>(tempTot.Domain, (p) => tempConvection.Evaluate(p) * velocityField.Evaluate(p));
 
-        var gridSize = new Vec3i(64, 32, 103);
+        var gridSize = new Vec3i(100, 50, 103*2);
         if (!Directory.Exists(folder))
             Directory.CreateDirectory(folder);
 

@@ -15,6 +15,18 @@ namespace FlowExplainer
             Y = y;
             Z = z;
         }
+        public Vec3i(Vec2i xy, int z)
+        {
+            X = xy.X;
+            Y = xy.Y;
+            Z = z;
+        }
+        public Vec3i(int i)
+        {
+            X = i;
+            Y = i;
+            Z = i;
+        }
 
         public Vec3 ToVecF()
         {
