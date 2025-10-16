@@ -29,7 +29,7 @@ public class FlowVisService : WorldService
         var bounds = dat.VectorField.Domain;
         foreach (ref var p in Particles.AsSpan())
         {
-            p.StartPos = Utils.Random(bounds.Boundary.Reduce<Vec2>());
+            p.StartPos = Utils.Random(bounds.RectBoundary.Reduce<Vec2>());
             p.CurPos = p.StartPos;
         }
 
@@ -74,10 +74,10 @@ public class FlowVisService : WorldService
                 Gizmos2D.Instanced.RegisterCircle(p.CurPos, .001f, col);
             }
 
-            Gizmos2D.Instanced.RenderCircles(view.Camera2D.RenderTargetRelative(RenderTexture, dat.VectorField.Domain.Boundary.Reduce<Vec2>()));
+            Gizmos2D.Instanced.RenderCircles(view.Camera2D.RenderTargetRelative(RenderTexture, dat.VectorField.Domain.RectBoundary.Reduce<Vec2>()));
         });
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-        Gizmos2D.ImageCenteredInvertedY(view.Camera2D, RenderTexture, dat.VectorField.Domain.Boundary.Center.XY, dat.VectorField.Domain.Boundary.Size.XY);
+        Gizmos2D.ImageCenteredInvertedY(view.Camera2D, RenderTexture, dat.VectorField.Domain.RectBoundary.Center.XY, dat.VectorField.Domain.RectBoundary.Size.XY);
 
     }
 

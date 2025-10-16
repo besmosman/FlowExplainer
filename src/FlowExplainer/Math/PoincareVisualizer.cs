@@ -14,10 +14,9 @@ public interface IGradientScaler
     public (float min, float max) GetScale();
 }
 
-
 public class PoincareVisualizer : WorldService, IAxisTitle
 {
-    private ConcurrentBag<PoincareComputer.Trajectory> Trajectories = new();
+    private ConcurrentBag<Trajectory<Vec2>> Trajectories = new();
 
     public int Periods = 200;
     public int StepsPerPeriod = 100;
@@ -27,7 +26,7 @@ public class PoincareVisualizer : WorldService, IAxisTitle
 
 
     public string GetTitle() => "Poincaré Section";
-    
+
     public override void DrawImGuiEdit()
     {
         var dat = GetRequiredWorldService<DataService>();
@@ -35,25 +34,55 @@ public class PoincareVisualizer : WorldService, IAxisTitle
         ImGui.SliderInt("Integrations per period", ref StepsPerPeriod, 0, 2000);
         ImGui.SliderInt("Start points", ref StartPoints, 0, 2000);
         ImGuiHelpers.SliderFloat("Render radius", ref RenderRadius, 0, .1f);
-        ImGuiHelpers.SliderFloat("Offset", ref Offset, 0, dat.VectorField.Domain.Boundary.Size.Last);
+        ImGuiHelpers.SliderFloat("Offset", ref Offset, 0, dat.VectorField.Domain.RectBoundary.Size.Last);
         if (ImGui.Button("Generate"))
         {
-            var poincare = new PoincareComputer(dat.VectorField, dat.Integrator);
+            var integrator = IIntegrator<Vec3, Vec2>.Rk4;
+            var poincare = new PoincareComputer(dat.VectorField, integrator);
 
             List<Vec2> start = new();
 
             for (int i = 0; i < StartPoints; i++)
             {
                 float t = i / (StartPoints - 1f);
-                start.Add(new Vec2(t * dat.VectorField.Domain.Boundary.Size.X, 1 / 4f));
+                if (StartPoints == 1)
+                    t = .5f;
+
+                //start.Add(new Vec2(t * dat.VectorField.Domain.RectBoundary.Size.X, 1 / 4f));
+                start.Add(Utils.Random(dat.VectorField.Domain.RectBoundary).XY);
             }
 
             Trajectories.Clear();
             Parallel.ForEach(start, (p) =>
             {
-                var traj = poincare.ComputeOne(p.Up(Offset), dat.VectorField.Domain.Boundary.Size.Z, StepsPerPeriod, Periods);
+                var traj = poincare.ComputeOne(p.Up(Offset), dat.VectorField.Domain.RectBoundary.Size.Z, StepsPerPeriod, Periods);
                 Trajectories.Add(traj);
             });
+
+
+            /*Parallel.ForEach(start, (p) =>
+            {
+                var totalTime = 0f;
+                var x = p.Up(Offset);
+                float dt = 1f / StepsPerPeriod;
+                List<Vec2> hits = new();
+                while (totalTime < Periods)
+                {
+                    var last = x;
+                    float slice = .3f;
+                    var prewrap = integrator.Integrate(dat.VectorField, x, dt).Up(x.Last + dt);
+                    x = dat.VectorField.Boundary.Wrap(prewrap);
+                    if ((x.X <= slice && last.X > slice) || 
+                        (x.X > slice && last.X <= slice))
+                    {
+                        var hitPhase = (x + last) / 2f;
+                        hits.Add(new Vec2(hitPhase.Z, hitPhase.Y));
+                    }
+                    totalTime += dt;
+                }
+                Trajectories.Add(new Trajectory<Vec2>(hits.ToArray()));
+            });*/
+
         }
 
         base.DrawImGuiEdit();
@@ -70,10 +99,10 @@ public class PoincareVisualizer : WorldService, IAxisTitle
 
         foreach (var t in Trajectories)
         {
-            foreach (var p in t.Points)
+            foreach (var p in t.Entries)
             {
                 var color = new Color(1, 1, 1, 1f);
-                Gizmos2D.Instanced.RegisterCircle(p, RenderRadius, color);
+                Gizmos2D.Instanced.RegisterCircle(p, RenderRadius, new Color((t.GetHashCode() / 100f) % 1, 0, 1));
             }
         }
 

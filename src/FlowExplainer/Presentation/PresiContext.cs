@@ -12,6 +12,9 @@ public class PresiContext
     public Vec2 CanvasSize;
     public Vec2 CanvasCenter => CanvasSize / 2;
 
+    public bool MouseLeftPressUsed;
+    public WidgetData? SelectedWidget;
+
     public PresiContext(FlowExplainer flowExplainer)
     {
         FlowExplainer = flowExplainer;
@@ -23,6 +26,8 @@ public class PresiContext
     {
         public Vec2 Position;
         public Vec2 Size;
+        public object ConnectedObject;
+        public bool CapturesScroll;
     }
 
     public void Text(string title, Vec2 pos, float lh, bool centered, Color color, [System.Runtime.CompilerServices.CallerFilePath] string filePath = "",
@@ -61,7 +66,7 @@ public class PresiContext
         if (value)
             Gizmos2D.RectCenter(View.Camera2D, center, widgetData.Size * .8f, Color.Grey(.4f));
         Gizmos2D.Text(View.Camera2D, center + new Vec2(50, 0), 48, Color.White, name);
-        var rect = new Rect<Vec2>(widgetData.Position - widgetData.Size/2, widgetData.Position + widgetData.Size/2);
+        var rect = new Rect<Vec2>(widgetData.Position - widgetData.Size / 2, widgetData.Position + widgetData.Size / 2);
         if (View.IsMouseButtonPressedLeft && rect.Contains(View.MousePosition))
         {
             value = !value;
@@ -91,12 +96,18 @@ public class PresiContext
         {
             float newT = (View.MousePosition.X - left.X) / width;
             newT = float.Clamp(newT, 0, 1);
-
             value = float.Lerp(minValue, maxValue, newT);
+            SelectWidget(widgetData);
+            MouseLeftPressUsed = true;
         }
     }
 
-    
+    public void SelectWidget(WidgetData widgetData)
+    {
+        SelectedWidget = widgetData;
+    }
+
+
     public void SliderCustomTitle(string title, ref float value, float minValue, float maxValue, Vec2 center, float width,
         [System.Runtime.CompilerServices.CallerFilePath]
         string filePath = "",
@@ -122,6 +133,9 @@ public class PresiContext
             newT = float.Clamp(newT, 0, 1);
 
             value = float.Lerp(minValue, maxValue, newT);
+            SelectWidget(widgetData);
+            MouseLeftPressUsed = true;
+
         }
     }
 
@@ -145,12 +159,33 @@ public class PresiContext
         [System.Runtime.CompilerServices.CallerLineNumber]
         int lineNumber = 0)
     {
+        var widgetData = GetWidgetData(filePath, lineNumber);
         var view = GetView(viewname);
-        view.Camera2D.Position = -new Vec2(1, .5f) / 2;
-        view.Camera2D.Scale = view.PostProcessingTarget.Size.X * zoom;
-        view.AltClearColor = new Color(.1f, .1f, .1f);
-        view.TargetSize = size;
+        widgetData.ConnectedObject = view;
+        widgetData.CapturesScroll = true;
+    
         //Gizmos2D.ImageCenteredInvertedY(View.Camera2D, Texture.White1x1, center, size);
+      
+
+        var rect = new Rect<Vec2>(center - size / 2, center + size / 2);
+        if (View.IsMouseButtonDownLeft && rect.Contains(View.MousePosition))
+        {
+            SelectWidget(widgetData);
+            MouseLeftPressUsed = true;
+        }
+        if (view.IsSelected)
+        {
+            var s = size + new Vec2(5,5);
+           // Gizmos2D.Rect(View.Camera2D, center - s / 2, center + s / 2, new Vec4(1, 1, 1, .1f));
+        }
+        else
+        {
+            view.Camera2D.Position = -new Vec2(1, .5f) / 2;
+            view.Camera2D.Scale = view.PostProcessingTarget.Size.X * zoom;
+            view.AltClearColor = new Color(.1f, .1f, .1f);
+            view.TargetSize = size;
+        }
+        
         GL.Disable(EnableCap.Blend);
         Gizmos2D.ImageCenteredInvertedY(View.Camera2D, view.PostProcessingTarget, center, size);
         GL.Enable(EnableCap.Blend);
@@ -195,5 +230,9 @@ public class PresiContext
     public void Refresh(PresentationService presentationService)
     {
         CanvasSize = presentationService.CanvasSize;
+        if (View.IsMouseButtonDownLeft && !MouseLeftPressUsed)
+            SelectedWidget = null;
+
+        MouseLeftPressUsed = false;
     }
 }

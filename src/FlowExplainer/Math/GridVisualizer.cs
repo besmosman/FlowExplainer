@@ -57,13 +57,14 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         new FunctionGridDiagnostic(),
         new LcsVelocityMagnitudeGridDiagnostic(),
         new HeatStructureGridDiagnostic(),
+        new PoincareSmearGridDiagnostic(),
         // new CustomGridDiagnostic(),
         //new FTLEvsCustomGridDiagnostic(),
     ];
 
     public override void Initialize()
     {
-        SetGridDiagnostic(new ScalerGridDiagnostic());
+        SetGridDiagnostic(new PoincareSmearGridDiagnostic());
         material = new Material(Shader.DefaultWorldSpaceVertex, new Shader("Assets/Shaders/grid-reg.frag", ShaderType.FragmentShader));
     }
 
@@ -74,11 +75,11 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
 
         diagnostic = visualizer;
         var dat = GetRequiredWorldService<DataService>();
-        var aspect = Vec2.Normalize(dat.VectorField.Domain.Boundary.Size.Down());
+        var aspect = Vec2.Normalize(dat.VectorField.Domain.RectBoundary.Size.Down());
         float scale = MathF.Sqrt(TargetCellCount / (aspect.X * aspect.Y));
         int width = Math.Max(1, (int)Math.Round(aspect.X * scale));
         int height = Math.Max(1, (int)Math.Round(aspect.Y * scale));
-        RegularGrid = new(new Vec2i(width, height), dat.VectorField.Domain.Boundary.Min.XY, dat.VectorField.Domain.Boundary.Max.XY);
+        RegularGrid = new(new Vec2i(width, height), dat.VectorField.Domain.RectBoundary.Min.XY, dat.VectorField.Domain.RectBoundary.Max.XY);
         gridbuffer = new StorageBuffer<CellData>(RegularGrid.Grid.Data);
         MarkDirty = true;
     }
@@ -116,13 +117,13 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             material.SetUniform("colorgradient", dat.ColorGradient.Texture.Value);
             material.SetUniform("minGrad", AutoScale ? min : 0f);
             material.SetUniform("maxGrad", AutoScale ? max : 1f);
-            var size = RegularGrid.Domain.Boundary.Size;
-            var start = RegularGrid.Domain.Boundary.Min;
+            var size = RegularGrid.Domain.RectBoundary.Size;
+            var start = RegularGrid.Domain.RectBoundary.Min;
             material.SetUniform("model", Matrix4x4.CreateScale(size.X, size.Y, .4f) * Matrix4x4.CreateTranslation(start.X, start.Y, 0));
             gridbuffer.Use();
 
             Gizmos2D.imageQuadInvertedY.Draw();
-            var boundary = dat.VectorField.Domain.Boundary;
+            var boundary = dat.VectorField.Domain.RectBoundary;
         }
     }
 
@@ -194,12 +195,12 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
     private void Resize()
     {
         var dat = GetRequiredWorldService<DataService>();
-        var aspect = Vec2.Normalize(dat.VectorField.Domain.Boundary.Size.Down());
+        var aspect = Vec2.Normalize(dat.VectorField.Domain.RectBoundary.Size.Down());
         float scale = MathF.Sqrt(TargetCellCount / (aspect.X * aspect.Y));
         int width = Math.Max(1, (int)Math.Round(aspect.X * scale));
         int height = Math.Max(1, (int)Math.Round(aspect.Y * scale));
         bool interpolate = RegularGrid.Interpolate;
-        RegularGrid = new(new Vec2i(width, height), dat.VectorField.Domain.Boundary.Min.XY, dat.VectorField.Domain.Boundary.Max.XY);
+        RegularGrid = new(new Vec2i(width, height), dat.VectorField.Domain.RectBoundary.Min.XY, dat.VectorField.Domain.RectBoundary.Max.XY);
         RegularGrid.Interpolate = interpolate;
         gridbuffer = new(RegularGrid.Grid.Data);
     }
@@ -228,7 +229,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         UpdateData();
         
         var gridSize = new Vec3i(RegularGrid.Grid.GridSize.X /1, RegularGrid.Grid.GridSize.Y / 1, timeSteps);
-        var domain = new Rect<Vec3>(RegularGrid.Domain.Boundary.Min.Up(t_start), RegularGrid.Domain.Boundary.Max.Up(t_end));
+        var domain = new Rect<Vec3>(RegularGrid.Domain.RectBoundary.Min.Up(t_start), RegularGrid.Domain.RectBoundary.Max.Up(t_end));
         var spatialDomain = domain.Reduce<Vec2>();
         var field = new RegularGridVectorField<Vec3, Vec3i, float>(gridSize, new RectDomain<Vec3>(domain));
 

@@ -78,7 +78,7 @@ public class UFLIC : IGridDiagnostic
             InputTexture.Resize(gridVisualizer.RegularGrid.GridSize);
             InputTextureCopy.Resize(gridVisualizer.RegularGrid.GridSize);
             globalStep = 0;
-            var domainBoundary = gridVisualizer.RegularGrid.Domain.Boundary;
+            var domainBoundary = gridVisualizer.RegularGrid.Domain.RectBoundary;
             ParallelGrid.For(InputTexture.GridSize, (i, j) => { InputTexture.AtCoords(new Vec2i(i, j)) = NoiseField.Evaluate(domainBoundary.Relative(new Vec2(i, j) / gridVisualizer.RegularGrid.GridSize.ToVec2())); });
             startTime = t;
             if (auto)
@@ -111,7 +111,7 @@ public class UFLIC : IGridDiagnostic
         int max_steps = (int)float.Ceiling(expected_lifetime / dt) + 1;
         float start_t = gridVisualizer.GetRequiredWorldService<DataService>().SimulationTime;
         var vectorField = gridVisualizer.GetRequiredWorldService<DataService>().VectorField;
-        var domainBoundary = vectorField.Domain.Boundary.Reduce<Vec2>();
+        var domainBoundary = vectorField.Domain.RectBoundary.Reduce<Vec2>();
         var outputGrid = gridVisualizer.RegularGrid;
 
         for (int i = 0; i < outputGrid.GridSize.X; i++)

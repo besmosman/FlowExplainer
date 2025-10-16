@@ -4,22 +4,25 @@ using System.Runtime.InteropServices;
 
 namespace FlowExplainer;
 
+
+
 public interface IDomain<Vec> where Vec : IVec<Vec>
 {
     bool IsWithinPhase(Vec p);
     bool IsWithinSpace<T>(T p) where T : IVec<T>;
-    Rect<Vec> Boundary { get; }
-
+    Rect<Vec> RectBoundary { get; }
+    
     public static IDomain<Vec> Infinite => new InfiniteDomain();
-
+    
+    
     private struct InfiniteDomain : IDomain<Vec>
     {
         public bool IsWithinPhase(Vec p) => true;
         public bool IsWithinSpace<T>(T p) where T : IVec<T> => true;
-        public Rect<Vec> Boundary => throw new Exception();
+        public Rect<Vec> RectBoundary => throw new Exception();
     }
-
 }
+
 
 public struct Rect<Vec> where Vec : IVec<Vec>
 {
@@ -64,13 +67,13 @@ public struct Rect<Vec> where Vec : IVec<Vec>
 
 public struct RectDomain<Vec> : IDomain<Vec> where Vec : IVec<Vec>
 {
-    private Rect<Vec> Rect;
+    public Rect<Vec> Rect;
     private Rect<Vec> boundary;
 
     public Vec MinPos => Rect.Min;
     public Vec MaxPos => Rect.Max;
 
-    public Rect<Vec> Boundary => Rect;
+    public Rect<Vec> RectBoundary => Rect;
 
     public RectDomain(Vec min, Vec max)
     {

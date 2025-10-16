@@ -255,4 +255,8 @@ public struct Vec3 :
     {
         return new Vec3i((int)MathF.Round(X), (int)MathF.Round(Y), (int)MathF.Round(Z));
     }
+    public Vector3 ToNumerics()
+    {
+        return new Vector3(X, Y, Z);
+    }
 }

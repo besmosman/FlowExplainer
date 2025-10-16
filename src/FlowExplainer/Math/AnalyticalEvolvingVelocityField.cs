@@ -12,6 +12,15 @@ public class AnalyticalEvolvingVelocityField : IVectorField<Vec3, Vec2>
 
     public float Period => (2f * Pi) / w;
     public IDomain<Vec3> Domain => new RectDomain<Vec3>(new Vec3(0, 0, 0), new Vec3(2, 1f, Period));
+    public IBoundary<Vec3> Boundary { get; } = Boundaries.None<Vec3>();
+
+    public Vec3 Wrap(Vec3 x)
+    {
+        var r = x;
+        r.X %= 2;
+        r.Y = Clamp(r.Y, 0, 1);
+        return r;
+    }
 
     public bool TryEvaluate(Vec3 x, out Vec2 value)
     {
@@ -58,7 +67,7 @@ public class AnalyticalEvolvingVelocityField : IVectorField<Vec3, Vec2>
         if(x.X > 1)
         return new Vec2(-dy,dx);
         */
-        
+
         return Velocity(x.X, x.Y, x.Z);
     }
 

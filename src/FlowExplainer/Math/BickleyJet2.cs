@@ -8,6 +8,7 @@ public class BickleyJet2 : IVectorField<Vec3, Vec2>
 {
     public float Period => 1;
     public IDomain<Vec3> Domain => new RectDomain<Vec3>(new Vec3(0, -3, 0), new Vec3(20, 3f, 100000000));
+    public IBoundary<Vec3> Boundary { get; } = Boundaries.None<Vec3>();
 
     float r0 = 4371e-3f;
     float U0 = 62.66e-3f;
@@ -137,6 +138,10 @@ public class BickleyJet2 : IVectorField<Vec3, Vec2>
 
         // return FiniteDifferences(phase);
         return new Vec2(u, v);
+    }
+    public Vec3 Wrap(Vec3 x)
+    {
+        return x;
     }
 
     public bool TryEvaluate(Vec3 x, out Vec2 value)

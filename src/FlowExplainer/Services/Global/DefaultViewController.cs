@@ -8,7 +8,11 @@ public class PresiChildViewController : IViewController
 {
     public void UpdateAndDraw(View view)
     {
-      
+        var window = view.World.FlowExplainer.GetGlobalService<WindowService>()?.Window;
+        var presi = view.World.FlowExplainer.GetGlobalService<PresentationService>()!.Presi;
+        view.IsSelected = presi.SelectedWidget?.ConnectedObject == view;
+        ViewController2D.Update(view, window);
+        DefaultViewController.Update3DCamera(view, window);
         view.ResizeToTargetSize();
         view.World.Draw(view);
     }
@@ -28,7 +32,7 @@ public class DefaultViewController : IViewController
         }
     }
 
-    public void Update3DCamera(View view, NativeWindow window)
+    public static void Update3DCamera(View view, NativeWindow window)
     {
         var nt = view.World.FlowExplainer;
 

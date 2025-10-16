@@ -16,14 +16,14 @@ public interface IPeriodicVectorField<TInput, TOutput> : IVectorField<TInput, TO
 
 public interface IVectorField<TInput, TOutput> where TInput : IVec<TInput>
 {
-    
+
     /// <summary>
     /// Get value at point, exception if outside of bounds.
     /// </summary>
     /// <param name="x"></param>
     /// <returns></returns>
     TOutput Evaluate(TInput x);
-    
+
     bool TryEvaluate(TInput x, [MaybeNullWhen(false)] out TOutput value);
 
     void OnImGuiEdit()
@@ -31,11 +31,7 @@ public interface IVectorField<TInput, TOutput> where TInput : IVec<TInput>
     }
 
     public IDomain<TInput> Domain { get; }
-    public enum Boundary
-    {
-        Undefined,
-        
-    }
+    public IBoundary<TInput> Boundary { get; }
 
     public static IVectorField<TInput, TOutput> Constant(TOutput value) => new ConstantField<TInput, TOutput>(value, IDomain<TInput>.Infinite);
     public static IVectorField<TInput, TOutput> Constant(TOutput value, IDomain<TInput> domain) => new ConstantField<TInput, TOutput>(value, domain);
@@ -45,6 +41,7 @@ public interface IVectorField<TInput, TOutput> where TInput : IVec<TInput>
         private readonly TOutput Value;
         private readonly IDomain<TInput> domain;
         public IDomain<TInput> Domain => domain;
+        public IBoundary<TInput> Boundary { get; } = Boundaries.None<TInput>();
 
         public ConstantField(TOutput value, IDomain<TInput> domain)
         {
@@ -55,6 +52,11 @@ public interface IVectorField<TInput, TOutput> where TInput : IVec<TInput>
         public TOutput Evaluate(TInput x)
         {
             return Value;
+        }
+
+        public TInput Wrap(TInput x)
+        {
+            return x;
         }
 
         public bool TryEvaluate(TInput x, out TOutput v)

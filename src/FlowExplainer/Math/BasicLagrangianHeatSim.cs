@@ -48,7 +48,7 @@ public class BasicLagrangianHeatSim
             p.Position = positions[i];
             p.Heat = .5f;
             p.LastHeat = p.Heat;
-            p.Tag = p.Position.Y > rect.Center.Y ? 1 : 0;
+            p.Tag = p.Position.X >= rect.Center.X ? 0 : 1;
         }
     }
 
@@ -88,7 +88,9 @@ public class BasicLagrangianHeatSim
             p.Position = Integrator.Integrate(velocityField, new(p.Position, time), dt);
 
 
-            //bounds shouldnt be needed though
+           p.Position = velocityField.Boundary.Wrap(p.Position.Up(time)).XY;
+
+            /*//bounds shouldnt be needed though
             if (p.Position.X < rect.Min.X)
                 p.Position.X = rect.Max.X - float.Epsilon;
             if (p.Position.X > rect.Max.X)
@@ -97,7 +99,7 @@ public class BasicLagrangianHeatSim
             if (p.Position.Y < rect.Min.Y)
                 p.Position.Y = float.Epsilon;
             if (p.Position.Y > rect.Max.Y)
-                p.Position.Y = rect.Max.Y - float.Epsilon;
+                p.Position.Y = rect.Max.Y - float.Epsilon;*/
             //var r = new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()) - new Vec2(.5f, .5f);
             // p.Position += r * .001f * dt;
             float eps = .00001f;

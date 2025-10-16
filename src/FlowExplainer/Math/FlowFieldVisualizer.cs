@@ -17,6 +17,8 @@ public class BickleyJet : IVectorField<Vec3, Vec2>
 
     public float Period => 1;
     public IDomain<Vec3> Domain => new RectDomain<Vec3>(new Vec3(.1f, -.2f, 0), new Vec3(5f, .2f, 1));
+    public IBoundary<Vec3> Boundary { get; } = Boundaries.None<Vec3>();
+
 
     public float sech(float x)
     {
@@ -31,6 +33,10 @@ public class BickleyJet : IVectorField<Vec3, Vec2>
         var vel_x = 0.4543f * Pow((M * M) / (v * p * p * x), 1f / 3f) * sech(ξ) * sech(ξ);
         var vel_y = 0.5503f * Pow((M * v) / (p * x * x), 1f / 3f) * (2 * ξ * sech(ξ) * sech(ξ) - Tanh(ξ));
         return new Vec2(vel_x, vel_y);
+    }
+    public Vec3 Wrap(Vec3 x)
+    {
+        return x;
     }
 
     public bool TryEvaluate(Vec3 x, out Vec2 value)
@@ -50,13 +56,13 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
     public override void DrawImGuiEdit()
     {
         var dat = GetRequiredWorldService<DataService>();
-        var domainArea = dat.VectorField.Domain.Boundary.Size.X * dat.VectorField.Domain.Boundary.Size.Y;
+        var domainArea = dat.VectorField.Domain.RectBoundary.Size.X * dat.VectorField.Domain.RectBoundary.Size.Y;
 
 
         ImGui.SliderInt("Grid Cells", ref GridCells, 0, 1500);
         ImGuiHelpers.SliderFloat("Length", ref Length, 0, 1);
         ImGui.Checkbox("Color by gradient", ref colorByGradient);
-        ImGuiHelpers.SliderFloat("Thickness", ref Thickness, 0, dat.VectorField.Domain.Boundary.Size.Length() / 10f);
+        ImGuiHelpers.SliderFloat("Thickness", ref Thickness, 0, dat.VectorField.Domain.RectBoundary.Size.Length() / 10f);
         ImGui.Checkbox("Auto Resize", ref AutoResize);
         base.DrawImGuiEdit();
     }
@@ -75,7 +81,7 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
     {
         var dat = GetRequiredWorldService<DataService>();
 
-        var domain = dat.VectorField.Domain.Boundary;
+        var domain = dat.VectorField.Domain.RectBoundary;
         var domainSize = domain.Size.Down();
         var domainArea = domainSize.X * domainSize.Y;
         var spacing = MathF.Sqrt(domainArea / GridCells);
@@ -108,7 +114,7 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
                 var color = dat.ColorGradient.Get(0);
                 if (maxDirLenght2 != 0)
                     color = dat.ColorGradient.Get(dir.Length() * 1);
-                
+
                 if (!colorByGradient)
                     color = Color.White;
                 //color = new Color((dir + new Vec2(.1f,.1f)).Up(0).Up(1));

@@ -1,5 +1,26 @@
 ﻿namespace FlowExplainer.Tests;
 
+public class BoundaryTypeTests
+{
+    class VelocityField1 : IVectorField<Vec3, Vec1>
+    {
+        public IDomain<Vec3> Domain { get; } = IDomain<Vec3>.Infinite;
+        public IBoundary<Vec3> Boundary { get; } = Boundaries.Build(
+            [BoundaryType.Periodic, BoundaryType.Fixed, BoundaryType.Periodic], new Rect<Vec3>(Vec3.Zero, Vec3.One));
+
+        public Vec1 Evaluate(Vec3 x)
+        {
+            return (x.X % 1f);
+        }
+
+        public bool TryEvaluate(Vec3 x, out Vec1 value)
+        {
+            value = Evaluate(x);
+            return true;
+        }
+    }
+}
+
 public class RegularGridVectorFieldTests
 {
     [Fact]
@@ -20,7 +41,7 @@ public class RegularGridVectorFieldTests
         Assert.Equal(1, grid.Grid.GetCoordsIndex(new Vec2i(1, 0)));
         Assert.Equal(2, grid.Grid.GetCoordsIndex(new Vec2i(0, 1)));
         Assert.Equal(3, grid.Grid.GetCoordsIndex(new Vec2i(1, 1)));
-        
+
         Assert.Equal(0, grid.Evaluate(new Vec2(0, 0)));
         Assert.Equal(1, grid.Evaluate(new Vec2(1, 0)));
         Assert.Equal(2, grid.Evaluate(new Vec2(0, 1)));

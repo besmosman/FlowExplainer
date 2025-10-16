@@ -2,12 +2,12 @@ namespace FlowExplainer;
 
 public abstract class Slide
 {
-    protected World w0 => Presi.GetView("v0").World;
+    protected World w0 => v0.World;
     protected World w1 => Presi.GetView("v1").World;
     protected World w2 => Presi.GetView("v2").World;
     protected World w3 => Presi.GetView("v3").World;
     protected World[] worlds => [w0, w1, w2, w3];
-
+    protected View v0 => Presi.GetView("v0");
     public PresiContext Presi = null!;
 
     public bool OverrideNextSlideAction = false;
@@ -44,7 +44,7 @@ public abstract class Slide
         var canvasSize = Presi.CanvasSize;
         Gizmos2D.RectCenter(Presi.View.Camera2D, canvasSize / 2, canvasSize * 5, new Color(.0f, .0f, .0f));
         Gizmos2D.RectCenter(Presi.View.Camera2D, canvasSize / 2, canvasSize, new Color(.1f, .1f, .1f));
-        Gizmos2D.RectCenter(Presi.View.Camera2D, new Vec2(canvasSize.X / 2, canvasSize.Y / 2 +60), new Vec2(canvasSize.X, topbarHeight * 2.1f), new Color(.4f, .0f, .9f));
+        Gizmos2D.RectCenter(Presi.View.Camera2D, new Vec2(canvasSize.X / 2, canvasSize.Y / 2 + 60), new Vec2(canvasSize.X, topbarHeight * 2.1f), new Color(.4f, .0f, .9f));
     }
 
 
@@ -62,12 +62,12 @@ public abstract class Slide
     {
     }
 
-    
+
     public virtual void Prepare(FlowExplainer flowExplainer)
     {
     }
 
-    
+
     public virtual void OnLeave()
     {
     }

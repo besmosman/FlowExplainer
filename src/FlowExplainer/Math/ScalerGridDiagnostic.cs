@@ -15,7 +15,7 @@ public class HeatStructureGridDiagnostic : IGridDiagnostic
     {
         var renderGrid = gridVisualizer.RegularGrid;
         var dat = gridVisualizer.GetRequiredWorldService<DataService>();
-        var spaceBounds = dat.VectorField.Domain.Boundary.Reduce<Vec2>();
+        var spaceBounds = dat.VectorField.Domain.RectBoundary.Reduce<Vec2>();
         float t = dat.SimulationTime;
         var tempratureField = dat.TempratureFieldInstant;
         var datVectorFieldInstant = new ArbitraryField<Vec3, Vec2>(dat.VectorField.Domain, p => dat.VectorField.Evaluate(p) * (M / T));
@@ -70,7 +70,7 @@ public class ScalerGridDiagnostic : IGridDiagnostic
         var renderGrid = gridVisualizer.RegularGrid.Grid;
         var dat = gridVisualizer.GetRequiredWorldService<DataService>();
         var tempratureField = dat.TempratureField;
-        var spaceBounds = dat.VectorField.Domain.Boundary.Reduce<Vec2>();
+        var spaceBounds = dat.VectorField.Domain.RectBoundary.Reduce<Vec2>();
 
 
         Parallel.For(0, renderGrid.GridSize.X * renderGrid.GridSize.Y, c =>

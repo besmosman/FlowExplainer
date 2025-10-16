@@ -13,10 +13,16 @@ public class ArbitraryField<Veci, Data> : IVectorField<Veci, Data> where Veci : 
     }
 
     public IDomain<Veci> Domain { get; private set; }
+    public IBoundary<Veci> Boundary { get; private set; }
 
     public Data Evaluate(Veci x)
     {
         return eval(x);
+    }
+    
+    public Veci Wrap(Veci x)
+    {
+        return x;
     }
 
     public bool TryEvaluate(Veci x, out Data value)
@@ -31,6 +37,7 @@ public class SpectralField : IVectorField<Vec3, float>
     public RegularGrid<Vec3i, Complex> Usps;
     public Rect<Vec3> Rect { get; set; }
     public IDomain<Vec3> Domain => new RectDomain<Vec3>(Rect);
+    public IBoundary<Vec3> Boundary => throw new NotImplementedException();
 
     float Pi5 = 0.5f; // probaly Domain in Y axis right?
 
@@ -50,6 +57,10 @@ public class SpectralField : IVectorField<Vec3, float>
     public float Evaluate(Vec3 x)
     {
         return InterpFourCheb(x);
+    }
+    public Vec3 Wrap(Vec3 x)
+    {
+        return x;
     }
 
     public bool TryEvaluate(Vec3 x, out float value)

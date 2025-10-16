@@ -315,7 +315,7 @@ public class HeatSimulation3DVisualizer : WorldService
         if (!loaded.HasValue)
             return;
         float rad = .01f;
-        view.CameraOffset = -dat.VectorField.Domain.Boundary.Center;
+        view.CameraOffset = -dat.VectorField.Domain.RectBoundary.Center;
 //            view.CameraOffset = new Vec3(-.5f, .25f, -.25f);
 
         GL.Enable(EnableCap.DepthTest);

@@ -265,7 +265,7 @@ public class LagrangianTemperatureGridDiagnostic : IGridDiagnostic
         var renderGrid = gridVisualizer.RegularGrid.Grid;
         var dat = gridVisualizer.GetRequiredWorldService<DataService>();
         var tempratureField = dat.TempratureField;
-        var spaceBounds = dat.VectorField.Domain.Boundary.Reduce<Vec2>();
+        var spaceBounds = dat.VectorField.Domain.RectBoundary.Reduce<Vec2>();
         var t = dat.SimulationTime;
         var tau = dat.SimulationTime + T;
         Parallel.For(0, renderGrid.GridSize.X * renderGrid.GridSize.Y, c =>
@@ -290,7 +290,7 @@ public class LagrangianTemperatureGridDiagnostic : IGridDiagnostic
     public void OnImGuiEdit(GridVisualizer gridVisualizer)
     {
         var dat = gridVisualizer.GetRequiredWorldService<DataService>()!;
-        float period = dat.VectorField.Domain.Boundary.Size.Last;
+        float period = dat.VectorField.Domain.RectBoundary.Size.Last;
         ImGuiHelpers.SliderFloat("T", ref T, -period, period);
     }
 
@@ -324,7 +324,7 @@ public class FTLEGridDiagnostic : IGridDiagnostic
         if (Data == null || Data.Length != renderGrid.Data.Length)
             Data = new FTLEData[renderGrid.Data.Length];
 
-        var spatialBounds = domain.Boundary.Reduce<Vec2>();
+        var spatialBounds = domain.RectBoundary.Reduce<Vec2>();
         var flowOperator = IFlowOperator<Vec2, Vec3>.Default;
 
         ParallelGrid.For(renderGrid.GridSize, (i, j) =>
@@ -400,7 +400,7 @@ public class FTLEGridDiagnostic : IGridDiagnostic
     public void OnImGuiEdit(GridVisualizer vis)
     {
         var dat = vis.GetRequiredWorldService<DataService>()!;
-        float period = dat.VectorField.Domain.Boundary.Size.Last;
+        float period = dat.VectorField.Domain.RectBoundary.Size.Last;
         if (ImGuiHelpers.SliderFloat("T", ref T, -period * 1, period * 1))
             vis.MarkDirty = true;
     }

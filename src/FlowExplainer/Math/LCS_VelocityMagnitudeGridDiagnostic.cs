@@ -23,7 +23,7 @@ public class LcsVelocityMagnitudeGridDiagnostic : IGridDiagnostic
             var i = c % renderGrid.GridSize.X;
             var j = c / renderGrid.GridSize.X;
             renderGrid.AtCoords(new Vec2i(i, j)).Value = 0;
-            var pos = domain.Boundary.Reduce<Vec2>().Relative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());
+            var pos = domain.RectBoundary.Reduce<Vec2>().Relative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());
             var center = IFlowOperator<Vec2, Vec3>.Default.Compute(t, tau, pos, dat.VectorField);
             renderGrid.AtCoords(new Vec2i(i, j)).Value = center.AverageAlong((prev, cur) => ((prev.XY - cur.XY) / (cur.Z - prev.Z)).Length());
         });
@@ -32,7 +32,7 @@ public class LcsVelocityMagnitudeGridDiagnostic : IGridDiagnostic
     public void OnImGuiEdit(GridVisualizer vis)
     {
         var dat = vis.GetRequiredWorldService<DataService>()!;
-        float period = dat.VectorField.Domain.Boundary.Size.Last;
+        float period = dat.VectorField.Domain.RectBoundary.Size.Last;
         ImGuiHelpers.SliderFloat("T", ref T, -period * 1, period * 1);
     }
 }

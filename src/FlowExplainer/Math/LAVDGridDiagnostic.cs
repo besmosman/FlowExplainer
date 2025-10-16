@@ -34,8 +34,8 @@ public class LAVDGridDiagnostic : IGridDiagnostic
             var j = c / renderGrid.GridSize.X;
             ref var center = ref renderGrid.AtCoords(new Vec2i(i, j));
 
-            float dx = domain.Boundary.Size.X / renderGrid.GridSize.X;
-            float dy = domain.Boundary.Size.Y / renderGrid.GridSize.Y;
+            float dx = domain.RectBoundary.Size.X / renderGrid.GridSize.X;
+            float dy = domain.RectBoundary.Size.Y / renderGrid.GridSize.Y;
 
             // Neighbor indices with clamping
             int ip = Math.Min(i + 1, renderGrid.GridSize.X - 1);
@@ -73,7 +73,7 @@ public class LAVDGridDiagnostic : IGridDiagnostic
     public void OnImGuiEdit(GridVisualizer vis)
     {
         var dat = vis.GetRequiredWorldService<DataService>()!;
-        float period = dat.VectorField.Domain.Boundary.Size.Last;
+        float period = dat.VectorField.Domain.RectBoundary.Size.Last;
         if (ImGuiHelpers.SliderFloat("T", ref T, -period * 1, period * 1))
             vis.MarkDirty = true;
     }

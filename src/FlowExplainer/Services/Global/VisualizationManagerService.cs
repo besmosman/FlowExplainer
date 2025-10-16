@@ -28,9 +28,14 @@
             {
                 IsEnabled = true,
             });
+            v.AddVisualisationService(new Axis3D()
+            {
+                IsEnabled = true,
+            });
             v.AddVisualisationService(new HeatSimulationViewData());
             v.AddVisualisationService(new HeatSimulationVisualizer());
             v.AddVisualisationService(new GridVisualizer());
+            v.AddVisualisationService(new Poincare3DVisualizer());
             v.AddVisualisationService(new ParticleLagrangianTest());
             v.AddVisualisationService(new FlowDirectionVisualization());
             v.AddVisualisationService(new HeatSimulation3DVisualizer());
@@ -40,7 +45,7 @@
             v.AddVisualisationService(new PoincareVisualizer());
             v.AddVisualisationService(new AxisVisualizer()
             {
-                IsEnabled = true
+                IsEnabled = true,
             });
             v.AddVisualisationService(new StructureIdentifier());
             v.AddVisualisationService(new FlowVisService());

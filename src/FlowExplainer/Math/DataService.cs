@@ -16,7 +16,6 @@ public class DataService : WorldService
     public Dictionary<string, IVectorField<Vec3, float>> ScalerFields = new();
     public Dictionary<string, IVectorField<Vec3, Vec2>> VectorFields = new();
 
-    public IIntegrator<Vec3, Vec2> Integrator = IIntegrator<Vec3, Vec2>.Rk4;
     public ColorGradient ColorGradient { get; set; } = Gradients.GetGradient("matlab_parula");
     public float SimulationTime;
 
@@ -47,7 +46,8 @@ public class DataService : WorldService
 
     public override void Update()
     {
-        if (SimulationTime > VectorField.Domain.Boundary.Max.Z)
+        /*
+        if (SimulationTime > VectorField.Domain.RectBoundary.Max.Z)
         {
             timeAbove += FlowExplainer.DeltaTime;
             if (timeAbove > 1)
@@ -60,6 +60,7 @@ public class DataService : WorldService
         {
             timeAbove = 0;
         }
+        */
 
         base.Update();
     }
@@ -70,8 +71,8 @@ public class DataService : WorldService
     {
         if (firstDraw)
         {
-            view.Camera2D.Position = -VectorField.Domain.Boundary.Center.Down();
-            view.Camera2D.Scale = float.Min(view.Width / VectorField.Domain.Boundary.Size.X / 1.4f, view.Height / VectorField.Domain.Boundary.Size.Y / 1.4f);
+            view.Camera2D.Position = -VectorField.Domain.RectBoundary.Center.Down();
+            view.Camera2D.Scale = float.Min(view.Width / VectorField.Domain.RectBoundary.Size.X / 1.4f, view.Height / VectorField.Domain.RectBoundary.Size.Y / 1.4f);
             firstDraw = false;
         }
 
@@ -86,7 +87,7 @@ public class DataService : WorldService
     public override void DrawImGuiEdit()
     {
         ImGuiHelpers.SliderFloat("Time Multiplier", ref TimeMultiplier, 0, 10);
-        ImGuiHelpers.SliderFloat("Time", ref SimulationTime, 0, VectorField.Domain.Boundary.Size.Z);
+        ImGuiHelpers.SliderFloat("Time", ref SimulationTime, 0, VectorField.Domain.RectBoundary.Size.Z);
 
         VectorField.OnImGuiEdit();
 

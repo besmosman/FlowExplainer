@@ -53,7 +53,7 @@ public class ParticleLagrangianTest : WorldService
     {
         // GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
         var grad = GetRequiredWorldService<DataService>().ColorGradient;
-        var bounds = GetRequiredWorldService<DataService>().VectorField.Domain.Boundary;
+        var bounds = GetRequiredWorldService<DataService>().VectorField.Domain.RectBoundary;
         var f = DisplayT;
         //for (float f = .99f; f <= 1f; f += .05f)
         {
@@ -164,7 +164,7 @@ public class ParticleLagrangianTest : WorldService
         if (useGradient)
             title = "Gradient";
         title += $" (Position={Enum.GetName(positionEnum)}, Value={Enum.GetName(valueEnum)})";
-        var domain = GetRequiredWorldService<DataService>().VectorField.Domain.Boundary;
+        var domain = GetRequiredWorldService<DataService>().VectorField.Domain.RectBoundary;
         var lb = CoordinatesConverter2D.WorldToView(view, new Vec2(domain.Min.X, domain.Min.Y));
         var rb = CoordinatesConverter2D.WorldToView(view, new Vec2(domain.Max.X, domain.Min.Y));
         var lt = CoordinatesConverter2D.WorldToView(view, new Vec2(domain.Min.X, domain.Max.Y));
@@ -195,7 +195,7 @@ public class ParticleLagrangianTest : WorldService
         var dat = GetWorldService<DataService>()!;
         var datVectorField = dat.VectorField;
         var datVectorFieldBack = new ArbitraryField<Vec3, Vec2>(dat.VectorField.Domain, x => dat.VectorField.Evaluate(x));
-        var spatialbounds = datVectorField.Domain.Boundary.Reduce<Vec2>();
+        var spatialbounds = datVectorField.Domain.RectBoundary.Reduce<Vec2>();
 
         spatialbounds.Min -= new Vec2(1.6f, 0);
         spatialbounds.Max += new Vec2(1.6f, 0);

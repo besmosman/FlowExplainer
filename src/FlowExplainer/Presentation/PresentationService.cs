@@ -48,6 +48,7 @@ public class PresentationService : GlobalService
             CurrentSlide.Next();
         else
         {
+            Presi.SelectedWidget = null;
             CurrentSlide.OnLeave();
             CurrentSlideIndex = int.Min(Slides.Length - 1, CurrentSlideIndex + 1);
             CurrentSlide.OnEnter();

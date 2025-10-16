@@ -10,6 +10,7 @@ public class PresentationViewController : IViewController
         var FlowExplainer = presiView.World.FlowExplainer;
         var window = FlowExplainer.GetGlobalService<WindowService>()!.Window;
         var baseSize = FlowExplainer.GetGlobalService<PresentationService>()!.CanvasSize;
+        var presi = FlowExplainer.GetGlobalService<PresentationService>()!.Presi;
         presiView.Camera2D.Position = -baseSize / 2;
 
         var size = new Vec2(window.ClientSize.X, window.ClientSize.Y);
@@ -65,7 +66,7 @@ public class PresentationViewController : IViewController
         }
 
         //presiView.Camera2D.Scale = 1;
-        if (presiView.IsFullScreen || presiView.IsSelected)
+        if ((presiView.IsFullScreen || presiView.IsSelected) && presi.SelectedWidget?.CapturesScroll != true)
         {
             if (window.MouseState.ScrollDelta.Y != 0)
             {

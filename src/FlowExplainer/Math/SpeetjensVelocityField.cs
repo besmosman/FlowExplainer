@@ -8,7 +8,15 @@ public class SpeetjensVelocityField : IVectorField<Vec3, Vec2>
     public float epsilon = 0f;
     public float Period => 1;
 
-    public IDomain<Vec3> Domain => new RectDomain<Vec3>(new Vec3(0, 0, 0), new Vec3(1, .5f, 1));
+    private Rect<Vec3> Rect = new Rect<Vec3>(Vec3.Zero, new Vec3(1, .5f, 1));
+    public IDomain<Vec3> Domain => new RectDomain<Vec3>(Rect);
+    public IBoundary<Vec3> Boundary { get; private set; }
+
+    public SpeetjensVelocityField()
+    {
+        Boundary = Boundaries.Build(
+            [BoundaryType.Periodic, BoundaryType.Fixed, BoundaryType.Periodic], Rect);
+    }
 
     public Vec2 Evaluate(Vec3 x)
     {

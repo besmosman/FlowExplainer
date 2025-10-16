@@ -17,7 +17,7 @@ public class FunctionGridDiagnostic : IGridDiagnostic
         var vectorField = dat.VectorField;
         var vectorFieldInverse = new ArbitraryField<Vec3, Vec2>(dat.VectorField.Domain, (p) => -dat.VectorField.Evaluate(p));
         var domain = vectorField.Domain;
-        var spatialBounds = domain.Boundary.Reduce<Vec2>();
+        var spatialBounds = domain.RectBoundary.Reduce<Vec2>();
         var flowOperator = IFlowOperator<Vec2, Vec3>.Default;
 
         float t = dat.SimulationTime;

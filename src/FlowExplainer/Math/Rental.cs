@@ -4,7 +4,7 @@ namespace FlowExplainer;
 
 public static class Rental<T>
 {
-    private static Dictionary<int, ConcurrentStack<T[]>> stacks = new();
+    private static ConcurrentDictionary<int, ConcurrentStack<T[]>> stacks = new();
 
     public static T[] Rent(int length)
     {

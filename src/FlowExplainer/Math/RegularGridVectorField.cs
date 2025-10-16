@@ -11,6 +11,117 @@ public partial struct RegularGridVectorFieldSave<Vec, Veci, TData>
     public Veci GridSize;
     public Vec Min;
     public Vec Max;
+    public BoundaryType[] Boundaries;
+}
+
+public enum BoundaryType
+{
+    None = 0,
+    Periodic,
+    Fixed,
+    ReflectiveNeumann,
+}
+
+public interface IBoundary<Vec>
+{
+    Vec Wrap(Vec x);
+}
+
+public static class Boundaries
+{
+    public static IBoundary<Vec3> PeriodicXPeriodicZ(Rect<Vec3> rect)
+    {
+        return new BoundaryPeriodicXYPeriodicZ(rect);
+    }
+    public static IBoundary<Vec> None<Vec>()
+    {
+        return new BoundaryNone<Vec>();
+    }
+
+    public static IBoundary<Vec> Build<Vec>(BoundaryType[] boundaries, Rect<Vec> rect) where Vec : IVec<Vec>
+    {
+        return new GenBoundary<Vec>(boundaries, rect);
+    }
+}
+
+class BoundaryNone<Vec> : IBoundary<Vec>
+{
+    public Vec Wrap(Vec x)
+    {
+        return x;
+    }
+}
+
+class BoundaryPeriodicXYPeriodicZ : IBoundary<Vec3>
+{
+    private readonly Rect<Vec3> Rect;
+
+    public BoundaryPeriodicXYPeriodicZ(Rect<Vec3> rect)
+    {
+        Rect = rect;
+    }
+
+    public Vec3 Wrap(Vec3 x)
+    {
+        var r = x;
+        r.X = (x.X - Rect.Min.X) % (Rect.Max.X - Rect.Min.X) + Rect.Min.X;
+        r.Y = x.Z;
+        r.Z = (x.Z - Rect.Min.Z) % (Rect.Max.Z - Rect.Min.Z) + Rect.Min.Z;
+        return r;
+    }
+}
+
+public class GenBoundary<Vec> : IBoundary<Vec> where Vec : IVec<Vec>
+{
+    public BoundaryType[] Boundaries;
+    private Func<Rect<Vec>, int, float, float>[] wraps;
+    private Rect<Vec> Rect;
+
+    public GenBoundary(BoundaryType[] boundaries, Rect<Vec> rect)
+    {
+        Boundaries = boundaries;
+        wraps = new Func<Rect<Vec>, int, float, float>[Vec.One.ElementCount];
+        for (int i = 0; i < boundaries.Length; i++)
+        {
+            switch (boundaries[i])
+            {
+                case BoundaryType.None:
+                    wraps[i] = static (_, _, x) => x;
+                    break;
+                case BoundaryType.Periodic:
+                    wraps[i] = static (r, i, x) =>
+                    {
+                        var t = (x - r.Min[i]) % r.Size[i];
+                        if (t < 0) t += r.Size[i];
+                        return t + r.Min[i];
+                    };
+                    break;
+                case BoundaryType.Fixed:
+                    wraps[i] = static (r, i, x) => float.Clamp(x, r.Min[i], r.Max[i]);
+                    break;
+                case BoundaryType.ReflectiveNeumann:
+                    wraps[i] = static (r, i, x) =>
+                    {
+                        if (x < r.Min[i])
+                            return r.Min[i] - x;
+                        if (x > r.Max[i])
+                            return r.Max[i] - x + r.Max[i];
+                        return x;
+                    };
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+        Rect = rect;
+    }
+
+    public Vec Wrap(Vec x)
+    {
+        for (int i = 0; i < x.ElementCount; i++)
+            x[i] = wraps[i](Rect, i, x[i]);
+        return x;
+    }
 }
 
 /// <summary>
@@ -44,6 +155,11 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
         return value;
     }
 
+    public Vec Wrap(Vec x)
+    {
+        return Boundary.Wrap(x);
+    }
+
     public bool TryEvaluate(Vec x, out TData value)
     {
         x = ToVoxelCoord(x);
@@ -62,29 +178,31 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
     }
 
     public IDomain<Vec> Domain => RectDomain;
+    public IBoundary<Vec> Boundary { get; set; }
 
-    public RegularGridVectorField(TData[] data, Veci gridSize, Vec minCellPos, Vec maxCellPos)
+    public RegularGridVectorField(TData[] data, Veci gridSize, Vec minCellPos, Vec maxCellPos, IBoundary<Vec>? boundary = null)
     {
         Grid = new RegularGrid<Veci, TData>(data, gridSize);
         RectDomain = new RectDomain<Vec>(minCellPos, maxCellPos);
-    }
+        boundary ??= Boundaries.None<Vec>();
+        Boundary = boundary;    }
 
-    public RegularGridVectorField(Veci gridSize, Vec minCellPos, Vec maxCellPos)
+    public RegularGridVectorField(Veci gridSize, Vec minCellPos, Vec maxCellPos, IBoundary<Vec>? boundary = null)
     {
         Grid = new RegularGrid<Veci, TData>(gridSize);
         RectDomain = new RectDomain<Vec>(minCellPos, maxCellPos);
+        boundary ??= Boundaries.None<Vec>();
+        Boundary = boundary;
     }
 
-    public RegularGridVectorField(RegularGrid<Veci, TData> grid, RectDomain<Vec> rectDomain)
-    {
-        Grid = grid;
-        RectDomain = rectDomain;
-    }
 
-    public RegularGridVectorField(Veci gridSize, RectDomain<Vec> rectDomain)
+    public RegularGridVectorField(Veci gridSize, RectDomain<Vec> rectDomain, IBoundary<Vec>? boundary = null)
     {
         Grid = new RegularGrid<Veci, TData>(gridSize);
         RectDomain = rectDomain;
+        if (boundary == null)
+            boundary = Boundaries.Build(new BoundaryType[gridSize.ElementCount], rectDomain.Rect);
+        Boundary = boundary;
     }
 
 
@@ -136,7 +254,8 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
     public static RegularGridVectorField<Vec, Veci, TData> Load(string path)
     {
         var save = BinarySerializer.Load<RegularGridVectorFieldSave<Vec, Veci, TData>>(path);
-        return new RegularGridVectorField<Vec, Veci, TData>(save.Data, save.GridSize, save.Min, save.Max);
+        var boundary = new GenBoundary<Vec>(save.Boundaries, new Rect<Vec>(save.Min, save.Max));
+        return new RegularGridVectorField<Vec, Veci, TData>(save.Data, save.GridSize, save.Min, save.Max, boundary);
     }
 
     public void Save(string path)
@@ -167,7 +286,7 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
             data[i] = selector(coords);
         }
 
-        return new RegularGridVectorField<Vec, Veci, TOut2>(data, GridSize, RectDomain.MinPos, RectDomain.MaxPos);
+        return new RegularGridVectorField<Vec, Veci, TOut2>(data, GridSize, RectDomain.MinPos, RectDomain.MaxPos, Boundary);
     }
 
     //modified from random online source. Tested for 2D and 3D cases, should work in any dimension.

@@ -10,12 +10,12 @@ public class IntroductionPresentation : Presentation
     {
         return
         [
-            
+
             new HeatSubtractSlide(),
             new VectorFieldsSlide(),
         ];
     }
-    
+
     public override void Setup(FlowExplainer flowExplainer)
     {
         var manager = flowExplainer.GetGlobalService<WorldManagerService>();
@@ -54,7 +54,7 @@ public class IntroductionPresentation : Presentation
         presentationService.Presi.GetView("v2").World = w2;
         presentationService.Presi.GetView("v3").World = w3;
     }
-    
+
     private class VectorFieldsSlide : Slide
     {
         public override void OnLeave()
@@ -105,9 +105,9 @@ public class IntroductionPresentation : Presentation
             Presi.Text("Convection Flux", new Vec2(Presi.CanvasCenter.X - 470, 490), 64, true, Color.White);
             Presi.Text("Total Flux", new Vec2(Presi.CanvasCenter.X + 470, 490), 64, true, Color.White);
             Presi.Slider("time", ref w0.GetWorldService<DataService>().SimulationTime, 0, 1, new Vec2(Presi.CanvasCenter.X, 0), 200);
-            
+
             foreach (var w in worlds)
-            w.GetWorldService<DataService>().SimulationTime = w0.GetWorldService<DataService>().SimulationTime;
+                w.GetWorldService<DataService>().SimulationTime = w0.GetWorldService<DataService>().SimulationTime;
 
             base.Draw();
         }
@@ -225,7 +225,7 @@ public class HeatStructuresPresentation : Presentation
             base.Load();
         }
         public override void Draw()
-        {   
+        {
             LayoutMain();
 
             Title("??? visualization");
@@ -356,7 +356,7 @@ public class HeatStructuresPresentation : Presentation
             base.Draw();
         }
     }
-    
+
     public class HeatStructureSlide : Slide
     {
         public string ScalerField;
@@ -370,7 +370,7 @@ public class HeatStructuresPresentation : Presentation
             w0.GetWorldService<GridVisualizer>().SetGridDiagnostic(new ScalerGridDiagnostic());
             w0.GetWorldService<GridVisualizer>().Enable();
             w0.GetWorldService<GridVisualizer>().Continous = true;
-            w0.GetWorldService<GridVisualizer>().TargetCellCount =100000;
+            w0.GetWorldService<GridVisualizer>().TargetCellCount = 100000;
             w0.GetWorldService<DataService>().TimeMultiplier = 0f;
             var flow = w0.GetWorldService<FlowDirectionVisualization>();
             flow.amount = 3000;

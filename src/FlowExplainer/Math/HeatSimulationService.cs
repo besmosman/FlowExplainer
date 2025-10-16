@@ -27,10 +27,10 @@ public partial struct Snapshot
 public class HeatSimulationService : WorldService
 {
     public override ToolCategory Category => ToolCategory.Heat;
-    private BasicLagrangianHeatSim basicLagrangianHeatSim = new BasicLagrangianHeatSim();
+    public BasicLagrangianHeatSim basicLagrangianHeatSim = new BasicLagrangianHeatSim();
 
-    private float particleSpacing = 0.1f;
-    private float particleRenderRadius = .0045f;
+    public float particleSpacing = 0.1f;
+
 
 
     private static float builderProgress = 0;
@@ -38,16 +38,14 @@ public class HeatSimulationService : WorldService
     public override void DrawImGuiEdit()
     {
         var dat = GetRequiredWorldService<DataService>();
-        ImGuiHelpers.SliderFloat("Particle Spacing", ref particleSpacing, 0, dat.VectorField.Domain.Boundary.Size.X / 4f);
+        ImGuiHelpers.SliderFloat("Particle Spacing", ref particleSpacing, 0, dat.VectorField.Domain.RectBoundary.Size.X / 4f);
         ImGuiHelpers.SliderFloat("Radiation Factor", ref basicLagrangianHeatSim.RadiationFactor, 0, .05f);
         ImGuiHelpers.SliderFloat("Conduction Factor", ref basicLagrangianHeatSim.HeatDiffusionFactor, 0, .1f);
         ImGuiHelpers.SliderFloat("Kernel Radius", ref basicLagrangianHeatSim.KernelRadius, 0, .5f);
 
         if (ImGui.Button("Reset"))
         {
-            basicLagrangianHeatSim.Setup(dat.VectorField.Domain.Boundary.Reduce<Vec2>(), particleSpacing);
-            GetRequiredWorldService<HeatSimulationViewData>().Controller = this;
-            GetRequiredWorldService<HeatSimulationViewData>().ViewParticles = basicLagrangianHeatSim.Particles;
+            Reset();
         }
 
         if (ImGui.Button("build"))
@@ -75,7 +73,7 @@ public class HeatSimulationService : WorldService
                 sim.RadiationFactor = basicLagrangianHeatSim.RadiationFactor;
                 sim.HeatDiffusionFactor = basicLagrangianHeatSim.HeatDiffusionFactor;
                 sim.KernelRadius = basicLagrangianHeatSim.KernelRadius;
-                sim.Setup(dat.VectorField.Domain.Boundary.Reduce<Vec2>(), .01f);
+                sim.Setup(dat.VectorField.Domain.RectBoundary.Reduce<Vec2>(), .01f);
                 int steps = 80;
                 int substeps = 10;
                 float dt = 1 / 30f;
@@ -118,6 +116,14 @@ public class HeatSimulationService : WorldService
 
         base.DrawImGuiEdit();
     }
+    public void Reset()
+    {
+
+        var dat = GetRequiredWorldService<DataService>();
+        basicLagrangianHeatSim.Setup(dat.VectorField.Domain.RectBoundary.Reduce<Vec2>(), particleSpacing);
+        GetRequiredWorldService<HeatSimulationViewData>().Controller = this;
+        GetRequiredWorldService<HeatSimulationViewData>().ViewParticles = basicLagrangianHeatSim.Particles;
+    }
 
 
     public override void Draw(RenderTexture rendertarget, View view)
@@ -137,7 +143,7 @@ public class HeatSimulationService : WorldService
         {
             var off = .01f;
             var thick = .012f;
-            var domain = dat.VectorField.Domain.Boundary.Reduce<Vec2>();
+            var domain = dat.VectorField.Domain.RectBoundary.Reduce<Vec2>();
             Gizmos2D.Line(view.Camera2D, new Vec2(domain.Min.X, domain.Max.Y + off + thick/2), new Vec2(domain.Max.X, domain.Max.Y  + off + thick/2), dat.ColorGradient.Get(.00f), thick);
             Gizmos2D.Line(view.Camera2D, new Vec2(domain.Min.X, domain.Min.Y - off - thick/2), new Vec2(domain.Max.X, domain.Min.Y  - off - thick/2), dat.ColorGradient.Get(1f), thick);
         }

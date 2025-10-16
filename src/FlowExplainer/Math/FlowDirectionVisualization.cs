@@ -67,7 +67,7 @@ public class FlowDirectionVisualization : WorldService
         for (int i = 0; i < amount; i++)
         {
             var span = centers.AsSpan(i * posPer, posPer);
-            var pos = velField.Domain.Boundary.Reduce<Vec2>().Relative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
+            var pos = velField.Domain.RectBoundary.Reduce<Vec2>().Relative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
 
             span.Fill(pos);
             PerData[i].TimeAlive = Random.Shared.NextSingle() * 5;
@@ -89,7 +89,7 @@ public class FlowDirectionVisualization : WorldService
             for (int i = 0; i < amount; i++)
             {
                 PerData[i].TimeAlive = -((float)i/amount)*5;
-                var pos = velField.Domain.Boundary.Reduce<Vec2>().Relative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
+                var pos = velField.Domain.RectBoundary.Reduce<Vec2>().Relative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
                 var span = centers.AsSpan(i * posPer, posPer);
                 span.Fill(pos);
             }
@@ -101,7 +101,7 @@ public class FlowDirectionVisualization : WorldService
             var span = centers.AsSpan(i * posPer, posPer);
             if (PerData[i].TimeAlive > end + 2f + ((i*17 + i*1535 + i) % 1000)/1000f )
             {
-                var pos = velField.Domain.Boundary.Reduce<Vec2>().Relative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
+                var pos = velField.Domain.RectBoundary.Reduce<Vec2>().Relative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
                 span.Fill(pos);
                 PerData[i].TimeAlive = -Random.Shared.NextSingle()*5;
             }

@@ -2,11 +2,6 @@ namespace FlowExplainer;
 
 public class PoincareComputer
 {
-    public class Trajectory
-    {
-        public Vec3 StartPhase;
-        public List<Vec2> Points;
-    }
 
     public IVectorField<Vec3, Vec2> VectorField { get; set; }
     public IIntegrator<Vec3, Vec2> Integrator { get; set; }
@@ -17,7 +12,7 @@ public class PoincareComputer
         this.Integrator = integrator;
     }
 
-    public Trajectory ComputeOne(Vec3 startPhase, float period, int stepsPerPeriod, int periods)
+    public Trajectory<Vec2> ComputeOne(Vec3 startPhase, float period, int stepsPerPeriod, int periods)
     {
         List<Vec2> positions = new(periods * stepsPerPeriod);
         var pos = startPhase.XY;
@@ -28,14 +23,11 @@ public class PoincareComputer
             {
                 float t = (p * stepsPerPeriod + i) * dt + startPhase.Z;
                 pos = Integrator.Integrate(VectorField, pos.Up(t), dt);
+                pos = VectorField.Boundary.Wrap(pos.Up(t)).XY;
             }
             positions.Add(pos);
         }
 
-        return new Trajectory
-        {
-            Points = positions,
-            StartPhase = startPhase,
-        };
+        return new Trajectory<Vec2>(positions.ToArray());
     }
 }

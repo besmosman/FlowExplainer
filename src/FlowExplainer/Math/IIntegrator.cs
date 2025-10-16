@@ -75,6 +75,28 @@ public class Trajectory<T> where T : IVec<T>
         return AtTime(c * (Entries[^1].Last - Entries[0].Last) + Entries[0].Last);
     }
     
+    public T AtTimeBilinear(float t)
+    {
+        int L = 0;
+        int R = Entries.Length - 1;
+
+        while (L <= R)
+        {
+            var m = L + (int)float.Floor((R - L) / 2f);
+            if (Entries[m].Last < t)
+            {
+                L = m + 1;
+            }
+            else if (Entries[m].Last > t)
+            {
+                R = m + 1;
+            }
+            else return Entries[m];
+        }
+        float c = t - Entries[L].Last / (Entries[R].Last - Entries[L].Last);
+        return Utils.Lerp(Entries[L], Entries[R], c);
+    }
+
     public T AtTime(float t)
     {
         //So this should be fast for t queries that are increasing or decreasing.
@@ -117,11 +139,15 @@ public interface IFlowOperator<X, P>
 {
     Trajectory<P> Compute(float t_start, float t_end, X x, IVectorField<P, X> v);
 
-    public static IFlowOperator<X, P> Default { get; } = new DefaultFlowOperator();
+    public static IFlowOperator<X, P> Default { get; } = new DefaultFlowOperator(64);
 
     class DefaultFlowOperator : IFlowOperator<X, P>
     {
-        private const int Steps = 64;
+        public int Steps;
+        public DefaultFlowOperator(int steps)
+        {
+            Steps = steps;
+        }
         public static IIntegrator<P, X> Integrator = IIntegrator<P, X>.Rk4;
 
         public Trajectory<P> Compute(float t_start, float t_end, X x, IVectorField<P, X> v)
@@ -134,7 +160,7 @@ public interface IFlowOperator<X, P>
             for (int i = 1; i < Steps; i++)
             {
                 float t = ((float)i / (Steps - 1)) * duration + t_start;
-                cur = Integrator.Integrate(v, cur.Up(t), dt);
+                cur = Integrator.Integrate(v, v.Boundary.Wrap(cur.Up(t)), dt);
                 //if(!v.Domain.IsWithinSpace(cur))
                 //    break;
                 points.Add(cur.Up(t));
