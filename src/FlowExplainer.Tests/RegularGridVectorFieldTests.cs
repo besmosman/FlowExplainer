@@ -5,7 +5,7 @@ public class BoundaryTypeTests
     class VelocityField1 : IVectorField<Vec3, Vec1>
     {
         public IDomain<Vec3> Domain { get; } = IDomain<Vec3>.Infinite;
-        public IBoundary<Vec3> Boundary { get; } = Boundaries.Build(
+        public IBounding<Vec3> Bounding { get; set; } = BoundingFunctions.Build(
             [BoundaryType.Periodic, BoundaryType.Fixed, BoundaryType.Periodic], new Rect<Vec3>(Vec3.Zero, Vec3.One));
 
         public Vec1 Evaluate(Vec3 x)

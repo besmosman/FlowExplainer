@@ -25,7 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\FlowExplainer\FlowExplainer.csproj" />
+      <ProjectReference Include="..\FlowExplainer.Desktop\FlowExplainer.Desktop.csproj" />
     </ItemGroup>
 
 </Project>
