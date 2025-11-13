@@ -8,15 +8,15 @@ public class FlowDirectionVisualization : WorldService
 {
     private int posPer = 32;
     public int amount = 1600;
-    public float thickness = .003f;
-    public float speed = 3;
+    public double thickness = .003f;
+    public double speed = 3;
     private Vec2[] centers;
 
-    public float opacity = .21f;
+    public double opacity = .21f;
 
     struct Data
     {
-        public float TimeAlive;
+        public double TimeAlive;
     }
 
     public override ToolCategory Category => ToolCategory.Flow;
@@ -39,8 +39,8 @@ public class FlowDirectionVisualization : WorldService
         int segments = posPer;
         for (uint i = 0; i < segments; i++)
         {
-            tubeVerts.Add(new Vertex(new Vec3(i / (float)segments, -1f, 0)));
-            tubeVerts.Add(new Vertex(new Vec3(i / (float)segments, 1f, 0)));
+            tubeVerts.Add(new Vertex(new Vec3(i / (double)segments, -1f, 0)));
+            tubeVerts.Add(new Vertex(new Vec3(i / (double)segments, 1f, 0)));
         }
 
         for (uint i = 1; i < segments; i++)
@@ -74,21 +74,21 @@ public class FlowDirectionVisualization : WorldService
         }
     }
 
-    float end = 2;
-    public float dt = .001f;
-    public float avgSpeed = 0f;
-    public float lastSimTime = -1f;
+    double end = 2;
+    public double dt = .001f;
+    public double avgSpeed =0.0;
+    public double lastSimTime = -1f;
     public override void Update()
     {
         var dat = GetRequiredWorldService<DataService>();
         var velField = dat.VectorField;
         var instantField = new InstantFieldVersionLowerDim<Vec3, Vec2, Vec2>(velField, dat.SimulationTime);
-        var velMag = 0f;
+        var velMag =0.0;
         if (dat.SimulationTime != lastSimTime)
         {
             for (int i = 0; i < amount; i++)
             {
-                PerData[i].TimeAlive = -((float)i/amount)*5;
+                PerData[i].TimeAlive = -((double)i/amount)*5;
                 var pos = velField.Domain.RectBoundary.Reduce<Vec2>().Relative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
                 var span = centers.AsSpan(i * posPer, posPer);
                 span.Fill(pos);
@@ -110,7 +110,7 @@ public class FlowDirectionVisualization : WorldService
             {
                 var lastPos = span[posPer - 1];
                 var newPos = lastPos;
-                if (instantField.TryEvaluate(lastPos, out var vel) && float.IsRealNumber(vel.X))
+                if (instantField.TryEvaluate(lastPos, out var vel) && double.IsRealNumber(vel.X))
                 {
                     velMag += vel.Length();
                     if (instantField.Domain.IsWithinPhase(lastPos))
@@ -142,7 +142,7 @@ public class FlowDirectionVisualization : WorldService
 
             //grid.ScaleScaler(dat.TempratureField.Evaluate(span[posPer - 1].Up(dat.SimulationTime)));
             var color = new Color(opacity, opacity,opacity);
-            var a = 0f;
+            var a =0.0;
             var t = PerData[i].TimeAlive;
 
             if (t < 1 && t > .0f)
@@ -150,17 +150,17 @@ public class FlowDirectionVisualization : WorldService
             if (t >= 1 && t < end)
                 a = 1;
             if (t >= end)
-                a = float.Max(0, 1f - ((t - end) * .5f));
+                a = double.Max(0, 1f - ((t - end) * .5f));
 
-            color.A = a;
+            color.A = (float)a;
 
             if (color.A > 0)
             {
 
-                float distanceSquared = Vec2.DistanceSquared(span[0], span[span.Length - 1]);
+                double distanceSquared = Vec2.DistanceSquared(span[0], span[span.Length - 1]);
                 if (distanceSquared < .00005f)
                 {
-                    color.A *= distanceSquared / .00005f;
+                    color.A *= (float)distanceSquared / .00005f;
                 }
                     StreamTube(view.Camera2D, span, color, thickness);
                 
@@ -176,7 +176,7 @@ public class FlowDirectionVisualization : WorldService
     private static Mesh streamtube;
     private static Material material = Material.NewDefaultUnlit;
 
-    public static void StreamTube(ICamera camera, Span<Vec2> centers, Color color, float thickness)
+    public static void StreamTube(ICamera camera, Span<Vec2> centers, Color color, double thickness)
     {
 
         /*foreach (var center in centers)
@@ -199,7 +199,7 @@ public class FlowDirectionVisualization : WorldService
 
         1 => 0
          */
-        var total = 0f;
+        var total =0.0;
         for (int i = 1; i < centers.Length; i++)
         {
             total += Vec2.Distance(centers[i], centers[i - 1]);
@@ -212,9 +212,9 @@ public class FlowDirectionVisualization : WorldService
                 dir = Vec2.Normalize(centers[i] - centers[i - 1]);
             var normal = new Vec2(dir.Y, -dir.X);
 
-            float c = (i / (float)centers.Length);
+            double c = (i / (double)centers.Length);
             var length = thickness * c * (thickness - c * c);
-            length = MathF.Sqrt(1 - (c * 2 - 1) * (c * 2 - 1) * c) * c * thickness;
+            length = Math.Sqrt(1 - (c * 2 - 1) * (c * 2 - 1) * c) * c * thickness;
             streamtube.Vertices[i * 2 + 0].Position = new Vec3(centers[i] - normal * length, 0);
             streamtube.Vertices[i * 2 + 0].Colour.Y = 1;
             streamtube.Vertices[i * 2 + 1].Position = new Vec3(centers[i] + normal * length, 0);

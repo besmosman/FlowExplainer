@@ -3,7 +3,9 @@ using System.Numerics;
 namespace FlowExplainer;
 
 [Serializable]
-public struct Color : IMultiplyOperators<Color, float, Color>,
+public struct Color : 
+    IMultiplyOperators<Color, float, Color>,
+    IMultiplyOperators<Color, double, Color>,
     IAdditionOperators<Color, Color, Color>
 {
     public Vec3 RGB => new Vec3(R, G, B);
@@ -20,12 +22,20 @@ public struct Color : IMultiplyOperators<Color, float, Color>,
         A = a;
     }
 
+    public Color(double r, double g, double b, double a = 1f)
+    {
+        R =(float)r;
+        G =(float)g;
+        B =(float)b;
+        A =(float)a;
+    }
+    
     public Color(Vec4 v)
     {
-        R = v.X;
-        G = v.Y;
-        B = v.Z;
-        A = v.W;
+        R = (float)v.X;
+        G = (float)v.Y;
+        B = (float)v.Z;
+        A = (float)v.W;
     }
 
     public static readonly Color White = new Color(1, 1, 1);
@@ -33,6 +43,11 @@ public struct Color : IMultiplyOperators<Color, float, Color>,
     public static Color Grey(float f) => new Color(f, f, f);
 
     public static Color operator *(Color left, float right)
+    {
+        return new Color(left.R * right, left.G * right, left.B * right, left.A * right);
+    }
+    
+    public static Color operator *(Color left, double right)
     {
         return new Color(left.R * right, left.G * right, left.B * right, left.A * right);
     }
@@ -75,14 +90,14 @@ public struct Color : IMultiplyOperators<Color, float, Color>,
 
     public static Color FromHexString(string hex)
     {
-        float r = GetFloat(hex, 0);
-        float g = GetFloat(hex, 2);
-        float b = GetFloat(hex, 4);
+        float r = Getfloat(hex, 0);
+        float g = Getfloat(hex, 2);
+        float b = Getfloat(hex, 4);
         int a = 1;
 
         return new Color(r, g, b, a);
 
-        static float GetFloat(string hex, int i)
+        static float Getfloat(string hex, int i)
         {
             return Convert.ToInt32(hex.Substring(i, 2), 16) / 255f;
         }
@@ -96,21 +111,21 @@ public struct Color : IMultiplyOperators<Color, float, Color>,
         else p2 = l + s - l * s;
 
         float p1 = 2 * l - p2;
-        float double_r, double_g, double_b;
+        float float_r, float_g, float_b;
         if (s == 0)
         {
-            double_r = l;
-            double_g = l;
-            double_b = l;
+            float_r = l;
+            float_g = l;
+            float_b = l;
         }
         else
         {
-            double_r = QqhToRgb(p1, p2, h + 120);
-            double_g = QqhToRgb(p1, p2, h);
-            double_b = QqhToRgb(p1, p2, h - 120);
+            float_r = QqhToRgb(p1, p2, h + 120);
+            float_g = QqhToRgb(p1, p2, h);
+            float_b = QqhToRgb(p1, p2, h - 120);
         }
 
-        return new Color(double_r, double_g, double_b, alpha);
+        return new Color(float_r, float_g, float_b, alpha);
     }
 
     private static float QqhToRgb(float q1, float q2, float hue)
@@ -131,7 +146,7 @@ public struct Color : IMultiplyOperators<Color, float, Color>,
     
     public System.Numerics.Vector4 ToNumerics()
     {
-        return new System.Numerics.Vector4(R, G, B, A);
+        return new System.Numerics.Vector4((float)R, (float)G, (float)B, (float)A);
     }
     public string ToHex()
     {

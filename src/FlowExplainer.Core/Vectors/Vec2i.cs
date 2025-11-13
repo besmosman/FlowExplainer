@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace FlowExplainer;
 
-public interface IVecFloatEquivalent<TVecF>
+public interface IVecDoubleEquivalent<TVecF>
 {
     TVecF ToVecF();
 }
@@ -11,7 +11,7 @@ public interface IVecFloatEquivalent<TVecF>
 public struct Vec2i :
     IEquatable<Vec2i>,
     IEqualityOperators<Vec2i, Vec2i, bool>,
-    IVecFloatEquivalent<Vec2>, IVec<Vec2i, int>
+    IVecDoubleEquivalent<Vec2>, IVec<Vec2i, int>
 {
     public int X;
     public int Y;

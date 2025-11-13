@@ -4,10 +4,10 @@ public class RungeKutta4IntegratorGen<TInput, TOutput> : IIntegrator<TInput, TOu
     where TInput : IVec<TInput>, IVecDownDimension<TOutput>
     where TOutput : IVec<TOutput>, IVecUpDimension<TInput>
 {
-    public TOutput Integrate(IVectorField<TInput, TOutput> f, TInput x, float dt)
+    public TOutput Integrate(IVectorField<TInput, TOutput> f, TInput x, double dt)
     {
         TOutput p = x.Down();
-        float t = x.Last;
+        double t = x.Last;
 
         if (f.TryEvaluate(p.Up(t), out var k1) &&
             f.TryEvaluate((p + dt * (k1 / 2)).Up(t + dt / 2), out var k2) &&

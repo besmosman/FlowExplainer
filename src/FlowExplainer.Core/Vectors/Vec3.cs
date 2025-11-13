@@ -10,27 +10,27 @@ public struct Vec3 :
     IEquatable<Vec3>,
     IVecUpDimension<Vec4>,
     IVecDownDimension<Vec2>,
-    IVecIntegerEquivelant<Vec3i>
+    IVecIntegerEquivalent<Vec3i>
 {
-    public float X;
-    public float Y;
-    public float Z;
+    public double X;
+    public double Y;
+    public double Z;
 
     public static int SizeInBytes { get; } = 12;
     public int ElementCount => 3;
-    public float Last => Z;
+    public double Last => Z;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public float Sum() => X + Y+Z;
+    public double Sum() => X + Y+Z;
     
 
-    public static Vec3 operator *(float left, Vec3 right)
+    public static Vec3 operator *(double left, Vec3 right)
     {
         return right * left;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Vec3(float x, float y, float z)
+    public Vec3(double x, double y, double z)
     {
         X = x;
         Y = y;
@@ -38,7 +38,7 @@ public struct Vec3 :
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Vec3(Vec2 v, float z = 0)
+    public Vec3(Vec2 v, double z = 0)
     {
         X = v.X;
         Y = v.Y;
@@ -75,20 +75,20 @@ public struct Vec3 :
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vec3 operator /(Vec3 v1, Vec3 v2) => new(v1.X / v2.X, v1.Y / v2.Y, v1.Z / v2.Z);
 
-    public static Vec3 operator /(Vec3 v1, float f) => new(v1.X / f, v1.Y / f, v1.Z / f);
+    public static Vec3 operator /(Vec3 v1, double f) => new(v1.X / f, v1.Y / f, v1.Z / f);
     public static Vec3 operator -(Vec3 v) => new(-v.X, -v.Y, -v.Z);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vec3 operator *(Vec3 v1, float f) => new(v1.X * f, v1.Y * f, v1.Z * f);
+    public static Vec3 operator *(Vec3 v1, double f) => new(v1.X * f, v1.Y * f, v1.Z * f);
 
-    public float Magnitude => (float)Math.Sqrt((X * X) + (Y * Y) + (Z * Z));
-    public float SquaredMagnitude => (X * X) + (Y * Y);
+    public double Magnitude => (double)Math.Sqrt((X * X) + (Y * Y) + (Z * Z));
+    public double SquaredMagnitude => (X * X) + (Y * Y);
 
     public Vec3 Normalized
     {
         get
         {
-            float mag = Magnitude;
+            double mag = Magnitude;
             if (mag == 0)
             {
                 return default;
@@ -108,7 +108,7 @@ public struct Vec3 :
         return this == other;
     }
 
-    public Vec4 Up(float f)
+    public Vec4 Up(double f)
     {
         return new Vec4(this, f);
     }
@@ -128,7 +128,7 @@ public struct Vec3 :
         return $"({X}, {Y}, {Z})";
     }
 
-    public float this[int n]
+    public double this[int n]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
@@ -161,7 +161,7 @@ public struct Vec3 :
 
     public static implicit operator Vector3(Vec3 v)
     {
-        return new Vector3(v.X, v.Y, v.Z);
+        return new Vector3((float)v.X, (float)v.Y, (float)v.Z);
     }
 
     public static explicit operator Vec3(Vector3 v)
@@ -169,11 +169,11 @@ public struct Vec3 :
         return new Vec3(v.X, v.Y, v.Z);
     }
 
-    public readonly float LengthSquared() => (float)Math.Sqrt((X * X) + (Y * Y) + (Z * Z));
+    public readonly double LengthSquared() => (double)Math.Sqrt((X * X) + (Y * Y) + (Z * Z));
 
-    public float Length()
+    public double Length()
     {
-        return float.Sqrt(LengthSquared());
+        return double.Sqrt(LengthSquared());
     }
 
     public static Vec3 Normalize(Vec3 v)
@@ -194,24 +194,24 @@ public struct Vec3 :
     public Vec3 Max(Vec3 b)
     {
         return new Vec3(
-            float.Max(X, b.X),
-            float.Max(Y, b.Y),
-            float.Max(Z, b.Z)
+            double.Max(X, b.X),
+            double.Max(Y, b.Y),
+            double.Max(Z, b.Z)
         );
     }
     public Vec3 Min(Vec3 b)
     {
         return new Vec3(
-            float.Min(X, b.X),
-            float.Min(Y, b.Y),
-            float.Min(Z, b.Z)
+            double.Min(X, b.X),
+            double.Min(Y, b.Y),
+            double.Min(Z, b.Z)
         );
     }
 
     public Vec2 Down() => XY;
 
 
-    public float GetDimension(int n)
+    public double GetDimension(int n)
     {
         switch (n)
         {
@@ -229,13 +229,13 @@ public struct Vec3 :
         direction = Vector3.Normalize(direction);
         Vector3 forward = new Vector3(0, 0, 1);
         Vector3 rotationAxis = Vector3.Cross(forward, direction);
-        float dotProduct = Vector3.Dot(forward, direction);
-        float angle = MathF.Acos(dotProduct);
+        var dotProduct = Vector3.Dot(forward, direction);
+        var angle = Math.Acos(dotProduct);
 
-        if (rotationAxis.LengthSquared() > 0.0001f)
+        if (rotationAxis.LengthSquared() > 0.0001)
         {
             rotationAxis = Vector3.Normalize(rotationAxis);
-            return Matrix4x4.CreateFromAxisAngle(rotationAxis, angle);
+            return Matrix4x4.CreateFromAxisAngle(rotationAxis, (float)angle);
         }
         else
         {
@@ -248,15 +248,15 @@ public struct Vec3 :
 
     public Vec3i FloorInt()
     {
-        return new Vec3i((int)MathF.Floor(X), (int)MathF.Floor(Y), (int)MathF.Floor(Z));
+        return new Vec3i((int)Math.Floor(X), (int)Math.Floor(Y), (int)Math.Floor(Z));
     }
 
     public Vec3i RoundInt()
     {
-        return new Vec3i((int)MathF.Round(X), (int)MathF.Round(Y), (int)MathF.Round(Z));
+        return new Vec3i((int)Math.Round(X), (int)Math.Round(Y), (int)Math.Round(Z));
     }
     public Vector3 ToNumerics()
     {
-        return new Vector3(X, Y, Z);
+        return new Vector3((float)X, (float)Y, (float)Z);
     }
 }

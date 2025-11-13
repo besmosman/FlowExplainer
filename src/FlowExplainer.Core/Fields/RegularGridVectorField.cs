@@ -42,9 +42,9 @@ class BoundingPeriodicXyPeriodicZ : IBounding<Vec3>
 /// Arbitrary dimension grid based vector field with mutlivariate interpolator
 /// </summary>
 public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
-    where Vec : IVec<Vec>, IVecIntegerEquivelant<Veci>
-    where Veci : IVec<Veci, int>, IVecFloatEquivalent<Vec>
-    where TData : IMultiplyOperators<TData, float, TData>, IAdditionOperators<TData, TData, TData>
+    where Vec : IVec<Vec>, IVecIntegerEquivalent<Veci>
+    where Veci : IVec<Veci, int>, IVecDoubleEquivalent<Vec>
+    where TData : IMultiplyOperators<TData, double, TData>, IAdditionOperators<TData, TData, TData>
 {
     public RegularGrid<Veci, TData> Grid { get; private set; }
     public Veci GridSize => Grid.GridSize;
@@ -56,7 +56,7 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
     public TData Evaluate(Vec x)
     {
         x = ToVoxelCoord(x);
-        x = Utils.Clamp<Vec, float>(x, Vec.Zero, GridSize.ToVecF() - Vec.One);
+        x = Utils.Clamp<Vec, double>(x, Vec.Zero, GridSize.ToVecF() - Vec.One);
         if (!Interpolate)
         {
             var coord = x.RoundInt();
@@ -191,7 +191,7 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
     }
 
     public RegularGridVectorField<Vec, Veci, TOut2> Select<TOut2>(Func<Veci, TOut2> selector)
-        where TOut2 : IMultiplyOperators<TOut2, float, TOut2>, IAdditionOperators<TOut2, TOut2, TOut2>
+        where TOut2 : IMultiplyOperators<TOut2, double, TOut2>, IAdditionOperators<TOut2, TOut2, TOut2>
     {
         TOut2[] data = new TOut2[Grid.Data.Length];
         for (int i = 0; i < Grid.Data.Length; i++)
@@ -217,12 +217,12 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
             baseCoord[coords.ElementCount - 1] -= 1;
 
         int numCorners = 1 << dim;
-        float totalWeight = 0.0f;
+        double totalWeight = 0.0f;
         result = default!;
 
         for (int c = 0; c < numCorners; c++)
         {
-            float weight = 1.0f;
+            double weight = 1.0f;
             var corner = baseCoord;
 
             for (int i = 0; i < dim; i++)

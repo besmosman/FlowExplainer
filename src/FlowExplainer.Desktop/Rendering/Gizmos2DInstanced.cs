@@ -7,25 +7,39 @@ public class Gizmos2DInstanced
 {
     internal Gizmos2DInstanced()
     {
-        
+
     }
-    
+
     [StructLayout(LayoutKind.Sequential)]
     private struct CircleRenderInfo
     {
-        public Vec2 Position;
+        public float PositionX;
+        public float PositionY;
         public float Radius;
         public float Padding;
-        public Color Color;
+
+        public float ColorR;
+        public float ColorG;
+        public float ColorB;
+        public float ColorA;
     }
 
     [StructLayout(LayoutKind.Sequential)]
     private struct RectCenteredRenderInfo
     {
-        public Vec2 Center;
-        public Vec2 Size;
-        public Color Color;
-        public Vec3 padding;
+        public float CenterX;
+        public float CenterY;
+        public float SizeX;
+        public float SizeY;
+
+        public float ColorR;
+        public float ColorG;
+        public float ColorB;
+        public float ColorA;
+
+        public float paddingX;
+        public float paddingY;
+        public float paddingZ;
         public float Rotation;
     }
 
@@ -38,13 +52,17 @@ public class Gizmos2DInstanced
     private Material matRectInstanced = new Material(new Shader("Assets/Shaders/instancedRectCentered.vert", ShaderType.VertexShader), Shader.DefaultUnlitFragment);
 
 
-    public void RegisterCircle(Vec2 center, float radius, Color color)
+    public void RegisterCircle(Vec2 center, double radius, Color color)
     {
         circleStorage.Register(new CircleRenderInfo()
         {
-            Position = center,
-            Radius = radius,
-            Color = color
+            PositionX = (float)center.X,
+            PositionY = (float)center.Y,
+            Radius = (float)radius,
+            ColorR = (float)color.R,
+            ColorG = (float)color.G,
+            ColorB = (float)color.B,
+            ColorA = (float)color.A,
         });
     }
 
@@ -61,40 +79,56 @@ public class Gizmos2DInstanced
         circleMesh.DrawInstanced(circleStorage.GetCurrentIndex());
         circleStorage.Reset();
     }
-    
+
     public void RegisterRectCenterd(Vec2 center, Vec2 size, Color color)
     {
         rectCenteredStorage.Register(new RectCenteredRenderInfo
-        { 
-            Center = center, 
-            Size = size,
-            Color = color
+        {
+            CenterX = (float)center.X,
+            CenterY = (float)center.Y,
+            SizeX = (float)size.X,
+            SizeY = (float)size.Y,
+            ColorR = (float)color.R,
+            ColorG = (float)color.G,
+            ColorB = (float)color.B,
+            ColorA = (float)color.A,
+
         });
     }
 
-    public void RegisterLineCentered(Vec2 pos, Vec2 dir, Color color, float thickness)
+    public void RegisterLineCentered(Vec2 pos, Vec2 dir, Color color, double thickness)
     {
         rectCenteredStorage.Register(new RectCenteredRenderInfo
-        { 
-            Center = pos, 
-            Size =  new Vec2(dir.Length(), thickness),
-            Color = color,
-            Rotation = MathF.Atan2(dir.Y, dir.X)
+        {
+            CenterX = (float)pos.X,
+            CenterY = (float)pos.Y,
+            SizeX = (float)dir.Length(),
+            SizeY = (float)thickness,
+            ColorR = (float)color.R,
+            ColorG = (float)color.G,
+            ColorB = (float)color.B,
+            ColorA = (float)color.A,
+            Rotation = (float)Math.Atan2(dir.Y, dir.X)
         });
     }
-    
-    public void RegisterLine(Vec2 start, Vec2 end, Color color, float thickness)
+
+    public void RegisterLine(Vec2 start, Vec2 end, Color color, double thickness)
     {
         var dir = end - start;
         var length = dir.Length();
-        var s2 = start + dir/2;
+        var s2 = start + dir / 2;
 
         rectCenteredStorage.Register(new RectCenteredRenderInfo
-        { 
-            Center = s2, 
-            Size =  new Vec2(length, thickness),
-            Color = color,
-            Rotation = MathF.Atan2(dir.Y, dir.X)
+        {
+            CenterX = (float)s2.X,
+            CenterY = (float)s2.Y,
+            SizeX = (float)length,
+            SizeY = (float)thickness,
+            ColorR = (float)color.R,
+            ColorG = (float)color.G,
+            ColorB = (float)color.B,
+            ColorA = (float)color.A,
+            Rotation = (float)Math.Atan2(dir.Y, dir.X)
         });
     }
 
@@ -113,5 +147,5 @@ public class Gizmos2DInstanced
     }
 
 
-  
+
 }

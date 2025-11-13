@@ -6,7 +6,7 @@ namespace FlowExplainer;
 public class NcLoader
 {
     public RegularGridVectorField<Vec3, Vec3i, Vec2> VelocityField;
-    public RegularGridVectorField<Vec3, Vec3i, float> HeatField;
+    public RegularGridVectorField<Vec3, Vec3i, double> HeatField;
 
     public void Load()
     {
@@ -19,9 +19,9 @@ public class NcLoader
         //var  d = DataSet.Open("C:\\Users\\20183493\\Downloads\\cmems_mod_glo_phy-cur_anfc_0.083deg_P1D-m_1755589173409.nc");
         // var  d = DataSet.Open("C:\\Users\\20183493\\Downloads\\cmems_mod_glo_phy_anfc_0.083deg_PT1H-m_1755591113298.nc");
         var g = d.Variables.All;
-        var uo = d.GetData<float[,,,]>("uo");
-        var vo = d.GetData<float[,,,]>("vo");
-        float[,,,] temp = new float[
+        var uo = d.GetData<double[,,,]>("uo");
+        var vo = d.GetData<double[,,,]>("vo");
+        double[,,,] temp = new double[
             uo.GetLength(0),
             uo.GetLength(1),
             uo.GetLength(2),
@@ -30,13 +30,13 @@ public class NcLoader
 
         if (d.Variables.Contains("thetao"))
         {
-            temp = d.GetData<float[,,,]>("thetao");
+            temp = d.GetData<double[,,,]>("thetao");
         }
         int nT = uo.GetLength(0);
         int nY = uo.GetLength(2);
         int nX = uo.GetLength(3);
-        var minTemp = float.MaxValue;
-        var maxTemp = float.MinValue;
+        var minTemp = double.MaxValue;
+        var maxTemp = double.MinValue;
 
         var min = Vec3.Zero;
         var max = new Vec3(nX, nY, nT) / 100f;
@@ -49,12 +49,12 @@ public class NcLoader
             for (int y = 0; y < nY; y++)
             {
                 VelocityField.Grid.AtCoords(new Vec3i(x, y, t)) = new Vec2(uo[t, 0, y, x], vo[t, 0, y, x]);
-                float temper = temp[t, 0, y, x];
+                double temper = temp[t, 0, y, x];
                 HeatField.Grid.AtCoords(new Vec3i(x, y, t)) = temper;
-                if (float.IsRealNumber(temper))
+                if (double.IsRealNumber(temper))
                 {
-                    minTemp = float.Min(minTemp, temper);
-                    maxTemp = float.Max(maxTemp, temper);
+                    minTemp = double.Min(minTemp, temper);
+                    maxTemp = double.Max(maxTemp, temper);
                 }
             }
 
@@ -69,7 +69,7 @@ public class NcLoader
         for (int i = 0; i < VelocityField.Grid.Data.Length; i++)
         {
             ref var f = ref VelocityField.Grid.Data[i];
-            if (!float.IsRealNumber(f.Sum()))
+            if (!double.IsRealNumber(f.Sum()))
                 f = Vec2.Zero;
         }
     }

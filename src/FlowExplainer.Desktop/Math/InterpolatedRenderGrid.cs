@@ -76,7 +76,7 @@ public class InterpolatedRenderGrid<T> : InterpolatedRenderGrid where T : struct
         material.SetUniform("interpolate", BilinearInterpolation);
         material.SetUniform("view", camera.GetViewMatrix());
         material.SetUniform("projection", camera.GetProjectionMatrix());
-        material.SetUniform("model", Matrix4x4.CreateScale(size.X, size.Y, .4f) * Matrix4x4.CreateTranslation(start.X, start.Y, 0));
+        material.SetUniform("model", Matrix4x4.CreateScale((float)size.X, (float)size.Y, .4f) * Matrix4x4.CreateTranslation((float)start.X, (float)start.Y, 0));
         buffer.Use();
 
         Gizmos2D.imageQuadInvertedY.Draw();
@@ -93,11 +93,11 @@ public class InterpolatedRenderGrid<T> : InterpolatedRenderGrid where T : struct
         public Vec2 GridSize;
         public T[] data;
 
-        public float Multiplier => throw new Exception();
+        public double Multiplier => throw new Exception();
 
         public T Dat => throw new Exception();
 
-        public Color ColorGradient(float v) => throw new Exception();
+        public Color ColorGradient(double v) => throw new Exception();
 
         public int GetIndex(Vec2 coords)
         {
@@ -116,22 +116,22 @@ public class InterpolatedRenderGrid<T> : InterpolatedRenderGrid where T : struct
             throw new Exception();
         }
 
-        public float floor(float x)
+        public double floor(double x)
         {
             throw new Exception();
         }
 
-        public float length(Vec2 x)
+        public double length(Vec2 x)
         {
             throw new Exception();
         }
 
-        public float dot(Vec2 x, Vec2 y)
+        public double dot(Vec2 x, Vec2 y)
         {
             throw new Exception();
         }
 
-        public float sqrt(Vec2 x)
+        public double sqrt(Vec2 x)
         {
             throw new Exception();
         }

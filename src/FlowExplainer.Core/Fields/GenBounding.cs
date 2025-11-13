@@ -15,7 +15,7 @@ public partial class GenBounding<Vec> : IBounding<Vec> where Vec : IVec<Vec>
     public Rect<Vec> Rect { get; set; }
     
     [MemoryPackIgnore]
-    private Func<Rect<Vec>, int, float, float>[] wraps = null!;
+    private Func<Rect<Vec>, int, double, double>[] wraps = null!;
 
     public static GenBounding<Vec> None()
     {
@@ -35,7 +35,7 @@ public partial class GenBounding<Vec> : IBounding<Vec> where Vec : IVec<Vec>
     [MemoryPackOnDeserialized]
     private void RebuildBoundMethod()
     {
-        wraps = new Func<Rect<Vec>, int, float, float>[Vec.One.ElementCount];
+        wraps = new Func<Rect<Vec>, int, double, double>[Vec.One.ElementCount];
         for (int i = 0; i < Boundaries.Length; i++)
         {
             switch (Boundaries[i])
@@ -52,7 +52,7 @@ public partial class GenBounding<Vec> : IBounding<Vec> where Vec : IVec<Vec>
                     };
                     break;
                 case BoundaryType.Fixed:
-                    wraps[i] = static (r, i, x) => float.Clamp(x, r.Min[i], r.Max[i]);
+                    wraps[i] = static (r, i, x) => double.Clamp(x, r.Min[i], r.Max[i]);
                     break;
                 case BoundaryType.ReflectiveNeumann:
                     wraps[i] = static (r, i, x) =>

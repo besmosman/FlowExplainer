@@ -59,17 +59,17 @@ namespace FlowExplainer
             GL.BindBuffer(BufferTarget.ArrayBuffer, VertexBufferObject);
 
             int offset = 0;
-            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, Vertex.Stride, offset); //position
-            offset += sizeof(float) * 3;
+            GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Double, false, Vertex.Stride, offset); //position
+            offset += sizeof(double) * 3;
 
-            GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, Vertex.Stride, offset); //texcoords
-            offset += sizeof(float) * 2;
+            GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Double, false, Vertex.Stride, offset); //texcoords
+            offset += sizeof(double) * 2;
 
-            GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Float, true, Vertex.Stride, offset);  //normal
-            offset += sizeof(float) * 3;
+            GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Double, true, Vertex.Stride, offset);  //normal
+            offset += sizeof(double) * 3;
 
-            GL.VertexAttribPointer(3, 4, VertexAttribPointerType.Float, false, Vertex.Stride, offset); //color
-            offset += sizeof(float) * 4;
+            GL.VertexAttribPointer(3, 4, VertexAttribPointerType.Double, false, Vertex.Stride, offset); //color
+            offset += sizeof(double) * 4;
 
             GL.EnableVertexAttribArray(0);
             GL.EnableVertexAttribArray(1);

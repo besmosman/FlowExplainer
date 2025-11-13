@@ -6,8 +6,8 @@ public class HeatSimulationReplayer : WorldService
 {
     public override ToolCategory Category => ToolCategory.Heat;
     private HeatSimulation? loaded;
-    private float time = 0;
-    private float replaySpeed = 1;
+    private double time = 0;
+    private double replaySpeed = 1;
 
     public override void DrawImGuiEdit()
     {
@@ -55,13 +55,13 @@ public class HeatSimulationReplayer : WorldService
     {
         if (loaded.HasValue)
         {
-            time = float.Clamp(time, loaded.Value.States.First().Time, loaded.Value.States.Last().Time);
+            time = double.Clamp(time, loaded.Value.States.First().Time, loaded.Value.States.Last().Time);
             time += FlowExplainer.DeltaTime * replaySpeed;
             UpdateParticles(GetRequiredWorldService<HeatSimulationViewData>().ViewParticles, loaded.Value, time);
         }
     }
 
-    private void UpdateParticles(BasicLagrangianHeatSim.Particle[] particles, HeatSimulation heatSimulation, float f)
+    private void UpdateParticles(BasicLagrangianHeatSim.Particle[] particles, HeatSimulation heatSimulation, double f)
     {
         var curStep = GetCurrentReplayStep();
         var prevStep = heatSimulation.States[curStep];

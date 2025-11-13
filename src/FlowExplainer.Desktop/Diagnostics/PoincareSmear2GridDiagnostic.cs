@@ -3,14 +3,14 @@ namespace FlowExplainer;
 public class PoincareSmear2GridDiagnostic : IGridDiagnostic
 {
     public bool UseCustomColoring => true;
-    public float DisplayT;
+    public double DisplayT;
 
     RegularGrid<Vec2i, Trajectory<Vec3>> trajectories = new(Vec2i.One);
     public void UpdateGridData(GridVisualizer gridVisualizer)
     {
         var dat = gridVisualizer.GetRequiredWorldService<DataService>();
         var rect = dat.VectorField.Domain.RectBoundary;
-        float period = rect.Size.Z;
+        double period = rect.Size.Z;
         int periods = 300;
         int stepsPerPeriod = 100;
         var flowOperator = new IFlowOperator<Vec2, Vec3>.DefaultFlowOperator(stepsPerPeriod * periods);
@@ -39,41 +39,41 @@ public class PoincareSmear2GridDiagnostic : IGridDiagnostic
                 var pos = gridVisualizer.RegularGrid.ToWorldPos(new Vec2(i + .5f, j + .5f));
                 for (int k = 0; k < steps; k++)
                 {
-                    float t = k / (float)steps;
+                    double t = k / (double)steps;
                     int coherent = EstimateChaos(pos, t) > 145 ? 1 : 0;
-                    atCoords.Value += coherent * (1f / (float)steps);
+                    atCoords.Value += coherent * (1f / (double)steps);
                     if (coherent > 0)
                     {
-                        atCoords.Color = Gradients.Parula.GetCached(t) * t;
+                        atCoords.Color = Gradients.Parula.GetCached(t) * (float)t;
                     }
                 }
             });
 
-        float GetWeight(float dis)
+        double GetWeight(double dis)
         {
-            float sigma = 0.3f;
-            return (float)Math.Exp(-(dis * dis) / (2 * sigma * sigma));
+            double sigma = 0.3f;
+            return (double)Math.Exp(-(dis * dis) / (2 * sigma * sigma));
         }
 
-        float EstimateChaos(Vec2 x, float startPhase)
+        double EstimateChaos(Vec2 x, double startPhase)
         {
             var gridSize = new Vec2i(20, 10) * 2;
-            var densityGrid = new RegularGridVectorField<Vec2, Vec2i, float>(Rental<float>.Rent(gridSize.X * gridSize.Y), gridSize, rect.Min.XY, rect.Max.XY);
+            var densityGrid = new RegularGridVectorField<Vec2, Vec2i, double>(Rental<double>.Rent(gridSize.X * gridSize.Y), gridSize, rect.Min.XY, rect.Max.XY);
             densityGrid.Grid.Data.AsSpan().Fill(0);
             var pos = x;
-            float dt = period / stepsPerPeriod;
+            double dt = period / stepsPerPeriod;
             for (int p = 0; p < periods; p++)
             {
                 for (int i = 0; i < stepsPerPeriod; i++)
                 {
-                    float t = (p * stepsPerPeriod + i) * dt + startPhase;
+                    double t = (p * stepsPerPeriod + i) * dt + startPhase;
                     pos = Integrator.Integrate(dat.VectorField, pos.Up(t), dt);
                     pos = dat.VectorField.Domain.Bounding.Bound(pos.Up(t)).XY;
                 }
                 densityGrid.AtPos(pos)++;
             }
             var f = densityGrid.Grid.Data.Max();
-            Rental<float>.Return(densityGrid.Grid.Data);
+            Rental<double>.Return(densityGrid.Grid.Data);
             return f;
         }
     }

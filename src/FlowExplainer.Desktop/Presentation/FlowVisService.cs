@@ -44,7 +44,7 @@ public class FlowVisService : WorldService
         var dat = GetRequiredWorldService<DataService>();
         var velField = new ArbitraryField<Vec3, Vec2>(dat.VectorField.Domain, (p)=> dat.VectorField.Evaluate(p)*100);
 
-        float dt = 1/100f;
+        double dt = 1/100f;
         foreach (ref var p in Particles.AsSpan())
         {
             p.CurPos = IIntegrator<Vec3, Vec2>.Rk4.Integrate(velField, p.CurPos.Up(t), dt);
@@ -57,7 +57,7 @@ public class FlowVisService : WorldService
         base.Update();
     }
 
-    public float t = 0;
+    public double t = 0;
     public override void Draw(RenderTexture rendertarget, View view)
     {
         var dat = GetRequiredWorldService<DataService>();

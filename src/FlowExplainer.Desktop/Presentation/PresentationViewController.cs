@@ -47,7 +47,7 @@ public class PresentationViewController : IViewController
         presiView.RenderTarget.DrawTo(() =>
         {
             var clearColor = presiView.AltClearColor ?? Style.Current.BackgroundColor;
-            GL.ClearColor(clearColor.R, clearColor.G, clearColor.B, clearColor.A);
+            GL.ClearColor((float)clearColor.R, (float)clearColor.G, (float)clearColor.B, (float)clearColor.A);
             GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
             pre.CurrentSlide.Draw();
         });

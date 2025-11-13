@@ -14,7 +14,7 @@ public class StructureIdentifier : WorldService
     {
         public Vec2i SeedCoords;
         public HashSet<Vec2i> lastFilled;
-        public float dis;
+        public double dis;
     }
 
     public override void Initialize()
@@ -43,8 +43,8 @@ public class StructureIdentifier : WorldService
             if (structure.lastFilled != null)
             {
                 int samples = 64;
-                var bestScore = 0f;
-                var bestdis = 0f;
+                var bestScore =0.0;
+                var bestdis =0.0;
                 var bestOffset = new Vec2i(0, 0);
                 for (int i = 0; i < samples; i++)
                 {
@@ -72,7 +72,7 @@ public class StructureIdentifier : WorldService
                             overlapping.Add(c);
                         }
                     }
-                    var totScore = (float)overlapping.Count / union.Count;
+                    var totScore = (double)overlapping.Count / union.Count;
                     if (totScore > bestScore)
                     {
                         bestOffset = offset;
@@ -81,7 +81,7 @@ public class StructureIdentifier : WorldService
                     }
                 }
                 structure.SeedCoords += bestOffset;
-                structure.dis = float.Lerp(structure.dis, bestdis, .4f);
+                structure.dis = double.Lerp(structure.dis, bestdis, .4f);
             }
             var filled = FindStructure(grid, structure.SeedCoords, structure.dis);
 
@@ -113,7 +113,7 @@ public class StructureIdentifier : WorldService
             structure.lastBounds = newBounds;*/
         }
     }
-    private static HashSet<Vec2i> FindStructure(GridVisualizer grid, Vec2i coord, float dis)
+    private static HashSet<Vec2i> FindStructure(GridVisualizer grid, Vec2i coord, double dis)
     {
 
         var centerVal = grid.RegularGrid.Grid.AtCoords(coord);
@@ -130,7 +130,7 @@ public class StructureIdentifier : WorldService
                 if (!grid.RegularGrid.Grid.Contains(c))
                     continue;
 
-                if (float.Abs(grid.RegularGrid.Grid.AtCoords(c).Value - centerVal.Value) < dis)
+                if (double.Abs(grid.RegularGrid.Grid.AtCoords(c).Value - centerVal.Value) < dis)
                 {
                     if (!toCheck.Contains(c + new Vec2i(1, 0))) toCheck.Enqueue(c + new Vec2i(1, 0));
                     if (!toCheck.Contains(c + new Vec2i(-1, 0))) toCheck.Enqueue(c + new Vec2i(-1, 0));
@@ -141,7 +141,7 @@ public class StructureIdentifier : WorldService
         }
         return filled;
     }
-    private float radius = .1f;
+    private double radius = .1f;
     public override void DrawImGuiEdit()
     {
         ImGuiHelpers.SliderFloat("Identify radius", ref radius, 0, .3f);

@@ -7,19 +7,19 @@ namespace FlowExplainer;
 
 public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
 {
-    public struct CellData : IMultiplyOperators<CellData, float, CellData>, IAdditionOperators<CellData, CellData, CellData>
+    public struct CellData : IMultiplyOperators<CellData, double, CellData>, IAdditionOperators<CellData, CellData, CellData>
     {
-        public float Value;
-        public float Marked;
+        public double Value;
+        public double Marked;
         public Vec2 Padding;
         public Color Color;
 
-        public static CellData operator *(CellData left, float right)
+        public static CellData operator *(CellData left, double right)
         {
             return new CellData
             {
                 Value = left.Value * right,
-                Color = left.Color * right,
+                Color = left.Color * (float)right,
                 Marked = left.Marked * right,
             };
         }
@@ -79,7 +79,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         diagnostic = visualizer;
         var dat = GetRequiredWorldService<DataService>();
         var aspect = Vec2.Normalize(dat.VectorField.Domain.RectBoundary.Size.Down());
-        float scale = MathF.Sqrt(TargetCellCount / (aspect.X * aspect.Y));
+        double scale = Math.Sqrt(TargetCellCount / (aspect.X * aspect.Y));
         int width = Math.Max(1, (int)Math.Round(aspect.X * scale));
         int height = Math.Max(1, (int)Math.Round(aspect.Y * scale));
         RegularGrid = new(new Vec2i(width, height), dat.VectorField.Domain.RectBoundary.Min.XY, dat.VectorField.Domain.RectBoundary.Max.XY);
@@ -118,11 +118,11 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             material.SetUniform("projection", camera.GetProjectionMatrix());
             material.SetUniform("useCustomColor", diagnostic.UseCustomColoring);
             material.SetUniform("colorgradient", dat.ColorGradient.Texture.Value);
-            material.SetUniform("minGrad", AutoScale ? min : 0f);
+            material.SetUniform("minGrad", AutoScale ? min :0.0);
             material.SetUniform("maxGrad", AutoScale ? max : 1f);
             var size = RegularGrid.Domain.RectBoundary.Size;
             var start = RegularGrid.Domain.RectBoundary.Min;
-            material.SetUniform("model", Matrix4x4.CreateScale(size.X, size.Y, .4f) * Matrix4x4.CreateTranslation(start.X, start.Y, 0));
+            material.SetUniform("model", Matrix4x4.CreateScale((float)size.X, (float)size.Y, .4f) * Matrix4x4.CreateTranslation((float)start.X, (float)start.Y, 0));
             gridbuffer.Use();
 
             Gizmos2D.imageQuadInvertedY.Draw();
@@ -130,8 +130,8 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         }
     }
 
-    private float min;
-    private float max;
+    private double min;
+    private double max;
     private Stopwatch s = new();
     private void UpdateData()
     {
@@ -144,18 +144,18 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             Continous = false;
         gridbuffer.Use();
         gridbuffer.Upload();
-        min = float.MaxValue;
-        max = float.MinValue;
+        min = double.MaxValue;
+        max = double.MinValue;
         for (int i = 0; i < gridbuffer.Data.Length; i++)
         {
             var v = gridbuffer.Data[i].Value;
-            if (float.IsRealNumber(v))
+            if (double.IsRealNumber(v))
             {
-                min = float.Min(min, v);
-                max = float.Max(max, v);
+                min = double.Min(min, v);
+                max = double.Max(max, v);
             }
         }
-        max = float.Max(max, min + .00001f);
+        max = double.Max(max, min + .00001f);
     }
 
     public override void DrawImGuiEdit()
@@ -199,7 +199,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
     {
         var dat = GetRequiredWorldService<DataService>();
         var aspect = Vec2.Normalize(dat.VectorField.Domain.RectBoundary.Size.Down());
-        float scale = MathF.Sqrt(TargetCellCount / (aspect.X * aspect.Y));
+        double scale = Math.Sqrt(TargetCellCount / (aspect.X * aspect.Y));
         int width = Math.Max(1, (int)Math.Round(aspect.X * scale));
         int height = Math.Max(1, (int)Math.Round(aspect.Y * scale));
         bool interpolate = RegularGrid.Interpolate;
@@ -214,19 +214,19 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             return $"LIC {GetRequiredWorldService<DataService>().currentSelectedVectorField}";
         return diagnostic?.Name ?? "";
     }
-    public (float min, float max) GetScale()
+    public (double min, double max) GetScale()
     {
         if (AutoScale)
             return (min, max);
         return (0, 1);
     }
-    public float ScaleScaler(float value)
+    public double ScaleScaler(double value)
     {
         if (AutoScale)
             return (value - min) / (max - min);
         return value;
     }
-    public void Save(string path, float t_start, float t_end, int timeSteps)
+    public void Save(string path, double t_start, double t_end, int timeSteps)
     {
         MarkDirty = true;
         UpdateData();
@@ -234,11 +234,11 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         var gridSize = new Vec3i(RegularGrid.Grid.GridSize.X /1, RegularGrid.Grid.GridSize.Y / 1, timeSteps);
         var domain = new Rect<Vec3>(RegularGrid.Domain.RectBoundary.Min.Up(t_start), RegularGrid.Domain.RectBoundary.Max.Up(t_end));
         var spatialDomain = domain.Reduce<Vec2>();
-        var field = new RegularGridVectorField<Vec3, Vec3i, float>(gridSize, new RectDomain<Vec3>(domain));
+        var field = new RegularGridVectorField<Vec3, Vec3i, double>(gridSize, new RectDomain<Vec3>(domain));
 
         for (int i_t = 0; i_t < timeSteps-1; i_t++)
         {
-            float t = float.Lerp(t_start, t_end, i_t / (float)(timeSteps - 1));
+            double t = double.Lerp(t_start, t_end, i_t / (double)(timeSteps - 1));
             GetRequiredWorldService<DataService>().SimulationTime = t;
             MarkDirty = true;
             UpdateData();

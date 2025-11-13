@@ -13,7 +13,7 @@ public class StochasticPoincare : WorldService
     public Particle[] Particles;
     public int Count = 200000;
 
-    public float RenderRadius = .004f;
+    public double RenderRadius = .004f;
 
     public override ToolCategory Category => ToolCategory.Flow;
 
@@ -29,11 +29,11 @@ public class StochasticPoincare : WorldService
     }
 
 
-    static float RandomNormal()
+    static double RandomNormal()
     {
-        float u1 = 1f - Random.Shared.NextSingle();
-        float u2 = 1f - Random.Shared.NextSingle();
-        return MathF.Sqrt(-2f * MathF.Log(u1)) * MathF.Cos(2f * MathF.PI * u2);
+        double u1 = 1f - Random.Shared.NextSingle();
+        double u2 = 1f - Random.Shared.NextSingle();
+        return Math.Sqrt(-2f * Math.Log(u1)) * Math.Cos(2f * Math.PI * u2);
     }
 
     public Vec2 RandomWienerVector()
@@ -41,33 +41,36 @@ public class StochasticPoincare : WorldService
         return new Vec2(RandomNormal(), RandomNormal());
     }
 
-    public void Step(float dt)
+    public void Step(double dt)
     {
         var dat = GetRequiredWorldService<DataService>();
         var advection = dat.VectorField;
+        var advectionR = new ArbitraryField<Vec3, Vec2>(dat.VectorField.Domain, p => -advection.Evaluate(p));
         var Pe = 100;
         var t = dat.SimulationTime;
 
-        float sqrt = float.Sqrt((2 * dt) / Pe);
+        double sqrt = double.Sqrt((2 * dt) / Pe);
         var domainRectBoundary = dat.VectorField.Domain.RectBoundary;
+        var rk4 = IIntegrator<Vec3, Vec2>.Rk4;
         Parallel.For(0, Particles.Length, (i) =>
         {
             ref var p = ref Particles[i];
-            if (Random.Shared.NextSingle() > .9f)
+            if (Random.Shared.NextSingle() > .99f)
             {
                 while (true)
                 {
                     Particles[i].Position = Utils.Random(domainRectBoundary).XY;
                     var max = .8f;
                     var min = -.8f;
-                    if (Random.Shared.NextSingle()*(max-min) + min < dat.ScalerFields[dat.currentSelectedScaler].Evaluate(Particles[i].Position.Up(t)))
+                    if (Random.Shared.NextSingle() * (max - min) + min < dat.ScalerFields[dat.currentSelectedScaler].Evaluate(Particles[i].Position.Up(t)))
                     {
                         break;
                     }
                 }
             }
 
-            p.Position += advection.Evaluate(p.Position.Up(t)) * dt;
+            //p.Position = rk4.Integrate(advection, p.Position.Up(t), dt);
+            p.Position += Vec2.Normalize(advectionR.Evaluate(p.Position.Up(t))) * dt;
             //p.Position += sqrt * RandomWienerVector();
             p.Position = advection.Domain.Bounding.Bound(p.Position.Up(t)).XY;
         });
@@ -86,7 +89,7 @@ public class StochasticPoincare : WorldService
         foreach (var p in Particles)
         {
             var color = new Color(1, 1, 1, 1f);
-            Gizmos2D.Instanced.RegisterCircle(p.Position, RenderRadius, new Color(1, 1, 1, .02f));
+            Gizmos2D.Instanced.RegisterCircle(p.Position, RenderRadius/20, new Color(1, 1, 1, 1f));
         }
 
         Gizmos2D.Instanced.RenderCircles(view.Camera2D);

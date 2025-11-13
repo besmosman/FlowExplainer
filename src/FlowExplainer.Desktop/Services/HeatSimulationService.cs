@@ -16,12 +16,12 @@ public partial struct HeatSimulation
 [MemoryPackable]
 public partial struct Snapshot
 {
-    public float Time;
-    public float[] ParticleX;
-    public float[] ParticleY;
-    public float[] ParticleHeat;
-    public float[] ParticleDiffusionFlux;
-    public float[] ParticleRadiationFlux;
+    public double Time;
+    public double[] ParticleX;
+    public double[] ParticleY;
+    public double[] ParticleHeat;
+    public double[] ParticleDiffusionFlux;
+    public double[] ParticleRadiationFlux;
 }
 
 public class HeatSimulationService : WorldService
@@ -29,11 +29,11 @@ public class HeatSimulationService : WorldService
     public override ToolCategory Category => ToolCategory.Heat;
     public BasicLagrangianHeatSim basicLagrangianHeatSim = new BasicLagrangianHeatSim();
 
-    public float particleSpacing = 0.1f;
+    public double particleSpacing = 0.1f;
 
 
 
-    private static float builderProgress = 0;
+    private static double builderProgress = 0;
 
     public override void DrawImGuiEdit()
     {
@@ -52,7 +52,7 @@ public class HeatSimulationService : WorldService
         {
             new Thread(() =>
             {
-                Snapshot Snapshot(float time, BasicLagrangianHeatSim sim)
+                Snapshot Snapshot(double time, BasicLagrangianHeatSim sim)
                 {
                     return new Snapshot
                     {
@@ -76,9 +76,9 @@ public class HeatSimulationService : WorldService
                 sim.Setup(dat.VectorField.Domain.RectBoundary.Reduce<Vec2>(), .01f);
                 int steps = 80;
                 int substeps = 10;
-                float dt = 1 / 30f;
-                float t = 0;
-                float prewarmTime = .2f;
+                double dt = 1 / 30f;
+                double t = 0;
+                double prewarmTime = .2f;
                 var h = dt / substeps;
 
                 while (t < prewarmTime)
@@ -89,7 +89,7 @@ public class HeatSimulationService : WorldService
 
                 for (int i = 0; i < steps; i++)
                 {
-                    HeatSimulationService.builderProgress = (i + 1) / ((float)steps + 2);
+                    HeatSimulationService.builderProgress = (i + 1) / ((double)steps + 2);
 
                     for (int j = 0; j < substeps; j++)
                     {
@@ -112,7 +112,7 @@ public class HeatSimulationService : WorldService
         }
 
         if (builderProgress != 0 && builderProgress != 1)
-            ImGui.ProgressBar(builderProgress, new Vector2(400, 10), "progress");
+            ImGui.ProgressBar((float)builderProgress, new Vector2(400, 10), "progress");
 
         base.DrawImGuiEdit();
     }

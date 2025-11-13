@@ -4,7 +4,7 @@ namespace FlowExplainer;
 
 public static class FTLEComputer
 {
-    public static float Compute(Vec2 x, float t_start, float t_end, IVectorField<Vec3, Vec2> vectorfield, Vec2 d)
+    public static double Compute(Vec2 x, double t_start, double t_end, IVectorField<Vec3, Vec2> vectorfield, Vec2 d)
     {
         var flowOperator = IFlowOperator<Vec2, Vec3>.Default;
 
@@ -19,7 +19,7 @@ public static class FTLEComputer
         var end_down = trajDown.Entries[^1];
 
 
-        Matrix2 gradient = new Matrix2(
+        Matrix2d gradient = new Matrix2d(
             (end_left.X - end_right.X) / d.X,
             (end_down.X - end_up.X) / d.Y,
             (end_left.Y - end_right.Y) / d.X,
@@ -35,9 +35,9 @@ public static class FTLEComputer
         if (n < 1e-05)
             n = 0;
 
-        var right = float.Sqrt(n);
-        var max_eigen = float.Max(m + right, m - right);
-        var ftle = (1f / float.Abs(t_end - t_start)) * float.Log(float.Sqrt(max_eigen));
+        var right = double.Sqrt(n);
+        var max_eigen = double.Max(m + right, m - right);
+        var ftle = (1f / double.Abs(t_end - t_start)) * double.Log(double.Sqrt(max_eigen));
         return ftle;
     }
 }

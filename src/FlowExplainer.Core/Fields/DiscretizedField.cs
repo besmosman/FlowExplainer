@@ -3,9 +3,9 @@ using System.Numerics;
 namespace FlowExplainer;
 
 public class DiscretizedField<Vec, Veci, TData> : IVectorField<Vec, TData>
-    where Vec : IVec<Vec>, IVecIntegerEquivelant<Veci>
-    where Veci : IVec<Veci, int>, IVecFloatEquivalent<Vec>
-    where TData : IMultiplyOperators<TData, float, TData>, IAdditionOperators<TData, TData, TData>
+    where Vec : IVec<Vec>, IVecIntegerEquivalent<Veci>
+    where Veci : IVec<Veci, int>, IVecDoubleEquivalent<Vec>
+    where TData : IMultiplyOperators<TData, double, TData>, IAdditionOperators<TData, TData, TData>
 {
     public RegularGridVectorField<Vec, Veci, TData> GridField { get; }
     public IDomain<Vec> Domain => GridField.Domain;

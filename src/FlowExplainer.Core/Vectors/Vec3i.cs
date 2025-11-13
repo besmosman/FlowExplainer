@@ -2,7 +2,7 @@
 
 namespace FlowExplainer
 {
-    public struct Vec3i : IEquatable<Vec3i>, IVec<Vec3i, int>, IVecFloatEquivalent<Vec3>
+    public struct Vec3i : IEquatable<Vec3i>, IVec<Vec3i, int>, IVecDoubleEquivalent<Vec3>
     {
         public int X;
         public int Y;

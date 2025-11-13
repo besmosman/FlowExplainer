@@ -17,10 +17,10 @@ namespace FlowExplainer
 
         //Camera settings, should be moved I think.
         public bool CameraLocked;
-        public float CameraYaw;
-        public float CameraPitch;
+        public double CameraYaw;
+        public double CameraPitch;
         public Vec3 CameraOffset;
-        public float CameraZoom = .5f;
+        public double CameraZoom = .5f;
         public View? CameraSync;
 
         public Vec2 RelativeMousePosition;

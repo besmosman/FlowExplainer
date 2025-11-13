@@ -19,7 +19,7 @@ public static class SpeetjensSpectralImporterSpectral
             {
                 var range = (p.IndexOf("t=", StringComparison.InvariantCulture) + 2)..(p.IndexOf("EPS", StringComparison.InvariantCulture));
                 string tString = p[range];
-                var t = float.Parse(tString, CultureInfo.InvariantCulture);
+                var t = double.Parse(tString, CultureInfo.InvariantCulture);
 
                 if (!spectralGrids.ContainsKey(tString))
                 {
@@ -37,7 +37,7 @@ public static class SpeetjensSpectralImporterSpectral
                     for (int y = 0; y < coefY; y++)
                     {
                         ref var at = ref spectralGrid.AtCoords(new Vec2i(x, y));
-                        var v = float.Parse(splitted[y], CultureInfo.InvariantCulture);
+                        var v = double.Parse(splitted[y], CultureInfo.InvariantCulture);
                         if (isRealFile)
                             at = new Complex(v, at.Imaginary);
                         else
@@ -50,7 +50,7 @@ public static class SpeetjensSpectralImporterSpectral
 
         var grids = spectralGrids.Select(o =>
         {
-            var t = float.Parse(o.Key, CultureInfo.InvariantCulture);
+            var t = double.Parse(o.Key, CultureInfo.InvariantCulture);
             return (t, o);
         }).OrderBy(o => o.t).ToArray();
 
@@ -58,7 +58,7 @@ public static class SpeetjensSpectralImporterSpectral
         for (int i = 0; i < grids.Length; i++)
         {
             var diff = i * stepSize - grids[i].t;
-            if (float.Abs(diff) > 0.00001f)
+            if (double.Abs(diff) > 0.00001f)
             {
                 throw new Exception();
             }

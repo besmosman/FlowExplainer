@@ -28,11 +28,11 @@ public static class Gradients
         var samples = 64;
         int padding = 2;
         var y = image.Height / 2;
-        (float time, Color value)[] entries = new (float time, Color value)[samples];
+        (double time, Color value)[] entries = new (double time, Color value)[samples];
         for (int i = 0; i < samples; i++)
         {
-            float t = i / (samples - 1f);
-            var x = int.Clamp((int)float.Round(t * (image.Width - padding * 2) + padding), padding + 1, image.Width - padding - 1);
+            double t = i / (samples - 1f);
+            var x = int.Clamp((int)double.Round(t * (image.Width - padding * 2) + padding), padding + 1, image.Width - padding - 1);
             var pixel = image[x, y];
             var color = new Color(pixel.R, pixel.G, pixel.B, pixel.A) / 255f;
             entries[i] = (t, color);

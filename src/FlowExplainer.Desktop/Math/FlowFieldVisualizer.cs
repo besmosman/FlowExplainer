@@ -26,8 +26,8 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
     }
 
     public int GridCells = 250;
-    public float Length;
-    public float Thickness;
+    public double Length;
+    public double Thickness;
     public bool AutoResize = true;
     public bool colorByGradient = true;
 
@@ -42,8 +42,8 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
         var domain = dat.VectorField.Domain.RectBoundary;
         var domainSize = domain.Size.Down();
         var domainArea = domainSize.X * domainSize.Y;
-        var spacing = MathF.Sqrt(domainArea / GridCells);
-        var maxDirLenght2 = 0f;
+        var spacing = Math.Sqrt(domainArea / GridCells);
+        var maxDirLenght2 =0.0;
         var gridSize = (domainSize / spacing).CeilInt();
         var cellSize = domainSize / gridSize.ToVec2();
         for (int x = 0; x < gridSize.X; x++)
@@ -53,9 +53,9 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
                 var rel = new Vec2(x + .5f, y + .5f) / gridSize.ToVec2();
                 var pos = rel * domainSize + domain.Min.Down();
                 var dir = dat.VectorField.Evaluate(pos.Up(dat.SimulationTime));
-                if (float.IsNaN(dir.X) || float.IsNaN(dir.Y))
+                if (double.IsNaN(dir.X) || double.IsNaN(dir.Y))
                     continue;
-                maxDirLenght2 = MathF.Max(maxDirLenght2, dir.LengthSquared());
+                maxDirLenght2 = Math.Max(maxDirLenght2, dir.LengthSquared());
             }
         }
         for (int x = 0; x < gridSize.X; x++)
@@ -65,10 +65,10 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
                 var rel = new Vec2(x + .5f, y + .5f) / gridSize.ToVec2();
                 var pos = rel * domainSize + domain.Min.Down();
                 var dir = dat.VectorField.Evaluate(pos.Up(dat.SimulationTime));
-                if (float.IsNaN(dir.X) || float.IsNaN(dir.Y))
+                if (double.IsNaN(dir.X) || double.IsNaN(dir.Y))
                     continue;
 
-                dir = float.Clamp(((dir.Length()) / (float.Sqrt(maxDirLenght2))), .2f, .9f) * Vec2.Normalize(dir);
+                dir = double.Clamp(((dir.Length()) / (double.Sqrt(maxDirLenght2))), .2f, .9f) * Vec2.Normalize(dir);
                 var color = dat.ColorGradient.Get(0);
                 if (maxDirLenght2 != 0)
                     color = dat.ColorGradient.Get(dir.Length() * 1);
@@ -77,7 +77,7 @@ public class FlowFieldVisualizer : WorldService, IAxisTitle
                     color = Color.White;
                 //color = new Color((dir + new Vec2(.1f,.1f)).Up(0).Up(1));
                 /*var traj = IFlowOperator<Vec2, Vec3>.Default.Compute(dat.SimulationTime, dat.SimulationTime + .05f, pos, dat.VelocityField);
-                var sum = 0f;
+                var sum =0.0;
                 for (int i = 1; i < traj.Entries.Length; i++)
                 {
                     var last = traj.Entries[i - 1];

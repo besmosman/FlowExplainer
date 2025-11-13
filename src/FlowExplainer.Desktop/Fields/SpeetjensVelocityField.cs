@@ -1,12 +1,12 @@
 using ImGuiNET;
-using static System.Single;
+using static System.Double;
 
 namespace FlowExplainer;
 
 public class SpeetjensVelocityField : IVectorField<Vec3, Vec2>
 {
-    public float epsilon = 0f;
-    public float Period => 1;
+    public double epsilon =0.0;
+    public double Period => 1;
 
     private Rect<Vec3> Rect = new(Vec3.Zero, new Vec3(1, .5f, 1));
     public IDomain<Vec3> Domain => new RectDomain<Vec3>(Rect,  BoundingFunctions.Build(
@@ -28,7 +28,7 @@ public class SpeetjensVelocityField : IVectorField<Vec3, Vec2>
         //ImGuiHelpers.SliderFloat("Epsilon", ref epsilon, 0, 2);
     }
 
-    public Vec2 Velocity(float x, float y, float t)
+    public Vec2 Velocity(double x, double y, double t)
     {
         var D = 0.5f;
         var K = 2f;

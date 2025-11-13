@@ -180,7 +180,7 @@ namespace FlowExplainer
             return new Geometry(vertices, indices);
         }
 
-        public static Geometry WireCircle(uint resolution, float radius, Quaternion rotation, Vec4 color)
+        public static Geometry WireCircle(uint resolution, double radius, Quaternion rotation, Vec4 color)
         {
             resolution = Math.Max(3, resolution);
 
@@ -190,9 +190,9 @@ namespace FlowExplainer
             int ii = 0;
             for (uint i = 0; i < resolution; i++)
             {
-                float th = float.Tau * (i / (float)(resolution - 1));
+                double th = double.Tau * (i / (double)(resolution - 1));
                 var vert = new Vertex(
-                    Vec3.Transform(new Vec3(float.Cos(th) * radius, float.Sin(th) * radius, 0), rotation),
+                    Vec3.Transform(new Vec3(double.Cos(th) * radius, double.Sin(th) * radius, 0), rotation),
                     color
                 );
 
@@ -219,13 +219,13 @@ namespace FlowExplainer
             // Generate vertices per stack / slice
             for (uint i = 0; i < nStacks - 1; i++)
             {
-                float phi = MathF.PI * (i + 1) / nStacks;
+                double phi = Math.PI * (i + 1) / nStacks;
                 for (uint j = 0; j < nSlices; j++)
                 {
-                    float theta = 2.0f * MathF.PI * j / nSlices;
-                    float x = MathF.Sin(phi) * MathF.Cos(theta);
-                    float y = MathF.Cos(phi);
-                    float z = MathF.Sin(phi) * MathF.Sin(theta);
+                    double theta = 2.0f * Math.PI * j / nSlices;
+                    double x = Math.Sin(phi) * Math.Cos(theta);
+                    double y = Math.Cos(phi);
+                    double z = Math.Sin(phi) * Math.Sin(theta);
                     vertices.Add(new Vertex(new Vec3(x, y, z), Vec4.One));
                 }
             }

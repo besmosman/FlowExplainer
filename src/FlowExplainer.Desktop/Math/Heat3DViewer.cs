@@ -5,21 +5,21 @@ namespace FlowExplainer;
 
 public class Heat3DViewer : WorldService
 {
-    private List<(Vec3, float h)> particles = new();
-    private RegularGridVectorField<Vec3, Vec3i, float> heat3d;
-    private StorageBuffer<float> StorageBuffer;
+    private List<(Vec3, double h)> particles = new();
+    private RegularGridVectorField<Vec3, Vec3i, double> heat3d;
+    private StorageBuffer<double> StorageBuffer;
     public override ToolCategory Category => ToolCategory.Heat;
 
     private Material mat = new Material(Shader.DefaultWorldSpaceVertex, new Shader("Assets/Shaders/volume.frag", ShaderType.FragmentShader));
-    public float zScale =2;
-    public float depthScaling = 50;
+    public double zScale =2;
+    public double depthScaling = 50;
     public override void Initialize()
     {
         //   heat3d = HeatSimulationToField.Convert(BinarySerializer.Load<HeatSimulation>("heat.sim"));
         //heat3d = SpeetjensSpectralImporter.Load("C:\\Users\\osman\\Downloads\\ScalarTransportBasicVersion\\ScalarTransportBasicVersion\\DataSet1");
         //heat3d = SpeetjensSpectralImporter.Load(Config.GetValue<string>("spectral-data-path"));
        // heat3d = GetRequiredWorldService<DataService>().TempratureField;
-        StorageBuffer = new StorageBuffer<float>(heat3d.GridSize.Volume());
+        StorageBuffer = new StorageBuffer<double>(heat3d.GridSize.Volume());
         StorageBuffer.Data = heat3d.Grid.Data;
     }
     private object lastVelField;
@@ -37,7 +37,7 @@ public class Heat3DViewer : WorldService
 
         var grad = GetRequiredWorldService<DataService>().ColorGradient;
 
-        float c = (MathF.Sin((float)FlowExplainer.Time.TotalSeconds * .8f) + 1) / 2f;
+        double c = (Math.Sin((double)FlowExplainer.Time.TotalSeconds * .8f) + 1) / 2f;
 
         var th = .02f;
 
@@ -79,8 +79,8 @@ public class Heat3DViewer : WorldService
         Gizmos.UnitCube.Draw();
     }
 
-    private float heatfilterSize = 2;
-    private float heatfilterTemp = 1;
+    private double heatfilterSize = 2;
+    private double heatfilterTemp = 1;
     public override void DrawImGuiEdit()
     {
         ImGuiHelpers.SliderFloat("Filter Radius", ref heatfilterSize, 0, 2);

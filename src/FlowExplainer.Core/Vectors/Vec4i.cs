@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace FlowExplainer;
 
 [StructLayout(LayoutKind.Sequential)]
-public struct Vec4i : IVec<Vec4i, int>, IVecFloatEquivalent<Vec4>
+public struct Vec4i : IVec<Vec4i, int>, IVecDoubleEquivalent<Vec4>
 {
     public int X;
     public int Y;

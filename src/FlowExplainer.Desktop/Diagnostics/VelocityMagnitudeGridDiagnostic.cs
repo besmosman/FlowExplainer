@@ -8,7 +8,7 @@ public class VelocityMagnitudeGridDiagnostic : IGridDiagnostic
     [StructLayout(LayoutKind.Sequential)]
     public struct VelData
     {
-        public float Magnitude;
+        public double Magnitude;
     }
     
     public Type DataType => typeof(VelData);

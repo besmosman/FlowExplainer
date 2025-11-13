@@ -5,7 +5,7 @@ namespace FlowExplainer;
 public class HeatSimulationVisualizer : WorldService, IAxisTitle
 {
     public override ToolCategory Category => ToolCategory.Heat;
-    public float RenderRadius = .01f;
+    public double RenderRadius = .01f;
 
     public Colorings Coloring;
     public bool Scaled;
@@ -39,8 +39,8 @@ public class HeatSimulationVisualizer : WorldService, IAxisTitle
         base.DrawImGuiEdit();
     }
 
-    private float lastMin;
-    private float lastMax;
+    private double lastMin;
+    private double lastMax;
 
     public override void Draw(RenderTexture rendertarget, View view)
     {
@@ -51,8 +51,8 @@ public class HeatSimulationVisualizer : WorldService, IAxisTitle
         if (particles != null)
         {
             GetRequiredWorldService<AxisVisualizer>().titler = this;
-            var min = float.MaxValue;
-            var max = float.MinValue;
+            var min = double.MaxValue;
+            var max = double.MinValue;
             foreach (ref var p in particles.AsSpan())
             {
                 var c = p.Heat;
@@ -77,18 +77,18 @@ public class HeatSimulationVisualizer : WorldService, IAxisTitle
                         throw new ArgumentOutOfRangeException();
                 }
 
-                if (float.IsRealNumber(c))
+                if (double.IsRealNumber(c))
                 {
-                    min = float.Min(min, c);
-                    max = float.Max(max, c);
+                    min = double.Min(min, c);
+                    max = double.Max(max, c);
                 }
             }
 
             var grad = GetRequiredWorldService<DataService>().ColorGradient;
 
-            min = Utils.Lerp(lastMin, min, .06f);
+            min = Utils.Lerp(lastMin, min, .06);
             min = 0;
-            max = Utils.Lerp(lastMax, max, .06f);
+            max = Utils.Lerp(lastMax, max, .06);
             lastMin = min;
             lastMax = max;
             /*max *= .8f;
@@ -117,7 +117,7 @@ public class HeatSimulationVisualizer : WorldService, IAxisTitle
                         throw new ArgumentOutOfRangeException();
                 }
 
-                float t = c;
+                double t = c;
 
                 if (Scaled)
                     t = (c - min) / (max - min);

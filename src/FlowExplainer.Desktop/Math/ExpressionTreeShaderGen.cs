@@ -15,7 +15,7 @@ public class ExpressionTreeShaderGen<T> where T : struct
 
     public static string GetGeneratedFunctions()
     {
-        string method = "Data linear(Data a, Data b, float c)\r\n{\r\n";
+        string method = "Data linear(Data a, Data b, double c)\r\n{\r\n";
         method += "Data d;\r\n";
         foreach (var v in typeof(T).GetFields())
         {
@@ -42,7 +42,7 @@ public class ExpressionTreeShaderGen<T> where T : struct
     private static string GetGlslEquivelantTypeName(Type fieldType)
     {
         FieldInfo v;
-        if (fieldType == typeof(float)) return "float";
+        if (fieldType == typeof(double)) return "double";
         else if (fieldType == typeof(Vec2)) return "vec2";
         else if (fieldType == typeof(Vec3)) return "vec3";
         else if (fieldType == typeof(Vec4)) return "vec4";

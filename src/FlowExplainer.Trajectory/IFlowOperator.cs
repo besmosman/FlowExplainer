@@ -6,7 +6,7 @@ public interface IFlowOperator<X, P>
     where X : IVec<X>, IVecUpDimension<P>
     where P : IVec<P>, IVecDownDimension<X>
 {
-    Trajectory<P> Compute(float t_start, float t_end, X x, IVectorField<P, X> v);
+    Trajectory<P> Compute(double t_start, double t_end, X x, IVectorField<P, X> v);
 
     public static IFlowOperator<X, P> Default { get; } = new DefaultFlowOperator(64);
 
@@ -19,16 +19,16 @@ public interface IFlowOperator<X, P>
         }
         public static IIntegrator<P, X> Integrator = IIntegrator<P, X>.Rk4;
 
-        public Trajectory<P> Compute(float t_start, float t_end, X x, IVectorField<P, X> v)
+        public Trajectory<P> Compute(double t_start, double t_end, X x, IVectorField<P, X> v)
         {
             var duration = (t_end - t_start);
-            float dt = duration / Steps;
+            double dt = duration / Steps;
             var cur = x;
             var points = new List<P>(Steps);
             points.Add(x.Up(t_start));
             for (int i = 1; i < Steps; i++)
             {
-                float t = ((float)i / (Steps - 1)) * duration + t_start;
+                double t = ((double)i / (Steps - 1)) * duration + t_start;
                 cur = Integrator.Integrate(v, v.Domain.Bounding.Bound(cur.Up(t)), dt);
                 //if(!v.Domain.IsWithinSpace(cur))
                 //    break;

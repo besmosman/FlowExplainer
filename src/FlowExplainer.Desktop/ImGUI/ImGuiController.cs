@@ -526,7 +526,7 @@ public static void SetupImGuiStyle()
     /// <summary>
     /// Updates ImGui input and IO configuration state.
     /// </summary>
-    public void Update(NativeWindow wnd, float deltaSeconds)
+    public void Update(NativeWindow wnd, double deltaSeconds)
     {
         if (_frameBegun)
         {
@@ -542,16 +542,16 @@ public static void SetupImGuiStyle()
 
     /// <summary>
     /// Sets per-frame data based on the associated window.
-    /// This is called by Update(float).
+    /// This is called by Update(double).
     /// </summary>
-    private void SetPerFrameImGuiData(float deltaSeconds)
+    private void SetPerFrameImGuiData(double deltaSeconds)
     {
         ImGuiIOPtr io = ImGui.GetIO();
         io.DisplaySize = new Vector2(
             _windowWidth / _scaleFactor.X,
             _windowHeight / _scaleFactor.Y);
         io.DisplayFramebufferScale = _scaleFactor;
-        io.DeltaTime = deltaSeconds; // DeltaTime is in seconds.
+        io.DeltaTime = (float)deltaSeconds; // DeltaTime is in seconds.
     }
 
     readonly List<char> PressedChars = new List<char>();

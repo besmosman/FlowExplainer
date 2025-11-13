@@ -26,9 +26,8 @@
 // off every 'zix'.)
 //
 
-// Uncomment the line below to swap all the inputs/outputs/calculations of FastNoise to doubles instead of floats
-//#define FN_USE_DOUBLES
-
+// Uncomment the line below to swap all the inputs/outputs/calculations of FastNoise to doubles instead of doubles
+#define FN_USE_DOUBLES
 #if FN_USE_DOUBLES
 using FN_DECIMAL = System.Double;
 #else
@@ -136,7 +135,7 @@ public class FastNoise
     private FastNoise m_cellularNoiseLookup = null;
     private int m_cellularDistanceIndex0 = 0;
     private int m_cellularDistanceIndex1 = 1;
-    private float m_cellularJitter = 0.45f;
+    private double m_cellularJitter = 0.45f;
 
     private FN_DECIMAL m_gradientPerturbAmp = (FN_DECIMAL)1.0;
 
@@ -146,7 +145,7 @@ public class FastNoise
         CalculateFractalBounding();
     }
 
-    // Returns a 0 float/double
+    // Returns a 0 double/double
     public static FN_DECIMAL GetDecimalType() { return 0; }
 
     // Returns the seed used by this object
@@ -224,7 +223,7 @@ public class FastNoise
     // Sets the maximum distance a cellular point can move from it's grid position
     // Setting this high will make artifacts more common
     // Default: 0.45
-    public void SetCellularJitter(float cellularJitter) { m_cellularJitter = cellularJitter; }
+    public void SetCellularJitter(double cellularJitter) { m_cellularJitter = cellularJitter; }
 
     // Noise used to calculate a cell value if cellular return type is NoiseLookup
     // The lookup value is acquired through GetNoise() so ensure you SetNoiseType() on the noise lookup, value, gradient or simplex is recommended

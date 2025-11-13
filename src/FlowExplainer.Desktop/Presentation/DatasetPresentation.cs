@@ -53,7 +53,7 @@ public class DatasetPresentation2 : Presentation
 
         public override void OnLeave()
         {
-            Presi.GetView("v0").World.GetWorldService<DataService>().TimeMultiplier = 0f;
+            Presi.GetView("v0").World.GetWorldService<DataService>().TimeMultiplier =0.0;
             Presi.GetView("v0").World.GetWorldService<DataService>().SimulationTime = .0f;
             base.OnLeave();
         }
@@ -173,9 +173,9 @@ public class DatasetPresentation2 : Presentation
 
     public class ConvectiveConvFluxSlide : Slide
     {
-        public float t;
+        public double t;
 
-        public ConvectiveConvFluxSlide(float t)
+        public ConvectiveConvFluxSlide(double t)
         {
             this.t = t;
         }
@@ -212,9 +212,9 @@ public class DatasetPresentation2 : Presentation
 
     public class ConvectiveDiffFluxSlide : Slide
     {
-        public float t;
+        public double t;
 
-        public ConvectiveDiffFluxSlide(float t)
+        public ConvectiveDiffFluxSlide(double t)
         {
             this.t = t;
         }
@@ -310,7 +310,7 @@ public class DatasetPresentation2 : Presentation
             foreach (var w in worlds)
             {
                 var dat = w.GetWorldService<DataService>();
-                dat.TimeMultiplier = 0f;
+                dat.TimeMultiplier =0.0;
                 dat.SimulationTime = .8f;
                 var gridVisualizer = w.GetWorldService<GridVisualizer>();
                 w.GetWorldService<FlowDirectionVisualization>().amount = 2000;
@@ -371,9 +371,9 @@ public class DatasetPresentation2 : Presentation
 
     public static RegularGridVectorField<Vec3, Vec3i, Vec2> DiffFluxField;
     public static RegularGridVectorField<Vec3, Vec3i, Vec2> ConvFluxField;
-    public static RegularGridVectorField<Vec3, Vec3i, float> TempConvection;
-    public static RegularGridVectorField<Vec3, Vec3i, float> TempTot;
-    public static RegularGridVectorField<Vec3, Vec3i, float> TempTotNoFlow;
+    public static RegularGridVectorField<Vec3, Vec3i, double> TempConvection;
+    public static RegularGridVectorField<Vec3, Vec3i, double> TempTot;
+    public static RegularGridVectorField<Vec3, Vec3i, double> TempTotNoFlow;
 
     public static SpeetjensVelocityField VelocityField = new SpeetjensVelocityField()
     {
@@ -394,9 +394,9 @@ public class DatasetPresentation2 : Presentation
 
         /*DiffFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "diffFlux.field"));
         ConvFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "convectiveHeatFlux.field"));
-        TempConvection = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
-        TempTot = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
-        TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));*/
+        TempConvection = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
+        TempTot = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
+        TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));*/
         Scripting.SetGyreDataset(w0);
         Scripting.SetGyreDataset(w1);
         Scripting.SetGyreDataset(w2);
@@ -464,7 +464,7 @@ public class DatasetPresentation : Presentation
 
         public override void OnLeave()
         {
-            Presi.GetView("v0").World.GetWorldService<DataService>().TimeMultiplier = 0f;
+            Presi.GetView("v0").World.GetWorldService<DataService>().TimeMultiplier =0.0;
             Presi.GetView("v0").World.GetWorldService<DataService>().SimulationTime = .0f;
             base.OnLeave();
         }
@@ -583,9 +583,9 @@ public class DatasetPresentation : Presentation
 
     public class ConvectiveConvFluxSlide : Slide
     {
-        public float t;
+        public double t;
 
-        public ConvectiveConvFluxSlide(float t)
+        public ConvectiveConvFluxSlide(double t)
         {
             this.t = t;
         }
@@ -617,9 +617,9 @@ public class DatasetPresentation : Presentation
 
     public class ConvectiveDiffFluxSlide : Slide
     {
-        public float t;
+        public double t;
 
-        public ConvectiveDiffFluxSlide(float t)
+        public ConvectiveDiffFluxSlide(double t)
         {
             this.t = t;
         }
@@ -716,9 +716,9 @@ public class DatasetPresentation : Presentation
 
     public static RegularGridVectorField<Vec3, Vec3i, Vec2> DiffFluxField;
     public static RegularGridVectorField<Vec3, Vec3i, Vec2> ConvFluxField;
-    public static RegularGridVectorField<Vec3, Vec3i, float> TempConvection;
-    public static RegularGridVectorField<Vec3, Vec3i, float> TempTot;
-    public static RegularGridVectorField<Vec3, Vec3i, float> TempTotNoFlow;
+    public static RegularGridVectorField<Vec3, Vec3i, double> TempConvection;
+    public static RegularGridVectorField<Vec3, Vec3i, double> TempTot;
+    public static RegularGridVectorField<Vec3, Vec3i, double> TempTotNoFlow;
 
     public static SpeetjensVelocityField VelocityField = new SpeetjensVelocityField()
     {
@@ -739,9 +739,9 @@ public class DatasetPresentation : Presentation
 
         /*DiffFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "diffFlux.field"));
         ConvFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "convectiveHeatFlux.field"));
-        TempConvection = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
-        TempTot = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
-        TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));*/
+        TempConvection = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
+        TempTot = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
+        TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));*/
         Scripting.SetGyreDataset(w0);
         Scripting.SetGyreDataset(w1);
         Scripting.SetGyreDataset(w2);

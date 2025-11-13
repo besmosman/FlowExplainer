@@ -92,7 +92,7 @@ namespace FlowExplainer
             view.RenderTarget.DrawTo(() =>
             {
                 var clearColor = view.AltClearColor ?? Style.Current.BackgroundColor;
-                GL.ClearColor(clearColor.R, clearColor.G,clearColor.B,clearColor.A);
+                GL.ClearColor((float)clearColor.R, (float)clearColor.G,(float)clearColor.B,(float)clearColor.A);
                 GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
                 foreach (var service in Services)
                 {
@@ -109,7 +109,7 @@ namespace FlowExplainer
 
                 if (!string.IsNullOrEmpty(ImGuiHelpers.LastMessage))
                 {
-                    var t = 1.5f + (float)(ImGuiHelpers.MessageTime - DateTime.Now).TotalSeconds;
+                    var t = 1.5f + (double)(ImGuiHelpers.MessageTime - DateTime.Now).TotalSeconds;
                     if (t > 0)
                     {
                         Gizmos2D.Text(view.ScreenCamera, new Vec2(view.RenderTarget.Size.X / 2f, view.RenderTarget.Size.Y - 90), 80, new Color(1, 1, 0, 1.5f - (1.5f - t) * (1.5f - t)), ImGuiHelpers.LastMessage, centered: true);

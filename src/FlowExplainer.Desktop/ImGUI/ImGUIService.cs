@@ -174,10 +174,10 @@ public class ImGUIService : GlobalService
         Logger.Clean(500);
         ImGui.SetNextWindowPos(new Vector2(0, 0));
         var lh = ImGui.GetTextLineHeightWithSpacing();
-        float spacing = ImGui.GetTextLineHeightWithSpacing() - ImGui.GetTextLineHeight();
-        ImGui.SetNextWindowSize(new Vector2(window.Size.X, lh * 14 + spacing * 3));
+        double spacing = ImGui.GetTextLineHeightWithSpacing() - ImGui.GetTextLineHeight();
+        ImGui.SetNextWindowSize(new Vector2(window.Size.X, (float)(lh * 14 + spacing * 3)));
         ImGui.Begin("Logger", ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoResize);
-        ImGui.BeginChild("oi", new Vector2(window.Size.X, lh * 12 + spacing * 1));
+        ImGui.BeginChild("oi", new Vector2(window.Size.X, (float)(lh * 12 + spacing * 1)));
         foreach (var log in Logger.GetLogs())
         {
             ImGui.TextColored(LogColours[log.LogLevel], $"[{Enum.GetName(log.LogLevel)}]");

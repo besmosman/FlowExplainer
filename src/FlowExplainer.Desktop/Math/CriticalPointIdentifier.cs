@@ -8,10 +8,10 @@ public static class FD
 
     public struct Neighbors(Vec2 left, Vec2 right, Vec2 up, Vec2 down, Vec2 delta)
     {
-        public float dFx_dx => FD.Derivative(left.X, right.X, delta.X);
-        public float dFy_dx => FD.Derivative(left.Y, right.Y, delta.X);
-        public float dFx_dy => FD.Derivative(down.X, up.X, delta.Y);
-        public float dFy_dy => FD.Derivative(down.Y, up.Y, delta.Y);
+        public double dFx_dx => FD.Derivative(left.X, right.X, delta.X);
+        public double dFy_dx => FD.Derivative(left.Y, right.Y, delta.X);
+        public double dFx_dy => FD.Derivative(down.X, up.X, delta.Y);
+        public double dFy_dy => FD.Derivative(down.Y, up.Y, delta.Y);
     }
 
     public static Neighbors CentralDifference(Vec2 center, Vec2 delta, Func<Vec2, Vec2> eval)
@@ -28,7 +28,7 @@ public static class FD
         return new Neighbors(left, right, up, down, delta);
     }
 
-    public static float Derivative(float left, float right, float d)
+    public static double Derivative(double left, double right, double d)
     {
         return (right - left) / (2 * d);
     }
@@ -40,7 +40,7 @@ public static class FD
             Derivative(left.Y, right.Y, d.Y));
     }
 
-    public static float Divergence(Vec2 left, Vec2 right, Vec2 up, Vec2 down, Vec2 d)
+    public static double Divergence(Vec2 left, Vec2 right, Vec2 up, Vec2 down, Vec2 d)
     {
         return FD.Derivative(left.X, right.X, d.X) + FD.Derivative(up.Y, down.Y, d.Y);
     }
@@ -63,14 +63,16 @@ public class CriticalPointIdentifier : WorldService
         var reduce = vectorField.Domain.RectBoundary.Reduce<Vec2>();
         reduce.Max*=1.2f;
         reduce.Min/=1.2f;
+        reduce.Max+=new Vec2(Random.Shared.NextDouble(), Random.Shared.NextDouble())/10f;
+        reduce.Min+=new Vec2(Random.Shared.NextDouble(), Random.Shared.NextDouble())/10f;
 
         //reduce.Min -= new Vec2(.25f, 0);
         //reduce.Max += new Vec2(.25f, 0);
         toTestRegions.Enqueue(reduce);
-        float t = 0;
-        float minCellAreaRatioOfDomain = 1 / 3000f;
-        float domainArea = vectorField.Domain.RectBoundary.Size.X * vectorField.Domain.RectBoundary.Size.Y;
-        float minCellArea = domainArea * minCellAreaRatioOfDomain;
+        double t = 0;
+        double minCellAreaRatioOfDomain = 1 / 30000.0;
+        double domainArea = vectorField.Domain.RectBoundary.Size.X * vectorField.Domain.RectBoundary.Size.Y;
+        double minCellArea = domainArea * minCellAreaRatioOfDomain;
         while (!toTestRegions.IsEmpty)
         {
             if (toTestRegions.TryDequeue(out var rect))
@@ -94,7 +96,7 @@ public class CriticalPointIdentifier : WorldService
         }
     }
 
-    private bool ContainsCriticalPoint(Rect<Vec2> rect, IVectorField<Vec3, Vec2> vectorField, float t)
+    private bool ContainsCriticalPoint(Rect<Vec2> rect, IVectorField<Vec3, Vec2> vectorField, double t)
     {
 
         // Evaluate vector field at corners
@@ -109,7 +111,7 @@ public class CriticalPointIdentifier : WorldService
             lb, rb, rt, lt, lb
         }; // close loop
 
-        float totalAngleChange = 0f;
+        double totalAngleChange =0.0;
 
         for (int i = 0; i < 4; i++)
         {
@@ -117,22 +119,23 @@ public class CriticalPointIdentifier : WorldService
             var v2 = vectors[i + 1];
 
             // Compute angles of vectors
-            float angle1 = MathF.Atan2(v1.Y, v1.X);
-            float angle2 = MathF.Atan2(v2.Y, v2.X);
+            double angle1 = Math.Atan2(v1.Y, v1.X);
+            double angle2 = Math.Atan2(v2.Y, v2.X);
 
             // Compute difference and wrap to [-pi, pi]
-            float delta = angle2 - angle1;
-            while (delta <= -MathF.PI) delta += 2 * MathF.PI;
-            while (delta > MathF.PI) delta -= 2 * MathF.PI;
+            double delta = angle2 - angle1;
+            while (delta <= -Math.PI) delta += 2 * Math.PI;
+            while (delta > Math.PI) delta -= 2 * Math.PI;
 
             totalAngleChange += delta;
         }
 
         // Compute Poincaré index
-        float index = totalAngleChange / (2 * MathF.PI);
+        double index = totalAngleChange / (2 * Math.PI);
 
-        // Small tolerance for floating point errors
-        return MathF.Abs(index) > 0.5f;
+        // Small tolerance for doubleing point errors
+        if(Math.Abs(index) > 0.5f)
+        return true;
 
 
 
@@ -152,14 +155,15 @@ public class CriticalPointIdentifier : WorldService
 
         var values = pts.Select(p => vectorField.Evaluate(p.Up(t))).ToArray();
 
-        bool signChangeX = values.Select(v => MathF.Sign(v.X)).Distinct().Count() > 1;
-        bool signChangeY = values.Select(v => MathF.Sign(v.Y)).Distinct().Count() > 1;
+        bool signChangeX = values.Select(v => Math.Sign(v.X)).Distinct().Count() > 1;
+        bool signChangeY = values.Select(v => Math.Sign(v.Y)).Distinct().Count() > 1;
         bool nearZero = values.Any(v => v.Length() < 1e-12f);
 
-        return (signChangeX && signChangeY);
+        return (signChangeX && signChangeY) || nearZero;
     }
     public override void Draw(RenderTexture rendertarget, View view)
     {
+        return;
         FindCriticalPoints();
         var t = GetRequiredWorldService<DataService>().SimulationTime;
         var vectorField = GetRequiredWorldService<DataService>().VectorField;
@@ -169,7 +173,7 @@ public class CriticalPointIdentifier : WorldService
             var d = r.Size / 2;
             var u = FD.CentralDifference(pp, d, (v) => vectorField.Evaluate(v.Up(t)));
 
-            var jacobian = new Matrix2(u.dFx_dx, u.dFx_dy, u.dFy_dx, u.dFy_dy);
+            var jacobian = new Matrix2d(u.dFx_dx, u.dFx_dy, u.dFy_dx, u.dFy_dy);
             var m = jacobian.Trace * .5f;
             var p = jacobian.Determinant;
             var n = m * m - p;
@@ -177,31 +181,31 @@ public class CriticalPointIdentifier : WorldService
             if (n < 1e-05)
                 n = 0;
 
-            var right = float.Sqrt(n);
+            var right = double.Sqrt(n);
 
             var eigen1 = m + right;
             var eigen2 = m - right;
 
-            if (float.Sign(eigen1) == float.Sign(eigen2))
+            if (double.Sign(eigen1) == double.Sign(eigen2))
             {
                 //not saddlepoint
                 // continue;
             }
             Gizmos2D.Circle(view.Camera2D, pp, Color.White, .005f);
 
+                        var rk4 = IIntegrator<Vec3, Vec2>.Rk4;
             for (int k = 0; k < 1; k++)
             {
                 var pos = Utils.Random(r);
-                for (int c = 0; c < 1; c++)
+                for (int c = 0; c < 64; c++)
                 {
                     var lastPos = pos;
                     for (int i = 0; i < 64; i++)
                     {
-                        var vec2 = vectorField.Evaluate(pos.Up(t));
-                        if (vec2.Length() > 0.000000001)
-                            pos += (k % 2 == 0 ? 1 : -1) * Vec2.Normalize(vec2) * .001f;
+                        //if (vec2.Length() > 0.000000001)
+                        pos = rk4.Integrate(vectorField, pos.Up(t), .004);
                     }
-                    Gizmos2D.Line(view.Camera2D, lastPos, pos, Color.White, .001f);
+                    Gizmos2D.Line(view.Camera2D, lastPos, pos, new Color(1,0,0,1), .001);
                 }
             }
         }

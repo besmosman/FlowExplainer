@@ -8,22 +8,22 @@ public class DataService : WorldService
     public IVectorField<Vec3, Vec2> VectorField => VectorFields[currentSelectedVectorField];
     public IVectorField<Vec3, Vec2> VectorFieldInstant => new InstantField<Vec3, Vec2>(VectorField, SimulationTime);
 
-    public IVectorField<Vec3, float> TempratureField => ScalerFields[currentSelectedScaler];
-    public IVectorField<Vec3, float> TempratureFieldInstant => new InstantField<Vec3, float>(TempratureField, SimulationTime);
+    public IVectorField<Vec3, double> TempratureField => ScalerFields[currentSelectedScaler];
+    public IVectorField<Vec3, double> TempratureFieldInstant => new InstantField<Vec3, double>(TempratureField, SimulationTime);
 
     public string currentSelectedScaler = "Total Temperature";
     public string currentSelectedVectorField = "Velocity";
-    public Dictionary<string, IVectorField<Vec3, float>> ScalerFields = new();
+    public Dictionary<string, IVectorField<Vec3, double>> ScalerFields = new();
     public Dictionary<string, IVectorField<Vec3, Vec2>> VectorFields = new();
 
     public ColorGradient ColorGradient { get; set; } = Gradients.GetGradient("matlab_parula");
-    public float SimulationTime;
+    public double SimulationTime;
 
-    public float TimeMultiplier = .06f;
+    public double TimeMultiplier = .06f;
 
     public override ToolCategory Category => ToolCategory.Data;
 
-    public float MultipliedDeltaTime { get; private set; }
+    public double MultipliedDeltaTime { get; private set; }
 
     public override void Initialize()
     {
@@ -42,7 +42,7 @@ public class DataService : WorldService
         */
     }
 
-    private float timeAbove = 0f;
+    private double timeAbove =0.0;
 
     public override void Update()
     {
@@ -72,12 +72,12 @@ public class DataService : WorldService
         if (firstDraw)
         {
             view.Camera2D.Position = -VectorField.Domain.RectBoundary.Center.Down();
-            view.Camera2D.Scale = float.Min(view.Width / VectorField.Domain.RectBoundary.Size.X / 1.4f, view.Height / VectorField.Domain.RectBoundary.Size.Y / 1.4f);
+            view.Camera2D.Scale = double.Min(view.Width / VectorField.Domain.RectBoundary.Size.X / 1.4f, view.Height / VectorField.Domain.RectBoundary.Size.Y / 1.4f);
             firstDraw = false;
         }
 
         //VelocityField = new PeriodicDiscritizedField(new AnalyticalEvolvingVelocityField(), new Vec3(.01f, .01f, .01f));
-        float dt = FlowExplainer.DeltaTime;
+        double dt = FlowExplainer.DeltaTime;
         //dt = 1f / 90f;
         MultipliedDeltaTime = dt * TimeMultiplier;
         SimulationTime += MultipliedDeltaTime;
@@ -135,7 +135,7 @@ public class DataService : WorldService
 
     public void LoadScalerField(string name, string path)
     {
-        var regularGridVectorField = RegularGridVectorField<Vec3, Vec3i, float>.Load(path);
+        var regularGridVectorField = RegularGridVectorField<Vec3, Vec3i, double>.Load(path);
         ScalerFields.Add(name, regularGridVectorField);
     }
 }

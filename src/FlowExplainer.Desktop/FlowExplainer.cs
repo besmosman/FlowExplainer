@@ -9,7 +9,7 @@ namespace FlowExplainer
 
 
         public TimeSpan Time { get; set; }
-        public float DeltaTime { get; private set; }
+        public double DeltaTime { get; private set; }
 
         public void AddGlobalService(GlobalService service)
         {
@@ -61,7 +61,7 @@ namespace FlowExplainer
                 while (shouldRun)
                 {
                     double startTime = total.Elapsed.TotalSeconds;
-                    DeltaTime = (float)w.Elapsed.TotalSeconds;
+                    DeltaTime = (double)w.Elapsed.TotalSeconds;
                     Time += w.Elapsed;
                     w.Restart();
 

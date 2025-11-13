@@ -18,8 +18,8 @@ public class AxisVisualizer : WorldService
 
     Mesh gradientMesh = new Mesh(new Geometry(
     [
-        new Vertex(new Vec3(0f, 0f, 0), new Vec2(1, 0), Vec4.One),
-        new Vertex(new Vec3(1f, 0f, 0), new Vec2(1, 1), Vec4.One),
+        new Vertex(new Vec3(0f,0.0, 0), new Vec2(1, 0), Vec4.One),
+        new Vertex(new Vec3(1f,0.0, 0), new Vec2(1, 1), Vec4.One),
         new Vertex(new Vec3(1f, 1f, 0), new Vec2(0, 1), Vec4.One),
         new Vertex(new Vec3(0f, 1f, 0), new Vec2(0, 0), Vec4.One),
     ], [0, 1, 2, 0, 2, 3]));
@@ -37,7 +37,7 @@ public class AxisVisualizer : WorldService
 
         var color = Style.Current.TextColor;
         var thickness = 4f;
-        var margin = 0f;
+        var margin =0.0;
 
         var lh = view.Width / 26f;
         if (DrawAxis)
@@ -71,7 +71,7 @@ public class AxisVisualizer : WorldService
             }
             for (int i = 0; i <= StepsX; i++)
             {
-                float c = i / (float)StepsX;
+                double c = i / (double)StepsX;
                 var value = Utils.Lerp(domain.Min.X, domain.Max.X, c);
                 var pos = Utils.Lerp(lb, rb, c);
                 Gizmos2D.Line(view.ScreenCamera, pos + new Vec2(0, 15), pos + new Vec2(0, -thickness / 2f), color, thickness);
@@ -80,7 +80,7 @@ public class AxisVisualizer : WorldService
 
             for (int i = 0; i <= StepsY; i++)
             {
-                float c = i / (float)StepsY;
+                double c = i / (double)StepsY;
                 var value = Utils.Lerp(domain.Min.Y, domain.Max.Y, c);
                 var pos = Utils.Lerp(lb, lt, c);
                 Gizmos2D.Line(view.ScreenCamera, pos + new Vec2(-15, 0), pos + new Vec2(thickness / 2f, 0), color, thickness);
@@ -105,7 +105,7 @@ public class AxisVisualizer : WorldService
             var posY = view.Height / 2f - height / 2f;
             texturedMat.SetUniform("model", Matrix4x4.CreateScale(width, height, .4f) * Matrix4x4.CreateTranslation(posX, posY, 0));
             gradientMesh.Draw();
-            (float min, float max) = scaler.GetScale();
+            (double min, double max) = scaler.GetScale();
 
             Gizmos2D.Text(view.ScreenCamera, new Vec2(posX + width / 2f, posY - lh - 5), lh, color, max.ToString("F2", CultureInfo.InvariantCulture), centered: true);
             Gizmos2D.Text(view.ScreenCamera, new Vec2(posX + width / 2f, posY + height + 5), lh, color, min.ToString("F2", CultureInfo.InvariantCulture), centered: true);

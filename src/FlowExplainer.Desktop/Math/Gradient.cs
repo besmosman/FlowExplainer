@@ -8,15 +8,15 @@ public class ColorGradient : Gradient<Color>
     public Lazy<Texture> Texture { get; private set; }
     public string Name;
 
-    public ColorGradient(string name, (float, Color)[] entries) : base(entries)
+    public ColorGradient(string name, (double, Color)[] entries) : base(entries)
     {
         Name = name;
         Texture = new Lazy<Texture>(() =>
         {
-            Vec3[] pixels = new Vec3[256];
+            Color[] pixels = new Color[256];
             for (int i = 0; i < pixels.Length; i++)
             {
-                pixels[i] = Get((float)i / (pixels.Length - 1f)).RGB;
+                pixels[i] = Get((double)i / (pixels.Length - 1f));
             }
 
             return new RgbArrayTexture(pixels.Length, 1, pixels)
@@ -28,32 +28,32 @@ public class ColorGradient : Gradient<Color>
     }
 }
 
-public class Gradient<T> where T : IMultiplyOperators<T, float, T>, IAdditionOperators<T, T, T>
+public class Gradient<T> where T : IMultiplyOperators<T, double, T>, IAdditionOperators<T, T, T>
 {
-    private (float time, T value)[] entries;
+    private (double time, T value)[] entries;
     private T[] Cached;
     public static int CachedSize = 1024;
 
-    public Gradient((float, T)[] entries)
+    public Gradient((double, T)[] entries)
     {
         this.entries = entries;
 
         Cached = new T[CachedSize];
         for (int i = 0; i < CachedSize; i++)
         {
-            Cached[i] = Get(i / (float)CachedSize);
+            Cached[i] = Get(i / (double)CachedSize);
         }
     }
 
 
-    public T GetCached(float t)
+    public T GetCached(double t)
     {
-        return Cached[int.Clamp((int)float.Round(t * CachedSize), 0, CachedSize - 1)];
+        return Cached[int.Clamp((int)double.Round(t * CachedSize), 0, CachedSize - 1)];
     }
 
-    public T Get(float t)
+    public T Get(double t)
     {
-        t = float.Clamp(t, 0, 1);
+        t = double.Clamp(t, 0, 1);
         for (int i = 0; i < entries.Length; i++)
         {
             if (entries[i].Item1 <= t && entries[i + 1].Item1 >= t)

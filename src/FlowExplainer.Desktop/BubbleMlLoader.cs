@@ -6,7 +6,7 @@ namespace FlowExplainer;
 public class GribLoader
 {
     public RegularGridVectorField<Vec3, Vec3i, Vec2> VelocityField;
-    public RegularGridVectorField<Vec3, Vec3i, float> HeatField;
+    public RegularGridVectorField<Vec3, Vec3i, double> HeatField;
 
     public void Load()
     {
@@ -22,7 +22,7 @@ public class GribLoader
 
         var minTime = records.Min(g => g.ProductDefinitionSection.BaseTime);
         var maxTime = records.Max(g => g.ProductDefinitionSection.BaseTime);
-        var timeFrame = (float)(maxTime - minTime).TotalDays;
+        var timeFrame = (double)(maxTime - minTime).TotalDays;
         VelocityField = new(new Vec3i(nx, ny, groups.Length), Vec3.Zero, new Vec3(nx / 100f, ny / 100f, timeFrame));
         HeatField = new(new Vec3i(nx, ny, groups.Length), Vec3.Zero, new Vec3(nx / 100f, ny / 100f, timeFrame));
         foreach (var group in groups.Take(500))
@@ -61,8 +61,8 @@ public class GribLoader
 /*public class BubbleMlLoader
 {
     public RegularGridVectorField<Vec3, Vec3i, Vec2> VelocityField;
-    public RegularGridVectorField<Vec3, Vec3i, float> TemperatureField;
-    public RegularGridVectorField<Vec3, Vec3i, float> PressureField;
+    public RegularGridVectorField<Vec3, Vec3i, double> TemperatureField;
+    public RegularGridVectorField<Vec3, Vec3i, double> PressureField;
 
     public void Load(string name = "Twall-103.hdf5")
     {
@@ -92,19 +92,19 @@ public class GribLoader
         TemperatureField = new(gridSize, Vec3.Zero, Vec3.One);
         PressureField = new(gridSize, Vec3.Zero, Vec3.One);
 
-        var minX = (float)xCoord.Min();
-        var maxX = (float)xCoord.Max();
-        var minY = (float)yCoord.Min();
-        var maxY = (float)yCoord.Max();
+        var minX = (double)xCoord.Min();
+        var maxX = (double)xCoord.Max();
+        var minY = (double)yCoord.Min();
+        var maxY = (double)yCoord.Max();
 
         for (int t = 0; t < timeSteps; t++)
         for (int y = 0; y < ySize; y++)
         for (int x = 0; x < xSize; x++)
         {
-            var vX = (float)velX[t, y, x];
-            var vY = (float)velY[t, y, x];
-            var tem = (float)temp[t, y, x];
-            var pres = (float)pressure[t, y, x];
+            var vX = (double)velX[t, y, x];
+            var vY = (double)velY[t, y, x];
+            var tem = (double)temp[t, y, x];
+            var pres = (double)pressure[t, y, x];
             VelocityField.Grid.AtCoords(new Vec3i(x, y, t)) = new Vec2(vX, vY);
             TemperatureField.Grid.AtCoords(new Vec3i(x, y, t)) = tem;
             PressureField.Grid.AtCoords(new Vec3i(x, y, t)) = pres;

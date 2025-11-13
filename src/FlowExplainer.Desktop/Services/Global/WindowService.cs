@@ -24,7 +24,7 @@ namespace FlowExplainer
                 string s => new JValue(s),
                 int i => new JValue(i),
                 bool b => new JValue(b),
-                float f => new JValue(f),
+                double f => new JValue(f),
                 _ => throw new ArgumentException()
             };
             entries[name] = jval;
@@ -136,7 +136,7 @@ namespace FlowExplainer
             Window.ProcessEvents(0f);
 
             //GL.ClearColor(0.13f, 0.11f, 0.18f, 1);
-            GL.ClearColor(ClearColor.R, ClearColor.G, ClearColor.B, ClearColor.A);
+            GL.ClearColor((float)ClearColor.R, (float)ClearColor.G, (float)ClearColor.B, (float)ClearColor.A);
             GL.ClearDepth(1);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
         }

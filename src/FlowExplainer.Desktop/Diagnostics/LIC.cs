@@ -3,10 +3,10 @@ namespace FlowExplainer;
 public static class LIC
 {
     public static void ComputeASteady(
-        IVectorField<Vec2, float> noiseF,
+        IVectorField<Vec2, double> noiseF,
         IVectorField<Vec3, Vec2> convolution,
-        RegularGridVectorField<Vec2, Vec2i, float> output,
-        float t_start, float time, float arcLength)
+        RegularGridVectorField<Vec2, Vec2i, double> output,
+        double t_start, double time, double arcLength)
     {
         var domain = output.Domain;
         var cellSize = domain.RectBoundary.Size.X / output.GridSize.X;
@@ -16,11 +16,11 @@ public static class LIC
             ref var atCoords = ref output.AtCoords(new Vec2i(x, y));
             atCoords = 0;
             //var pos = domainBoundary.Relative(new Vec2(x, y) / output.GridSize.ToVec2());
-            var noiseSum = 0f;
-            var weightSum = 0f;
+            var noiseSum = 0.0;
+            var weightSum = 0.0;
             var cur = domainBoundary.Relative(new Vec2(x + .5f, y + .5f) / output.GridSize.ToVec2());
-            float stepSizePerCell = cellSize * .5f;
-            var steps = float.Ceiling(arcLength / stepSizePerCell) + 1;
+            double stepSizePerCell = cellSize * .5f;
+            var steps = double.Ceiling(arcLength / stepSizePerCell) + 1;
             bool failed = false;
             for (int k = 0; k < steps; k++)
             {
@@ -33,8 +33,8 @@ public static class LIC
                     cur += (dir / dir.Length()) * stepSizePerCell;
                 }
 
-                float distance = k * stepSizePerCell;
-                float weight = Kernel(distance / arcLength);
+                double distance = k * stepSizePerCell;
+                double weight = Kernel(distance / arcLength);
                 if (noiseF.TryEvaluate(cur, out var noise))
                 {
                     noiseSum += noise * weight;
@@ -53,8 +53,8 @@ public static class LIC
 
                 cur += -(dir / dir.Length()) * stepSizePerCell;
 
-                float distance = k * stepSizePerCell;
-                float weight = Kernel(distance / arcLength);
+                double distance = k * stepSizePerCell;
+                double weight = Kernel(distance / arcLength);
                 if (noiseF.TryEvaluate(cur, out var noise))
                 {
                     noiseSum += noise * weight;
@@ -68,10 +68,10 @@ public static class LIC
     }
 
     public static void ComputeSteady(
-        IVectorField<Vec2, float> noiseF,
+        IVectorField<Vec2, double> noiseF,
         IVectorField<Vec3, Vec2> convolution,
-        RegularGridVectorField<Vec2, Vec2i, float> output,
-        float t, float arcLength)
+        RegularGridVectorField<Vec2, Vec2i, double> output,
+        double t, double arcLength)
     {
         var domain = output.Domain;
         var cellSize = domain.RectBoundary.Size.X / output.GridSize.X;
@@ -81,11 +81,11 @@ public static class LIC
             ref var atCoords = ref output.AtCoords(new Vec2i(x, y));
             atCoords = 0;
             //var pos = domainBoundary.Relative(new Vec2(x, y) / output.GridSize.ToVec2());
-            var noiseSum = 0f;
-            var weightSum = 0f;
+            var noiseSum = 0.0;
+            var weightSum = 0.0;
             var cur = domainBoundary.Relative(new Vec2(x + .5f, y + .5f) / output.GridSize.ToVec2());
-            float stepSizePerCell = cellSize * .5f;
-            var steps = float.Ceiling(arcLength / stepSizePerCell) + 1;
+            double stepSizePerCell = cellSize * .5f;
+            var steps = double.Ceiling(arcLength / stepSizePerCell) + 1;
             bool failed = false;
             for (int k = 0; k < steps; k++)
             {
@@ -98,8 +98,8 @@ public static class LIC
                     cur += (dir / dir.Length()) * stepSizePerCell;
                 }
 
-                float distance = k * stepSizePerCell;
-                float weight = Kernel(distance / arcLength);
+                double distance = k * stepSizePerCell;
+                double weight = Kernel(distance / arcLength);
                 if (noiseF.TryEvaluate(cur, out var noise))
                 {
                     noiseSum += noise * weight;
@@ -116,8 +116,8 @@ public static class LIC
 
                 cur += -(dir / dir.Length()) * stepSizePerCell;
 
-                float distance = k * stepSizePerCell;
-                float weight = Kernel(distance / arcLength);
+                double distance = k * stepSizePerCell;
+                double weight = Kernel(distance / arcLength);
                 if (noiseF.TryEvaluate(cur, out var noise))
                 {
                     noiseSum += noise * weight;
@@ -130,9 +130,9 @@ public static class LIC
         });
     }
 
-    static float Kernel(float dis)
+    static double Kernel(double dis)
     {
-        float sigma = 0.3f;
-        return (float)Math.Exp(-(dis * dis) / (2 * sigma * sigma));
+        double sigma = 0.3f;
+        return (double)Math.Exp(-(dis * dis) / (2 * sigma * sigma));
     }
 }

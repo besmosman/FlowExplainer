@@ -3,12 +3,12 @@ using System.Runtime.CompilerServices;
 
 namespace FlowExplainer;
 
-public interface IVec<TVec> : IVec<TVec, float>
-    where TVec : IVec<TVec, float>
+public interface IVec<TVec> : IVec<TVec, double>
+    where TVec : IVec<TVec, double>
 {
 }
 
-public interface IVecIntegerEquivelant<TVeci> where TVeci : IVec<TVeci, int>
+public interface IVecIntegerEquivalent<TVeci> where TVeci : IVec<TVeci, int>
 {
     TVeci FloorInt();
     TVeci RoundInt();
@@ -50,22 +50,22 @@ public interface IVec<TVec, TNumber> :
     }
 }
 
-public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>, IVecIntegerEquivelant<Vec2i>
+public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>, IVecIntegerEquivalent<Vec2i>
 {
-    public float X;
-    public float Y;
+    public double X;
+    public double Y;
     public int ElementCount => 2;
 
 
-    public float Last => Y;
+    public double Last => Y;
 
-    public Vec2(float c)
+    public Vec2(double c)
     {
         X = c;
         Y = c;
     }
     
-    public Vec2(float x, float y)
+    public Vec2(double x, double y)
     {
         X = x;
         Y = y;
@@ -74,14 +74,14 @@ public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>,
     public static Vec2 Zero => new Vec2();
     public static Vec2 One { get; } = new Vec2(1, 1);
 
-    public Vec3 Up(float f)
+    public Vec3 Up(double f)
     {
         return new Vec3(X, Y, f);
     }
 
     public Vec2 Down(Vec3 x) => x.XY;
 
-    public Vec3 Construct(Vec2 x, float t) => new Vec3(x, t);
+    public Vec3 Construct(Vec2 x, double t) => new Vec3(x, t);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vec2 operator +(Vec2 v1, Vec2 v2) => new(v1.X + v2.X, v1.Y + v2.Y);
@@ -107,21 +107,21 @@ public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>,
     public static Vec2 operator -(Vec2 v1) => new(-v1.X, -v1.Y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float Dot(Vec2 v1, Vec2 v2)
+    public static double Dot(Vec2 v1, Vec2 v2)
     {
         return (v1.X * v2.X) + (v1.Y * v2.Y);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public float Sum() => X + Y;
+    public double Sum() => X + Y;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vec2 operator *(Vec2 v1, float f) => new(v1.X * f, v1.Y * f);
+    public static Vec2 operator *(Vec2 v1, double f) => new(v1.X * f, v1.Y * f);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vec2 operator /(Vec2 v1, float f) => new(v1.X / f, v1.Y / f);
+    public static Vec2 operator /(Vec2 v1, double f) => new(v1.X / f, v1.Y / f);
 
-    public float this[int n]
+    public double this[int n]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
@@ -143,59 +143,60 @@ public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>,
         }
     }
 
-    public static Vec2 operator *(float f, Vec2 v1) => new(f * v1.X, f * v1.Y);
+    public static Vec2 operator *(double f, Vec2 v1) => new(f * v1.X, f * v1.Y);
 
-    public static Vec2 operator /(float f, Vec2 v1) => new(f / v1.X, f / v1.Y);
+    public static Vec2 operator /(double f, Vec2 v1) => new(f / v1.X, f / v1.Y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static float DistanceSquared(Vec2 a, Vec2 b)
+    public static double DistanceSquared(Vec2 a, Vec2 b)
     {
         var c = a - b;
         return (c.X * c.X) + (c.Y * c.Y);
     }
 
-    public static float Distance(Vec2 a, Vec2 b) => float.Sqrt(DistanceSquared(a, b));
+    public static double Distance(Vec2 a, Vec2 b) => double.Sqrt(DistanceSquared(a, b));
 
     public static Vec2 Normalize(Vec2 p)
     {
-        return p / p.Length();
+        double length = p.Length();
+        return p / length;
     }
 
-    public float Length()
+    public double Length()
     {
-        return MathF.Sqrt((X * X) + (Y * Y));
+        return Math.Sqrt((X * X) + (Y * Y));
     }
 
 
     public static Func<Vec2, Vec2, bool> ApproximateComparer => (a, b) => { return (a - b).LengthSquared() < 1e-6f; };
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public float LengthSquared()
+    public double LengthSquared()
     {
         return (X * X) + (Y * Y);
     }
 
-    public static implicit operator Vector2(Vec2 v) => new(v.X, v.Y);
+    public static implicit operator Vector2(Vec2 v) => new((float)v.X, (float)v.Y);
     public static explicit operator Vec2(Vector2 v) => new(v.X, v.Y);
 
     public Vec2i RoundInt()
     {
-        return new Vec2i((int)float.Round(X), (int)float.Round(Y));
+        return new Vec2i((int)double.Round(X), (int)double.Round(Y));
     }
 
     public Vec2i CeilInt()
     {
-        return new Vec2i((int)float.Ceiling(X), (int)float.Ceiling(Y));
+        return new Vec2i((int)double.Ceiling(X), (int)double.Ceiling(Y));
     }
 
     public Vec2 Min(Vec2 b)
     {
-        return new Vec2(float.Min(X, b.X), float.Min(Y, b.Y));
+        return new Vec2(double.Min(X, b.X), double.Min(Y, b.Y));
     }
 
     public Vec2 Max(Vec2 b)
     {
-        return new Vec2(float.Max(X, b.X), float.Max(Y, b.Y));
+        return new Vec2(double.Max(X, b.X), double.Max(Y, b.Y));
     }
 
     public Vec1 Down()
@@ -210,16 +211,16 @@ public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>,
 
     public Vec2 Abs()
     {
-        return new Vec2(float.Abs(X), float.Abs(Y));
+        return new Vec2(double.Abs(X), double.Abs(Y));
     }
 
     public Vector2 ToNumerics()
     {
-        return new Vector2(X, Y);
+        return new Vector2((float)X, (float)Y);
     }
 
     public Vec2i FloorInt()
     {
-        return new Vec2i((int)float.Floor(X), (int)float.Floor(Y));
+        return new Vec2i((int)double.Floor(X), (int)double.Floor(Y));
     }
 }

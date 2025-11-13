@@ -8,12 +8,14 @@ public class ImGuiHelpers
     public static string LastMessage;
     public static DateTime MessageTime;
 
-    public static bool SliderFloat(string name, ref float f, float min, float max)
+    public static bool SliderFloat(string name, ref double f, double min, double max)
     {
-        if (ImGui.SliderFloat(name, ref f, min, max))
+        float ff = (float)f;
+        if (ImGui.SliderFloat(name, ref ff, (float)min,  (float)max))
         {
+        f = ff;
             var format = "N2";
-            if (float.Abs(max - min) < .6f)
+            if (double.Abs(max - min) < .6f)
                 format = "N3";
 
             UpdateMsg(name, f.ToString(format, CultureInfo.InvariantCulture));

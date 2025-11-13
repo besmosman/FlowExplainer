@@ -9,10 +9,10 @@ public class LAVDGridDiagnostic : IGridDiagnostic
     {
         public Vec2 StartPosition;
         public Vec2 FinalPosition;
-        public float Vorticity;
+        public double Vorticity;
     }
 
-    public float T = 1;
+    public double T = 1;
     private VortData[] Data;
 
     public void UpdateGridData(GridVisualizer gridVisualizer)
@@ -34,8 +34,8 @@ public class LAVDGridDiagnostic : IGridDiagnostic
             var j = c / renderGrid.GridSize.X;
             ref var center = ref renderGrid.AtCoords(new Vec2i(i, j));
 
-            float dx = domain.RectBoundary.Size.X / renderGrid.GridSize.X;
-            float dy = domain.RectBoundary.Size.Y / renderGrid.GridSize.Y;
+            double dx = domain.RectBoundary.Size.X / renderGrid.GridSize.X;
+            double dy = domain.RectBoundary.Size.Y / renderGrid.GridSize.Y;
 
             // Neighbor indices with clamping
             int ip = Math.Min(i + 1, renderGrid.GridSize.X - 1);
@@ -53,7 +53,7 @@ public class LAVDGridDiagnostic : IGridDiagnostic
 
             var vorticity = dv_dx - du_dy;
             Data[c].Vorticity = vorticity;
-            center.Value = float.Abs(vorticity/10f);
+            center.Value = double.Abs(vorticity/10f);
         });
 
         
@@ -73,7 +73,7 @@ public class LAVDGridDiagnostic : IGridDiagnostic
     public void OnImGuiEdit(GridVisualizer vis)
     {
         var dat = vis.GetRequiredWorldService<DataService>()!;
-        float period = dat.VectorField.Domain.RectBoundary.Size.Last;
+        double period = dat.VectorField.Domain.RectBoundary.Size.Last;
         if (ImGuiHelpers.SliderFloat("T", ref T, -period * 1, period * 1))
             vis.MarkDirty = true;
     }

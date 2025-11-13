@@ -36,8 +36,8 @@ public static class Gizmos2D
 
         imageQuad = new Mesh(new Geometry(
         [
-            new Vertex(new Vec3(0f, 0f, 0), new Vec2(0, 1), Vec4.One),
-            new Vertex(new Vec3(1f, 0f, 0), new Vec2(1, 1), Vec4.One),
+            new Vertex(new Vec3(0f,0.0, 0), new Vec2(0, 1), Vec4.One),
+            new Vertex(new Vec3(1f,0.0, 0), new Vec2(1, 1), Vec4.One),
             new Vertex(new Vec3(1f, 1f, 0), new Vec2(1, 0), Vec4.One),
             new Vertex(new Vec3(0f, 1f, 0), new Vec2(0, 0), Vec4.One),
         ], [0, 1, 2, 0, 2, 3]));
@@ -45,8 +45,8 @@ public static class Gizmos2D
 
         imageQuadInvertedY = new Mesh(new Geometry(
         [
-            new Vertex(new Vec3(0f, 0f, 0), new Vec2(0, 0), Vec4.One),
-            new Vertex(new Vec3(1f, 0f, 0), new Vec2(1, 0), Vec4.One),
+            new Vertex(new Vec3(0f,0.0, 0), new Vec2(0, 0), Vec4.One),
+            new Vertex(new Vec3(1f,0.0, 0), new Vec2(1, 0), Vec4.One),
             new Vertex(new Vec3(1f, 1f, 0), new Vec2(1, 1), Vec4.One),
             new Vertex(new Vec3(0f, 1f, 0), new Vec2(0, 1), Vec4.One),
         ], [0, 1, 2, 0, 2, 3]));
@@ -62,8 +62,8 @@ public static class Gizmos2D
             for (uint i = 0; i < segments + 1; i++)
             {
                 circleVerts.Add(new Vertex(new Vec3(
-                    MathF.Sin((float)(i) / segments * 2 * MathF.PI),
-                    MathF.Cos((float)(i) / segments * 2 * MathF.PI),
+                    Math.Sin((double)(i) / segments * 2 * Math.PI),
+                    Math.Cos((double)(i) / segments * 2 * Math.PI),
                     0)));
 
                 if (i != 0)
@@ -83,8 +83,8 @@ public static class Gizmos2D
             int segments = 64;
             for (uint i = 0; i < segments; i++)
             {
-                tubeVerts.Add(new Vertex(new Vec3(i / (float)segments, -1f, 0)));
-                tubeVerts.Add(new Vertex(new Vec3(i / (float)segments, 1f, 0)));
+                tubeVerts.Add(new Vertex(new Vec3(i / (double)segments, -1f, 0)));
+                tubeVerts.Add(new Vertex(new Vec3(i / (double)segments, 1f, 0)));
             }
 
             for (uint i = 1; i < segments; i++)
@@ -103,17 +103,17 @@ public static class Gizmos2D
         }
     }
 
-    public static void Circle(ICamera camera, Vec2 center, Color color, float radius)
+    public static void Circle(ICamera camera, Vec2 center, Color color, double radius)
     {
         material.Use();
         material.SetUniform("tint", color);
         material.SetUniform("view", camera.GetViewMatrix());
         material.SetUniform("projection", camera.GetProjectionMatrix());
-        material.SetUniform("model", Matrix4x4.CreateScale(radius, radius, 1) * Matrix4x4.CreateTranslation(center.X, center.Y, 0));
+        material.SetUniform("model", Matrix4x4.CreateScale((float)radius, (float)radius, 1) * Matrix4x4.CreateTranslation((float)center.X, (float)center.Y, 0));
         circleMesh.Draw();
     }
 
-    public static void Circles<T>(ICamera camera, IEnumerable<T> ts, Func<T, Vec2> getCenter, Func<T, Color> getColor, float radius)
+    public static void Circles<T>(ICamera camera, IEnumerable<T> ts, Func<T, Vec2> getCenter, Func<T, Color> getColor, double radius)
     {
         material.Use();
         material.SetUniform("view", camera.GetViewMatrix());
@@ -123,13 +123,13 @@ public static class Gizmos2D
             var color = getColor(entry);
             var pos = getCenter(entry);
             material.SetUniform("tint", color);
-            material.SetUniform("model", Matrix4x4.CreateScale(radius, radius, 1) * Matrix4x4.CreateTranslation(pos.X, pos.Y, 0));
+            material.SetUniform("model", Matrix4x4.CreateScale((float)radius, (float)radius, 1) * Matrix4x4.CreateTranslation((float)pos.X, (float)pos.Y, 0));
             circleMesh.Draw();
         }
     }
 
 
-    public static void StreamTube(ICamera camera, List<Vec2> centers, Color color, float thickness)
+    public static void StreamTube(ICamera camera, List<Vec2> centers, Color color, double thickness)
     {
         if (centers.Count != streamtube.Vertices.Length / 2)
             throw new NotImplementedException();
@@ -146,7 +146,7 @@ public static class Gizmos2D
 
         1 => 0
          */
-        var total = 0f;
+        var total =0.0;
         for (int i = 1; i < centers.Count; i++)
         {
             total += Vec2.Distance(centers[i], centers[i - 1]);
@@ -156,7 +156,7 @@ public static class Gizmos2D
         {
             /*for (int i = 1; i < centers.Count; i++)
             {
-                centers[i] = new Vec2(centers[0].X + float.Lerp(-thickness, thickness, i / (float)centers.Count), centers[0].Y);
+                centers[i] = new Vec2(centers[0].X + double.Lerp(-thickness, thickness, i / (double)centers.Count), centers[0].Y);
             }*/
             // Gizmos2D.Circle(camera, centers.Last(), color, thickness);
             return;
@@ -169,13 +169,13 @@ public static class Gizmos2D
                 dir = Vec2.Normalize(centers[i] - centers[i - 1]);
             var normal = new Vec2(dir.Y, -dir.X);
 
-            float c = (i / (float)centers.Count);
+            double c = (i / (double)centers.Count);
             var length = thickness * c * (thickness - c * c);
-            length = MathF.Sqrt(1 - (c * 2 - 1) * (c * 2 - 1) * c) * c * thickness;
+            length = Math.Sqrt(1 - (c * 2 - 1) * (c * 2 - 1) * c) * c * thickness;
             streamtube.Vertices[i * 2 + 0].Position = new Vec3(centers[i] - normal * length, 0);
-            streamtube.Vertices[i * 2 + 0].Colour.Y = MathF.Sqrt(c);
+            streamtube.Vertices[i * 2 + 0].Colour.Y = Math.Sqrt(c);
             streamtube.Vertices[i * 2 + 1].Position = new Vec3(centers[i] + normal * length, 0);
-            streamtube.Vertices[i * 2 + 1].Colour.W = MathF.Sqrt(c);
+            streamtube.Vertices[i * 2 + 1].Colour.W = Math.Sqrt(c);
         }
 
         streamtube.Upload(UploadFlags.Vertices);
@@ -184,7 +184,7 @@ public static class Gizmos2D
         //  Gizmos2D.Circle(camera, centers.Last(), color, 1f);
     }
 
-    public static void ImageOld(ICamera camera, ImageTexture texture, float scale)
+    public static void ImageOld(ICamera camera, ImageTexture texture, double scale)
     {
         texturedMat.Use();
         texturedMat.SetUniform("tint", Vec4.One);
@@ -193,31 +193,31 @@ public static class Gizmos2D
         scale /= texture.Size.X;
         Vec2 lt = new Vec2(1200, 500);
         texturedMat.SetUniform("mainTex", texture);
-        texturedMat.SetUniform("model", Matrix4x4.CreateScale(texture.Size.X * scale, texture.Size.Y * scale, .4f) *
-                                        Matrix4x4.CreateTranslation(lt.X, lt.Y, 0));
+        texturedMat.SetUniform("model", Matrix4x4.CreateScale((float)(texture.Size.X * scale), (float)(texture.Size.Y * scale), .4f) *
+                                        Matrix4x4.CreateTranslation((float)lt.X, (float)lt.Y, 0));
         imageQuad.Draw();
     }
 
-    public static void ImageCentered(ICamera camera, Texture texture, Vec2 center, float width, float alpha = 1)
+    public static void ImageCentered(ICamera camera, Texture texture, Vec2 center, double width, double alpha = 1)
     {
         texturedMat.Use();
         texturedMat.SetUniform("tint", new Vec4(1, 1, 1, alpha));
         texturedMat.SetUniform("view", camera.GetViewMatrix());
         texturedMat.SetUniform("projection", camera.GetProjectionMatrix());
         texturedMat.SetUniform("mainTex", texture);
-        float height = (texture.Size.Y / (float)texture.Size.X) * width;
-        texturedMat.SetUniform("model", Matrix4x4.CreateScale(width, height, .4f) * Matrix4x4.CreateTranslation(center.X - width / 2, center.Y - height / 2, 0));
+        double height = (texture.Size.Y / (double)texture.Size.X) * width;
+        texturedMat.SetUniform("model", Matrix4x4.CreateScale((float)width, (float)height, .4f) * Matrix4x4.CreateTranslation((float)(center.X - width / 2), (float)center.Y - (float)height / 2, 0));
         imageQuad.Draw();
     }
 
-    public static void ImageCentered(ICamera camera, Texture texture, Vec2 center, Vec2 size, float alpha = 1)
+    public static void ImageCentered(ICamera camera, Texture texture, Vec2 center, Vec2 size, double alpha = 1)
     {
         texturedMat.Use();
         texturedMat.SetUniform("tint", new Vec4(1, 1, 1, alpha));
         texturedMat.SetUniform("view", camera.GetViewMatrix());
         texturedMat.SetUniform("projection", camera.GetProjectionMatrix());
         texturedMat.SetUniform("mainTex", texture);
-        texturedMat.SetUniform("model", Matrix4x4.CreateScale(size.X, size.Y, .4f) * Matrix4x4.CreateTranslation(center.X - size.X / 2, center.Y - size.Y / 2, 0));
+        texturedMat.SetUniform("model", Matrix4x4.CreateScale((float)size.X, (float)size.Y, .4f) * Matrix4x4.CreateTranslation((float)(center.X - size.X / 2), (float)center.Y - (float)size.Y / 2, 0));
         imageQuad.Draw();
     }
 
@@ -228,26 +228,26 @@ public static class Gizmos2D
         texturedMat.SetUniform("view", camera.GetViewMatrix());
         texturedMat.SetUniform("projection", camera.GetProjectionMatrix());
         texturedMat.SetUniform("mainTex", texture);
-        texturedMat.SetUniform("model", Matrix4x4.CreateScale(size.X, size.Y, .4f) * Matrix4x4.CreateTranslation(center.X - size.X / 2, center.Y - size.Y / 2, 0));
+        texturedMat.SetUniform("model", Matrix4x4.CreateScale((float)size.X, (float)size.Y, .4f) * Matrix4x4.CreateTranslation((float)(center.X - size.X / 2), (float)center.Y - (float)size.Y / 2, 0));
         imageQuad.Draw();
     }
 
 
-    public static void ImageCenteredInvertedY(Camera2D camera, Texture texture, Vec2 center, Vec2 size, float alpha = 1)
+    public static void ImageCenteredInvertedY(Camera2D camera, Texture texture, Vec2 center, Vec2 size, double alpha = 1)
     {
         texturedMat.Use();
         texturedMat.SetUniform("tint", new Vec4(1, 1, 1, alpha));
         texturedMat.SetUniform("view", camera.GetViewMatrix());
         texturedMat.SetUniform("projection", camera.GetProjectionMatrix());
         texturedMat.SetUniform("mainTex", texture);
-        texturedMat.SetUniform("model", Matrix4x4.CreateScale(size.X, size.Y, .4f) * Matrix4x4.CreateTranslation(center.X - size.X / 2, center.Y - size.Y / 2, 0));
+        texturedMat.SetUniform("model", Matrix4x4.CreateScale((float)size.X, (float)size.Y, .4f) * Matrix4x4.CreateTranslation((float)(center.X - size.X / 2), (float)center.Y - (float)size.Y / 2, 0));
         imageQuadInvertedY.Draw();
     }
 
 
-    public static float lineSpacing = 3;
+    public static double lineSpacing = 3;
 
-    public static void AdvText(Camera2D camera, Vec2 pos, float lh, Color color, string text, float t = 1, bool centered = false)
+    public static void AdvText(Camera2D camera, Vec2 pos, double lh, Color color, string text, double t = 1, bool centered = false)
     {
         void SetCharColor(int i, Color col)
         {
@@ -261,17 +261,17 @@ public static class Gizmos2D
         var splitted = text.Split("\n");
         var globalT = t;
 
-        var sum = (float)text.Length;
-        var cur = 0f;
+        var sum = (double)text.Length;
+        var cur =0.0;
         for (int l = 0; l < splitted.Length; l++)
         {
             tasks.Clear();
             var startPos = cur / sum;
             var endPos = (cur + splitted[l].Length) / sum;
-            var localT = 0f;
+            var localT =0.0;
 
             if (t <= startPos)
-                localT = 0f;
+                localT =0.0;
             else if (t >= endPos)
                 localT = 1f;
             else
@@ -331,35 +331,35 @@ public static class Gizmos2D
             MsdfRenderer.textMesh.Upload();
             MsdfRenderer.Material.Use();
             MsdfRenderer.Material.SetUniform("t", localT);
-            MsdfRenderer.Material.SetUniform("line", (float)l);
-            MsdfRenderer.Material.SetUniform("lines", (float)splitted.Length);
+            MsdfRenderer.Material.SetUniform("line", (double)l);
+            MsdfRenderer.Material.SetUniform("lines", (double)splitted.Length);
             MsdfRenderer.Material.SetUniform("tint", new Vec4(1, 1, 1, 1));
             MsdfRenderer.Material.SetUniform("screenPxRange", 2.5f);
             MsdfRenderer.Material.SetUniform("mainTex", font.Texture);
             MsdfRenderer.Material.SetUniform("view", camera.GetViewMatrix());
             MsdfRenderer.Material.SetUniform("projection", camera.GetProjectionMatrix());
-            MsdfRenderer.Material.SetUniform("model", Matrix4x4.CreateScale(lh, lh, 1) * Matrix4x4.CreateTranslation(pos.X, pos.Y - l * (lh + lineSpacing), 0));
+            MsdfRenderer.Material.SetUniform("model", Matrix4x4.CreateScale((float)lh, (float)lh, 1) * Matrix4x4.CreateTranslation((float)pos.X, (float)pos.Y - l * (float)(lh + lineSpacing), 0));
             MsdfRenderer.Render();
             cur += line.Length;
         }
     }
 
 
-    public static void Text(ICamera camera, Vec2 pos, float lh, Color color, string text, float t = 1, bool centered = false)
+    public static void Text(ICamera camera, Vec2 pos, double lh, Color color, string text, double t = 1, bool centered = false)
     {
         var splitted = text.Split("\n");
         var globalT = t;
 
-        var sum = (float)text.Length;
-        var cur = 0f;
+        var sum = (double)text.Length;
+        var cur =0.0;
         for (int l = 0; l < splitted.Length; l++)
         {
             var startPos = cur / sum;
             var endPos = (cur + splitted[l].Length) / sum;
-            var localT = 0f;
+            var localT =0.0;
 
             if (t <= startPos)
-                localT = 0f;
+                localT =0.0;
             else if (t >= endPos)
                 localT = 1f;
             else
@@ -370,14 +370,14 @@ public static class Gizmos2D
             MsdfRenderer.UpdateMesh(line, camera,font, centered);
             MsdfRenderer.Material.Use();
             MsdfRenderer.Material.SetUniform("t", localT);
-            MsdfRenderer.Material.SetUniform("line", (float)l);
-            MsdfRenderer.Material.SetUniform("lines", (float)splitted.Length);
+            MsdfRenderer.Material.SetUniform("line", (double)l);
+            MsdfRenderer.Material.SetUniform("lines", (double)splitted.Length);
             MsdfRenderer.Material.SetUniform("tint", color);
             MsdfRenderer.Material.SetUniform("screenPxRange",2.5f);
             MsdfRenderer.Material.SetUniform("mainTex", font.Texture);
             MsdfRenderer.Material.SetUniform("view", camera.GetViewMatrix());
             MsdfRenderer.Material.SetUniform("projection", camera.GetProjectionMatrix());
-            MsdfRenderer.Material.SetUniform("model", Matrix4x4.CreateScale(lh, lh, 1) * Matrix4x4.CreateTranslation(pos.X, pos.Y - l * lh, 0));
+            MsdfRenderer.Material.SetUniform("model", Matrix4x4.CreateScale((float)lh, (float)lh, 1) * Matrix4x4.CreateTranslation((float)pos.X, (float)pos.Y - l * (float)lh, 0));
             MsdfRenderer.Render();
             cur += splitted[l].Length;
         }
@@ -386,9 +386,9 @@ public static class Gizmos2D
     public static void DrawTria(ICamera cam, Vec2 p1, Vec2 p2, Vec2 p3, Vec4 color)
     {
         material.Use();
-        debugTria.Vertices[0].Position = new Vec3(p1, 0f);
-        debugTria.Vertices[1].Position = new Vec3(p2, 0f);
-        debugTria.Vertices[2].Position = new Vec3(p3, 0f);
+        debugTria.Vertices[0].Position = new Vec3(p1,0.0);
+        debugTria.Vertices[1].Position = new Vec3(p2,0.0);
+        debugTria.Vertices[2].Position = new Vec3(p3,0.0);
         debugTria.Upload(UploadFlags.Vertices);
         material.SetUniform("tint", color);
         material.SetUniform("view", cam.GetViewMatrix());
@@ -406,7 +406,7 @@ public static class Gizmos2D
         material.SetUniform("tint", color);
         material.SetUniform("view", view);
         material.SetUniform("projection", projection);
-        var model = Matrix4x4.CreateScale(size.X, size.Y, .4f) * Matrix4x4.CreateTranslation(start.X, start.Y, 0);
+        var model = Matrix4x4.CreateScale((float)size.X, (float)size.Y, .4f) * Matrix4x4.CreateTranslation((float)start.X, (float)start.Y, 0);
         material.SetUniform("model", model);
         imageQuad.Draw();
     }
@@ -421,7 +421,7 @@ public static class Gizmos2D
         material.SetUniform("tint", color);
         material.SetUniform("view", view);
         material.SetUniform("projection", projection);
-        var model = Matrix4x4.CreateScale(size.X, size.Y, .4f) * Matrix4x4.CreateTranslation(center.X, center.Y, 0);
+        var model = Matrix4x4.CreateScale((float)size.X, (float)size.Y, .4f) * Matrix4x4.CreateTranslation((float)center.X, (float)center.Y, 0);
         material.SetUniform("model", model);
         quadMeshCentered.Draw();
     }
@@ -429,7 +429,7 @@ public static class Gizmos2D
     //source claude
     public static void SetScissorPresiView(Vec2 center, Vec2 size)
     {
-        var model = Matrix4x4.CreateScale(size.X, size.Y, .4f) * Matrix4x4.CreateTranslation(center.X, center.Y, 0);
+        var model = Matrix4x4.CreateScale((float)size.X, (float)size.Y, .4f) * Matrix4x4.CreateTranslation((float)center.X, (float)center.Y, 0);
 
         Vec3[] corners = new Vec3[4]
         {
@@ -456,8 +456,8 @@ public static class Gizmos2D
         }
 
 // Find the bounding rectangle in screen space
-        float minX = float.MaxValue, minY = float.MaxValue;
-        float maxX = float.MinValue, maxY = float.MinValue;
+        double minX = double.MaxValue, minY = double.MaxValue;
+        double maxX = double.MinValue, maxY = double.MinValue;
         foreach (var corner in screenCorners)
         {
             minX = Math.Min(minX, corner.X);
@@ -478,7 +478,7 @@ public static class Gizmos2D
     }
 
 
-    public static void LineCentered(ICamera cam, Vec2 center, Vec2 dir, Color color, float thickness)
+    public static void LineCentered(ICamera cam, Vec2 center, Vec2 dir, Color color, double thickness)
     {
         material.Use();
         material.SetUniform("tint", color);
@@ -486,17 +486,17 @@ public static class Gizmos2D
         material.SetUniform("projection", cam.GetProjectionMatrix());
 
         material.SetUniform("model",
-            Matrix4x4.CreateScale(dir.Length(), thickness, 1) *
-            Matrix4x4.CreateRotationZ(MathF.Atan2(dir.Y, dir.X)) *
-            Matrix4x4.CreateTranslation(center.X, center.Y, 0));
+            Matrix4x4.CreateScale((float)dir.Length(), (float)thickness, 1) *
+            Matrix4x4.CreateRotationZ((float)Math.Atan2(dir.Y, dir.X)) *
+            Matrix4x4.CreateTranslation((float)center.X, (float)center.Y, 0));
 
         quadMeshCentered.Draw();
     }
 
-    public static void Line(ICamera cam, Vec2 start, Vec2 end, Color color, float thickness)
+    public static void Line(ICamera cam, Vec2 start, Vec2 end, Color color, double thickness)
     {
         Vec2 dir = Vec2.Normalize(end - start);
-        float length = Vec2.Distance(start, end);
+        double length = Vec2.Distance(start, end);
         material.Use();
         material.SetUniform("tint", color);
         material.SetUniform("view", cam.GetViewMatrix());
@@ -504,9 +504,9 @@ public static class Gizmos2D
 
         var s2 = start + dir / 2 * length * 1;
         material.SetUniform("model",
-            Matrix4x4.CreateScale(length, thickness, 1) *
-            Matrix4x4.CreateRotationZ(MathF.Atan2(dir.Y, dir.X)) *
-            Matrix4x4.CreateTranslation(s2.X, s2.Y, 0));
+            Matrix4x4.CreateScale((float)length, (float)thickness, 1) *
+            Matrix4x4.CreateRotationZ((float)Math.Atan2(dir.Y, dir.X)) *
+            Matrix4x4.CreateTranslation((float)s2.X, (float)s2.Y, 0));
 
         quadMeshCentered.Draw();
     }

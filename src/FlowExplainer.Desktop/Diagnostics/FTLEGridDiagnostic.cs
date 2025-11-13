@@ -12,10 +12,10 @@ public class FTLEGridDiagnostic : IGridDiagnostic
         public Vec2 StartPosition;
         public Vec2 FinalPosition;
         public Vec3 padding;
-        public float FTLE;
+        public double FTLE;
     }
 
-    public float T = 1;
+    public double T = 1;
     private FTLEData[] Data;
 
     public void UpdateGridData(GridVisualizer gridVisualizer)
@@ -61,10 +61,10 @@ public class FTLEGridDiagnostic : IGridDiagnostic
                 var start_left = Data[renderGrid.GetCoordsIndex(new Vec2i(i + 1, j))].StartPosition;
                 var start_down = Data[renderGrid.GetCoordsIndex(new Vec2i(i, j + 1))].StartPosition;
                 var start_up = Data[renderGrid.GetCoordsIndex(new Vec2i(i, j - 1))].StartPosition;
-                float dX = start_left.X - start_right.X;
-                float dY = (start_down.Y - start_up.Y);
+                double dX = start_left.X - start_right.X;
+                double dY = (start_down.Y - start_up.Y);
 
-                Matrix2 gradient = new Matrix2(
+                Matrix2d gradient = new Matrix2d(
                     (end_left.X - end_right.X) / dX,
                     (end_down.X - end_up.X) / dY,
                     (end_left.Y - end_right.Y) / dX,
@@ -81,9 +81,9 @@ public class FTLEGridDiagnostic : IGridDiagnostic
                 if (n < 1e-05)
                     n = 0;
 
-                var right = float.Sqrt(n);
-                var max_eigen = float.Max(m + right, m - right);
-                center.Value = (1f / float.Abs(T)) * float.Log(float.Sqrt(max_eigen));
+                var right = double.Sqrt(n);
+                var max_eigen = double.Max(m + right, m - right);
+                center.Value = (1f / double.Abs(T)) * double.Log(double.Sqrt(max_eigen));
                 // center = c % 2 == 0 ? 1 : 0;
                 //center = 0;
             }
@@ -109,7 +109,7 @@ public class FTLEGridDiagnostic : IGridDiagnostic
     public void OnImGuiEdit(GridVisualizer vis)
     {
         var dat = vis.GetRequiredWorldService<DataService>()!;
-        float period = dat.VectorField.Domain.RectBoundary.Size.Last;
+        double period = dat.VectorField.Domain.RectBoundary.Size.Last;
         if (ImGuiHelpers.SliderFloat("T", ref T, -period * 1, period * 1))
             vis.MarkDirty = true;
     }

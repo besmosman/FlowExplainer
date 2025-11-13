@@ -72,24 +72,24 @@ public static class SquirrelNoise5
         return mangledBits;
     }
 
-    /// <summary> Returns a random float in the range [-1, 1] based on the given 1D position and seed. </summary>
-    public static float Noise1D(int x, uint seed = 0)
-        => (float)(ONE_OVER_MAX_INT * (int)Hash(x, seed));
+    /// <summary> Returns a random double in the range [-1, 1] based on the given 1D position and seed. </summary>
+    public static double Noise1D(int x, uint seed = 0)
+        => (double)(ONE_OVER_MAX_INT * (int)Hash(x, seed));
 
-    /// <summary> Returns a random float in the range [-1, 1] based on the given 2D position and seed. </summary>
-    public static float Noise2D(int x, int y, uint seed = 0)
-        => (float)(ONE_OVER_MAX_INT * (int)UInt.Noise2D(x, y, seed));
+    /// <summary> Returns a random double in the range [-1, 1] based on the given 2D position and seed. </summary>
+    public static double Noise2D(int x, int y, uint seed = 0)
+        => (double)(ONE_OVER_MAX_INT * (int)UInt.Noise2D(x, y, seed));
 
-    /// <summary> Returns a random float in the range [-1, 1] based on the given 3D position and seed. </summary>
-    public static float Noise3D(int x, int y, int z, uint seed = 0)
-        => (float)(ONE_OVER_MAX_INT * (int)UInt.Noise3D(x, y, z, seed));
+    /// <summary> Returns a random double in the range [-1, 1] based on the given 3D position and seed. </summary>
+    public static double Noise3D(int x, int y, int z, uint seed = 0)
+        => (double)(ONE_OVER_MAX_INT * (int)UInt.Noise3D(x, y, z, seed));
 
-    /// <summary> Returns a random float in the range [-1, 1] based on the given 4D position and seed. </summary>
-    public static float Noise4D(int x, int y, int z, int w, uint seed = 0)
-        => (float)(ONE_OVER_MAX_INT * (int)UInt.Noise4D(x, y, z, w, seed));
+    /// <summary> Returns a random double in the range [-1, 1] based on the given 4D position and seed. </summary>
+    public static double Noise4D(int x, int y, int z, int w, uint seed = 0)
+        => (double)(ONE_OVER_MAX_INT * (int)UInt.Noise4D(x, y, z, w, seed));
 
     /// <summary>
-    /// Variants of Squirrel5 which return an unsigned integer instead of a floating point number.
+    /// Variants of Squirrel5 which return an unsigned integer instead of a doubleing point number.
     /// </summary>
     public static class UInt
     {
@@ -123,24 +123,24 @@ public static class SquirrelNoise5
     }
 
     /// <summary>
-    /// Variants of Squirrel5 which return a float in the range [0, 1] instead of [-1, 1].
+    /// Variants of Squirrel5 which return a double in the range [0, 1] instead of [-1, 1].
     /// </summary>
     public static class ZeroToOne
     {
-        /// <summary> Returns a random float in the range [0, 1] based on the given 1D position and seed. </summary>
-        public static float Noise1D(int x, uint seed = 0)
-            => (float)(ONE_OVER_MAX_UINT * Hash(x, seed));
+        /// <summary> Returns a random double in the range [0, 1] based on the given 1D position and seed. </summary>
+        public static double Noise1D(int x, uint seed = 0)
+            => (double)(ONE_OVER_MAX_UINT * Hash(x, seed));
 
-        /// <summary> Returns a random float in the range [0, 1] based on the given 2D position and seed. </summary>
-        public static float Noise2D(int x, int y, uint seed = 0)
-            => (float)(ONE_OVER_MAX_UINT * UInt.Noise2D(x, y, seed));
+        /// <summary> Returns a random double in the range [0, 1] based on the given 2D position and seed. </summary>
+        public static double Noise2D(int x, int y, uint seed = 0)
+            => (double)(ONE_OVER_MAX_UINT * UInt.Noise2D(x, y, seed));
 
-        /// <summary> Returns a random float in the range [0, 1] based on the given 3D position and seed. </summary>
-        public static float Noise3D(int x, int y, int z, uint seed = 0)
-            => (float)(ONE_OVER_MAX_UINT * UInt.Noise3D(x, y, z, seed));
+        /// <summary> Returns a random double in the range [0, 1] based on the given 3D position and seed. </summary>
+        public static double Noise3D(int x, int y, int z, uint seed = 0)
+            => (double)(ONE_OVER_MAX_UINT * UInt.Noise3D(x, y, z, seed));
 
-        /// <summary> Returns a random float in the range [0, 1] based on the given 4D position and seed. </summary>
-        public static float Noise4D(int x, int y, int z, int w, uint seed = 0)
-            => (float)(ONE_OVER_MAX_UINT * UInt.Noise4D(x, y, z, w, seed));
+        /// <summary> Returns a random double in the range [0, 1] based on the given 4D position and seed. </summary>
+        public static double Noise4D(int x, int y, int z, int w, uint seed = 0)
+            => (double)(ONE_OVER_MAX_UINT * UInt.Noise4D(x, y, z, w, seed));
     }
 }

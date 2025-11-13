@@ -11,24 +11,24 @@ public class Trajectory<T> where T : IVec<T>
         Entries = entries;
     }
 
-    public Z AverageAlong<Z>(Func<T, T, Z> selector) where Z : IMultiplyOperators<Z, float, Z>, IAdditionOperators<Z, Z, Z>
+    public Z AverageAlong<Z>(Func<T, T, Z> selector) where Z : IMultiplyOperators<Z, double, Z>, IAdditionOperators<Z, Z, Z>
     {
         Z sum = default!;
 
         for (int i = 1; i < Entries.Length; i++)
         {
-            sum += selector(Entries[i - 1], Entries[i]) * float.Abs(Entries[i].Last - Entries[i - 1].Last);
+            sum += selector(Entries[i - 1], Entries[i]) * double.Abs(Entries[i].Last - Entries[i - 1].Last);
         }
 
         var t = Entries.First().Last;
         var tau = Entries.Last().Last;
-        return sum * (1f / float.Abs(t - tau));
+        return sum * (1f / double.Abs(t - tau));
     }
 
-    public IEnumerable<(T vector, float c)> Enumerate()
+    public IEnumerable<(T vector, double c)> Enumerate()
     {
-        float t_start = Entries[0].Last;
-        float t_end = Entries[^1].Last;
+        double t_start = Entries[0].Last;
+        double t_end = Entries[^1].Last;
         foreach (var t in Entries)
         {
             yield return (t, (t.Last - t_start) / (t_end - t_start));
@@ -69,19 +69,19 @@ public class Trajectory<T> where T : IVec<T>
 
 
     private int last_returned_Entry = 0;
-    public T AtC(float c)
+    public T AtC(double c)
     {
         return AtTime(c * (Entries[^1].Last - Entries[0].Last) + Entries[0].Last);
     }
     
-    public T AtTimeBilinear(float t)
+    public T AtTimeBilinear(double t)
     {
         int L = 0;
         int R = Entries.Length - 1;
 
         while (L <= R)
         {
-            var m = L + (int)float.Floor((R - L) / 2f);
+            var m = L + (int)double.Floor((R - L) / 2f);
             if (Entries[m].Last < t)
             {
                 L = m + 1;
@@ -92,11 +92,11 @@ public class Trajectory<T> where T : IVec<T>
             }
             else return Entries[m];
         }
-        float c = t - Entries[L].Last / (Entries[R].Last - Entries[L].Last);
+        double c = t - Entries[L].Last / (Entries[R].Last - Entries[L].Last);
         return Utils.Lerp(Entries[L], Entries[R], c);
     }
 
-    public T AtTime(float t)
+    public T AtTime(double t)
     {
         //So this should be fast for t queries that are increasing or decreasing.
         //First checking last result - 1 to count. so increasing queries only require 2 checks while

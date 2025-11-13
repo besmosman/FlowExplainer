@@ -1,5 +1,4 @@
-﻿
-using System.Numerics;
+﻿using System.Numerics;
 
 namespace FlowExplainer
 {
@@ -7,13 +6,13 @@ namespace FlowExplainer
     {
         public Vec3 Position = Vec3.Zero;
         public Quaternion Rotation = Quaternion.Identity;
-        public float FovRadians = 65 / 360f * float.Tau;
+        public double FovRadians = 65 / 360f * double.Tau;
         public Vec2 RenderTargetSize;
         public CameraProjectionMode ProjectionMode = CameraProjectionMode.Perspective;
 
-        public float NearPlane = .01f;
-        public float FarPlane = 2000;
-        
+        public double NearPlane = .01f;
+        public double FarPlane = 2000;
+
         public Camera()
         {
 
@@ -27,8 +26,8 @@ namespace FlowExplainer
         {
             return ProjectionMode switch
             {
-                CameraProjectionMode.Orthographic => Matrix4x4.CreateOrthographic(RenderTargetSize.X/90, RenderTargetSize.Y/90, NearPlane, FarPlane),
-                CameraProjectionMode.Perspective => Matrix4x4.CreatePerspectiveFieldOfView(10 / 360f * float.Tau, RenderTargetSize.X / RenderTargetSize.Y, NearPlane, FarPlane),
+                CameraProjectionMode.Orthographic => Matrix4x4.CreateOrthographic((float)RenderTargetSize.X / 90, (float)RenderTargetSize.Y / 90, (float)NearPlane, (float)FarPlane),
+                CameraProjectionMode.Perspective => Matrix4x4.CreatePerspectiveFieldOfView((float)(10 / 360f * double.Tau), (float)RenderTargetSize.X / (float)RenderTargetSize.Y, (float)NearPlane, (float)FarPlane),
                 _ => throw new Exception($"{nameof(ProjectionMode)} is invalid")
             };
         }

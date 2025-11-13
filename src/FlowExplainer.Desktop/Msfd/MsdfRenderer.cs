@@ -17,16 +17,16 @@ public static class MsdfRenderer
         Init();
     }
 
-    public static MsdfFont GetClosestFont(ICamera cam, float lh)
+    public static MsdfFont GetClosestFont(ICamera cam, double lh)
     {
         var target = lh * 0;
-        var minDis = float.MaxValue;
+        var minDis = double.MaxValue;
         MsdfFont minFont = null;
         foreach (var p in fonts)
         {
-            if (minDis > float.Abs(p.Key - target))
+            if (minDis > double.Abs(p.Key - target))
             {
-                minDis = float.Abs(p.Key - target);
+                minDis = double.Abs(p.Key - target);
                 minFont = p.Value;
             }
         }
@@ -107,11 +107,11 @@ public static class MsdfRenderer
         textMesh.Draw();
     }
 
-    public static float LastMaxPos = 0;
+    public static double LastMaxPos = 0;
 
-    public static float CalcTextWidth(MsdfFont font, string text)
+    public static double CalcTextWidth(MsdfFont font, string text)
     {
-        float currentX = 0;
+        double currentX = 0;
         for (int i = 0; i < text.Length; i++)
         {
             char c = text[i];
@@ -122,7 +122,7 @@ public static class MsdfRenderer
             currentX += fontChar.advance;
         }
 
-        float m = 1f / font.MsdfFontInfo.Metrics.lineHeight;
+        double m = 1f / font.MsdfFontInfo.Metrics.lineHeight;
         return currentX * m;
     }
 
@@ -130,7 +130,7 @@ public static class MsdfRenderer
     {
         var vertices = Rental<Vertex>.Rent(text.Length * 6);
         vertices.AsSpan().Fill(default);
-        float currentX = 0;
+        double currentX = 0;
         bool invertY = !cam.InvertedY();
 
         var color = new Vec4(1, 1, 1, 1);
@@ -142,8 +142,8 @@ public static class MsdfRenderer
                 fontChar = font.GetGlyphInfo('?');
             if (fontChar.atlasBounds != null)
             {
-                float lh = font.MsdfFontInfo.Metrics.lineHeight;
-                float baseHeight = font.MsdfFontInfo.Metrics.descender;
+                double lh = font.MsdfFontInfo.Metrics.lineHeight;
+                double baseHeight = font.MsdfFontInfo.Metrics.descender;
 
                 Vec2 uvSize = new(1f / font.Texture.Size.X, 1f / font.Texture.Size.Y);
 
@@ -193,7 +193,7 @@ public static class MsdfRenderer
             vertices[i].Normal.Y = vertices[i].Position.Y / vertices[vertices.Length - 1].Position.Y;
         }
 
-        float m = 1f / font.MsdfFontInfo.Metrics.lineHeight;
+        double m = 1f / font.MsdfFontInfo.Metrics.lineHeight;
         for (int i = 0; i < vertices.Length; i++)
         {
             vertices[i].Position = new Vec3(vertices[i].Position.X * m, vertices[i].Position.Y * m, 0);

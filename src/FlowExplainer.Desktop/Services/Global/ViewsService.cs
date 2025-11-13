@@ -24,7 +24,7 @@
         {
             var view = new View(1, 1, GetRequiredGlobalService<WorldManagerService>().Worlds[0]);
             Views.Add(view);
-            view.CameraOffset = new Vec3(.5f, .25f, 0f);
+            view.CameraOffset = new Vec3(.5f, .25f,0.0);
             view.CameraOffset = new Vec3(0, 0, 0);
             view.CameraZoom = 5;
             Views[Views.Count - 1].Camera2D.Scale = 14f;

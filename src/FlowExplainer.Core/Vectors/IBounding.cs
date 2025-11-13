@@ -11,10 +11,10 @@ public interface IBounding<Vec> where Vec : IVec<Vec>
 public class LastPeriodicBounding<Vec> : IBounding<Vec> where Vec : IVec<Vec>
 {
     private IBounding<Vec> Original;
-    private float t_start;
-    private float t_period;
+    private double t_start;
+    private double t_period;
     
-    public LastPeriodicBounding(IBounding<Vec> original, float tStart, float tPeriod)
+    public LastPeriodicBounding(IBounding<Vec> original, double tStart, double tPeriod)
     {
         Original = original;
         t_start = tStart;

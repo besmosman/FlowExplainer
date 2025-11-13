@@ -5,27 +5,27 @@ namespace FlowExplainer.Msdf
 {
     public class MsdfBounds
     {
-        public float left;
-        public float top;
-        public float right;
-        public float bottom;
+        public double left;
+        public double top;
+        public double right;
+        public double bottom;
     }
 
     public class MsdfGlyph
     {
         public MsdfBounds planeBounds;
         public MsdfBounds atlasBounds;
-        public float advance;
+        public double advance;
         public int unicode;
     }
 
     public class MsdfMetrics
     {
-        public float lineHeight;
-        public float ascender;
-        public float descender;
-        public float underlineY;
-        public float underlineThickness;
+        public double lineHeight;
+        public double ascender;
+        public double descender;
+        public double underlineY;
+        public double underlineThickness;
     }
 
     public class MsdfAtlas

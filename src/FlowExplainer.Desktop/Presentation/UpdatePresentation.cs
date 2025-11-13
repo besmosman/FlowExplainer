@@ -50,7 +50,7 @@ public class UpdatePresentation : Presentation
     public class ULICDiffusionSlide : PrecomputedSlide
     {
         public override string Title => "Pathline LIC (Diffusion Flux)";
-        public override float T => .3f;
+        public override double T => .3f;
 
         public override void SetupDatasource(World world)
         {
@@ -92,7 +92,7 @@ public class UpdatePresentation : Presentation
         public abstract string Title { get; }
 
         public bool pathlineVersion;
-        public float T = .4f;
+        public double T = .4f;
         public override void Prepare(FlowExplainer flowExplainer)
         {
             var world = flowExplainer.GetGlobalService<WorldManagerService>().Worlds[0];
@@ -125,7 +125,7 @@ public class UpdatePresentation : Presentation
             dataService.LoadScalerField(Title+"-pathline", path+"-pathline");
             dataService.currentSelectedScaler = Title+"-streamline";
 
-            var size = ((RegularGridVectorField<Vec3, Vec3i, float>)dataService.ScalerFields[dataService.currentSelectedScaler]).GridSize;
+            var size = ((RegularGridVectorField<Vec3, Vec3i, double>)dataService.ScalerFields[dataService.currentSelectedScaler]).GridSize;
             base.Load();
             w0.GetWorldService<GridVisualizer>().TargetCellCount = size.X * size.Y;
         }

@@ -3,12 +3,12 @@ namespace FlowExplainer;
 public static class FiniteDifferences
 {
 
-    public static void Test(IVectorField<Vec3, Vec2> velocityField, RegularGrid<Vec2i, float> temprature, float t, float dt)
+    public static void Test(IVectorField<Vec3, Vec2> velocityField, RegularGrid<Vec2i, double> temprature, double t, double dt)
     {
         var u = velocityField.Evaluate;
 
         RegularGrid<Vec2i, Vec2> vel = RegularGrid<Vec2i, Vec2>.Rent(temprature.GridSize);
-        RegularGrid<Vec2i, float> laplacianT = RegularGrid<Vec2i, float>.Rent(temprature.GridSize);
+        RegularGrid<Vec2i, double> laplacianT = RegularGrid<Vec2i, double>.Rent(temprature.GridSize);
         var delta = (1f / vel.GridSize.ToVec2()) * new Vec2(1, .5f);
 
 
@@ -38,7 +38,7 @@ public static class FiniteDifferences
         }
 
         var Pe = 300;
-        var rhs = RegularGrid<Vec2i, float>.Rent(temprature.GridSize);
+        var rhs = RegularGrid<Vec2i, double>.Rent(temprature.GridSize);
         var lhs = laplacianT;
         for (int x = 0; x < tempGradient.GridSize.X; x++)
         for (int y = 0; y < tempGradient.GridSize.Y; y++)
@@ -54,8 +54,8 @@ public static class FiniteDifferences
         
         RegularGrid<Vec2i, Vec2>.Return(vel);
         RegularGrid<Vec2i, Vec2>.Return(tempGradient);
-        RegularGrid<Vec2i, float>.Return(laplacianT);
-        RegularGrid<Vec2i, float>.Return(rhs);
+        RegularGrid<Vec2i, double>.Return(laplacianT);
+        RegularGrid<Vec2i, double>.Return(rhs);
         
     }
 }

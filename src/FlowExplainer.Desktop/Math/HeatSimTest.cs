@@ -7,16 +7,16 @@ public class HeatSimTest : WorldService
 
     public class Cell
     {
-        public float Temperature;
-        public float StartWorldSpace;
-        public float EndWorldSpace;
-        public float CenterWorldSpace;
+        public double Temperature;
+        public double StartWorldSpace;
+        public double EndWorldSpace;
+        public double CenterWorldSpace;
         public Cell Left;
         public Cell Right;
     }
 
-    public float CellWidth;
-    public float DomainWidth = 1;
+    public double CellWidth;
+    public double DomainWidth = 1;
     public int CellCount = 100;
     private Cell[] Cells;
 
@@ -51,12 +51,12 @@ public class HeatSimTest : WorldService
     }
 
 
-    public float Velocity(float p)
+    public double Velocity(double p)
     {
         return 1;
     }
 
-    public float dTdx(Cell cell)
+    public double dTdx(Cell cell)
     {
         return (cell.Right.Temperature - cell.Left.Temperature) / CellWidth;
     }

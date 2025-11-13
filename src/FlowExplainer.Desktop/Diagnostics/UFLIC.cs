@@ -7,22 +7,22 @@ public class UFLIC : IGridDiagnostic
     private RegularGrid<Vec3i, Vec2> Accumelation = new(new Vec3i(1, 1, 1));
 
 
-    private IVectorField<Vec2, float> NoiseField = new NoiseField();
-    private RegularGrid<Vec2i, float> InputTexture = new(Vec2i.One);
-    private RegularGrid<Vec2i, float> InputTextureCopy = new(Vec2i.One);
+    private IVectorField<Vec2, double> NoiseField = new NoiseField();
+    private RegularGrid<Vec2i, double> InputTexture = new(Vec2i.One);
+    private RegularGrid<Vec2i, double> InputTextureCopy = new(Vec2i.One);
     int globalStep = 0;
-    public float dt = .004f;
-    public float expected_lifetime = .06f;
+    public double dt = .004f;
+    public double expected_lifetime = .06f;
     FastNoise noise = new FastNoise();
 
     public bool auto = false;
-    public float startTime = 0;
+    public double startTime = 0;
     public int view_offset;
     public void UpdateGridData(GridVisualizer gridVisualizer)
     {
         var t = gridVisualizer.GetRequiredWorldService<DataService>().SimulationTime;
 
-        int max_steps = (int)float.Ceiling(expected_lifetime / dt) + 1;
+        int max_steps = (int)double.Ceiling(expected_lifetime / dt) + 1;
         if (Accumelation.GridSize.XY != gridVisualizer.RegularGrid.GridSize || max_steps != Accumelation.GridSize.Last
             || (auto && t < globalStep * dt + startTime ))
         {
@@ -60,8 +60,8 @@ public class UFLIC : IGridDiagnostic
     {
         var ft = gridVisualizer.GetRequiredWorldService<DataService>().SimulationTime;
 
-        int max_steps = (int)float.Ceiling(expected_lifetime / dt) + 1;
-        float start_t = gridVisualizer.GetRequiredWorldService<DataService>().SimulationTime;
+        int max_steps = (int)double.Ceiling(expected_lifetime / dt) + 1;
+        double start_t = gridVisualizer.GetRequiredWorldService<DataService>().SimulationTime;
         var vectorField = gridVisualizer.GetRequiredWorldService<DataService>().VectorField;
         var domainBoundary = vectorField.Domain.RectBoundary.Reduce<Vec2>();
         var outputGrid = gridVisualizer.RegularGrid;
@@ -72,7 +72,7 @@ public class UFLIC : IGridDiagnostic
             var pos = domainBoundary.Relative(new Vec2(i + .5f, j + .5f) / outputGrid.GridSize.ToVec2());
             var scatterValue = InputTexture.AtCoords(new Vec2i(i, j));
 
-            float t = start_t + globalStep * dt;
+            double t = start_t + globalStep * dt;
             
             var phase = pos.Up(t);
             var lastBucket = new Vec3i(outputGrid.ToVoxelCoord(phase.XY).FloorInt(), globalStep % max_steps);
@@ -123,7 +123,7 @@ public class UFLIC : IGridDiagnostic
             ref var atpos = ref Accumelation.AtCoords(new Vec3i(i, j, globalStep % max_steps));
             var value = atpos.X / atpos.Y;
             InputTexture.AtCoords(new Vec2i(i, j)) = value;
-            if (atpos.Y == 0f)
+            if (atpos.Y ==0.0)
                 InputTexture.AtCoords(new Vec2i(i, j)) = 0;
             if (globalStep != 0)
                 Accumelation.AtCoords(new Vec3i(i, j, (globalStep - 1) % max_steps)) = Vec2.Zero;
@@ -135,12 +135,12 @@ public class UFLIC : IGridDiagnostic
             Array.Copy(InputTexture.Data, InputTextureCopy.Data, InputTexture.Data.Length);
             ParallelGrid.For(outputGrid.GridSize, (i, j) =>
             {
-                float nextValue = 0f;
-                float totWeight = 0f;
+                double nextValue =0.0;
+                double totWeight =0.0;
                 for (int x = -1; x <= 1; x++)
                 for (int y = -1; y <= 1; y++)
                 {
-                    float weight = 1;
+                    double weight = 1;
                     var xi = i + x;
                     var yj = j + y;
                     if (x == 0 && y == 0)
@@ -154,7 +154,7 @@ public class UFLIC : IGridDiagnostic
                 }
                 ref var atPos = ref InputTexture.AtCoords(new Vec2i(i, j));
                 // Random.Shared.NextSingle() - .5f) * .05f
-                atPos = float.Clamp(atPos - (nextValue / 20f) + ((NoiseField.Evaluate(new Vec2(i, j) / outputGrid.GridSize.ToVec2())) - .5f)*4, 0, 1);
+                atPos = double.Clamp(atPos - (nextValue / 20f) + ((NoiseField.Evaluate(new Vec2(i, j) / outputGrid.GridSize.ToVec2())) - .5f)*4, 0, 1);
                 //   atPos = Random.Shared.NextSingle();
             });
         }
@@ -163,7 +163,7 @@ public class UFLIC : IGridDiagnostic
 
     public void OnImGuiEdit(GridVisualizer gridVisualizer)
     {
-        int max_steps = (int)float.Ceiling(expected_lifetime / dt) + 1;
+        int max_steps = (int)double.Ceiling(expected_lifetime / dt) + 1;
 
         ImGuiHelpers.SliderFloat("dt", ref dt, 0, .1f);
         ImGuiHelpers.SliderFloat("expected_lifetime", ref expected_lifetime, 0, .4f);

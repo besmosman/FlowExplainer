@@ -39,25 +39,25 @@ namespace FlowExplainer
 
         public static Rect<Vec3> GetBounds(Geometry geometry)
         {
-            float minX = float.MaxValue;
-            float minY = float.MaxValue;
-            float minZ = float.MaxValue;
+            double minX = double.MaxValue;
+            double minY = double.MaxValue;
+            double minZ = double.MaxValue;
 
-            float maxX = float.MinValue;
-            float maxY = float.MinValue;
-            float maxZ = float.MinValue;
+            double maxX = double.MinValue;
+            double maxY = double.MinValue;
+            double maxZ = double.MinValue;
 
             for (int i = 0; i < geometry.Vertices.Length; i++)
             {
                 var v = geometry.Vertices[i];
 
-                minX = float.Min(minX, v.Position.X);
-                minY = float.Min(minY, v.Position.Y);
-                minZ = float.Min(minZ, v.Position.Z);
+                minX = double.Min(minX, v.Position.X);
+                minY = double.Min(minY, v.Position.Y);
+                minZ = double.Min(minZ, v.Position.Z);
 
-                maxX = float.Max(maxX, v.Position.X);
-                maxY = float.Max(maxY, v.Position.Y);
-                maxZ = float.Max(maxZ, v.Position.Z);
+                maxX = double.Max(maxX, v.Position.X);
+                maxY = double.Max(maxY, v.Position.Y);
+                maxZ = double.Max(maxZ, v.Position.Z);
             }
 
             return new Rect<Vec3>(new Vec3(minX, minY, minZ), new Vec3(maxX, maxY, maxZ));

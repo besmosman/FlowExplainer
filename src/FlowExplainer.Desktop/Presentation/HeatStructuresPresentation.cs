@@ -31,16 +31,16 @@ public class IntroductionPresentation : Presentation
         Scripting.SetGyreDataset(w3);
 
 
-        float[] ts = [0.01f, 0.3f];
+        double[] ts = [0.01f, 0.3f];
 
         int timeSteps = 100;
-        foreach (float t in ts)
+        foreach (double t in ts)
         {
             var title = t.ToString(CultureInfo.InvariantCulture);
-            w0.GetWorldService<DataService>().ScalerFields.Add($"Diffusion Sources (T={title})", RegularGridVectorField<Vec3, Vec3i, float>.Load($"diffusion-sources-T={title}.field"));
-            w0.GetWorldService<DataService>().ScalerFields.Add($"Diffusion Sinks (T={title})", RegularGridVectorField<Vec3, Vec3i, float>.Load($"diffusion-sinks-T={title}.field"));
-            w0.GetWorldService<DataService>().ScalerFields.Add($"Convection Sources (T={title})", RegularGridVectorField<Vec3, Vec3i, float>.Load($"convection-sources-T={title}.field"));
-            w0.GetWorldService<DataService>().ScalerFields.Add($"Convection Sinks (T={title})", RegularGridVectorField<Vec3, Vec3i, float>.Load($"convection-sinks-T={title}.field"));
+            w0.GetWorldService<DataService>().ScalerFields.Add($"Diffusion Sources (T={title})", RegularGridVectorField<Vec3, Vec3i, double>.Load($"diffusion-sources-T={title}.field"));
+            w0.GetWorldService<DataService>().ScalerFields.Add($"Diffusion Sinks (T={title})", RegularGridVectorField<Vec3, Vec3i, double>.Load($"diffusion-sinks-T={title}.field"));
+            w0.GetWorldService<DataService>().ScalerFields.Add($"Convection Sources (T={title})", RegularGridVectorField<Vec3, Vec3i, double>.Load($"convection-sources-T={title}.field"));
+            w0.GetWorldService<DataService>().ScalerFields.Add($"Convection Sinks (T={title})", RegularGridVectorField<Vec3, Vec3i, double>.Load($"convection-sinks-T={title}.field"));
         }
 
         w0.GetWorldService<DataService>().currentSelectedVectorField = "Diffusion Flux";
@@ -71,7 +71,7 @@ public class IntroductionPresentation : Presentation
             foreach (var w in worlds)
             {
                 var dat = w.GetWorldService<DataService>();
-                dat.TimeMultiplier = 0f;
+                dat.TimeMultiplier =0.0;
                 dat.SimulationTime = .8f;
                 var gridVisualizer = w.GetWorldService<GridVisualizer>();
                 w.GetWorldService<FlowDirectionVisualization>().amount = 2000;
@@ -308,7 +308,7 @@ public class HeatStructuresPresentation : Presentation
             LayoutMain();
             Title("LCS: Trajectory Length (T=3)");
             Presi.ViewPanel("v0", new Vec2(Presi.CanvasCenter.X, Presi.CanvasCenter.Y), new Vec2(1, .5f) * Presi.CanvasSize.X * .9f, .8f);
-            ref float simulationTime = ref w0.GetWorldService<DataService>().SimulationTime;
+            ref double simulationTime = ref w0.GetWorldService<DataService>().SimulationTime;
             // Presi.Slider($"time = {simulationTime:N2}", ref simulationTime, 0, 1, new Vec2(Presi.CanvasCenter.X, 100f), 500);
             base.Draw();
         }
@@ -371,7 +371,7 @@ public class HeatStructuresPresentation : Presentation
             w0.GetWorldService<GridVisualizer>().Enable();
             w0.GetWorldService<GridVisualizer>().Continous = true;
             w0.GetWorldService<GridVisualizer>().TargetCellCount = 100000;
-            w0.GetWorldService<DataService>().TimeMultiplier = 0f;
+            w0.GetWorldService<DataService>().TimeMultiplier =0.0;
             var flow = w0.GetWorldService<FlowDirectionVisualization>();
             flow.amount = 3000;
             if (!flow.IsEnabled)
@@ -387,7 +387,7 @@ public class HeatStructuresPresentation : Presentation
             LayoutMain();
             Title(Title);
             Presi.ViewPanel("v0", new Vec2(Presi.CanvasCenter.X, Presi.CanvasCenter.Y), new Vec2(1, .5f) * Presi.CanvasSize.X * .9f, .8f);
-            ref float simulationTime = ref w0.GetWorldService<DataService>().SimulationTime;
+            ref double simulationTime = ref w0.GetWorldService<DataService>().SimulationTime;
             Presi.Slider($"time = {simulationTime:N2}", ref simulationTime, 0, 1, new Vec2(Presi.CanvasCenter.X, 100f), 500);
             var flow = w0.GetWorldService<FlowDirectionVisualization>();
             bool isEnabled = flow.IsEnabled;
@@ -463,7 +463,7 @@ Sources:
             foreach (var w in worlds)
             {
                 var dat = w.GetWorldService<DataService>();
-                dat.TimeMultiplier = 0f;
+                dat.TimeMultiplier =0.0;
                 dat.SimulationTime = .8f;
                 var gridVisualizer = w.GetWorldService<GridVisualizer>();
                 w.GetWorldService<FlowDirectionVisualization>().amount = 2000;
@@ -557,16 +557,16 @@ Sources:
         Scripting.SetGyreDataset(w3);
 
 
-        float[] ts = [0.01f, 0.3f];
+        double[] ts = [0.01f, 0.3f];
 
         int timeSteps = 100;
-        foreach (float t in ts)
+        foreach (double t in ts)
         {
             var title = t.ToString(CultureInfo.InvariantCulture);
-            w0.GetWorldService<DataService>().ScalerFields.Add($"Diffusion Sources (T={title})", RegularGridVectorField<Vec3, Vec3i, float>.Load($"diffusion-sources-T={title}.field"));
-            w0.GetWorldService<DataService>().ScalerFields.Add($"Diffusion Sinks (T={title})", RegularGridVectorField<Vec3, Vec3i, float>.Load($"diffusion-sinks-T={title}.field"));
-            w0.GetWorldService<DataService>().ScalerFields.Add($"Convection Sources (T={title})", RegularGridVectorField<Vec3, Vec3i, float>.Load($"convection-sources-T={title}.field"));
-            w0.GetWorldService<DataService>().ScalerFields.Add($"Convection Sinks (T={title})", RegularGridVectorField<Vec3, Vec3i, float>.Load($"convection-sinks-T={title}.field"));
+            w0.GetWorldService<DataService>().ScalerFields.Add($"Diffusion Sources (T={title})", RegularGridVectorField<Vec3, Vec3i, double>.Load($"diffusion-sources-T={title}.field"));
+            w0.GetWorldService<DataService>().ScalerFields.Add($"Diffusion Sinks (T={title})", RegularGridVectorField<Vec3, Vec3i, double>.Load($"diffusion-sinks-T={title}.field"));
+            w0.GetWorldService<DataService>().ScalerFields.Add($"Convection Sources (T={title})", RegularGridVectorField<Vec3, Vec3i, double>.Load($"convection-sources-T={title}.field"));
+            w0.GetWorldService<DataService>().ScalerFields.Add($"Convection Sinks (T={title})", RegularGridVectorField<Vec3, Vec3i, double>.Load($"convection-sinks-T={title}.field"));
         }
 
         w0.GetWorldService<DataService>().currentSelectedVectorField = "Diffusion Flux";

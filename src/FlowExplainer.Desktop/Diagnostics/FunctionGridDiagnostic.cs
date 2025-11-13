@@ -5,7 +5,7 @@ namespace FlowExplainer;
 
 public class FunctionGridDiagnostic : IGridDiagnostic
 {
-    public float T = 1;
+    public double T = 1;
     public bool UseGradient;
     public bool StandardLCS = true;
     public int K = 10;
@@ -20,18 +20,18 @@ public class FunctionGridDiagnostic : IGridDiagnostic
         var spatialBounds = domain.RectBoundary.Reduce<Vec2>();
         var flowOperator = IFlowOperator<Vec2, Vec3>.Default;
 
-        float t = dat.SimulationTime;
-        float tau = t + T;
+        double t = dat.SimulationTime;
+        double tau = t + T;
         gridVisualizer.RegularGrid.Grid.Data.AsSpan().Fill(default);
         
-        float F_along(Vec3 last, Vec3 cur)
+        double F_along(Vec3 last, Vec3 cur)
         {
             //return Vec2.Distance(trajectory.Entries.First().XY, trajectory.Entries.Last().XY);
             //return trajectory.AverageAlong((p, c) => (c - p).Down().Length());
             //return trajectory.Entries.Last().X/30f;
             if (!UseGradient)
                 return (cur - last).Down().Length();
-            return float.Sin((cur.X+cur.Y)*8);
+            return double.Sin((cur.X+cur.Y)*8);
         }
 
         if (StandardLCS)
@@ -71,8 +71,8 @@ public class FunctionGridDiagnostic : IGridDiagnostic
                         if (spatialBounds.Contains(targPos))
                         {
                             ref var targ = ref gridVisualizer.RegularGrid.AtPos(targPos);
-                            var dis = (float)index / (traj.Entries.Length - 1f);
-                            float weight = 1;
+                            var dis = (double)index / (traj.Entries.Length - 1f);
+                            double weight = 1;
                             targ.Value += v * weight;
                             targ.Marked += weight;
                         }
@@ -81,10 +81,10 @@ public class FunctionGridDiagnostic : IGridDiagnostic
             });
        
 
-        static float Kernel(float dis)
+        static double Kernel(double dis)
         {
-            float sigma = 0.8f;
-            return (float)Math.Exp(-(dis * dis) / (2 * sigma * sigma));
+            double sigma = 0.8f;
+            return (double)Math.Exp(-(dis * dis) / (2 * sigma * sigma));
         }
 
         ParallelGrid.For(renderGrid.GridSize, (i, j) =>
@@ -136,7 +136,7 @@ public class FunctionGridDiagnostic : IGridDiagnostic
                 var end = trajBack.Entries.Last().Down();
                 //end = pos;
                 var rel = spatialBounds.Relative(end);
-                var v = float.Sin((rel.X - rel.Y * 90) / 550);
+                var v = double.Sin((rel.X - rel.Y * 90) / 550);
                 v = length;
                 //if (spatialBounds.IsWithin(end))
                 //    gridVisualizer.RegularGrid.AtPos(pos).Value = v;

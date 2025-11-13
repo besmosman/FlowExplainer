@@ -37,8 +37,8 @@ public static class Utils
     
     public static Rect<Vec2> GetBounds(IEnumerable<Vec2> filled)
     {
-        var min = new Vec2(float.PositiveInfinity);
-        var max = new Vec2(float.NegativeInfinity);
+        var min = new Vec2(double.PositiveInfinity);
+        var max = new Vec2(double.NegativeInfinity);
         foreach (var f in filled)
         {
             min = Min(min, f);

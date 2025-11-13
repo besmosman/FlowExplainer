@@ -6,10 +6,10 @@ namespace FlowExplainer
     public struct Vertex : IEquatable<Vertex>
     {
         public const int Stride =
-            sizeof(float) * 3 + // Position
-            sizeof(float) * 2 + // TexCoords
-            sizeof(float) * 3 + // Normal
-            sizeof(float) * 4; // Colour
+            sizeof(double) * 3 + // Position
+            sizeof(double) * 2 + // TexCoords
+            sizeof(double) * 3 + // Normal
+            sizeof(double) * 4; // Colour
 
         public Vec3 Position;
         public Vec2 TexCoords;

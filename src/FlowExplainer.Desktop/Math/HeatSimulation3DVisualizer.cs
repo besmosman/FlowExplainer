@@ -7,23 +7,23 @@ namespace FlowExplainer;
 
 public static class SpeetjensSpectralImporter
 {
-    public static float PhysicalSpectral(float x, float Pi5)
+    public static double PhysicalSpectral(double x, double Pi5)
     {
         return 2 * x / Pi5 - 1;
     }
 
-    public static float InterpFourCheb(Vec2 pos, RegularGrid<Vec2i, Complex> Usp, float Pi5)
+    public static double InterpFourCheb(Vec2 pos, RegularGrid<Vec2i, Complex> Usp, double Pi5)
     {
         int N = Usp.GridSize.X - 1;
         int M = 2 * (Usp.GridSize.Y - 1);
-        Vec2 spectralPos = new Vec2(pos.X * float.Pi, PhysicalSpectral(pos.Y, Pi5));
-        float acosy = float.Acos(spectralPos.Y);
+        Vec2 spectralPos = new Vec2(pos.X * double.Pi, PhysicalSpectral(pos.Y, Pi5));
+        double acosy = double.Acos(spectralPos.Y);
         var exp = Complex.Exp(Complex.ImaginaryOne * spectralPos.X);
         Complex u = Complex.Zero;
         for (int p = 0; p <= N; p++)
         {
             int n = p;
-            u += Usp.AtCoords(new Vec2i(p, 0)).Real * float.Cos(n * acosy);
+            u += Usp.AtCoords(new Vec2i(p, 0)).Real * double.Cos(n * acosy);
         }
 
         for (int p = 0; p <= N; p++)
@@ -31,19 +31,19 @@ public static class SpeetjensSpectralImporter
         {
             var n = p;
             var m = k;
-            var dU = Usp.AtCoords(new Vec2i(p, k)) * Complex.Pow(exp, -m) * float.Cos(n * acosy);
+            var dU = Usp.AtCoords(new Vec2i(p, k)) * Complex.Pow(exp, -m) * double.Cos(n * acosy);
             u += dU + Complex.Conjugate(dU);
         }
 
         for (int n = 0; n <= N; n++)
         {
-            u += Usp.AtCoords(new Vec2i(n, M / 2)) * Complex.Pow(exp, (M / 2f)) * float.Cos(n * acosy);
+            u += Usp.AtCoords(new Vec2i(n, M / 2)) * Complex.Pow(exp, (M / 2f)) * double.Cos(n * acosy);
         }
 
-        return (float)u.Real;
+        return (double)u.Real;
     }
 
-    public static RegularGridVectorField<Vec3, Vec3i, float> Load(string folderPath)
+    public static RegularGridVectorField<Vec3, Vec3i, double> Load(string folderPath)
     {
         int M = 33;
         int N = 33;
@@ -52,8 +52,8 @@ public static class SpeetjensSpectralImporter
         int Nx = 30; //interpolation grid size???
         int Ny = 30;
 
-        float D = 0.5f;
-        float Pi5 = D; // probaly Domain in Y axis right?
+        double D = 0.5f;
+        double Pi5 = D; // probaly Domain in Y axis right?
 
 
         Dictionary<string, RegularGrid<Vec2i, Complex>> spectralGrids = new();
@@ -65,8 +65,8 @@ public static class SpeetjensSpectralImporter
             {
                 var range = (p.IndexOf("t=", StringComparison.InvariantCulture) + 2)..(p.IndexOf("EPS", StringComparison.InvariantCulture));
                 string tString = p[range];
-                var t = float.Parse(tString, CultureInfo.InvariantCulture);
-                var t_index = (int)float.Round(t * 100);
+                var t = double.Parse(tString, CultureInfo.InvariantCulture);
+                var t_index = (int)double.Round(t * 100);
 
                 if (!spectralGrids.ContainsKey(tString))
                 {
@@ -84,7 +84,7 @@ public static class SpeetjensSpectralImporter
                     for (int y = 0; y < N; y++)
                     {
                         ref var at = ref spectralGrid.AtCoords(new Vec2i(x, y));
-                        var v = float.Parse(splitted[y], CultureInfo.InvariantCulture);
+                        var v = double.Parse(splitted[y], CultureInfo.InvariantCulture);
                         if (isRealFile)
                             at = new Complex(v, at.Imaginary);
                         else
@@ -96,12 +96,12 @@ public static class SpeetjensSpectralImporter
 
 
         Vec3i gridSize = new Vec3i(33, 33, 103);
-        var min = new Vec3(0, 0, 0f);
+        var min = new Vec3(0, 0,0.0);
         var max = new Vec3(1, .5f, 1.03f);
-        RegularGridVectorField<Vec3, Vec3i, float> heatGrid = new(gridSize, min, max);
+        RegularGridVectorField<Vec3, Vec3i, double> heatGrid = new(gridSize, min, max);
         Parallel.ForEach(spectralGrids, (p) =>
         {
-            var t = (int)(float.Round(float.Parse(p.Key, CultureInfo.InvariantCulture) * 100f));
+            var t = (int)(double.Round(double.Parse(p.Key, CultureInfo.InvariantCulture) * 100f));
             var spectralGrid = p.Value;
             for (int x = 0; x < p.Value.GridSize.X; x++)
             {
@@ -119,12 +119,12 @@ public static class SpeetjensSpectralImporter
 
 public class HeatSimulationToField
 {
-    public static RegularGridVectorField<Vec3, Vec3i, float> Convert(HeatSimulation simulation)
+    public static RegularGridVectorField<Vec3, Vec3i, double> Convert(HeatSimulation simulation)
     {
         Vec3i gridSize = new Vec3i(64, 64, 64);
         Vec3 min = new Vec3(0, 0, simulation.States.First().Time);
         Vec3 max = new Vec3(1, .5f, simulation.States.Last().Time);
-        RegularGridVectorField<Vec3, Vec3i, float> heatField = new(gridSize, min, max);
+        RegularGridVectorField<Vec3, Vec3i, double> heatField = new(gridSize, min, max);
         foreach (var state in simulation.States)
         {
             for (int i = 0; i < state.ParticleX.Length; i++)
@@ -141,7 +141,7 @@ public class HeatSimulationToField
                 }
                 else
                 {
-                    dat = Utils.Lerp(dat, h, .5f);
+                    dat = Utils.Lerp(dat, h, .5);
                 }
             }
         }
@@ -154,7 +154,7 @@ public class FDTest : WorldService
 {
     public override void Initialize()
     {
-        Temprature = new RegularGrid<Vec2i, float>(new Vec2i(64, 32) * 1);
+        Temprature = new RegularGrid<Vec2i, double>(new Vec2i(64, 32) * 1);
         for (int x = 0; x < Temprature.GridSize.X; x++)
         {
             for (int y = 0; y < Temprature.GridSize.Y; y++)
@@ -169,7 +169,7 @@ public class FDTest : WorldService
         }
     }
 
-    private RegularGrid<Vec2i, float> Temprature;
+    private RegularGrid<Vec2i, double> Temprature;
 
     public override void Draw(RenderTexture rendertarget, View view)
     {
@@ -204,9 +204,9 @@ public class FDTest : WorldService
 public class HeatSimulation3DVisualizer : WorldService
 {
     private HeatSimulation? loaded;
-    private float heatfilterMax = 1;
-    private float heatfilterMin;
-    private float timeFilter;
+    private double heatfilterMax = 1;
+    private double heatfilterMin;
+    private double timeFilter;
     public override ToolCategory Category => ToolCategory.Heat;
 
     public override void Initialize()
@@ -247,7 +247,7 @@ public class HeatSimulation3DVisualizer : WorldService
 
         if (!loaded.HasValue)
             return;
-        float rad = .01f;
+        double rad = .01f;
         view.CameraOffset = -dat.VectorField.Domain.RectBoundary.Center;
 //            view.CameraOffset = new Vec3(-.5f, .25f, -.25f);
 

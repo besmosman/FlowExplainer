@@ -13,7 +13,7 @@ public  static class CoordinatesConverter2D
         var ndcY = 1f - (screenCoord.Y / v.Height) * 2f; // Invert Y
 
         // 2. Homogeneous clip space
-        var clipPos = new Vector4(ndcX, ndcY, 0, 1);
+        var clipPos = new Vector4((float)ndcX, (float)ndcY, 0, 1);
 
         Matrix4x4.Invert(v.Camera2D.GetViewMatrix() * v.Camera2D.GetProjectionMatrix(), out var invViewProj);
 
@@ -24,7 +24,7 @@ public  static class CoordinatesConverter2D
     public static Vec2 WorldToView(View v, Vec2 worldCoords)
     {
         // 1. Convert world coordinates to homogeneous coordinates
-        var worldPos = new Vector4(worldCoords.X, worldCoords.Y, 0, 1);
+        var worldPos = new Vector4((float)worldCoords.X, (float)worldCoords.Y, 0, 1);
     
         // 2. Transform to clip space using view-projection matrix
         var viewProjMatrix = v.Camera2D.GetViewMatrix() * v.Camera2D.GetProjectionMatrix();

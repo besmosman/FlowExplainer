@@ -8,33 +8,33 @@ public class BasicLagrangianHeatSim
     public struct Particle
     {
         public Vec2 Position;
-        public float Heat;
-        public float LastHeat;
-        public float Tag;
-        public float RadiationHeatFlux;
-        public float DiffusionHeatFlux;
-        public float TotalConvectionHeatFlux;
-        public float TotalHeatFlux;
+        public double Heat;
+        public double LastHeat;
+        public double Tag;
+        public double RadiationHeatFlux;
+        public double DiffusionHeatFlux;
+        public double TotalConvectionHeatFlux;
+        public double TotalHeatFlux;
     }
 
     public Particle[] Particles = new Particle[0];
     public IIntegrator<Vec3, Vec2> Integrator = new RungeKutta4IntegratorGen<Vec3, Vec2>();
-    public float cellSize = .1f;
+    public double cellSize = .1f;
     private Dictionary<Vec2i, List<int>> grid = new();
 
     private Rect<Vec2> rect;
 
-    public float HeatDiffusionFactor = 0.0f; //heat diffusion
-    public float RadiationFactor = .0f; //heat radiation strength;
-    public float KernelRadius = .0f;
+    public double HeatDiffusionFactor = 0.0f; //heat diffusion
+    public double RadiationFactor = .0f; //heat radiation strength;
+    public double KernelRadius = .0f;
 
-    public void Setup(Rect<Vec2> rect, float spacing)
+    public void Setup(Rect<Vec2> rect, double spacing)
     {
         this.rect = rect;
         List<Vec2> positions = new();
-        float m = rect.Size.X / 100f;
-        for (float x = rect.Min.X; x <= rect.Max.X; x += spacing)
-        for (float y = rect.Min.Y; y <= rect.Max.Y; y += spacing)
+        double m = rect.Size.X / 100f;
+        for (double x = rect.Min.X; x <= rect.Max.X; x += spacing)
+        for (double y = rect.Min.Y; y <= rect.Max.Y; y += spacing)
         {
             var r = new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()) - new Vec2(.5f, .5f);
             positions.Add(new Vec2(x, y) + r * m);
@@ -52,7 +52,7 @@ public class BasicLagrangianHeatSim
         }
     }
 
-    public void Update(IVectorField<Vec3, Vec2> velocityField, float time, float dt)
+    public void Update(IVectorField<Vec3, Vec2> velocityField, double time, double dt)
     {
         if (Particles.Length == 0)
             return;
@@ -83,8 +83,8 @@ public class BasicLagrangianHeatSim
         Parallel.For(0, Particles.Length, parallelOptions, (i) =>
         {
             ref var p = ref Particles[i];
-            p.RadiationHeatFlux = 0f;
-            p.DiffusionHeatFlux = 0f;
+            p.RadiationHeatFlux =0.0;
+            p.DiffusionHeatFlux =0.0;
             p.Position = Integrator.Integrate(velocityField, new(p.Position, time), dt);
 
 
@@ -92,27 +92,27 @@ public class BasicLagrangianHeatSim
 
             /*//bounds shouldnt be needed though
             if (p.Position.X < rect.Min.X)
-                p.Position.X = rect.Max.X - float.Epsilon;
+                p.Position.X = rect.Max.X - double.Epsilon;
             if (p.Position.X > rect.Max.X)
-                p.Position.X = rect.Min.X + float.Epsilon;
+                p.Position.X = rect.Min.X + double.Epsilon;
 
             if (p.Position.Y < rect.Min.Y)
-                p.Position.Y = float.Epsilon;
+                p.Position.Y = double.Epsilon;
             if (p.Position.Y > rect.Max.Y)
-                p.Position.Y = rect.Max.Y - float.Epsilon;*/
+                p.Position.Y = rect.Max.Y - double.Epsilon;*/
             //var r = new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()) - new Vec2(.5f, .5f);
             // p.Position += r * .001f * dt;
-            float eps = .00001f;
+            double eps = .00001f;
 
             //bottom hot wall
-            float dis = p.Position.Y - rect.Min.Y;
+            double dis = p.Position.Y - rect.Min.Y;
             var intensity = (1f / (dis * dis + eps));
-            p.RadiationHeatFlux += (1 - p.Heat) * Single.Min(1, intensity * dt * RadiationFactor);
+            p.RadiationHeatFlux += (1 - p.Heat) * double.Min(1, intensity * dt * RadiationFactor);
 
             //top cold wall
             dis = rect.Max.Y - p.Position.Y;
             intensity = (1f / (dis * dis + eps));
-            p.RadiationHeatFlux += (0 - p.Heat) * Single.Min(1, intensity * dt * RadiationFactor);
+            p.RadiationHeatFlux += (0 - p.Heat) * double.Min(1, intensity * dt * RadiationFactor);
         });
 
 
@@ -129,7 +129,7 @@ public class BasicLagrangianHeatSim
 
                     if (i < j)
                     {
-                        float distance = Vec2.Distance(Particles[j].Position, p.Position);
+                        double distance = Vec2.Distance(Particles[j].Position, p.Position);
                         distance *= distance;
                         var flux = HeatDiffusionFactor * (KernelRadius - distance) / KernelRadius * -(Particles[j].Heat - p.Heat) * dt;
                         Particles[j].DiffusionHeatFlux += flux;
@@ -154,14 +154,14 @@ public class BasicLagrangianHeatSim
     }
 
 
-    public int[] GetWithinRange(int i, float radius)
+    public int[] GetWithinRange(int i, double radius)
     {
         var array = ArrayPool<int>.Shared.Rent(10000);
         int index = 0;
         var pos = Particles[i].Position;
         var min = GetVoxelCoords(pos - new Vec2(radius, radius));
         var max = GetVoxelCoords(pos + new Vec2(radius, radius));
-        float r2 = radius * radius;
+        double r2 = radius * radius;
 
         for (int x = min.X; x <= max.X; x++)
         for (int y = min.Y; y <= max.Y; y++)
@@ -183,12 +183,12 @@ public class BasicLagrangianHeatSim
         return array;
     }
 
-    public IEnumerable<int> GetWithinRangeOld(int i, float radius)
+    public IEnumerable<int> GetWithinRangeOld(int i, double radius)
     {
         var pos = Particles[i].Position;
         var min = GetVoxelCoords(pos - new Vec2(radius, radius));
         var max = GetVoxelCoords(pos + new Vec2(radius, radius));
-        float r2 = radius * radius;
+        double r2 = radius * radius;
 
         for (int x = min.X; x <= max.X; x++)
         for (int y = min.Y; y <= max.Y; y++)

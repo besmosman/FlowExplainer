@@ -3,5 +3,5 @@ namespace FlowExplainer;
 
 public interface IVecUpDimension<THigh>
 {
-    THigh Up(float t);
+    THigh Up(double t);
 }

@@ -7,8 +7,8 @@ public class HeatStructureGridDiagnostic : IGridDiagnostic
 
     public string Name => "Heat Structures";
     public bool Reverse;
-    public float T;
-    public float M;
+    public double T;
+    public double M;
     public int K = 1;
 
     public void UpdateGridData(GridVisualizer gridVisualizer)
@@ -16,7 +16,7 @@ public class HeatStructureGridDiagnostic : IGridDiagnostic
         var renderGrid = gridVisualizer.RegularGrid;
         var dat = gridVisualizer.GetRequiredWorldService<DataService>();
         var spaceBounds = dat.VectorField.Domain.RectBoundary.Reduce<Vec2>();
-        float t = dat.SimulationTime;
+        double t = dat.SimulationTime;
         var tempratureField = dat.TempratureFieldInstant;
         var datVectorFieldInstant = new ArbitraryField<Vec3, Vec2>(dat.VectorField.Domain, p => dat.VectorField.Evaluate(p) * (M / T));
         if (Reverse)
@@ -36,7 +36,7 @@ public class HeatStructureGridDiagnostic : IGridDiagnostic
                     var e = trajectory.Entries[index];
                     if (spaceBounds.Contains(e.XY) /*&&  Vec2.Distance(pos, endPos) > .00f */ /*&& trajectory.Entries.Length == 64 */)
                     {
-                        renderGrid.AtPos(e.XY).Value = float.Lerp(renderGrid.AtPos(e.XY).Value, 1, .001f * ((float)index / trajectory.Entries.Length));
+                        renderGrid.AtPos(e.XY).Value = double.Lerp(renderGrid.AtPos(e.XY).Value, 1, .001f * ((double)index / trajectory.Entries.Length));
                         //renderGrid.AtPos(endPos).Value += 1;
                     }
                 }

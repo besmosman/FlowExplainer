@@ -13,9 +13,10 @@ uniform float maxGrad;
 uniform bool useCustomColor;
 
 struct Data {
-    float Value;
-    float Marker;
-    vec2 padding;
+    double Value;
+    double Marker;
+    double padding1;
+    double padding2;
     vec4 CustomColor;
 };
 
@@ -50,9 +51,9 @@ vec4 Bilinear(vec2 uvv) {
     Data lb = data[GetIndex(coords + vec2(0, 1))];
     Data rb = data[GetIndex(coords + vec2(1, 1))];
 
-    float marked =(mix(mix(lt.Marker, rt.Marker, m.x), mix(lb.Marker, rb.Marker, m.x), m.y));
+    float marked =float(mix(mix(lt.Marker, rt.Marker, m.x), mix(lb.Marker, rb.Marker, m.x), m.y));
     //return linear(linear(lt, lb, m.y), linear(rt, rb, m.y), m.x);
-    float val = mix(mix(lt.Value, rt.Value, m.x), mix(lb.Value, rb.Value, m.x), m.y);
+    float val = float(mix(mix(lt.Value, rt.Value, m.x), mix(lb.Value, rb.Value, m.x), m.y));
     return mix( ColorGradient(val), vec4(1,1,1,1), marked);
 }
 
@@ -92,7 +93,7 @@ void main()
         ivec2 coords = ivec2(clamp(floor(uv * (gridSize - 2)), vec2(0), gridSize - vec2(1)));
         coords =  ivec2(floor(uv * (gridSize - vec2(0))));
         Data Dat = data[GetIndex(coords)];
-        color = ColorGradient(Dat.Value);
+        color = ColorGradient(float(Dat.Value));
 
 
         if (interpolate) {

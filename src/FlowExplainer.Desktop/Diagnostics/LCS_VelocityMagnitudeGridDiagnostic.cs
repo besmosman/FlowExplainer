@@ -6,7 +6,7 @@ namespace FlowExplainer;
 
 public class LcsVelocityMagnitudeGridDiagnostic : IGridDiagnostic
 {
-    public float T = 1;
+    public double T = 1;
 
     public void UpdateGridData(GridVisualizer gridVisualizer)
     {
@@ -32,7 +32,7 @@ public class LcsVelocityMagnitudeGridDiagnostic : IGridDiagnostic
     public void OnImGuiEdit(GridVisualizer vis)
     {
         var dat = vis.GetRequiredWorldService<DataService>()!;
-        float period = dat.VectorField.Domain.RectBoundary.Size.Last;
+        double period = dat.VectorField.Domain.RectBoundary.Size.Last;
         ImGuiHelpers.SliderFloat("T", ref T, -period * 1, period * 1);
     }
 }

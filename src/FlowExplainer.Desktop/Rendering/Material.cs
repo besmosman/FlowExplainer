@@ -83,7 +83,7 @@ namespace FlowExplainer
                     GL.ProgramUniform1(ProgramHandle, loc, v);
                     break;
                 case double v:
-                    GL.ProgramUniform1(ProgramHandle, loc, v);
+                    GL.ProgramUniform1(ProgramHandle, loc, (float)v);
                     break;
                 case int v:
                     GL.ProgramUniform1(ProgramHandle, loc, v);
@@ -112,10 +112,10 @@ namespace FlowExplainer
                     }
                     break;
                 case Vec2 v:
-                    GL.ProgramUniform2(ProgramHandle, loc, v.X, v.Y);
+                    GL.ProgramUniform2(ProgramHandle, loc, (float)v.X, (float)v.Y);
                     break;
                 case Vec3 v:
-                    GL.ProgramUniform3(ProgramHandle, loc, v.X, v.Y, v.Z);
+                    GL.ProgramUniform3(ProgramHandle, loc, (float)v.X, (float)v.Y, (float)v.Z);
                     break;
                 case Vec3i v:
                     GL.ProgramUniform3(ProgramHandle, loc, v.X, v.Y, v.Z);
@@ -130,7 +130,7 @@ namespace FlowExplainer
                     GL.ProgramUniform4(ProgramHandle, loc, v.R, v.G, v.B, v.A);
                     break;
                 case Vec4 v:
-                    GL.ProgramUniform4(ProgramHandle, loc, v.X, v.Y, v.Z, v.W);
+                    GL.ProgramUniform4(ProgramHandle, loc, (float)v.X, (float)v.Y, (float)v.Z, (float)v.W);
                     break;
                 case Vector4 v:
                     GL.ProgramUniform4(ProgramHandle, loc, v.X, v.Y, v.Z, v.W);

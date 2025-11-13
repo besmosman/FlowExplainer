@@ -9,7 +9,7 @@ public static class Scripting
 {
     public static void Startup(World world)
     {
-        //ComputeSpeetjensFields("speetjens-computed-fields");
+       // ComputeSpeetjensFields("speetjens-computed-fields");
         SetGyreDataset(world);
         MakeDatasetPeriodic(world);
         //world.GetWorldService<DataService>().currentSelectedVectorField = "Total Flux";
@@ -24,8 +24,8 @@ public static class Scripting
         s.Append("time,divergence,changeovertime\r\n");
         for (int z = 1; z < velDisc.GridField.GridSize.Z-1; z++)
         {
-            float divergence = 0f;
-            float changeOverTime = 0f;
+            double divergence =0.0;
+            double changeOverTime =0.0;
             var d = velDisc.Domain.RectBoundary.Size.Down() / (velDisc.GridField.GridSize.X * velDisc.GridField.GridSize.Y);
             for (int x = 5; x < velDisc.GridField.GridSize.X - 5; x++)
             for (int y = 5; y < velDisc.GridField.GridSize.Y - 5; y++)
@@ -87,7 +87,7 @@ public static class Scripting
 
         //ComputeSpeetjensFields(data, "speetjens-computed-fields");
         //SetGyreDataset(world);
-        data.SimulationTime = 0f;
+        data.SimulationTime =0.0;
         data.TimeMultiplier = .1f;
         data.currentSelectedVectorField = "Velocity"; //"Total Flux";*/
         /*gridVisualizer.TargetCellCount = 20000;
@@ -110,10 +110,10 @@ public static class Scripting
         dat.currentSelectedVectorField = "Diffusion Flux";
 
 
-        float[] ts = [0.01f, 0.3f];
+        double[] ts = [0.01f, 0.3f];
 
         int timeSteps = 100;
-        foreach (float t in ts)
+        foreach (double t in ts)
         {
             var title = t.ToString(CultureInfo.InvariantCulture);
             var heatStructureGridDiagnostic = new HeatStructureGridDiagnostic()
@@ -137,7 +137,7 @@ public static class Scripting
         }
 
         world.GetWorldService<DataService>().ColorGradient = Gradients.Parula;*/
-        /*var regularGridVectorField = RegularGridVectorField<Vec3, Vec3i, float>.Load("sources.field");
+        /*var regularGridVectorField = RegularGridVectorField<Vec3, Vec3i, double>.Load("sources.field");
         dat.ScalerFields.Add("sources", regularGridVectorField);
         dat.currentSelectedScaler = "sources";
         v.SetGridDiagnostic(new TemperatureGridDiagnostic());
@@ -158,8 +158,8 @@ public static class Scripting
     public static void MakeDatasetPeriodic(World world)
     {
         var dat = world.GetWorldService<DataService>();
-        float t = 5;
-        float period = 1;
+        double t = 5;
+        double period = 1;
         foreach (var p in dat.VectorFields.ToList())
         {
             var domain = new RectDomain<Vec3>(p.Value.Domain.RectBoundary, p.Value.Domain.Bounding);
@@ -176,7 +176,7 @@ public static class Scripting
         {
             var domain = new RectDomain<Vec3>(p.Value.Domain.RectBoundary);
             domain.MakeFinalAxisPeriodicSlice(t, period);
-            dat.ScalerFields[p.Key] = new ArbitraryField<Vec3, float>(domain, c =>
+            dat.ScalerFields[p.Key] = new ArbitraryField<Vec3, double>(domain, c =>
             {
                 var pPeriodic = c;
                 pPeriodic.Z = pPeriodic.Last % 1 + 5f;
@@ -191,9 +191,9 @@ public static class Scripting
         string fieldsFolder = "speetjens-computed-fields";
         var DiffFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "diffFlux.field"));
         var ConvFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "convectiveHeatFlux.field"));
-        var TempConvection = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
-        var TempTot = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
-        var TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, float>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));
+        var TempConvection = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
+        var TempTot = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
+        var TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));
         var totalFlux = new ArbitraryField<Vec3, Vec2>(DiffFluxField.Domain, p => DiffFluxField.Evaluate(p) + ConvFluxField.Evaluate(p));
         var velocityField = new SpeetjensVelocityField()
         {
@@ -250,7 +250,7 @@ public static class Scripting
         var convectiveHeatFlux = new ArbitraryField<Vec3, Vec2>(tempTot.Domain, (p) => tempConvection.Evaluate(p) * velocityField.Evaluate(p));
 
         //var gridSize = new Vec3i(64, 32, diffFluxX.Usps.GridSize.Z);
-        var gridSize = new Vec3i(640, 320, 5);
+        var gridSize = new Vec3i(64, 32, 5);
         //var gridSize = new Vec3i(32, 16, diffFluxX.Usps.GridSize.Z / 8);  
         if (!Directory.Exists(folder))
             Directory.CreateDirectory(folder);
@@ -263,16 +263,16 @@ public static class Scripting
 
 
         void DiscretizeAndSave<TData>(string path, Vec3i gridSize, IVectorField<Vec3, TData> field)
-            where TData : IMultiplyOperators<TData, float, TData>, IAdditionOperators<TData, TData, TData>
+            where TData : IMultiplyOperators<TData, double, TData>, IAdditionOperators<TData, TData, TData>
         {
             var discritized = new DiscretizedField<Vec3, Vec3i, TData>(gridSize, field, bounds);
             discritized.GridField.Save(path);
         }
     }
 
-    public static RegularGrid<Vec2i, float> DerivY(int P)
+    public static RegularGrid<Vec2i, double> DerivY(int P)
     {
-        var D1 = new RegularGrid<Vec2i, float>(new Vec2i(P + 1, P + 1));
+        var D1 = new RegularGrid<Vec2i, double>(new Vec2i(P + 1, P + 1));
 
         for (int i = 0; i < P + 1; i++)
         for (int j = i + 1; j < P + 1; j++)
@@ -298,12 +298,12 @@ public static class Scripting
     }
 
     public static (RegularGrid<Vec3i, Complex> dCdX, RegularGrid<Vec3i, Complex> dCdY)
-        Grad(SpectralField spectralField, RegularGrid<Vec2i, float> D1)
+        Grad(SpectralField spectralField, RegularGrid<Vec2i, double> D1)
     {
         var I = Complex.ImaginaryOne;
         int M = 64;
         int N = 32;
-        float D = 0.5f;
+        double D = 0.5f;
 
         var gridSize = spectralField.Usps.GridSize;
         var dCdX = new RegularGrid<Vec3i, Complex>(gridSize);

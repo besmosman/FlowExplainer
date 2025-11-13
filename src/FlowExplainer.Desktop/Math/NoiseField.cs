@@ -1,22 +1,22 @@
 namespace FlowExplainer;
 
-public class NoiseField : IVectorField<Vec2, float>
+public class NoiseField : IVectorField<Vec2, double>
 {
     public IDomain<Vec2> Domain => IDomain<Vec2>.Infinite;
     public IBounding<Vec2> Bounding { get; } = BoundingFunctions.None<Vec2>();
 
     FastNoise noise = new FastNoise();
 
-    public float Evaluate(Vec2 x)
+    public double Evaluate(Vec2 x)
     {
         TryEvaluate(x, out var v);
         return v;
     }
     
 
-    public bool TryEvaluate(Vec2 x, out float value)
+    public bool TryEvaluate(Vec2 x, out double value)
     {
-        value = ((noise.GetNoise(x.X * 4000, x.Y * 4000)) + 1) * .5f;
+        value = (double)((noise.GetNoise((float)x.X * 4000, (float)x.Y * 4000)) + 1) * .5f;
         return true;
     }
 }

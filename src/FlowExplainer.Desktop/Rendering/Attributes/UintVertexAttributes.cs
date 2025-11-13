@@ -41,7 +41,7 @@ namespace FlowExplainer
 
     public class Vec3VertexAttributes : IVertexAttributes<Vec3>
     {
-        public int Stride => sizeof(float) * 3;
+        public int Stride => sizeof(double) * 3;
         public Span<Vec3> Data => data;
         public int Count { get; set; }
 

@@ -2,7 +2,7 @@ namespace FlowExplainer;
 
 public class LagrangianTemperatureGridDiagnostic : IGridDiagnostic
 {
-    public float T = 1;
+    public double T = 1;
 
     public void UpdateGridData(GridVisualizer gridVisualizer)
     {
@@ -34,7 +34,7 @@ public class LagrangianTemperatureGridDiagnostic : IGridDiagnostic
     public void OnImGuiEdit(GridVisualizer gridVisualizer)
     {
         var dat = gridVisualizer.GetRequiredWorldService<DataService>()!;
-        float period = dat.VectorField.Domain.RectBoundary.Size.Last;
+        double period = dat.VectorField.Domain.RectBoundary.Size.Last;
         ImGuiHelpers.SliderFloat("T", ref T, -period, period);
     }
 

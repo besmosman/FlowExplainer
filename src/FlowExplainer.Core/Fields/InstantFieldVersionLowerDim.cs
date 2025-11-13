@@ -6,13 +6,13 @@ public struct InstantFieldVersionLowerDim<VecOri, VecNew, Data> : IVectorField<V
     where VecNew : IVec<VecNew>, IVecUpDimension<VecOri>
     where VecOri : IVec<VecOri>, IVecDownDimension<VecNew>
 {
-    public float Time { get; private set; }
+    public double Time { get; private set; }
     public IDomain<VecNew> Domain { get; set; }
     public IBounding<VecNew> Bounding { get; set; }
 
     private readonly IVectorField<VecOri, Data> orifield;
 
-    public InstantFieldVersionLowerDim(IVectorField<VecOri, Data> orifield, float time)
+    public InstantFieldVersionLowerDim(IVectorField<VecOri, Data> orifield, double time)
     {
         this.orifield = orifield;
         Time = time;
@@ -32,8 +32,8 @@ public struct InstantFieldVersionLowerDim<VecOri, VecNew, Data> : IVectorField<V
     public class BoundingDownDim : IBounding<VecNew>
     {
         private IBounding<VecOri> oriBounding;
-        private float Time;
-        public BoundingDownDim(IBounding<VecOri> oriBounding, float time)
+        private double Time;
+        public BoundingDownDim(IBounding<VecOri> oriBounding, double time)
         {
             this.oriBounding = oriBounding;
             Time = time;
@@ -49,12 +49,12 @@ public struct InstantFieldVersionLowerDim<VecOri, VecNew, Data> : IVectorField<V
 public struct InstantField<VecOri, Data> : IVectorField<VecOri, Data>
     where VecOri : IVec<VecOri>
 {
-    public float Time { get; set; }
+    public double Time { get; set; }
     public IDomain<VecOri> Domain => orifield.Domain;
 
     private readonly IVectorField<VecOri, Data> orifield;
 
-    public InstantField(IVectorField<VecOri, Data> orifield, float time)
+    public InstantField(IVectorField<VecOri, Data> orifield, double time)
     {
         this.orifield = orifield;
         Time = time;

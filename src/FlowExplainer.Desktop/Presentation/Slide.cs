@@ -12,7 +12,7 @@ public abstract class Slide
 
     public bool OverrideNextSlideAction = false;
 
-    protected float topbarHeight => 130f;
+    protected double topbarHeight => 130f;
 
     public void Title(string text, string filePath = "", [System.Runtime.CompilerServices.CallerLineNumber] int lineNumber = 0)
     {

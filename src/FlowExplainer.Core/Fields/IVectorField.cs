@@ -10,7 +10,7 @@ public interface IEditabalePeriodicVectorField<TInput, TOutput> : IPeriodicVecto
 
 public interface IPeriodicVectorField<TInput, TOutput> : IVectorField<TInput, TOutput> where TInput : IVec<TInput>
 {
-    public float Period { get; }
+    public double Period { get; }
 }
 */
 

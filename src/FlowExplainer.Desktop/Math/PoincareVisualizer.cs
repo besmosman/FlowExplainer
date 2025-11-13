@@ -11,7 +11,7 @@ public interface IAxisTitle
 
 public interface IGradientScaler
 {
-    public (float min, float max) GetScale();
+    public (double min, double max) GetScale();
 }
 
 public class PoincareVisualizer : WorldService, IAxisTitle
@@ -21,8 +21,8 @@ public class PoincareVisualizer : WorldService, IAxisTitle
     public int Periods = 200;
     public int StepsPerPeriod = 100;
     public int StartPoints = 12;
-    public float RenderRadius = .004f;
-    public float Offset;
+    public double RenderRadius = .004f;
+    public double Offset;
 
 
     public string GetTitle() => "Poincaré Section";
@@ -44,7 +44,7 @@ public class PoincareVisualizer : WorldService, IAxisTitle
 
             for (int i = 0; i < StartPoints; i++)
             {
-                float t = i / (StartPoints - 1f);
+                double t = i / (StartPoints - 1f);
                 if (StartPoints == 1)
                     t = .5f;
 
@@ -73,14 +73,14 @@ public class PoincareVisualizer : WorldService, IAxisTitle
 
             /*Parallel.ForEach(start, (p) =>
             {
-                var totalTime = 0f;
+                var totalTime =0.0;
                 var x = p.Up(Offset);
-                float dt = 1f / StepsPerPeriod;
+                double dt = 1f / StepsPerPeriod;
                 List<Vec2> hits = new();
                 while (totalTime < Periods)
                 {
                     var last = x;
-                    float slice = .3f;
+                    double slice = .3f;
                     var prewrap = integrator.Integrate(dat.VectorField, x, dt).Up(x.Last + dt);
                     x = dat.VectorField.Boundary.Wrap(prewrap);
                     if ((x.X <= slice && last.X > slice) ||

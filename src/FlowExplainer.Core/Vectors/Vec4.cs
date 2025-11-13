@@ -1,137 +1,20 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using MemoryPack;
 
 namespace FlowExplainer;
 
-public interface IDomain<Vec> where Vec : IVec<Vec>
-{
-    bool IsWithinPhase(Vec p);
-    bool IsWithinSpace<T>(T p) where T : IVec<T>;
-    Rect<Vec> RectBoundary { get; }
-
-    public IBounding<Vec> Bounding { get; }
-    public static IDomain<Vec> Infinite => new InfiniteDomain();
-
-
-    private struct InfiniteDomain : IDomain<Vec>
-    {
-        public bool IsWithinPhase(Vec p) => true;
-        public bool IsWithinSpace<T>(T p) where T : IVec<T> => true;
-        public Rect<Vec> RectBoundary => throw new Exception();
-        public IBounding<Vec> Bounding => BoundingFunctions.None<Vec>();
-    }
-}
-
-[MemoryPackable]
-public partial struct Rect<Vec> where Vec : IVec<Vec>
-{
-    public Vec Min;
-    public Vec Max;
-
-    public Vec Size => Max - Min;
-    public Vec Center => (Max + Min) / 2;
-
-    public Rect(Vec min, Vec max)
-    {
-        Min = min;
-        Max = max;
-    }
-
-    public static Rect<Vec> FromSize(Vec min, Vec size)
-    {
-        return new Rect<Vec>(min, min + size);
-    }
-    
-    public bool Contains(Vec p)
-    {
-        return p > Min && p < Max;
-    }
-
-    public Vec Relative(Vec p)
-    {
-        return Min + Size * p;
-    }
-
-    public Rect<T> Reduce<T>() where T : IVec<T>, IVecUpDimension<Vec>
-    {
-        var min = T.Zero;
-        var max = T.Zero;
-        for (int i = 0; i < min.ElementCount; i++)
-        {
-            min[i] = Min[i];
-            max[i] = Max[i];
-        }
-        return new Rect<T>(min, max);
-    }
-    public Vec Clamp(Vec p)
-    {
-        return Utils.Clamp<Vec, float>(p, Min, Max);
-    }
-}
-
-public struct RectDomain<Vec> : IDomain<Vec> where Vec : IVec<Vec>
-{
-    public Rect<Vec> Rect;
-
-    public Vec MinPos => Rect.Min;
-    public Vec MaxPos => Rect.Max;
-
-    public Rect<Vec> RectBoundary => Rect;
-    public IBounding<Vec> Bounding { get; set; }
-
-    public RectDomain(Vec min, Vec max, IBounding<Vec>? bounding = null)
-    {
-        Bounding = bounding ?? BoundingFunctions.None<Vec>();
-        Rect = new(min, max);
-    }
-
-    public RectDomain(Rect<Vec> rect, IBounding<Vec>? bounding = null)
-    {
-        Rect = rect;
-        Bounding = bounding ?? BoundingFunctions.None<Vec>();
-    }
-
-
-    public bool IsWithinPhase(Vec p)
-    {
-        return p > Rect.Min && p < Rect.Max;
-    }
-    public bool IsWithinSpace<T>(T p) where T : IVec<T>
-    {
-#if DEBUG
-        if (p.ElementCount != Rect.Min.ElementCount - 1)
-            throw new Exception("Check dimensions");
-#endif
-
-        for (int i = 0; i < p.ElementCount; i++)
-        {
-            if (p[i] < Rect.Min[i] || p[i] > Rect.Max[i])
-                return false;
-        }
-        return true;
-    }
-
-    public void MakeFinalAxisPeriodicSlice(float t, float period)
-    {
-        Rect.Max[Rect.Min.ElementCount - 1] = period;
-        Rect.Min[Rect.Min.ElementCount - 1] = 0;
-        Bounding = new LastPeriodicBounding<Vec>(Bounding, t, period);
-    }
-}
-
 [Serializable]
 [StructLayout(LayoutKind.Sequential)]
-public struct Vec4 : IVec<Vec4>, IVecDownDimension<Vec3>, IVecIntegerEquivelant<Vec4i>, IEquatable<Vec4>
+public struct Vec4 : IVec<Vec4>, IVecDownDimension<Vec3>, IVecIntegerEquivalent<Vec4i>, IEquatable<Vec4>
 {
-    public float X;
-    public float Y;
-    public float Z;
-    public float W;
+    public double X;
+    public double Y;
+    public double Z;
+    public double W;
 
 
-    public Vec4(float x, float y, float z, float w)
+    public Vec4(double x, double y, double z, double w)
     {
         X = x;
         Y = y;
@@ -139,7 +22,7 @@ public struct Vec4 : IVec<Vec4>, IVecDownDimension<Vec3>, IVecIntegerEquivelant<
         W = w;
     }
 
-    public Vec4(float x)
+    public Vec4(double x)
     {
         X = x;
         Y = x;
@@ -147,7 +30,7 @@ public struct Vec4 : IVec<Vec4>, IVecDownDimension<Vec3>, IVecIntegerEquivelant<
         W = x;
     }
 
-    public Vec4(Vec3 p, float w)
+    public Vec4(Vec3 p, double w)
     {
         X = p.X;
         Y = p.Y;
@@ -160,7 +43,7 @@ public struct Vec4 : IVec<Vec4>, IVecDownDimension<Vec3>, IVecIntegerEquivelant<
 
     public static Vec4 operator -(Vec4 v1, Vec4 v2) => new(v1.X - v2.X, v1.Y - v2.Y, v1.Z - v2.Z, v1.W - v2.W);
 
-    public static implicit operator Vector4(Vec4 v) => new(v.X, v.Y, v.Z, v.W);
+    public static implicit operator Vector4(Vec4 v) => new((float)v.X, (float)v.Y, (float)v.Z, (float)v.W);
     public static explicit operator Vec4(Vector4 v) => new(v.X, v.Y, v.Z, v.W);
 
     public static Vec4 Transform(Vec3 p, Matrix4x4 view)
@@ -179,13 +62,13 @@ public struct Vec4 : IVec<Vec4>, IVecDownDimension<Vec3>, IVecIntegerEquivelant<
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vec4 operator *(Vec4 left, float right)
+    public static Vec4 operator *(Vec4 left, double right)
     {
         return new Vec4(left.X * right, left.Y * right, left.Z * right, left.W * right);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vec4 operator /(Vec4 left, float right)
+    public static Vec4 operator /(Vec4 left, double right)
     {
         return new Vec4(left.X / right, left.Y / right, left.Z / right, left.W / right);
     }
@@ -199,19 +82,19 @@ public struct Vec4 : IVec<Vec4>, IVecDownDimension<Vec3>, IVecIntegerEquivelant<
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vec4 Max(Vec4 b)
     {
-        return new Vec4(float.Max(X, b.X), float.Max(Y, b.Y), float.Max(Z, b.Z), float.Max(W, b.W));
+        return new Vec4(double.Max(X, b.X), double.Max(Y, b.Y), double.Max(Z, b.Z), double.Max(W, b.W));
     }
     public Vec4 Min(Vec4 b)
     {
-        return new Vec4(float.Min(X, b.X), float.Min(Y, b.Y), float.Min(Z, b.Z), float.Min(W, b.W));
+        return new Vec4(double.Min(X, b.X), double.Min(Y, b.Y), double.Min(Z, b.Z), double.Min(W, b.W));
     }
 
     public int ElementCount => 4;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public float Sum() => X + Y + Z + W;
+    public double Sum() => X + Y + Z + W;
 
-    public float this[int n]
+    public double this[int n]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
@@ -234,7 +117,7 @@ public struct Vec4 : IVec<Vec4>, IVecDownDimension<Vec3>, IVecIntegerEquivelant<
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Vec4 operator *(float left, Vec4 right)
+    public static Vec4 operator *(double left, Vec4 right)
     {
         return right * left;
     }

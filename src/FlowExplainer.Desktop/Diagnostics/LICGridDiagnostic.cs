@@ -6,16 +6,16 @@ namespace FlowExplainer;
 
 public class GaussianKernel : IKernel
 {
-    public float GetWeight(float dis)
+    public double GetWeight(double dis)
     {
-        float sigma = 0.3f;
-        return (float)Math.Exp(-(dis * dis) / (2 * sigma * sigma));
+        double sigma = 0.3f;
+        return (double)Math.Exp(-(dis * dis) / (2 * sigma * sigma));
     }
 }
 
 public class ConstantKernel : IKernel
 {
-    public float GetWeight(float dis)
+    public double GetWeight(double dis)
     {
         return 1;
     }
@@ -23,17 +23,17 @@ public class ConstantKernel : IKernel
 
 public interface IKernel
 {
-    float GetWeight(float f);
+    double GetWeight(double f);
 }
 
 public class LICGridDiagnostic : IGridDiagnostic
 {
-    public float arcLength = 1;
+    public double arcLength = 1;
     public bool UseCustomColoring => true;
     public bool UseUnsteady;
 
-    private RegularGridVectorField<Vec2, Vec2i, float> licField = new(Vec2i.One, default, default);
-    private IVectorField<Vec2, float> NoiseField = new NoiseField();
+    private RegularGridVectorField<Vec2, Vec2i, double> licField = new(Vec2i.One, default, default);
+    private IVectorField<Vec2, double> NoiseField = new NoiseField();
     public bool modulateByTemp = false;
 
 
@@ -89,20 +89,20 @@ public class LICGridDiagnostic : IGridDiagnostic
             renderGrid.Grid.Data[i].Value = dat.TempratureField.Evaluate();
             var v = gridVisualizer.ScaleScaler(renderGrid.Grid.Data[i].Value);
             var heat = dat.ColorGradient.Get(v);
-            renderGrid.Grid.Data[i].Color = new Color(float.Abs(renderGrid.Grid.Data[i].Value / 1), 0, 0);
+            renderGrid.Grid.Data[i].Color = new Color(double.Abs(renderGrid.Grid.Data[i].Value / 1), 0, 0);
         }*/
     }
 
-    float Kernel(float dis)
+    double Kernel(double dis)
     {
-        float sigma = 0.3f;
-        return (float)Math.Exp(-(dis * dis) / (2 * sigma * sigma));
+        double sigma = 0.3f;
+        return (double)Math.Exp(-(dis * dis) / (2 * sigma * sigma));
     }
 
     public void OnImGuiEdit(GridVisualizer vis)
     {
         var dat = vis.GetRequiredWorldService<DataService>()!;
-        float period = dat.VectorField.Domain.RectBoundary.Size.Last;
+        double period = dat.VectorField.Domain.RectBoundary.Size.Last;
         ImGuiHelpers.SliderFloat("arc length", ref arcLength, 0, dat.VectorField.Domain.RectBoundary.Size.X / 5);
         ImGui.Checkbox("modulate by temp", ref modulateByTemp);
     }

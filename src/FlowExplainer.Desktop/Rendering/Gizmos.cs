@@ -28,7 +28,7 @@ public static class Gizmos
         sphereMesh.Draw();
     }
     
-    public static void DrawLine(View view, Vec3 p1, Vec3 p2, float thickness, Color color)
+    public static void DrawLine(View view, Vec3 p1, Vec3 p2, double thickness, Color color)
     {
         var dis = Vector3.Distance(p1, p2);
         debugMat.Use();
@@ -36,7 +36,7 @@ public static class Gizmos
         debugMat.SetUniform("view", view.Camera.GetViewMatrix());
         debugMat.SetUniform("projection", view.Camera.GetProjectionMatrix());
         debugMat.SetUniform("model",
-            Matrix4x4.CreateScale(new Vector3(thickness, thickness, dis)) *
+            Matrix4x4.CreateScale(new Vector3((float)thickness, (float)thickness, dis)) *
             Vec3.LookAtDirection(Vec3.Normalize(p2 - p1)) *
             Matrix4x4.CreateTranslation(p1 + (p2 - p1) / 2));
         UnitCube.Draw();
@@ -55,14 +55,14 @@ public static class Gizmos
         struct SphereRenderInfo
         {
             public Vec3 Position;
-            public float Radius;
+            public double Radius;
             public Color Color;
         }
         private AutoExpandStorageBuffer<SphereRenderInfo> sphereStorage = new();
         private Material sphereMat = new Material(new Shader("Assets/Shaders/sphere-instanced.vert", 
             ShaderType.VertexShader), Shader.DefaultUnlitFragment);
 
-        public void RegisterSphere(Vec3 center, float radius, Color color)
+        public void RegisterSphere(Vec3 center, double radius, Color color)
         {
             sphereStorage.Register(new SphereRenderInfo
             {
