@@ -15,7 +15,7 @@ public class LAVDGridDiagnostic : IGridDiagnostic
     public double T = 1;
     private VortData[] Data;
 
-    public void UpdateGridData(GridVisualizer gridVisualizer)
+    public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
         //var renderGrid = Data;
 

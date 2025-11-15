@@ -9,13 +9,14 @@ public static class Scripting
 {
     public static void Startup(World world)
     {
-       // ComputeSpeetjensFields("speetjens-computed-fields");
         SetGyreDataset(world);
-        MakeDatasetPeriodic(world);
+
+        // ComputeSpeetjensFields("speetjens-computed-fields");
+        // MakeDatasetPeriodic(world);
         //world.GetWorldService<DataService>().currentSelectedVectorField = "Total Flux";
         world.GetWorldService<CriticalPointIdentifier>().Enable();
         //world.GetWorldService<StochasticPoincare>().Enable();
-        
+
         //MakeDatasetPeriodic(world);
 
         /*var vel = world.GetWorldService<DataService>().VectorFields["Total Flux"];
@@ -76,9 +77,6 @@ public static class Scripting
             return;
         }
         */
-
-
-
 
 
         /*var data = world.GetWorldService<DataService>();
@@ -145,19 +143,15 @@ public static class Scripting
     }
 
 
-    public static void SetBickly(World world)
+    /*public static void SetBickly(World world)
     {
         var dat = world.GetWorldService<DataService>();
         dat.VectorFields.Add("Velocity", new BickleyJet2());
-    }
+    }*/
 
 
-
-
-
-    public static void MakeDatasetPeriodic(World world)
+    public static void MakeDatasetPeriodic(Dataset dat)
     {
-        var dat = world.GetWorldService<DataService>();
         double t = 5;
         double period = 1;
         foreach (var p in dat.VectorFields.ToList())
@@ -185,34 +179,6 @@ public static class Scripting
         }
     }
 
-    public static void SetGyreDataset(World world)
-    {
-        var dat = world.GetWorldService<DataService>();
-        string fieldsFolder = "speetjens-computed-fields";
-        var DiffFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "diffFlux.field"));
-        var ConvFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "convectiveHeatFlux.field"));
-        var TempConvection = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
-        var TempTot = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
-        var TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));
-        var totalFlux = new ArbitraryField<Vec3, Vec2>(DiffFluxField.Domain, p => DiffFluxField.Evaluate(p) + ConvFluxField.Evaluate(p));
-        var velocityField = new SpeetjensVelocityField()
-        {
-            epsilon = .0f,
-        };
-
-        dat.VectorFields.Clear();
-        dat.ScalerFields.Clear();
-        dat.VectorFields.Add("Velocity", velocityField);
-        dat.VectorFields.Add("Diffusion Flux", DiffFluxField);
-        dat.VectorFields.Add("Convection Flux", ConvFluxField);
-        dat.VectorFields.Add("Total Flux", totalFlux);
-        dat.ScalerFields.Add("Total Temperature", TempTot);
-        dat.ScalerFields.Add("Convective Temperature", TempConvection);
-        dat.ScalerFields.Add("No Flow Temperature", TempTotNoFlow);
-        
-        
-    }
-
     private static void ComputeSpeetjensFields(string folder)
     {
         string datasetPath = Config.GetValue<string>("spectral-data-path")!;
@@ -223,7 +189,7 @@ public static class Scripting
         var Pe = 100;
 
         var velocityField = new SpeetjensVelocityField();
-        velocityField.epsilon = .0f;
+        velocityField.epsilon = .1f;
 
         //T' = T - T_DIFF:
         //TCONVspTOT = TspTOT-TDIFFspTOT;
@@ -249,8 +215,8 @@ public static class Scripting
         var diffFlux = new ArbitraryField<Vec3, Vec2>(tempTot.Domain, (p) => new Vec2(diffFluxX.Evaluate(p), diffFluxY.Evaluate(p)));
         var convectiveHeatFlux = new ArbitraryField<Vec3, Vec2>(tempTot.Domain, (p) => tempConvection.Evaluate(p) * velocityField.Evaluate(p));
 
-        //var gridSize = new Vec3i(64, 32, diffFluxX.Usps.GridSize.Z);
-        var gridSize = new Vec3i(64, 32, 5);
+        var gridSize = new Vec3i(64, 32, diffFluxX.Usps.GridSize.Z);
+        // var gridSize = new Vec3i(64, 32, 5);
         //var gridSize = new Vec3i(32, 16, diffFluxX.Usps.GridSize.Z / 8);  
         if (!Directory.Exists(folder))
             Directory.CreateDirectory(folder);
@@ -343,5 +309,11 @@ public static class Scripting
         }
 
         return (dCdX, dCdY);
+    }
+
+    public static void SetGyreDataset(World w1)
+    {
+        var name = w1.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.First().Key;
+        w1.GetWorldService<DataService>().SetDataset(name);
     }
 }

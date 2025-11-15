@@ -142,10 +142,10 @@ public class PointSimulation : WorldService
 
     public Vec2i GridSize = new Vec2i(32, 16) * 3;
     public Rect<Vec2> Domain = new Rect<Vec2>(Vec2.Zero, new Vec2(1, .5f));
-    public IBoundary<Vec2> Bounds;
+    public IBounding<Vec2> Bounds;
 
-    public float advectionFactor = 1;
-    public float diffusionFactor = 0;
+    public double advectionFactor = 1;
+    public double diffusionFactor = 0;
 
     public override void Initialize()
     {
@@ -155,7 +155,7 @@ public class PointSimulation : WorldService
             DensityGrid.Data[i] = new Cell();
         }
 
-        Bounds = Boundaries.Build([BoundaryType.Periodic, BoundaryType.Fixed], Domain);
+        Bounds = new GenBounding<Vec2>([BoundaryType.Periodic, BoundaryType.Fixed], Domain);
         for (int i = 0; i < 10000; i++)
         {
             var parcel = new HeatParcel
@@ -170,7 +170,7 @@ public class PointSimulation : WorldService
     public Vec2i ToVoxelPos(Vec2 pos)
     {
         //0.5 => 16 erorr
-        return ((pos - Domain.Min) / Domain.Size * (GridSize.ToVecF() - Vec2.One * .001f)).Floor();
+        return ((pos - Domain.Min) / Domain.Size * (GridSize.ToVecF() - Vec2.One * .001f)).FloorInt();
     }
 
     public Vec2 ToWorldPos(Vec2i voxel)
@@ -178,15 +178,15 @@ public class PointSimulation : WorldService
         return Domain.Min + voxel.ToVec2() * Domain.Size / (GridSize.ToVecF() - Vec2.Zero);
     }
 
-    public float EstimateHeat(Vec2 pos)
+    public double EstimateHeat(Vec2 pos)
     {
         // Convert position to voxel coordinates (integer part)
         var lt = ToVoxelPos(pos);
         var d = Domain.Size / (GridSize.ToVecF());
 
-        var rt = ToVoxelPos(Bounds.Wrap(pos + new Vec2(d.X, 0)));
-        var lb = ToVoxelPos(Bounds.Wrap(pos + new Vec2(0, d.Y)));
-        var rb = ToVoxelPos(Bounds.Wrap(pos + new Vec2(d.X, d.Y)));
+        var rt = ToVoxelPos(Bounds.Bound(pos + new Vec2(d.X, 0)));
+        var lb = ToVoxelPos(Bounds.Bound(pos + new Vec2(0, d.Y)));
+        var rb = ToVoxelPos(Bounds.Bound(pos + new Vec2(d.X, d.Y)));
         // Clamp neighbors to stay inside grid
         // Fractional position inside voxel
         var voxelPos = pos / Domain.Size; // convert world pos to voxel-space float
@@ -194,13 +194,13 @@ public class PointSimulation : WorldService
         var localPos = ((pos - Domain.Min) / Domain.Size * (GridSize.ToVecF() - Vec2.One)) - lt.ToVecF();
         // Bilinear interpolation
         // localPos = new Vec2(.5f, .5f);
-        float top = DensityGrid.AtCoords(lt).Parcels.Count * ParcelValue * (1f - localPos.X)
+        var top = DensityGrid.AtCoords(lt).Parcels.Count * ParcelValue * (1f - localPos.X)
                     + DensityGrid.AtCoords(rt).Parcels.Count * ParcelValue * localPos.X;
 
-        float bottom = DensityGrid.AtCoords(lb).Parcels.Count * ParcelValue * (1f - localPos.X)
+        var bottom = DensityGrid.AtCoords(lb).Parcels.Count * ParcelValue * (1f - localPos.X)
                        + DensityGrid.AtCoords(rb).Parcels.Count * ParcelValue * localPos.X;
 
-        float interpolated = top * (1f - localPos.Y) + bottom * localPos.Y;
+        var interpolated = top * (1f - localPos.Y) + bottom * localPos.Y;
 
         return interpolated;
     }
@@ -229,18 +229,18 @@ public class PointSimulation : WorldService
             coord.Y = int.Clamp(coord.Y, 0, GridSize.Y - 1);
             var density = DensityGrid.AtCoords(coord).Density;
             var diff = density - dens;
-            float distance = Vec2.Distance(pos, ToWorldPos(center) + (Domain.Size / GridSize.ToVecF()));
+            var distance = Vec2.Distance(pos, ToWorldPos(center) + (Domain.Size / GridSize.ToVecF()));
             direction += Vec2.Normalize(new Vec2(i, j)) * (maxdistance - distance) * diff;
         }
 
         return -Vec2.Normalize(direction);
 
-        var tdx = (EstimateHeat(Bounds.Wrap(pos - new Vec2(delta.X, 0))) - EstimateHeat(Bounds.Wrap(pos + new Vec2(delta.X, 0)))) / delta.X;
-        var tdy = (EstimateHeat(Bounds.Wrap(pos - new Vec2(0, delta.Y))) - EstimateHeat(Bounds.Wrap(pos + new Vec2(0, delta.Y)))) / delta.Y;
+        var tdx = (EstimateHeat(Bounds.Bound(pos - new Vec2(delta.X, 0))) - EstimateHeat(Bounds.Bound(pos + new Vec2(delta.X, 0)))) / delta.X;
+        var tdy = (EstimateHeat(Bounds.Bound(pos - new Vec2(0, delta.Y))) - EstimateHeat(Bounds.Bound(pos + new Vec2(0, delta.Y)))) / delta.Y;
         return new Vec2(tdx, tdy);
     }
 
-    public void Step(float dt)
+    public void Step(double dt)
     {
         var w = GetRequiredWorldService<DataService>();
         var velField = w.VectorField;
@@ -299,7 +299,7 @@ public class PointSimulation : WorldService
                 var gradient = EstimateGradient(p.Position);
                 p.Position += u * dt * advectionFactor;
                 p.Position += gradient * dt * diffusionFactor;
-                p.Position = Bounds.Wrap(p.Position);
+                p.Position = Bounds.Bound(p.Position);
                 DensityGrid.AtCoords(ToVoxelPos(p.Position)).NextParcels.Add(p);
             }
         });
@@ -315,14 +315,14 @@ public class PointSimulation : WorldService
 
     public override void Draw(RenderTexture rendertarget, View view)
     {
-        Step(GetRequiredWorldService<DataService>().DeltaTime);
+        Step(GetRequiredWorldService<DataService>().MultipliedDeltaTime);
 
         for (int i = 0; i < DensityGrid.Data.Length; i++)
         {
             var cell = DensityGrid.Data[i];
             var coords = DensityGrid.GetIndexCoords(i);
             var pos = ((coords.ToVecF() + new Vec2(.5f, .5f)) / GridSize.ToVecF()) * Domain.Size;
-            float estimateHeat = EstimateHeat(pos);
+            var estimateHeat = EstimateHeat(pos);
             Gizmos2D.Instanced.RegisterRectCenterd(pos, 1f / GridSize.ToVecF() * Domain.Size, new Color(cell.Density * 4, 0, 1, .1f));
             foreach (var p in cell.Parcels)
             {

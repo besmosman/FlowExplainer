@@ -28,7 +28,7 @@ public interface IKernel
 
 public class LICGridDiagnostic : IGridDiagnostic
 {
-    public double arcLength = 1;
+    public double arcLength = .1;
     public bool UseCustomColoring => true;
     public bool UseUnsteady;
 
@@ -37,7 +37,7 @@ public class LICGridDiagnostic : IGridDiagnostic
     public bool modulateByTemp = false;
 
 
-    public void UpdateGridData(GridVisualizer gridVisualizer)
+    public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
         var renderGrid = gridVisualizer.RegularGrid;
 
@@ -54,13 +54,13 @@ public class LICGridDiagnostic : IGridDiagnostic
 
 
         if (UseUnsteady)
-            LIC.ComputeASteady(NoiseField, dat.VectorField, licField, t, 0.4f, arcLength);
+            LIC.ComputeASteady(NoiseField, dat.VectorField, licField, t, 0.4f, arcLength, token);
         else
-            LIC.ComputeSteady(NoiseField, dat.VectorField, licField, t, arcLength);
+            LIC.ComputeSteady(NoiseField, dat.VectorField, licField, t, arcLength, token);
 
         var licMin = licField.Grid.Data.Min();
         var licMax = licField.Grid.Data.Max();
-        ParallelGrid.For(renderGrid.GridSize, (i, j) =>
+        ParallelGrid.For(renderGrid.GridSize, token, (i, j) =>
         {
             /*if(i > 2 || j >2)
                 return;*/
@@ -68,7 +68,7 @@ public class LICGridDiagnostic : IGridDiagnostic
             var lic = licField.Grid[new Vec2i(i, j)];
             ref var cell = ref renderGrid.Grid.AtCoords(new Vec2i(i, j));
             var pos = renderGrid.ToWorldPos(new Vec2(i + .5f, j + .5f));
-            var temp = dat.TempratureField.Evaluate(pos.Up(t));
+            var temp = dat.ScalerField.Evaluate(pos.Up(t));
             var v = gridVisualizer.ScaleScaler(temp);
             var licMulti = (lic - licMin) / (licMax - licMin);
             if (modulateByTemp)

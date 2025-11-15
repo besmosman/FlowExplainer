@@ -8,7 +8,7 @@ public class LcsVelocityMagnitudeGridDiagnostic : IGridDiagnostic
 {
     public double T = 1;
 
-    public void UpdateGridData(GridVisualizer gridVisualizer)
+    public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
         var renderGrid = gridVisualizer.RegularGrid.Grid;
 

@@ -6,7 +6,7 @@ public class PoincareSmear2GridDiagnostic : IGridDiagnostic
     public double DisplayT;
 
     RegularGrid<Vec2i, Trajectory<Vec3>> trajectories = new(Vec2i.One);
-    public void UpdateGridData(GridVisualizer gridVisualizer)
+    public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
         var dat = gridVisualizer.GetRequiredWorldService<DataService>();
         var rect = dat.VectorField.Domain.RectBoundary;
@@ -17,7 +17,7 @@ public class PoincareSmear2GridDiagnostic : IGridDiagnostic
         if (gridVisualizer.RegularGrid.GridSize != trajectories.GridSize)
         {
             trajectories.Resize(gridVisualizer.RegularGrid.GridSize);
-            ParallelGrid.For(gridVisualizer.RegularGrid.GridSize,
+            ParallelGrid.For(gridVisualizer.RegularGrid.GridSize, token,
                 (i, j) =>
                 {
                     var pos = gridVisualizer.RegularGrid.ToWorldPos(new Vec2(i + .5f, j + .5f));
@@ -25,12 +25,12 @@ public class PoincareSmear2GridDiagnostic : IGridDiagnostic
                 });
         }
         
-        ParallelGrid.For(gridVisualizer.RegularGrid.GridSize,
+        ParallelGrid.For(gridVisualizer.RegularGrid.GridSize, token,
             (i, j) => { trajectories.AtCoords(new Vec2i(i, j)).AtTimeBilinear(DisplayT); });
 
 
         var Integrator = IIntegrator<Vec3, Vec2>.Rk4;
-        ParallelGrid.For(gridVisualizer.RegularGrid.GridSize,
+        ParallelGrid.For(gridVisualizer.RegularGrid.GridSize, token,
             (i, j) =>
             {
                 int steps = 20;

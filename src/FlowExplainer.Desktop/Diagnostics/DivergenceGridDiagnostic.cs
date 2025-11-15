@@ -5,7 +5,7 @@ namespace FlowExplainer;
 
 public class CriticalPointDiagnostic : IGridDiagnostic
 {
-    public void UpdateGridData(GridVisualizer gridVisualizer)
+    public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
         var renderGrid = gridVisualizer.RegularGrid.Grid;
         var dat = gridVisualizer.GetRequiredWorldService<DataService>();
@@ -55,7 +55,7 @@ public class CriticalPointDiagnostic : IGridDiagnostic
 
 public class StagnationGridDiagnostic : IGridDiagnostic
 {
-    public void UpdateGridData(GridVisualizer gridVisualizer)
+    public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
         var renderGrid = gridVisualizer.RegularGrid.Grid;
         var dat = gridVisualizer.GetRequiredWorldService<DataService>();
@@ -70,8 +70,8 @@ public class StagnationGridDiagnostic : IGridDiagnostic
             var j = c / renderGrid.GridSize.X;
             var pos = spaceBounds.Relative(new Vec2(i, j) / (renderGrid.GridSize.ToVec2() - Vec2.One));
             renderGrid.AtCoords(new Vec2i(i, j)).Value = vectorField.Evaluate(pos.Up(t)).Length();
-            if( vectorField.Evaluate(pos.Up(t)).Length() < 0.04f)
-            renderGrid.AtCoords(new Vec2i(i, j)).Value = 1;
+            /*if( vectorField.Evaluate(pos.Up(t)).Length() < 0.04f)
+            renderGrid.AtCoords(new Vec2i(i, j)).Value = 1;*/
         });
     }
 
@@ -83,7 +83,7 @@ public class StagnationGridDiagnostic : IGridDiagnostic
 
 public class DivergenceGridDiagnostic : IGridDiagnostic
 {
-    public void UpdateGridData(GridVisualizer gridVisualizer)
+    public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
         var renderGrid = gridVisualizer.RegularGrid.Grid;
         var dat = gridVisualizer.GetRequiredWorldService<DataService>();

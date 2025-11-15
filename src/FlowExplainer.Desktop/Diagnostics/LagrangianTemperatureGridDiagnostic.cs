@@ -4,18 +4,16 @@ public class LagrangianTemperatureGridDiagnostic : IGridDiagnostic
 {
     public double T = 1;
 
-    public void UpdateGridData(GridVisualizer gridVisualizer)
+    public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
         var renderGrid = gridVisualizer.RegularGrid.Grid;
         var dat = gridVisualizer.GetRequiredWorldService<DataService>();
-        var tempratureField = dat.TempratureField;
+        var tempratureField = dat.ScalerField;
         var spaceBounds = dat.VectorField.Domain.RectBoundary.Reduce<Vec2>();
         var t = dat.SimulationTime;
         var tau = dat.SimulationTime + T;
-        Parallel.For(0, renderGrid.GridSize.X * renderGrid.GridSize.Y, c =>
+        ParallelGrid.For(renderGrid.GridSize, token, (i,j) =>
         {
-            var i = c % renderGrid.GridSize.X;
-            var j = c / renderGrid.GridSize.X;
             var pos = (new Vec2(i, j) / renderGrid.GridSize.ToVec2()) * spaceBounds.Size + spaceBounds.Min;
             var center = IFlowOperator<Vec2, Vec3>.Default.Compute(t, tau, pos, dat.VectorField);
             //change in temprature compared to neighbros doe..
@@ -26,8 +24,8 @@ public class LagrangianTemperatureGridDiagnostic : IGridDiagnostic
         var average = renderGrid.Data.Average(d => d.Value);
         for (int i = 0; i < renderGrid.Data.Length; i++)
         {
-            renderGrid.Data[i].Value -= average;
-            renderGrid.Data[i].Value *= 10;
+            //renderGrid.Data[i].Value -= average;
+            //renderGrid.Data[i].Value *= 10;
 
         }
     }

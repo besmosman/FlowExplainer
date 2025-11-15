@@ -1,6 +1,7 @@
 namespace FlowExplainer;
 
-public class UpdatePresentation : Presentation
+
+/*public class UpdatePresentation : Presentation
 {
     public class LICVelocitySlide : PrecomputedSlide
     {
@@ -84,8 +85,9 @@ public class UpdatePresentation : Presentation
             });
         }
     }
-    */
+    #1#
 
+    /*
     public abstract class PrecomputedSlide : Slide
     {
         public abstract void SetupDatasource(World world);
@@ -166,17 +168,17 @@ public class UpdatePresentation : Presentation
             }
             base.Draw();
         }
-    }
+    }#1#
 
     public override Slide[] GetSlides()
     {
         return
         [
             //new AULICDiffusionSlide(),
-            new LICVelocitySlide(),
+            /*new LICVelocitySlide(),
             new LICDiffusionSlide(),
             new LICConvectionSlide(),
-            new LICTotalSlide(),
+            new LICTotalSlide(),#1#
             //new ULICDiffusionSlide()
         ];
     }
@@ -196,4 +198,4 @@ public class UpdatePresentation : Presentation
         base.Prepare(flowExplainer);
     }
 
-}
+}*/

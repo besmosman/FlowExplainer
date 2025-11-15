@@ -5,16 +5,21 @@ namespace FlowExplainer;
 
 public class StochasticPoincare : WorldService
 {
+    public IVectorField<Vec3, Vec2> VectorField;
+    
     public struct Particle
     {
         public Vec2 Position;
     }
 
     public Particle[] Particles;
-    public int Count = 200000;
+    public int Count = 100000;
 
-    public double RenderRadius = .004f;
+    public double dt = 0.001;
+    public double RenderRadius = .008f;
 
+    public double alpha = .1f;
+    public bool reverse;
     public override ToolCategory Category => ToolCategory.Flow;
 
     public override void Initialize()
@@ -62,25 +67,27 @@ public class StochasticPoincare : WorldService
                     Particles[i].Position = Utils.Random(domainRectBoundary).XY;
                     var max = .8f;
                     var min = -.8f;
-                    if (Random.Shared.NextSingle() * (max - min) + min < dat.ScalerFields[dat.currentSelectedScaler].Evaluate(Particles[i].Position.Up(t)))
+                    if (Random.Shared.NextSingle() * (max - min) + min < dat.ScalerField.Evaluate(Particles[i].Position.Up(t)))
                     {
                         break;
                     }
                 }
             }
 
-            //p.Position = rk4.Integrate(advection, p.Position.Up(t), dt);
-            p.Position += Vec2.Normalize(advectionR.Evaluate(p.Position.Up(t))) * dt;
+            if (reverse)
+                p.Position = rk4.Integrate(advectionR, p.Position.Up(t), dt);
+            else
+                p.Position = rk4.Integrate(advection, p.Position.Up(t), dt);
+            //p.Position += Vec2.Normalize(advectionR.Evaluate(p.Position.Up(t))) * dt;
             //p.Position += sqrt * RandomWienerVector();
             p.Position = advection.Domain.Bounding.Bound(p.Position.Up(t)).XY;
         });
-
     }
 
     public override void Draw(RenderTexture rendertarget, View view)
     {
         var dat = GetRequiredWorldService<DataService>();
-        Step(dat.MultipliedDeltaTime);
+        Step(dt);
 
         if (!view.Is2DCamera)
             return;
@@ -89,16 +96,20 @@ public class StochasticPoincare : WorldService
         foreach (var p in Particles)
         {
             var color = new Color(1, 1, 1, 1f);
-            Gizmos2D.Instanced.RegisterCircle(p.Position, RenderRadius/20, new Color(1, 1, 1, 1f));
+            Gizmos2D.Instanced.RegisterCircle(p.Position, RenderRadius / 10, new Color(1, 1, 1, alpha));
         }
 
         Gizmos2D.Instanced.RenderCircles(view.Camera2D);
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-
     }
 
     public override void DrawImGuiEdit()
     {
+        
+        ImGui.BeginGroup();
+        
+        ImGui.EndGroup();
+        
         if (ImGui.Button("Reset"))
         {
             var dat = GetRequiredWorldService<DataService>();
@@ -108,6 +119,11 @@ public class StochasticPoincare : WorldService
                 Particles[i].Position = Utils.Random(dat.VectorField.Domain.RectBoundary).XY;
             }
         }
+
+        ImGuiHelpers.SliderFloat("dt", ref dt, 0, .1f);
+        ImGuiHelpers.SliderFloat("Render Radius", ref RenderRadius, 0, .1f);
+        ImGuiHelpers.SliderFloat("Alpha", ref alpha, 0, .1f);
+        ImGui.Checkbox("Reverse", ref reverse);
         base.DrawImGuiEdit();
     }
 }

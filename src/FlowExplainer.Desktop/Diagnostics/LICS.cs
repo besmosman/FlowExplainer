@@ -14,7 +14,7 @@ public class LICS : IGridDiagnostic
     private static IVectorField<Vec2, double> NoiseField = new NoiseField();
 
 
-    public void UpdateGridData(GridVisualizer gridVisualizer)
+    public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
         Metric = static (trajectory, c) => NoiseField.Evaluate(trajectory.AtC(c).XY);
         var vec = gridVisualizer.GetRequiredWorldService<DataService>().VectorField;
@@ -22,7 +22,7 @@ public class LICS : IGridDiagnostic
         var flowop = IFlowOperator<Vec2, Vec3>.Default;
         var t_start = gridVisualizer.GetRequiredWorldService<DataService>().SimulationTime;
         var t_end = t_start + T;
-        ParallelGrid.RunMainThread(gridVisualizer.RegularGrid.GridSize, (i, j) =>
+        ParallelGrid.For(gridVisualizer.RegularGrid.GridSize, token, (i, j) =>
         {
             ref var atCoords = ref gridVisualizer.RegularGrid.AtCoords(new Vec2i(i, j));
             var pos = gridVisualizer.RegularGrid.ToWorldPos(new Vec2(i + .5f, j + .5f));

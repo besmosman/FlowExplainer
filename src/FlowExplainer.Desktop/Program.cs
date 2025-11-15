@@ -44,6 +44,7 @@ namespace FlowExplainer
             var neuroTrace = new FlowExplainer();
             neuroTrace.AddGlobalService(new AssetWatcherService());
             neuroTrace.AddGlobalService(new PreferencesService());
+            neuroTrace.AddGlobalService(new DatasetsService());
             neuroTrace.AddGlobalService(new WindowService());
 
             var visualisations = new WorldManagerService();

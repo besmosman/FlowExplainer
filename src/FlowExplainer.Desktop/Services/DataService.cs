@@ -5,16 +5,16 @@ namespace FlowExplainer;
 
 public class DataService : WorldService
 {
-    public IVectorField<Vec3, Vec2> VectorField => VectorFields[currentSelectedVectorField];
+    public Dataset LoadedDataset = null!;
+
+    public IVectorField<Vec3, Vec2> VectorField => LoadedDataset.VectorFields[currentSelectedVectorField];
     public IVectorField<Vec3, Vec2> VectorFieldInstant => new InstantField<Vec3, Vec2>(VectorField, SimulationTime);
 
-    public IVectorField<Vec3, double> TempratureField => ScalerFields[currentSelectedScaler];
-    public IVectorField<Vec3, double> TempratureFieldInstant => new InstantField<Vec3, double>(TempratureField, SimulationTime);
+    public IVectorField<Vec3, double> ScalerField => LoadedDataset.ScalerFields[currentSelectedScaler];
+    public IVectorField<Vec3, double> ScalerFieldInstant => new InstantField<Vec3, double>(ScalerField, SimulationTime);
 
     public string currentSelectedScaler = "Total Temperature";
     public string currentSelectedVectorField = "Velocity";
-    public Dictionary<string, IVectorField<Vec3, double>> ScalerFields = new();
-    public Dictionary<string, IVectorField<Vec3, Vec2>> VectorFields = new();
 
     public ColorGradient ColorGradient { get; set; } = Gradients.GetGradient("matlab_parula");
     public double SimulationTime;
@@ -42,7 +42,7 @@ public class DataService : WorldService
         */
     }
 
-    private double timeAbove =0.0;
+    private double timeAbove = 0.0;
 
     public override void Update()
     {
@@ -67,6 +67,13 @@ public class DataService : WorldService
 
     private bool firstDraw = true;
 
+    public void SetDataset(string name)
+    {
+        LoadedDataset = GetRequiredGlobalService<DatasetsService>().Datasets[name];
+        if (!LoadedDataset.Loaded)
+            LoadedDataset.Load(LoadedDataset);
+    }
+
     public override void Draw(RenderTexture rendertarget, View view)
     {
         if (firstDraw)
@@ -87,13 +94,13 @@ public class DataService : WorldService
     public override void DrawImGuiEdit()
     {
         ImGuiHelpers.SliderFloat("Time Multiplier", ref TimeMultiplier, 0, 10);
-        ImGuiHelpers.SliderFloat("Time", ref SimulationTime, 0, ScalerFields[currentSelectedScaler].Domain.RectBoundary.Size.Z);
+        ImGuiHelpers.SliderFloat("Time", ref SimulationTime, 0, LoadedDataset.ScalerFields[currentSelectedScaler].Domain.RectBoundary.Size.Z);
 
         VectorField.OnImGuiEdit();
-        
+
         if (ImGui.BeginCombo("Scaler Field", currentSelectedScaler))
         {
-            foreach (var v in ScalerFields)
+            foreach (var v in LoadedDataset.ScalerFields)
                 if (ImGui.Selectable(v.Key))
                     currentSelectedScaler = v.Key;
             ImGui.EndCombo();
@@ -101,13 +108,13 @@ public class DataService : WorldService
 
         if (ImGui.BeginCombo("Vector Field", currentSelectedVectorField))
         {
-            foreach (var v in VectorFields)
+            foreach (var v in LoadedDataset.VectorFields)
                 if (ImGui.Selectable(v.Key))
                     currentSelectedVectorField = v.Key;
             ImGui.EndCombo();
         }
 
-        
+
         ImGui.Columns(2);
         ImGui.SetColumnWidth(0, ImGui.GetTextLineHeightWithSpacing() * 1.4f);
         ImGui.Image(ColorGradient.Texture.Value.TextureHandle, new Vec2(ImGui.GetTextLineHeightWithSpacing(), ImGui.GetTextLineHeightWithSpacing()), new Vec2(0, 0), new Vec2(1, 1));
@@ -136,6 +143,6 @@ public class DataService : WorldService
     public void LoadScalerField(string name, string path)
     {
         var regularGridVectorField = RegularGridVectorField<Vec3, Vec3i, double>.Load(path);
-        ScalerFields.Add(name, regularGridVectorField);
+        LoadedDataset.ScalerFields.Add(name, regularGridVectorField);
     }
 }

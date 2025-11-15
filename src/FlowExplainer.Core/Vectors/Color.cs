@@ -153,4 +153,9 @@ public struct Color :
         var c = this * 255f;
         return $"{(int)c.R:X2}{(int)c.G:X2}{(int)c.B:X2}";
     }
+
+    public Color WithAlpha(double alpha)
+    {
+        return new Color(R, G, B, alpha);
+    }
 }

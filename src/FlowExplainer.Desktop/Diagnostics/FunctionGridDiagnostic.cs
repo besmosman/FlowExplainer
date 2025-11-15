@@ -10,7 +10,7 @@ public class FunctionGridDiagnostic : IGridDiagnostic
     public bool StandardLCS = true;
     public int K = 10;
     
-    public void UpdateGridData(GridVisualizer gridVisualizer)
+    public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
         var renderGrid = gridVisualizer.RegularGrid.Grid;
         var dat = gridVisualizer.GetWorldService<DataService>()!;
@@ -38,7 +38,7 @@ public class FunctionGridDiagnostic : IGridDiagnostic
         {
             
         //LCS standard
-        ParallelGrid.For(renderGrid.GridSize, (i, j) =>
+        ParallelGrid.For(renderGrid.GridSize, token, (i, j) =>
         {
             var pos = spatialBounds.Relative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());
             var trajectory = flowOperator.Compute(t, tau, pos, vectorField);
@@ -48,7 +48,7 @@ public class FunctionGridDiagnostic : IGridDiagnostic
         else
         {
             gridVisualizer.RegularGrid.Grid.Data.AsSpan().Fill(default);
-            ParallelGrid.For(renderGrid.GridSize, (i, j) =>
+            ParallelGrid.For(renderGrid.GridSize, token, (i, j) =>
             {
                 for (int k = 0; k < K; k++)
                 {
@@ -87,7 +87,7 @@ public class FunctionGridDiagnostic : IGridDiagnostic
             return (double)Math.Exp(-(dis * dis) / (2 * sigma * sigma));
         }
 
-        ParallelGrid.For(renderGrid.GridSize, (i, j) =>
+        ParallelGrid.For(renderGrid.GridSize, token, (i, j) =>
         {
             ref var atCoords = ref renderGrid.AtCoords(new Vec2i(i, j));
             var pos = spatialBounds.Relative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());

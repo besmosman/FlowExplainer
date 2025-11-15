@@ -11,9 +11,9 @@ public class ImGuiHelpers
     public static bool SliderFloat(string name, ref double f, double min, double max)
     {
         float ff = (float)f;
-        if (ImGui.SliderFloat(name, ref ff, (float)min,  (float)max))
+        if (ImGui.SliderFloat(name, ref ff, (float)min, (float)max))
         {
-        f = ff;
+            f = ff;
             var format = "N2";
             if (double.Abs(max - min) < .6f)
                 format = "N3";
@@ -21,6 +21,12 @@ public class ImGuiHelpers
             UpdateMsg(name, f.ToString(format, CultureInfo.InvariantCulture));
             return true;
         }
+
+        return false;
+    }
+
+    public static bool VectorFieldSelector(ref IVectorField<Vec3, Vec2> vectorField)
+    {
         return false;
     }
 
@@ -31,6 +37,7 @@ public class ImGuiHelpers
             UpdateMsg(name, f.ToString(CultureInfo.InvariantCulture));
             return true;
         }
+
         return false;
     }
 
@@ -39,6 +46,7 @@ public class ImGuiHelpers
         LastMessage = name + ": " + value;
         MessageTime = DateTime.Now;
     }
+
     public static bool Combo<T>(string name, ref T value) where T : struct, Enum
     {
         bool set = false;
@@ -52,8 +60,10 @@ public class ImGuiHelpers
                     set = true;
                 }
             }
+
             ImGui.EndCombo();
         }
+
         return set;
     }
 }
