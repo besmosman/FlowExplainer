@@ -19,7 +19,7 @@ public class PoincareSmearGridDiagnostic : IGridDiagnostic
     public bool UseCustomColoring => !Average;
     public bool Average = false;
 
-    public void UpdateGridData(GridVisualizer gridVisualizer)
+    public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
         int periods = 100;
         int stepsPerPeriod = 64;
@@ -47,7 +47,7 @@ public class PoincareSmearGridDiagnostic : IGridDiagnostic
                     densityGrid.AtPos(pos)++;
             }
             
-            ParallelGrid.For(gridVisualizer.RegularGrid.GridSize,
+            ParallelGrid.For(gridVisualizer.RegularGrid.GridSize, token,
                 (i, j) =>
                 {
                     var rel = new Vec2(i, j) / gridVisualizer.RegularGrid.GridSize.ToVec2() * new Vec2(1,.5f);
@@ -57,7 +57,7 @@ public class PoincareSmearGridDiagnostic : IGridDiagnostic
         return;
         }
         
-        ParallelGrid.For(gridVisualizer.RegularGrid.GridSize,
+        ParallelGrid.For(gridVisualizer.RegularGrid.GridSize, token,
             (i, j) =>
             {
                 int steps = 64;
@@ -69,6 +69,9 @@ public class PoincareSmearGridDiagnostic : IGridDiagnostic
                 {
                     double t = (k) / (double)steps;
                     bool coherent = EstimateIfChaos(pos, (k + 1) / (double)steps) > 22.5f;
+                    if (token.IsCancellationRequested)
+                        return;
+                    
                     if (coherent)
                     {
                         if (Average)
@@ -142,7 +145,7 @@ public class PoincareSmearGridDiagnostic : IGridDiagnostic
                 if (p > period / 5)
                     densityGrid.AtPos(pos)++;
             }
-            densityGrid.Grid.Data.Sort();
+            Array.Sort(densityGrid.Grid.Data);
 
             var sum = 0.0;
             var c = 0;

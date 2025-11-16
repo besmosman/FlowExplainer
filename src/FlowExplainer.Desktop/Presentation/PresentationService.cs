@@ -85,7 +85,7 @@ public class PresentationService : GlobalService
         {
             if (window.IsKeyDown(Keys.LeftControl))
             {
-                LoadPresentation(new HeatStructuresPresentation());
+                //LoadPresentation(new HeatStructuresPresentation());
             }
 
             if (!IsPresenting)

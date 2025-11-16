@@ -23,6 +23,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
                 Marked = left.Marked * right,
             };
         }
+
         public static CellData operator +(CellData left, CellData right)
         {
             return new CellData
@@ -35,6 +36,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
     }
 
     private IGridDiagnostic? diagnostic;
+
     // public InterpolatedRenderGrid gridData;
     public bool Continous = true;
     public bool MarkDirty = false;
@@ -45,6 +47,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
     private Material material;
 
     public bool AutoScale = true;
+
     public List<IGridDiagnostic> Diagnostics =
     [
         //new VelocityMagnitudeGridDiagnostic(),
@@ -88,9 +91,9 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
     }
 
     private object lastVelField;
+
     public override void Draw(RenderTexture rendertarget, View view)
     {
-
         if (!view.Is2DCamera)
             return;
 
@@ -104,11 +107,23 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
                 Resize();
             }
 
-            if (Continous || MarkDirty)
+            if (Continous)
             {
-                UpdateData();
-                MarkDirty = false;
+                ResetGridUpdateTask();
+                while (!currentUpdateTask.IsCompleted && currentUpdateGridTime.Elapsed.TotalSeconds < 1 / 2f)
+                {
+                }
+                
+                if (!currentUpdateTask.IsCompleted)
+                    Continous = false;
             }
+            else
+            {
+                
+            }
+
+            UpdateRenderData();
+            MarkDirty = false;
             var camera = view.Camera2D;
             material.Use();
             material.SetUniform("gridSize", RegularGrid.GridSize.ToVec2());
@@ -118,7 +133,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             material.SetUniform("projection", camera.GetProjectionMatrix());
             material.SetUniform("useCustomColor", diagnostic.UseCustomColoring);
             material.SetUniform("colorgradient", dat.ColorGradient.Texture.Value);
-            material.SetUniform("minGrad", AutoScale ? min :0.0);
+            material.SetUniform("minGrad", AutoScale ? min : 0.0);
             material.SetUniform("maxGrad", AutoScale ? max : 1f);
             var size = RegularGrid.Domain.RectBoundary.Size;
             var start = RegularGrid.Domain.RectBoundary.Min;
@@ -126,22 +141,31 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             gridbuffer.Use();
 
             Gizmos2D.imageQuadInvertedY.Draw();
+
+            if (!currentUpdateTask.IsCompleted)
+            {
+                var pos = new Vec2(RegularGrid.Domain.RectBoundary.Center.X,RegularGrid.Domain.RectBoundary.Min.Y + RegularGrid.Domain.RectBoundary.Size.Y*3/4);
+                double sizeY = RegularGrid.Domain.RectBoundary.Size.Y/5;
+                var alpha = double.Min(1,double.Max(0,currentUpdateGridTime.Elapsed.TotalSeconds-.0f) * 100);
+                Gizmos2D.RectCenter(view.Camera2D, pos, new Vec2(sizeY*6, sizeY), Color.Black.WithAlpha(alpha));
+                Gizmos2D.Text(view.Camera2D, pos, sizeY, Color.White.WithAlpha(alpha), "Recomputing", centered:true);
+            }
             var boundary = dat.VectorField.Domain.RectBoundary;
         }
     }
 
     private double min;
     private double max;
-    private Stopwatch s = new();
-    private void UpdateData()
+    private Stopwatch currentUpdateGridTime = new();
+
+    private CancellationTokenSource cancellationTokenSource = new();
+    private Task currentUpdateTask = Task.CompletedTask;
+
+    private void UpdateRenderData()
     {
         if (diagnostic == null)
             throw new Exception();
 
-        s.Restart();
-        diagnostic.UpdateGridData(this);
-        if (s.Elapsed.TotalSeconds > 1 / 5f)
-            Continous = false;
         gridbuffer.Use();
         gridbuffer.Upload();
         min = double.MaxValue;
@@ -155,7 +179,26 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
                 max = double.Max(max, v);
             }
         }
+
         max = double.Max(max, min + .00001f);
+    }
+
+    private void ResetGridUpdateTask()
+    {
+       // if (!currentUpdateTask.IsCompleted)
+        {
+            cancellationTokenSource.Cancel();
+            cancellationTokenSource = new CancellationTokenSource();
+        }
+        currentUpdateGridTime.Restart();
+        currentUpdateTask = Task.Run(() => diagnostic.UpdateGridData(this, cancellationTokenSource.Token));
+    }
+
+    private Task backgroundTask;
+
+    public void SetUpdateTask(Action action)
+    {
+        var task = Task.Run(action);
     }
 
     public override void DrawImGuiEdit()
@@ -165,7 +208,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         if (ImGui.IsItemDeactivatedAfterEdit())
         {
             Resize();
-            UpdateData();
+            UpdateRenderData();
         }
 
         if (ImGui.BeginCombo("Diagnostic", diagnostic!.Name))
@@ -188,7 +231,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         if (!Continous)
         {
             if (ImGui.Button("Recompute"))
-                UpdateData();
+                ResetGridUpdateTask();
         }
 
         diagnostic?.OnImGuiEdit(this);
@@ -214,35 +257,38 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             return $"LIC {GetRequiredWorldService<DataService>().currentSelectedVectorField}";
         return diagnostic?.Name ?? "";
     }
+
     public (double min, double max) GetScale()
     {
         if (AutoScale)
             return (min, max);
         return (0, 1);
     }
+
     public double ScaleScaler(double value)
     {
         if (AutoScale)
             return (value - min) / (max - min);
         return value;
     }
+
     public void Save(string path, double t_start, double t_end, int timeSteps)
     {
         MarkDirty = true;
-        UpdateData();
-        
-        var gridSize = new Vec3i(RegularGrid.Grid.GridSize.X /1, RegularGrid.Grid.GridSize.Y / 1, timeSteps);
+        UpdateRenderData();
+
+        var gridSize = new Vec3i(RegularGrid.Grid.GridSize.X / 1, RegularGrid.Grid.GridSize.Y / 1, timeSteps);
         var domain = new Rect<Vec3>(RegularGrid.Domain.RectBoundary.Min.Up(t_start), RegularGrid.Domain.RectBoundary.Max.Up(t_end));
         var spatialDomain = domain.Reduce<Vec2>();
         var field = new RegularGridVectorField<Vec3, Vec3i, double>(gridSize, new RectDomain<Vec3>(domain));
 
-        for (int i_t = 0; i_t < timeSteps-1; i_t++)
+        for (int i_t = 0; i_t < timeSteps - 1; i_t++)
         {
             double t = double.Lerp(t_start, t_end, i_t / (double)(timeSteps - 1));
             GetRequiredWorldService<DataService>().SimulationTime = t;
             MarkDirty = true;
-            UpdateData();
-            ParallelGrid.For(gridSize.XY, (i_x, i_y) =>
+            UpdateRenderData();
+            ParallelGrid.For(gridSize.XY, CancellationToken.None, (i_x, i_y) =>
             {
                 var pos = spatialDomain.Relative(new Vec2(i_x + .5f, i_y + .5f) / gridSize.XY.ToVec2());
                 field.AtCoords(new Vec3i(i_x, i_y, i_t)) = RegularGrid.Evaluate(pos).Value;

@@ -11,19 +11,19 @@ public class HeatStructureGridDiagnostic : IGridDiagnostic
     public double M;
     public int K = 1;
 
-    public void UpdateGridData(GridVisualizer gridVisualizer)
+    public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
         var renderGrid = gridVisualizer.RegularGrid;
         var dat = gridVisualizer.GetRequiredWorldService<DataService>();
         var spaceBounds = dat.VectorField.Domain.RectBoundary.Reduce<Vec2>();
         double t = dat.SimulationTime;
-        var tempratureField = dat.TempratureFieldInstant;
+        var tempratureField = dat.ScalerFieldInstant;
         var datVectorFieldInstant = new ArbitraryField<Vec3, Vec2>(dat.VectorField.Domain, p => dat.VectorField.Evaluate(p) * (M / T));
         if (Reverse)
             datVectorFieldInstant = new ArbitraryField<Vec3, Vec2>(dat.VectorField.Domain, p => -dat.VectorField.Evaluate(p) * (M / T));
 
-        ParallelGrid.For(renderGrid.GridSize, (i, j) => { renderGrid.AtCoords(new Vec2i(i, j)).Value = 0; });
-        ParallelGrid.For(renderGrid.GridSize, (i, j) =>
+        ParallelGrid.For(renderGrid.GridSize, token, (i, j) => { renderGrid.AtCoords(new Vec2i(i, j)).Value = 0; });
+        ParallelGrid.For(renderGrid.GridSize, token, (i, j) =>
         {
             //for (int k = 0; k < K; k++)
             {
@@ -65,11 +65,11 @@ public class HeatStructureGridDiagnostic : IGridDiagnostic
 
 public class ScalerGridDiagnostic : IGridDiagnostic
 {
-    public void UpdateGridData(GridVisualizer gridVisualizer)
+    public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
         var renderGrid = gridVisualizer.RegularGrid.Grid;
         var dat = gridVisualizer.GetRequiredWorldService<DataService>();
-        var tempratureField = dat.TempratureField;
+        var tempratureField = dat.ScalerField;
         var spaceBounds = dat.VectorField.Domain.RectBoundary.Reduce<Vec2>();
 
 

@@ -75,7 +75,6 @@ public class ImGUIService : GlobalService
 
 
                 ImGui.MenuItem("ImGUI Demo", "", ref RenderData.showDemoWindow);
-                ImGui.MenuItem("Loaded TCK Data", "", ref RenderData.ShowTCKDataWindow);
                 ImGui.MenuItem("Visualisations", "", ref RenderData.ShowVisualisationsWindow);
 
                 var categories = Enum.GetValues<ToolCategory>();

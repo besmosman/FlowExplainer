@@ -6,12 +6,12 @@ public static class LIC
         IVectorField<Vec2, double> noiseF,
         IVectorField<Vec3, Vec2> convolution,
         RegularGridVectorField<Vec2, Vec2i, double> output,
-        double t_start, double time, double arcLength)
+        double t_start, double time, double arcLength, CancellationToken token)
     {
         var domain = output.Domain;
         var cellSize = domain.RectBoundary.Size.X / output.GridSize.X;
         var domainBoundary = domain.RectBoundary;
-        ParallelGrid.For(output.GridSize, (x, y) =>
+        ParallelGrid.For(output.GridSize, token, (x, y) =>
         {
             ref var atCoords = ref output.AtCoords(new Vec2i(x, y));
             atCoords = 0;
@@ -71,12 +71,12 @@ public static class LIC
         IVectorField<Vec2, double> noiseF,
         IVectorField<Vec3, Vec2> convolution,
         RegularGridVectorField<Vec2, Vec2i, double> output,
-        double t, double arcLength)
+        double t, double arcLength, CancellationToken token)
     {
         var domain = output.Domain;
         var cellSize = domain.RectBoundary.Size.X / output.GridSize.X;
         var domainBoundary = domain.RectBoundary;
-        ParallelGrid.For(output.GridSize, (x, y) =>
+        ParallelGrid.For(output.GridSize, token, (x, y) =>
         {
             ref var atCoords = ref output.AtCoords(new Vec2i(x, y));
             atCoords = 0;

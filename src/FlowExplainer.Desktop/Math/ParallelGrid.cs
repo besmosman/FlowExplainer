@@ -27,6 +27,7 @@
 //
 
 // Uncomment the line below to swap all the inputs/outputs/calculations of FastNoise to doubles instead of doubles
+
 #define FN_USE_DOUBLES
 #if FN_USE_DOUBLES
 using FN_DECIMAL = System.Double;
@@ -40,30 +41,31 @@ using System.Runtime.CompilerServices;
 
 namespace FlowExplainer
 {
-	public static class ParallelGrid
-	{
-		public static void For(Vec2i gridSize, Action<int, int> action)
-		{
-			Parallel.ForEach(Partitioner.Create(0, gridSize.X * gridSize.Y), range =>
-			{
-				for (int i = range.Item1; i < range.Item2; i++)
-				{
-					var x = i % gridSize.X;
-					var y = i / gridSize.X;
-					action(x, y);
-				}
-			});
-		}
+    public static class ParallelGrid
+    {
+        public static void For(Vec2i gridSize, CancellationToken token, Action<int, int> action)
+        {
+            Parallel.ForEach(Partitioner.Create(0, gridSize.X * gridSize.Y), range =>
+            {
+                    for (int i = range.Item1; i < range.Item2; i++)
+                    {
+                        var x = i % gridSize.X;
+                        var y = i / gridSize.X;
+                        if (!token.IsCancellationRequested)
+                        action(x, y);
+                    }
+            });
+        }
 
-		public static void RunMainThread(Vec2i grid, Action<int, int> action)
-		{
-			for (int i = 0; i < grid.X; i++)
-			for (int j = 0; j < grid.Y; j++)
-			{
-				action(i, j);
-			}
-		}
-	}
+        public static void RunMainThread(Vec2i grid, Action<int, int> action)
+        {
+            for (int i = 0; i < grid.X; i++)
+            for (int j = 0; j < grid.Y; j++)
+            {
+                action(i, j);
+            }
+        }
+    }
 }
 
 public class FastNoise
@@ -146,18 +148,30 @@ public class FastNoise
     }
 
     // Returns a 0 double/double
-    public static FN_DECIMAL GetDecimalType() { return 0; }
+    public static FN_DECIMAL GetDecimalType()
+    {
+        return 0;
+    }
 
     // Returns the seed used by this object
-    public int GetSeed() { return m_seed; }
+    public int GetSeed()
+    {
+        return m_seed;
+    }
 
     // Sets seed used for all noise types
     // Default: 1337
-    public void SetSeed(int seed) { m_seed = seed; }
+    public void SetSeed(int seed)
+    {
+        m_seed = seed;
+    }
 
     // Sets frequency for all noise types
     // Default: 0.01
-    public void SetFrequency(FN_DECIMAL frequency) { m_frequency = frequency; }
+    public void SetFrequency(FN_DECIMAL frequency)
+    {
+        m_frequency = frequency;
+    }
 
     // Changes the interpolation method used to smooth between noise values
     // Possible interpolation methods (lowest to highest quality) :
@@ -166,11 +180,17 @@ public class FastNoise
     // - Quintic
     // Used in Value, Gradient Noise and Position Perturbing
     // Default: Quintic
-    public void SetInterp(Interp interp) { m_interp = interp; }
+    public void SetInterp(Interp interp)
+    {
+        m_interp = interp;
+    }
 
     // Sets noise return type of GetNoise(...)
     // Default: Simplex
-    public void SetNoiseType(NoiseType noiseType) { m_noiseType = noiseType; }
+    public void SetNoiseType(NoiseType noiseType)
+    {
+        m_noiseType = noiseType;
+    }
 
 
     // Sets octave count for all fractal noise types
@@ -183,7 +203,10 @@ public class FastNoise
 
     // Sets octave lacunarity for all fractal noise types
     // Default: 2.0
-    public void SetFractalLacunarity(FN_DECIMAL lacunarity) { m_lacunarity = lacunarity; }
+    public void SetFractalLacunarity(FN_DECIMAL lacunarity)
+    {
+        m_lacunarity = lacunarity;
+    }
 
     // Sets octave gain for all fractal noise types
     // Default: 0.5
@@ -195,17 +218,26 @@ public class FastNoise
 
     // Sets method for combining octaves in all fractal noise types
     // Default: FBM
-    public void SetFractalType(FractalType fractalType) { m_fractalType = fractalType; }
+    public void SetFractalType(FractalType fractalType)
+    {
+        m_fractalType = fractalType;
+    }
 
 
     // Sets return type from cellular noise calculations
     // Note: NoiseLookup requires another FastNoise object be set with SetCellularNoiseLookup() to function
     // Default: CellValue
-    public void SetCellularDistanceFunction(CellularDistanceFunction cellularDistanceFunction) { m_cellularDistanceFunction = cellularDistanceFunction; }
+    public void SetCellularDistanceFunction(CellularDistanceFunction cellularDistanceFunction)
+    {
+        m_cellularDistanceFunction = cellularDistanceFunction;
+    }
 
     // Sets distance function used in cellular noise calculations
     // Default: Euclidean
-    public void SetCellularReturnType(CellularReturnType cellularReturnType) { m_cellularReturnType = cellularReturnType; }
+    public void SetCellularReturnType(CellularReturnType cellularReturnType)
+    {
+        m_cellularReturnType = cellularReturnType;
+    }
 
     // Sets the 2 distance indicies used for distance2 return types
     // Default: 0, 1
@@ -223,20 +255,30 @@ public class FastNoise
     // Sets the maximum distance a cellular point can move from it's grid position
     // Setting this high will make artifacts more common
     // Default: 0.45
-    public void SetCellularJitter(double cellularJitter) { m_cellularJitter = cellularJitter; }
+    public void SetCellularJitter(double cellularJitter)
+    {
+        m_cellularJitter = cellularJitter;
+    }
 
     // Noise used to calculate a cell value if cellular return type is NoiseLookup
     // The lookup value is acquired through GetNoise() so ensure you SetNoiseType() on the noise lookup, value, gradient or simplex is recommended
-    public void SetCellularNoiseLookup(FastNoise noise) { m_cellularNoiseLookup = noise; }
+    public void SetCellularNoiseLookup(FastNoise noise)
+    {
+        m_cellularNoiseLookup = noise;
+    }
 
 
     // Sets the maximum perturb distance from original location when using GradientPerturb{Fractal}(...)
     // Default: 1.0
-    public void SetGradientPerturbAmp(FN_DECIMAL gradientPerturbAmp) { m_gradientPerturbAmp = gradientPerturbAmp; }
+    public void SetGradientPerturbAmp(FN_DECIMAL gradientPerturbAmp)
+    {
+        m_gradientPerturbAmp = gradientPerturbAmp;
+    }
 
     private struct Float2
     {
         public readonly FN_DECIMAL x, y;
+
         public Float2(FN_DECIMAL x, FN_DECIMAL y)
         {
             this.x = x;
@@ -247,6 +289,7 @@ public class FastNoise
     private struct Float3
     {
         public readonly FN_DECIMAL x, y, z;
+
         public Float3(FN_DECIMAL x, FN_DECIMAL y, FN_DECIMAL z)
         {
             this.x = x;
@@ -412,19 +455,34 @@ public class FastNoise
     };
 
     [MethodImplAttribute(FN_INLINE)]
-    private static int FastFloor(FN_DECIMAL f) { return (f >= 0 ? (int)f : (int)f - 1); }
+    private static int FastFloor(FN_DECIMAL f)
+    {
+        return (f >= 0 ? (int)f : (int)f - 1);
+    }
 
     [MethodImplAttribute(FN_INLINE)]
-    private static int FastRound(FN_DECIMAL f) { return (f >= 0) ? (int)(f + (FN_DECIMAL)0.5) : (int)(f - (FN_DECIMAL)0.5); }
+    private static int FastRound(FN_DECIMAL f)
+    {
+        return (f >= 0) ? (int)(f + (FN_DECIMAL)0.5) : (int)(f - (FN_DECIMAL)0.5);
+    }
 
     [MethodImplAttribute(FN_INLINE)]
-    private static FN_DECIMAL Lerp(FN_DECIMAL a, FN_DECIMAL b, FN_DECIMAL t) { return a + t * (b - a); }
+    private static FN_DECIMAL Lerp(FN_DECIMAL a, FN_DECIMAL b, FN_DECIMAL t)
+    {
+        return a + t * (b - a);
+    }
 
     [MethodImplAttribute(FN_INLINE)]
-    private static FN_DECIMAL InterpHermiteFunc(FN_DECIMAL t) { return t * t * (3 - 2 * t); }
+    private static FN_DECIMAL InterpHermiteFunc(FN_DECIMAL t)
+    {
+        return t * t * (3 - 2 * t);
+    }
 
     [MethodImplAttribute(FN_INLINE)]
-    private static FN_DECIMAL InterpQuinticFunc(FN_DECIMAL t) { return t * t * t * (t * (t * 6 - 15) + 10); }
+    private static FN_DECIMAL InterpQuinticFunc(FN_DECIMAL t)
+    {
+        return t * t * t * (t * (t * 6 - 15) + 10);
+    }
 
     [MethodImplAttribute(FN_INLINE)]
     private static FN_DECIMAL CubicLerp(FN_DECIMAL a, FN_DECIMAL b, FN_DECIMAL c, FN_DECIMAL d, FN_DECIMAL t)
@@ -442,6 +500,7 @@ public class FastNoise
             ampFractal += amp;
             amp *= m_gain;
         }
+
         m_fractalBounding = 1 / ampFractal;
     }
 
@@ -590,6 +649,7 @@ public class FastNoise
                 c = wd;
                 break; // Y,Z,W
         }
+
         return ((hash & 4) == 0 ? -a : a) + ((hash & 2) == 0 ? -b : b) + ((hash & 1) == 0 ? -c : c);
     }
 
@@ -1709,6 +1769,7 @@ public class FastNoise
             t *= t;
             n0 = t * t * GradCoord4D(seed, i, j, k, l, x0, y0, z0, w0);
         }
+
         t = (FN_DECIMAL)0.6 - x1 * x1 - y1 * y1 - z1 * z1 - w1 * w1;
         if (t < 0) n1 = 0;
         else
@@ -1716,6 +1777,7 @@ public class FastNoise
             t *= t;
             n1 = t * t * GradCoord4D(seed, i + i1, j + j1, k + k1, l + l1, x1, y1, z1, w1);
         }
+
         t = (FN_DECIMAL)0.6 - x2 * x2 - y2 * y2 - z2 * z2 - w2 * w2;
         if (t < 0) n2 = 0;
         else
@@ -1723,6 +1785,7 @@ public class FastNoise
             t *= t;
             n2 = t * t * GradCoord4D(seed, i + i2, j + j2, k + k2, l + l2, x2, y2, z2, w2);
         }
+
         t = (FN_DECIMAL)0.6 - x3 * x3 - y3 * y3 - z3 * z3 - w3 * w3;
         if (t < 0) n3 = 0;
         else
@@ -1730,6 +1793,7 @@ public class FastNoise
             t *= t;
             n3 = t * t * GradCoord4D(seed, i + i3, j + j3, k + k3, l + l3, x3, y3, z3, w3);
         }
+
         t = (FN_DECIMAL)0.6 - x4 * x4 - y4 * y4 - z4 * z4 - w4 * w4;
         if (t < 0) n4 = 0;
         else
@@ -2045,6 +2109,7 @@ public class FastNoise
                         }
                     }
                 }
+
                 break;
             case CellularDistanceFunction.Manhattan:
                 for (int xi = xr - 1; xi <= xr + 1; xi++)
@@ -2071,6 +2136,7 @@ public class FastNoise
                         }
                     }
                 }
+
                 break;
             case CellularDistanceFunction.Natural:
                 for (int xi = xr - 1; xi <= xr + 1; xi++)
@@ -2097,6 +2163,7 @@ public class FastNoise
                         }
                     }
                 }
+
                 break;
         }
 
@@ -2150,6 +2217,7 @@ public class FastNoise
                         }
                     }
                 }
+
                 break;
             case CellularDistanceFunction.Manhattan:
                 for (int xi = xr - 1; xi <= xr + 1; xi++)
@@ -2172,6 +2240,7 @@ public class FastNoise
                         }
                     }
                 }
+
                 break;
             case CellularDistanceFunction.Natural:
                 for (int xi = xr - 1; xi <= xr + 1; xi++)
@@ -2194,6 +2263,7 @@ public class FastNoise
                         }
                     }
                 }
+
                 break;
             default:
                 break;
@@ -2263,6 +2333,7 @@ public class FastNoise
                         }
                     }
                 }
+
                 break;
             case CellularDistanceFunction.Manhattan:
                 for (int xi = xr - 1; xi <= xr + 1; xi++)
@@ -2284,6 +2355,7 @@ public class FastNoise
                         }
                     }
                 }
+
                 break;
             case CellularDistanceFunction.Natural:
                 for (int xi = xr - 1; xi <= xr + 1; xi++)
@@ -2305,6 +2377,7 @@ public class FastNoise
                         }
                     }
                 }
+
                 break;
         }
 
@@ -2354,6 +2427,7 @@ public class FastNoise
                         distance[0] = Math.Min(distance[0], newDistance);
                     }
                 }
+
                 break;
             case CellularDistanceFunction.Manhattan:
                 for (int xi = xr - 1; xi <= xr + 1; xi++)
@@ -2372,6 +2446,7 @@ public class FastNoise
                         distance[0] = Math.Min(distance[0], newDistance);
                     }
                 }
+
                 break;
             case CellularDistanceFunction.Natural:
                 for (int xi = xr - 1; xi <= xr + 1; xi++)
@@ -2390,6 +2465,7 @@ public class FastNoise
                         distance[0] = Math.Min(distance[0], newDistance);
                     }
                 }
+
                 break;
         }
 
@@ -2566,5 +2642,4 @@ public class FastNoise
         x += Lerp(lx0x, lx1x, ys) * perturbAmp;
         y += Lerp(ly0x, ly1x, ys) * perturbAmp;
     }
-
 }

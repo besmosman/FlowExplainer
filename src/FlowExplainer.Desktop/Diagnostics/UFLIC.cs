@@ -18,20 +18,21 @@ public class UFLIC : IGridDiagnostic
     public bool auto = false;
     public double startTime = 0;
     public int view_offset;
-    public void UpdateGridData(GridVisualizer gridVisualizer)
+
+    public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
         var t = gridVisualizer.GetRequiredWorldService<DataService>().SimulationTime;
 
         int max_steps = (int)double.Ceiling(expected_lifetime / dt) + 1;
         if (Accumelation.GridSize.XY != gridVisualizer.RegularGrid.GridSize || max_steps != Accumelation.GridSize.Last
-            || (auto && t < globalStep * dt + startTime ))
+                                                                            || (auto && t < globalStep * dt + startTime))
         {
             Accumelation.Resize(new Vec3i(gridVisualizer.RegularGrid.GridSize, max_steps));
             InputTexture.Resize(gridVisualizer.RegularGrid.GridSize);
             InputTextureCopy.Resize(gridVisualizer.RegularGrid.GridSize);
             globalStep = 0;
             var domainBoundary = gridVisualizer.RegularGrid.Domain.RectBoundary;
-            ParallelGrid.For(InputTexture.GridSize, (i, j) => { InputTexture.AtCoords(new Vec2i(i, j)) = NoiseField.Evaluate(domainBoundary.Relative(new Vec2(i, j) / gridVisualizer.RegularGrid.GridSize.ToVec2())); });
+            ParallelGrid.For(InputTexture.GridSize, token, (i, j) => { InputTexture.AtCoords(new Vec2i(i, j)) = NoiseField.Evaluate(domainBoundary.Relative(new Vec2(i, j) / gridVisualizer.RegularGrid.GridSize.ToVec2())); });
             startTime = t;
             if (auto)
                 warm(gridVisualizer, max_steps);
@@ -40,23 +41,23 @@ public class UFLIC : IGridDiagnostic
 
         if (auto)
         {
-                Step(gridVisualizer);
-            while ((globalStep+1) * dt + startTime < t)
+            Step(gridVisualizer, token);
+            while ((globalStep + 1) * dt + startTime < t)
             {
             }
         }
+
         var outputGrid = gridVisualizer.RegularGrid;
-        ParallelGrid.For(outputGrid.GridSize, (i, j) =>
+        ParallelGrid.For(outputGrid.GridSize, token, (i, j) =>
         {
             var cell_z = (globalStep + view_offset) % max_steps;
             ref var atpos = ref Accumelation.AtCoords(new Vec3i(i, j, cell_z));
             var value = atpos.X / atpos.Y;
             outputGrid.Grid.AtCoords(new Vec2i(i, j)).Value = value;
         });
-
     }
 
-    private void Step(GridVisualizer gridVisualizer)
+    private void Step(GridVisualizer gridVisualizer, CancellationToken token)
     {
         var ft = gridVisualizer.GetRequiredWorldService<DataService>().SimulationTime;
 
@@ -73,7 +74,7 @@ public class UFLIC : IGridDiagnostic
             var scatterValue = InputTexture.AtCoords(new Vec2i(i, j));
 
             double t = start_t + globalStep * dt;
-            
+
             var phase = pos.Up(t);
             var lastBucket = new Vec3i(outputGrid.ToVoxelCoord(phase.XY).FloorInt(), globalStep % max_steps);
             for (int k = 0; k < max_steps; k++)
@@ -87,7 +88,7 @@ public class UFLIC : IGridDiagnostic
                     phase.X -= domainBoundary.Size.X;
                     lastBucket = new Vec3i(outputGrid.ToVoxelCoord(phase.XY).FloorInt(), globalStep % max_steps);
                 }
-                
+
                 if (phase.X < domainBoundary.Min.X)
                 {
                     phase.X += domainBoundary.Size.X;
@@ -118,12 +119,12 @@ public class UFLIC : IGridDiagnostic
         }
 
         globalStep++;
-        ParallelGrid.For(InputTexture.GridSize, (i, j) =>
+        ParallelGrid.For(InputTexture.GridSize, token, (i, j) =>
         {
             ref var atpos = ref Accumelation.AtCoords(new Vec3i(i, j, globalStep % max_steps));
             var value = atpos.X / atpos.Y;
             InputTexture.AtCoords(new Vec2i(i, j)) = value;
-            if (atpos.Y ==0.0)
+            if (atpos.Y == 0.0)
                 InputTexture.AtCoords(new Vec2i(i, j)) = 0;
             if (globalStep != 0)
                 Accumelation.AtCoords(new Vec3i(i, j, (globalStep - 1) % max_steps)) = Vec2.Zero;
@@ -133,10 +134,10 @@ public class UFLIC : IGridDiagnostic
         for (int i = 0; i < 1; i++)
         {
             Array.Copy(InputTexture.Data, InputTextureCopy.Data, InputTexture.Data.Length);
-            ParallelGrid.For(outputGrid.GridSize, (i, j) =>
+            ParallelGrid.For(outputGrid.GridSize, token, (i, j) =>
             {
-                double nextValue =0.0;
-                double totWeight =0.0;
+                double nextValue = 0.0;
+                double totWeight = 0.0;
                 for (int x = -1; x <= 1; x++)
                 for (int y = -1; y <= 1; y++)
                 {
@@ -152,13 +153,13 @@ public class UFLIC : IGridDiagnostic
                         totWeight += weight;
                     }
                 }
+
                 ref var atPos = ref InputTexture.AtCoords(new Vec2i(i, j));
                 // Random.Shared.NextSingle() - .5f) * .05f
-                atPos = double.Clamp(atPos - (nextValue / 20f) + ((NoiseField.Evaluate(new Vec2(i, j) / outputGrid.GridSize.ToVec2())) - .5f)*4, 0, 1);
+                atPos = double.Clamp(atPos - (nextValue / 20f) + ((NoiseField.Evaluate(new Vec2(i, j) / outputGrid.GridSize.ToVec2())) - .5f) * 4, 0, 1);
                 //   atPos = Random.Shared.NextSingle();
             });
         }
-
     }
 
     public void OnImGuiEdit(GridVisualizer gridVisualizer)
@@ -170,7 +171,7 @@ public class UFLIC : IGridDiagnostic
 
         if (ImGui.Button("Step"))
         {
-            Step(gridVisualizer);
+            Step(gridVisualizer, CancellationToken.None);
         }
 
         if (ImGui.Button("Warm"))
@@ -178,15 +179,14 @@ public class UFLIC : IGridDiagnostic
             warm(gridVisualizer, max_steps);
         }
 
-        ImGuiHelpers.SliderInt("view_offset", ref view_offset, 0, max_steps-1);
+        ImGuiHelpers.SliderInt("view_offset", ref view_offset, 0, max_steps - 1);
     }
+
     private void warm(GridVisualizer gridVisualizer, int max_steps)
     {
-
         for (int i = 0; i < max_steps; i++)
         {
-            Step(gridVisualizer);
+            Step(gridVisualizer, default);
         }
     }
-
 }

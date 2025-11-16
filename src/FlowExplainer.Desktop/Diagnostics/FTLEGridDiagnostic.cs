@@ -18,7 +18,7 @@ public class FTLEGridDiagnostic : IGridDiagnostic
     public double T = 1;
     private FTLEData[] Data;
 
-    public void UpdateGridData(GridVisualizer gridVisualizer)
+    public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
         //var renderGrid = Data;
 
@@ -35,7 +35,7 @@ public class FTLEGridDiagnostic : IGridDiagnostic
         var spatialBounds = domain.RectBoundary.Reduce<Vec2>();
         var flowOperator = IFlowOperator<Vec2, Vec3>.Default;
 
-        ParallelGrid.For(renderGrid.GridSize, (i, j) =>
+        ParallelGrid.For(renderGrid.GridSize, token, (i, j) =>
         {
             var pos = spatialBounds.Relative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());
             var center = flowOperator.Compute(t, tau, pos, vectorField);
@@ -47,7 +47,7 @@ public class FTLEGridDiagnostic : IGridDiagnostic
             };
         });
 
-        ParallelGrid.For(renderGrid.GridSize, (i, j) =>
+        ParallelGrid.For(renderGrid.GridSize , token, (i, j) =>
         {
             ref var center = ref renderGrid.AtCoords(new Vec2i(i, j));
             if (i > 0 && j > 0 && i < renderGrid.GridSize.X - 1 && j < renderGrid.GridSize.Y - 1)

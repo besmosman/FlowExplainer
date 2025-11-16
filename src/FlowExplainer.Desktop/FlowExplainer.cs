@@ -18,7 +18,7 @@ namespace FlowExplainer
             service.Initialize();
         }
 
-        public T? GetGlobalService<T>() where T : GlobalService
+        public T GetGlobalService<T>() where T : GlobalService
         {
             foreach (var s in Services)
             {
@@ -28,7 +28,7 @@ namespace FlowExplainer
                 }
             }
 
-            return null;
+            throw new Exception();
         }
 
         public GlobalService? GetGlobalService(Type t)
