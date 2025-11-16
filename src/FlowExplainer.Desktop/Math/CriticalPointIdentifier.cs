@@ -5,7 +5,6 @@ namespace FlowExplainer;
 
 public static class FD
 {
-
     public struct Neighbors(Vec2 left, Vec2 right, Vec2 up, Vec2 down, Vec2 delta)
     {
         public double dFx_dx => FD.Derivative(left.X, right.X, delta.X);
@@ -49,8 +48,23 @@ public static class FD
 public class CriticalPointIdentifier : WorldService
 {
 
-    private ConcurrentQueue<Rect<Vec2>> toTestRegions = new();
+    class Rec
+    {
+        public Rec? Parent;
+        public bool IsLeaf;
+        public bool ContainsCritical;
+        public bool ChildFound;
+        public Rect<Vec2> Rect;
+        public Rec(Rec parent, Rect<Vec2> rect)
+        {
+            Parent = parent;
+            Rect = rect;
+        }
+    }
+
+    private ConcurrentQueue<Rec> toTestRegions = new();
     private ConcurrentQueue<Rect<Vec2>> criticalRegions = new();
+    private ConcurrentQueue<Rec> testedRegions = new();
 
     public override void Initialize()
     {
@@ -59,42 +73,74 @@ public class CriticalPointIdentifier : WorldService
     private void FindCriticalPoints()
     {
         criticalRegions.Clear();
+        toTestRegions.Clear();
+        testedRegions.Clear();
         var vectorField = GetRequiredWorldService<DataService>().VectorField;
         var reduce = vectorField.Domain.RectBoundary.Reduce<Vec2>();
-        reduce.Max*=1.2f;
-        reduce.Min/=1.2f;
-        reduce.Max+=new Vec2(Random.Shared.NextDouble(), Random.Shared.NextDouble())/10f;
-        reduce.Min+=new Vec2(Random.Shared.NextDouble(), Random.Shared.NextDouble())/10f;
+        //reduce.Max *= 1.2f;
+        //reduce.Min /= 1.2f;
+        //reduce.Max+=new Vec2(Random.Shared.NextDouble(), Random.Shared.NextDouble())/10f;
+        //reduce.Min+=new Vec2(Random.Shared.NextDouble(), Random.Shared.NextDouble())/10f;
 
         //reduce.Min -= new Vec2(.25f, 0);
         //reduce.Max += new Vec2(.25f, 0);
-        toTestRegions.Enqueue(reduce);
+        toTestRegions.Enqueue(new Rec(null, reduce));
         double t = 0;
-        double minCellAreaRatioOfDomain = 1 / 30000.0;
+        double minCellAreaRatioOfDomain = 1 / 3000.0;
         double domainArea = vectorField.Domain.RectBoundary.Size.X * vectorField.Domain.RectBoundary.Size.Y;
         double minCellArea = domainArea * minCellAreaRatioOfDomain;
+
         while (!toTestRegions.IsEmpty)
         {
-            if (toTestRegions.TryDequeue(out var rect))
+            if (toTestRegions.TryDequeue(out var rec))
             {
-                if (ContainsCriticalPoint(rect, vectorField, t) || rect.Size.X * rect.Size.Y > minCellArea*100)
+                testedRegions.Enqueue(rec);
+                var rect = rec.Rect;
+                if (ContainsCriticalPoint(rect, vectorField, t) || rect.Size.X * rect.Size.Y > minCellArea * 10)
                 {
+                    rec.ContainsCritical = true;
+                    if (rec.Parent != null)
+                        rec.Parent.ChildFound = true;
                     if (rect.Size.X * rect.Size.Y < minCellArea)
                     {
+                        rec.IsLeaf = true;
                         criticalRegions.Enqueue(rect);
                     }
                     else
                     {
-                        toTestRegions.Enqueue(Rect<Vec2>.FromSize(rect.Min, rect.Size / 2));
-                        toTestRegions.Enqueue(Rect<Vec2>.FromSize(rect.Min + rect.Size / 2, rect.Size / 2));
-                        toTestRegions.Enqueue(Rect<Vec2>.FromSize(rect.Min + new Vec2(rect.Size.X / 2, 0), rect.Size / 2));
-                        toTestRegions.Enqueue(Rect<Vec2>.FromSize(rect.Min + new Vec2(0, rect.Size.Y / 2), rect.Size / 2));
+                        toTestRegions.Enqueue(new Rec(rec, Rect<Vec2>.FromSize(rect.Min, rect.Size / 2)));
+                        toTestRegions.Enqueue(new Rec(rec, Rect<Vec2>.FromSize(rect.Min + rect.Size / 2, rect.Size / 2)));
+                        toTestRegions.Enqueue(new Rec(rec, Rect<Vec2>.FromSize(rect.Min + new Vec2(rect.Size.X / 2, 0), rect.Size / 2)));
+                        toTestRegions.Enqueue(new Rec(rec, Rect<Vec2>.FromSize(rect.Min + new Vec2(0, rect.Size.Y / 2), rect.Size / 2)));
                     }
                 }
+                else
+                {
+                    rec.IsLeaf = true;
+                }
             }
+        }
 
+        foreach (var rec in testedRegions)
+        {
+            if (rec.IsLeaf || rec.ContainsCritical)
+            {
+                var cur = rec.Parent;
+                while (cur != null)
+                {
+                    cur.ChildFound = true;
+                    cur = cur.Parent;
+                }
+            }
+        }
+
+        foreach (var rec in testedRegions)
+        {
+            if (!rec.ChildFound && rec.ContainsCritical)
+                criticalRegions.Enqueue(rec.Rect);
         }
     }
+
 
     private bool ContainsCriticalPoint(Rect<Vec2> rect, IVectorField<Vec3, Vec2> vectorField, double t)
     {
@@ -111,7 +157,7 @@ public class CriticalPointIdentifier : WorldService
             lb, rb, rt, lt, lb
         }; // close loop
 
-        double totalAngleChange =0.0;
+        double totalAngleChange = 0.0;
 
         for (int i = 0; i < 4; i++)
         {
@@ -134,8 +180,8 @@ public class CriticalPointIdentifier : WorldService
         double index = totalAngleChange / (2 * Math.PI);
 
         // Small tolerance for doubleing point errors
-        if(Math.Abs(index) > 0.5f)
-        return true;
+        if (Math.Abs(index) > 0.5f)
+            return true;
 
 
 
@@ -146,27 +192,97 @@ public class CriticalPointIdentifier : WorldService
             rect.Min + new Vec2(rect.Size.X, 0),
             rect.Min + new Vec2(0, rect.Size.Y),
             rect.Min + rect.Size,
-            rect.Min + rect.Size / 2, // center
+            /*rect.Min + rect.Size / 2, // center
             rect.Min + new Vec2(rect.Size.X / 2, 0),
             rect.Min + new Vec2(0, rect.Size.Y / 2),
             rect.Min + new Vec2(rect.Size.X, rect.Size.Y / 2),
-            rect.Min + new Vec2(rect.Size.X / 2, rect.Size.Y)
+            rect.Min + new Vec2(rect.Size.X / 2, rect.Size.Y)*/
         };
 
         var values = pts.Select(p => vectorField.Evaluate(p.Up(t))).ToArray();
 
         bool signChangeX = values.Select(v => Math.Sign(v.X)).Distinct().Count() > 1;
         bool signChangeY = values.Select(v => Math.Sign(v.Y)).Distinct().Count() > 1;
-        bool nearZero = values.Any(v => v.Length() < 1e-12f);
+        bool nearZero = values.Any(v => v.Length() < 1e-14);
 
-        return (signChangeX && signChangeY) || nearZero;
+        return (signChangeX && signChangeY);
     }
     public override void Draw(RenderTexture rendertarget, View view)
     {
-        return;
-        FindCriticalPoints();
+
+        var rk4 = IIntegrator<Vec3, Vec2>.Rk4;
         var t = GetRequiredWorldService<DataService>().SimulationTime;
         var vectorField = GetRequiredWorldService<DataService>().VectorField;
+        {
+
+            var pos = view.MousePosition;
+            var lastPos = pos;
+            for (int fi = 0; fi < 2000; fi++)
+            {
+                var u = FD.CentralDifference(pos, new Vec2(1) / 1000f, (v) => vectorField.Evaluate(v.Up(t)));
+
+                var jacobian = new Matrix2d(u.dFx_dx, u.dFx_dy, u.dFy_dx, u.dFy_dy);
+                var m = jacobian.Trace * .5f;
+                var p = jacobian.Determinant;
+                var n = m * m - p;
+
+                if (n < 1e-15)
+                    n = 0;
+
+                var right = double.Sqrt(n);
+
+                var eigen1 = m + right;
+                var eigen2 = m - right;
+
+                if (eigen1 > eigen2)
+                {
+                    (eigen2, eigen1) = (eigen1, eigen2);
+                }
+                // Initialize eigenvectors
+                Vec2 v1, v2;
+
+// Avoid division by zero: use first row if possible, otherwise second row
+                if (Math.Abs(jacobian.M12) > 1e-26) // b != 0
+                {
+                    v1 = new Vec2(1, (eigen1 - jacobian.M11) / jacobian.M12).Normalized();
+                    v2 = new Vec2(1, (eigen2 - jacobian.M11) / jacobian.M12).Normalized();
+                }
+                else if (Math.Abs(jacobian.M21) > 1e-26) // c != 0
+                {
+                    v1 = new Vec2((eigen1 - jacobian.M22) / jacobian.M21, 1).Normalized();
+                    v2 = new Vec2((eigen2 - jacobian.M22) / jacobian.M21, 1).Normalized();
+                }
+                else // diagonal matrix case
+                {
+                    v1 = new Vec2(1, 0);
+                    v2 = new Vec2(0, 1);
+                }
+
+                lastPos = pos;
+                //pos += v1 * .001f;
+                pos = rk4.Integrate(vectorField, pos.Up(t), .1);
+                    Gizmos2D.Line(view.Camera2D, lastPos, pos, new Color(1, 0, 0, 1), .001);
+            }
+        }
+
+        return;
+        for (int k = 0; k < 1; k++)
+        {
+            var pos = view.MousePosition;
+            Logger.LogDebug(view.MousePosition.ToString());
+            for (int c = 0; c < 364; c++)
+            {
+                var lastPos = pos;
+                for (int i = 0; i < 32; i++)
+                {
+                    //if (vec2.Length() > 0.000000001)
+                    pos = rk4.Integrate(vectorField, pos.Up(t), .001);
+                }
+                Gizmos2D.Line(view.Camera2D, lastPos, pos, new Color(1, 0, 0, 1), .001);
+            }
+        }
+
+        FindCriticalPoints();
         foreach (var r in criticalRegions)
         {
             var pp = r.Center;
@@ -189,23 +305,23 @@ public class CriticalPointIdentifier : WorldService
             if (double.Sign(eigen1) == double.Sign(eigen2))
             {
                 //not saddlepoint
-                // continue;
+                continue;
             }
             Gizmos2D.Circle(view.Camera2D, pp, Color.White, .005f);
 
-                        var rk4 = IIntegrator<Vec3, Vec2>.Rk4;
-            for (int k = 0; k < 1; k++)
+            for (int k = 0; k < 0; k++)
             {
-                var pos = Utils.Random(r);
-                for (int c = 0; c < 64; c++)
+                var pos = view.MousePosition;
+                Logger.LogDebug(view.MousePosition.ToString());
+                for (int c = 0; c < 164; c++)
                 {
                     var lastPos = pos;
-                    for (int i = 0; i < 64; i++)
+                    for (int i = 0; i < 32; i++)
                     {
                         //if (vec2.Length() > 0.000000001)
-                        pos = rk4.Integrate(vectorField, pos.Up(t), .004);
+                        pos = rk4.Integrate(vectorField, pos.Up(t), .001);
                     }
-                    Gizmos2D.Line(view.Camera2D, lastPos, pos, new Color(1,0,0,1), .001);
+                    Gizmos2D.Line(view.Camera2D, lastPos, pos, new Color(1, 0, 0, 1), .001);
                 }
             }
         }

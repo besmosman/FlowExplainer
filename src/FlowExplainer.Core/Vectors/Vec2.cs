@@ -28,8 +28,8 @@ public interface IVec<TVec, TNumber> :
     public int ElementCount { get; }
 
     public TNumber Sum();
-    public abstract static TVec Zero { get; }
-    public abstract static TVec One { get; }
+    public static abstract TVec Zero { get; }
+    public static abstract TVec One { get; }
 
     public TNumber Last => this[ElementCount - 1];
     public TNumber this[int n] { get; set; }
@@ -80,9 +80,7 @@ public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>,
     }
 
     public Vec2 Down(Vec3 x) => x.XY;
-
-    public Vec3 Construct(Vec2 x, double t) => new Vec3(x, t);
-
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vec2 operator +(Vec2 v1, Vec2 v2) => new(v1.X + v2.X, v1.Y + v2.Y);
 
@@ -222,5 +220,9 @@ public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>,
     public Vec2i FloorInt()
     {
         return new Vec2i((int)double.Floor(X), (int)double.Floor(Y));
+    }
+    public Vec2 Normalized()
+    {
+        return Vec2.Normalize(this);
     }
 }

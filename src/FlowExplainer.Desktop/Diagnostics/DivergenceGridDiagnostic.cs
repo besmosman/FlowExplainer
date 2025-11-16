@@ -70,8 +70,11 @@ public class StagnationGridDiagnostic : IGridDiagnostic
             var j = c / renderGrid.GridSize.X;
             var pos = spaceBounds.Relative(new Vec2(i, j) / (renderGrid.GridSize.ToVec2() - Vec2.One));
             renderGrid.AtCoords(new Vec2i(i, j)).Value = vectorField.Evaluate(pos.Up(t)).Length();
-            if( vectorField.Evaluate(pos.Up(t)).Length() < 0.04f)
+            /*if( vectorField.Evaluate(pos.Up(t)).Length() < 0.015f)
             renderGrid.AtCoords(new Vec2i(i, j)).Value = 1;
+            else
+            renderGrid.AtCoords(new Vec2i(i, j)).Value = 0;*/
+                
         });
     }
 
