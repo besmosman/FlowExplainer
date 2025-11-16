@@ -98,6 +98,14 @@ public class DataService : WorldService
 
         VectorField.OnImGuiEdit();
 
+        if (ImGui.BeginCombo("Dataset", LoadedDataset.Name))
+        {
+            foreach (var v in GetRequiredGlobalService<DatasetsService>().Datasets)
+                if (ImGui.Selectable(v.Key))
+                    SetDataset(v.Key);
+            ImGui.EndCombo();
+        }
+
         if (ImGui.BeginCombo("Scaler Field", currentSelectedScaler))
         {
             foreach (var v in LoadedDataset.ScalerFields)

@@ -6,20 +6,23 @@ namespace FlowExplainer;
 public class StochasticPoincare : WorldService
 {
     public IVectorField<Vec3, Vec2> VectorField;
-    
+
     public struct Particle
     {
+        public double Timealive;
+        public double T;
         public Vec2 Position;
     }
 
     public Particle[] Particles;
     public int Count = 100000;
 
-    public double dt = 0.001;
+    public double dt = 0.01;
     public double RenderRadius = .008f;
 
     public double alpha = .1f;
     public bool reverse;
+    public double RespawnChance = .01f;
     public override ToolCategory Category => ToolCategory.Flow;
 
     public override void Initialize()
@@ -27,10 +30,7 @@ public class StochasticPoincare : WorldService
         var dat = GetRequiredWorldService<DataService>();
 
         Particles = new Particle[Count];
-        for (int i = 0; i < Count; i++)
-        {
-            Particles[i].Position = Utils.Random(dat.VectorField.Domain.RectBoundary).XY;
-        }
+        Reset();
     }
 
 
@@ -51,8 +51,7 @@ public class StochasticPoincare : WorldService
         var dat = GetRequiredWorldService<DataService>();
         var advection = dat.VectorField;
         var advectionR = new ArbitraryField<Vec3, Vec2>(dat.VectorField.Domain, p => -advection.Evaluate(p));
-        var Pe = 100;
-        var t = dat.SimulationTime;
+        var Pe = 1000000;
 
         double sqrt = double.Sqrt((2 * dt) / Pe);
         var domainRectBoundary = dat.VectorField.Domain.RectBoundary;
@@ -60,27 +59,26 @@ public class StochasticPoincare : WorldService
         Parallel.For(0, Particles.Length, (i) =>
         {
             ref var p = ref Particles[i];
-            if (Random.Shared.NextSingle() > .99f)
+            p.Timealive += dt;
+            if (Random.Shared.NextSingle() < RespawnChance)
             {
-                while (true)
+                Particles[i].Position = Utils.Random(domainRectBoundary).XY;
+                Particles[i].Timealive = 0;
+                /*var max = .24f;
+                var min = -.24f;
+                if (Random.Shared.NextSingle()< dat.ScalerField.Evaluate(Particles[i].Position.Up(.4f)))
                 {
-                    Particles[i].Position = Utils.Random(domainRectBoundary).XY;
-                    var max = .8f;
-                    var min = -.8f;
-                    if (Random.Shared.NextSingle() * (max - min) + min < dat.ScalerField.Evaluate(Particles[i].Position.Up(t)))
-                    {
-                        break;
-                    }
-                }
+                    break;
+                }*/
             }
 
             if (reverse)
-                p.Position = rk4.Integrate(advectionR, p.Position.Up(t), dt);
+                p.Position = rk4.Integrate(advectionR, p.Position.Up(1), dt);
             else
-                p.Position = rk4.Integrate(advection, p.Position.Up(t), dt);
+                p.Position = rk4.Integrate(advection, p.Position.Up(Particles[i].T), dt);
             //p.Position += Vec2.Normalize(advectionR.Evaluate(p.Position.Up(t))) * dt;
             //p.Position += sqrt * RandomWienerVector();
-            p.Position = advection.Domain.Bounding.Bound(p.Position.Up(t)).XY;
+            p.Position = advection.Domain.Bounding.Bound(p.Position.Up(Particles[i].T)).XY;
         });
     }
 
@@ -96,34 +94,47 @@ public class StochasticPoincare : WorldService
         foreach (var p in Particles)
         {
             var color = new Color(1, 1, 1, 1f);
-            Gizmos2D.Instanced.RegisterCircle(p.Position, RenderRadius / 10, new Color(1, 1, 1, alpha));
+            var c = p.T / dat.VectorField.Domain.RectBoundary.Max.Last;
+            color.R = (float)c;
+            color.G = (float)c;
+            color.A = (float)alpha * MathF.Min(1, (float)p.Timealive/10);
+            Gizmos2D.Instanced.RegisterCircle(p.Position, RenderRadius / 10, color);
         }
 
         Gizmos2D.Instanced.RenderCircles(view.Camera2D);
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+        return;
     }
 
     public override void DrawImGuiEdit()
     {
-        
         ImGui.BeginGroup();
-        
+
         ImGui.EndGroup();
-        
+
         if (ImGui.Button("Reset"))
         {
-            var dat = GetRequiredWorldService<DataService>();
-            Particles = new Particle[Count];
-            for (int i = 0; i < Count; i++)
-            {
-                Particles[i].Position = Utils.Random(dat.VectorField.Domain.RectBoundary).XY;
-            }
+            Reset();
         }
 
+        ImGuiHelpers.SliderInt("Particle Count", ref Count, 1, 100000);
         ImGuiHelpers.SliderFloat("dt", ref dt, 0, .1f);
+        ImGuiHelpers.SliderFloat("Respawn Rate", ref RespawnChance, 0, .1f);
         ImGuiHelpers.SliderFloat("Render Radius", ref RenderRadius, 0, .1f);
         ImGuiHelpers.SliderFloat("Alpha", ref alpha, 0, .1f);
         ImGui.Checkbox("Reverse", ref reverse);
         base.DrawImGuiEdit();
+    }
+
+    private void Reset()
+    {
+        var dat = GetRequiredWorldService<DataService>();
+        Particles = new Particle[Count];
+        for (int i = 0; i < Count; i++)
+        {
+            Particles[i].Position = Utils.Random(dat.VectorField.Domain.RectBoundary).XY;
+            Particles[i].T = (Random.Shared.NextDouble() ) * dat.VectorField.Domain.RectBoundary.Max.Last;
+            Particles[i].Timealive = 0;
+        }
     }
 }

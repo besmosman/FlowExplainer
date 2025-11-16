@@ -14,7 +14,7 @@ public static class Scripting
         // ComputeSpeetjensFields("speetjens-computed-fields");
         // MakeDatasetPeriodic(world);
         //world.GetWorldService<DataService>().currentSelectedVectorField = "Total Flux";
-        world.GetWorldService<CriticalPointIdentifier>().Enable();
+        //world.GetWorldService<CriticalPointIdentifier>().Enable();
         //world.GetWorldService<StochasticPoincare>().Enable();
 
         //MakeDatasetPeriodic(world);
