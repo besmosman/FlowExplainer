@@ -7,9 +7,8 @@ using GL = OpenTK.Graphics.OpenGL.GL;
 
 namespace FlowExplainer;
 
-//Implementation of https://en.wikipedia.org/wiki/Bickley_jet 
 
-public class FlowFieldVisualizer : WorldService, IAxisTitle
+public class FlowArrowVisualizer : WorldService, IAxisTitle
 {
     public override void DrawImGuiEdit()
     {

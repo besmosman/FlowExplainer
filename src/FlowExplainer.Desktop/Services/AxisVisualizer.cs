@@ -62,7 +62,7 @@ public class AxisVisualizer : WorldService
                     title += $"{gridVisualizer.GetTitle()} ({dat.currentSelectedScaler.Replace("Temperature2", "").Trim()})";
                 }
 
-                if (GetWorldService<FlowFieldVisualizer>().IsEnabled || GetWorldService<FlowDirectionVisualization>().IsEnabled)
+                if (GetWorldService<FlowArrowVisualizer>().IsEnabled || GetWorldService<FlowDirectionVisualization>().IsEnabled)
                 {
                     title += $" + {dat.currentSelectedVectorField.Replace("Temperature", "").Trim()} field";
                 }

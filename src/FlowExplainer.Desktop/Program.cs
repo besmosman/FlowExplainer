@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using System.Globalization;
+using Newtonsoft.Json.Linq;
 
 namespace FlowExplainer
 {
@@ -35,6 +36,7 @@ namespace FlowExplainer
     {
         static void Main(string[] _)
         {
+            CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
             if (File.Exists("config.json"))
                 Config.Load("config.json");
             else

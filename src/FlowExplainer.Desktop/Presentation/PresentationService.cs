@@ -78,6 +78,7 @@ public class PresentationService : GlobalService
             ToggleFullScreen();
     }
 
+    private List<Vec2> highlighted = new();
     public override void Draw()
     {
         var window = FlowExplainer.GetGlobalService<WindowService>()!.Window;
@@ -92,6 +93,16 @@ public class PresentationService : GlobalService
                 StartPresenting();
             else
                 PausePresenting();
+        }
+
+        if (window.IsMouseButtonDown(MouseButton.Right))
+        {
+            if (Vec2.Distance(highlighted.LastOrDefault(), PresiView.MousePosition) > 3)
+                highlighted.Add(PresiView.MousePosition);
+        }
+        else
+        {
+            highlighted.Clear();
         }
 
 
@@ -123,6 +134,14 @@ public class PresentationService : GlobalService
             {
                 ToggleFullScreen();
             }
+
+            for (int i = 0; i < highlighted.Count - 1; i++)
+            {
+                var vec2 = highlighted[i];
+                var dir = highlighted[i + 1] - vec2; 
+                Gizmos2D.Instanced.RegisterLine(highlighted[i] -dir/10, highlighted[i + 1], new Color(1, 0, 0, 1), 10f);
+            }
+            Gizmos2D.Instanced.RenderRects(presiView.Camera2D);
         }
     }
     private void ToggleFullScreen()

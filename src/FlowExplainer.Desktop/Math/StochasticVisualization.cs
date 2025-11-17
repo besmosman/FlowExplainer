@@ -3,10 +3,8 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
 
-public class StochasticPoincare : WorldService
+public class StochasticVisualization : WorldService
 {
-    public IVectorField<Vec3, Vec2> VectorField;
-
     public struct Particle
     {
         public double Timealive;
@@ -22,7 +20,11 @@ public class StochasticPoincare : WorldService
 
     public double alpha = .1f;
     public bool reverse;
+    public bool fadeIn = true;
     public double RespawnChance = .01f;
+    public bool additiveBlending = true;
+    public bool FixedT = true;
+    public bool ColorByGradient = false;
     public override ToolCategory Category => ToolCategory.Flow;
 
     public override void Initialize()
@@ -59,7 +61,7 @@ public class StochasticPoincare : WorldService
         Parallel.For(0, Particles.Length, (i) =>
         {
             ref var p = ref Particles[i];
-            p.Timealive += dt;
+            p.Timealive += dat.FlowExplainer.DeltaTime;
             if (Random.Shared.NextSingle() < RespawnChance)
             {
                 Particles[i].Position = Utils.Random(domainRectBoundary).XY;
@@ -72,33 +74,57 @@ public class StochasticPoincare : WorldService
                 }*/
             }
 
+            var t = dat.SimulationTime;
+            if (!FixedT)
+                t = Particles[i].T;
+
             if (reverse)
-                p.Position = rk4.Integrate(advectionR, p.Position.Up(1), dt);
+                p.Position = rk4.Integrate(advectionR, p.Position.Up(t), dt);
             else
-                p.Position = rk4.Integrate(advection, p.Position.Up(Particles[i].T), dt);
+                p.Position = rk4.Integrate(advection, p.Position.Up(t), dt);
             //p.Position += Vec2.Normalize(advectionR.Evaluate(p.Position.Up(t))) * dt;
             //p.Position += sqrt * RandomWienerVector();
-            p.Position = advection.Domain.Bounding.Bound(p.Position.Up(Particles[i].T)).XY;
+            p.Position = advection.Domain.Bounding.Bound(p.Position.Up(t)).XY;
         });
     }
 
+    private bool lastReverse = false;
+
     public override void Draw(RenderTexture rendertarget, View view)
     {
+        if (lastReverse != reverse)
+        {
+            lastReverse = reverse;
+            Reset();
+        }
         var dat = GetRequiredWorldService<DataService>();
         Step(dt);
 
         if (!view.Is2DCamera)
             return;
-        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
+
+        if (additiveBlending)
+            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
+
+        if (!FixedT)
+            GL.BlendFuncSeparate(
+                BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha,
+                BlendingFactorSrc.One, BlendingFactorDest.One
+            );
 
         foreach (var p in Particles)
         {
-            var color = new Color(1, 1, 1, 1f);
             var c = p.T / dat.VectorField.Domain.RectBoundary.Max.Last;
-            color.R = (float)c;
-            color.G = (float)c;
-            color.A = (float)alpha * MathF.Min(1, (float)p.Timealive/10);
-            Gizmos2D.Instanced.RegisterCircle(p.Position, RenderRadius / 10, color);
+            var color = Color.White;
+
+            if (ColorByGradient)
+            {
+                color = dat.ColorGradient.GetCached(c);
+            }
+            color.A = (float)alpha;
+            if (fadeIn)
+                color.A *= MathF.Min(1, (float)p.Timealive / 8);
+            Gizmos2D.Instanced.RegisterCircle(p.Position, RenderRadius, color);
         }
 
         Gizmos2D.Instanced.RenderCircles(view.Camera2D);
@@ -122,7 +148,8 @@ public class StochasticPoincare : WorldService
         ImGuiHelpers.SliderFloat("Respawn Rate", ref RespawnChance, 0, .1f);
         ImGuiHelpers.SliderFloat("Render Radius", ref RenderRadius, 0, .1f);
         ImGuiHelpers.SliderFloat("Alpha", ref alpha, 0, .1f);
-        ImGui.Checkbox("Reverse", ref reverse);
+        
+        ImGui.Checkbox("Locked t", ref FixedT);
         base.DrawImGuiEdit();
     }
 
@@ -133,7 +160,7 @@ public class StochasticPoincare : WorldService
         for (int i = 0; i < Count; i++)
         {
             Particles[i].Position = Utils.Random(dat.VectorField.Domain.RectBoundary).XY;
-            Particles[i].T = (Random.Shared.NextDouble() ) * dat.VectorField.Domain.RectBoundary.Max.Last;
+            Particles[i].T = (Random.Shared.NextDouble()) * dat.VectorField.Domain.RectBoundary.Max.Last;
             Particles[i].Timealive = 0;
         }
     }

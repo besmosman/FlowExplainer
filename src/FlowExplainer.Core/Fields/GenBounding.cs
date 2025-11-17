@@ -52,7 +52,11 @@ public partial class GenBounding<Vec> : IBounding<Vec> where Vec : IVec<Vec>
                     };
                     break;
                 case BoundaryType.Fixed:
-                    wraps[i] = static (r, i, x) => double.Clamp(x, r.Min[i], r.Max[i]);
+                    wraps[i] = static (r, i, x) =>
+                    {
+
+                        return double.Clamp(x, r.Min[i], r.Max[i]);
+                    };
                     break;
                 case BoundaryType.ReflectiveNeumann:
                     wraps[i] = static (r, i, x) =>

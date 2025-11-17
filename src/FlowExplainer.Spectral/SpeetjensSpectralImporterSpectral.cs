@@ -17,7 +17,7 @@ public static class SpeetjensSpectralImporterSpectral
         {
             if (p.Contains("NoFlow") == noFlow)
             {
-                var range = (p.IndexOf("t=", StringComparison.InvariantCulture) + 2)..(p.IndexOf("EPS", StringComparison.InvariantCulture));
+                var range = (p.IndexOf("t=", StringComparison.InvariantCulture) + 2)..(p.IndexOf("_EPS", StringComparison.InvariantCulture));
                 string tString = p[range];
                 var t = double.Parse(tString, CultureInfo.InvariantCulture);
 

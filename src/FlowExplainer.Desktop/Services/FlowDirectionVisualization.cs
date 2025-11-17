@@ -160,7 +160,7 @@ public class FlowDirectionVisualization : WorldService
                 double distanceSquared = Vec2.DistanceSquared(span[0], span[span.Length - 1]);
                 if (distanceSquared < .00005f)
                 {
-                    color.A *= (float)distanceSquared / .00005f;
+                //    color.A *= (float)distanceSquared / .00005f;
                 }
                     StreamTube(view.Camera2D, span, color, thickness);
                 

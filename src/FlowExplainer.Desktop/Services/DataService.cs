@@ -19,7 +19,7 @@ public class DataService : WorldService
     public ColorGradient ColorGradient { get; set; } = Gradients.GetGradient("matlab_parula");
     public double SimulationTime;
 
-    public double TimeMultiplier = .06f;
+    public double TimeMultiplier = 0;
 
     public override ToolCategory Category => ToolCategory.Data;
 
@@ -71,7 +71,10 @@ public class DataService : WorldService
     {
         LoadedDataset = GetRequiredGlobalService<DatasetsService>().Datasets[name];
         if (!LoadedDataset.Loaded)
+        {
             LoadedDataset.Load(LoadedDataset);
+            LoadedDataset.Loaded = true;
+        }
     }
 
     public override void Draw(RenderTexture rendertarget, View view)

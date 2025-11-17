@@ -107,7 +107,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
                 Resize();
             }
 
-            if (Continous)
+            if (Continous || MarkDirty)
             {
                 ResetGridUpdateTask();
                 while (!currentUpdateTask.IsCompleted && currentUpdateGridTime.Elapsed.TotalSeconds < 1 / 2f)

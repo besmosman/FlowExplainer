@@ -2,6 +2,7 @@ using System.Data;
 using System.Globalization;
 using System.Numerics;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace FlowExplainer;
 
@@ -9,9 +10,34 @@ public static class Scripting
 {
     public static void Startup(World world)
     {
-        SetGyreDataset(world);
+        
+        string datasetPath = Config.GetValue<string>("spectral-data-path")!;
+        //RebuildSpeetjensDatasets(datasetPath);
+        
+        
+        var datasetsService = world.FlowExplainer.GetGlobalService<DatasetsService>();
+        foreach (var d in datasetsService.Datasets.ToList())
+        {
+            var cop = d.Value.Clone();
 
-        // ComputeSpeetjensFields("speetjens-computed-fields");
+            cop.Load = dataset =>
+            {
+                d.Value.Load(dataset);
+                MakeDatasetPeriodic(dataset, 5, 1);
+            };
+            
+            cop.Properties["Name"] = "(P) " + cop.Properties["Name"];
+            datasetsService.Datasets.Add(cop.Name, cop);
+        }
+        
+
+        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new StochasticPresentation());
+        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+        SetGyreDataset(world);
+     
+
+     
+
         // MakeDatasetPeriodic(world);
         //world.GetWorldService<DataService>().currentSelectedVectorField = "Total Flux";
         //world.GetWorldService<CriticalPointIdentifier>().Enable();
@@ -150,10 +176,20 @@ public static class Scripting
     }*/
 
 
-    public static void MakeDatasetPeriodic(Dataset dat)
+    public static void RebuildSpeetjensDatasets(string folder)
     {
-        double t = 5;
-        double period = 1;
+        foreach (var datasetFolder in Directory.GetDirectories(folder))
+        {
+            string outputPath = Path.Combine("Datasets", $"Speetjens-{Path.GetFileName(datasetFolder)}");
+            if (Directory.Exists(outputPath))
+                Directory.Delete(outputPath, true);
+
+            ComputeSpeetjensDataset(datasetFolder, outputPath);
+        }
+    }
+
+    public static void MakeDatasetPeriodic(Dataset dat, float t, float period)
+    {
         foreach (var p in dat.VectorFields.ToList())
         {
             var domain = new RectDomain<Vec3>(p.Value.Domain.RectBoundary, p.Value.Domain.Bounding);
@@ -161,7 +197,7 @@ public static class Scripting
             dat.VectorFields[p.Key] = new ArbitraryField<Vec3, Vec2>(domain, c =>
             {
                 var pPeriodic = c;
-                pPeriodic.Z = pPeriodic.Last % 1 + 5f;
+                pPeriodic.Z = pPeriodic.Last % period + t;
                 return p.Value.Evaluate(pPeriodic);
             });
         }
@@ -173,23 +209,26 @@ public static class Scripting
             dat.ScalerFields[p.Key] = new ArbitraryField<Vec3, double>(domain, c =>
             {
                 var pPeriodic = c;
-                pPeriodic.Z = pPeriodic.Last % 1 + 5f;
+                pPeriodic.Z = pPeriodic.Last % period + t;
                 return p.Value.Evaluate(pPeriodic);
             });
         }
     }
 
-    private static void ComputeSpeetjensFields(string folder)
+    private static void ComputeSpeetjensDataset(string tspFolder, string outputFieldsFolder)
     {
-        string datasetPath = Config.GetValue<string>("spectral-data-path")!;
-        var tempTot = SpeetjensSpectralImporterSpectral.Load(datasetPath, false); //TspTOT
-        var tempNoFlow = SpeetjensSpectralImporterSpectral.Load(datasetPath, true); //TDIFFspTOT
+        var tempTot = SpeetjensSpectralImporterSpectral.Load(tspFolder, false); //TspTOT
+        var tempNoFlow = SpeetjensSpectralImporterSpectral.Load(tspFolder, true); //TDIFFspTOT
 
-        var P = 32;
-        var Pe = 100;
+
+        var name = Path.GetFileName(Directory.GetFiles(tspFolder).First());
+        var parts = name.Split('_');
+        var Pe = double.Parse(parts.Single(p => p.StartsWith("Pe=")).Split('=')[1], CultureInfo.InvariantCulture);
+        var Epsilon = double.Parse(parts.Single(p => p.StartsWith("EPS=")).Split('=')[1], CultureInfo.InvariantCulture);
+        var P = int.Parse(parts[1].Split('x')[1]);
 
         var velocityField = new SpeetjensVelocityField();
-        velocityField.epsilon = .1f;
+        velocityField.epsilon = Epsilon;
 
         //T' = T - T_DIFF:
         //TCONVspTOT = TspTOT-TDIFFspTOT;
@@ -218,15 +257,23 @@ public static class Scripting
         var gridSize = new Vec3i(64, 32, diffFluxX.Usps.GridSize.Z);
         // var gridSize = new Vec3i(64, 32, 5);
         //var gridSize = new Vec3i(32, 16, diffFluxX.Usps.GridSize.Z / 8);  
-        if (!Directory.Exists(folder))
-            Directory.CreateDirectory(folder);
+        if (!Directory.Exists(outputFieldsFolder))
+            Directory.CreateDirectory(outputFieldsFolder);
 
-        DiscretizeAndSave(Path.Combine(folder, "diffFlux.field"), gridSize, diffFlux);
-        DiscretizeAndSave(Path.Combine(folder, "tempTot.field"), gridSize, tempTot);
-        DiscretizeAndSave(Path.Combine(folder, "tempConvection.field"), gridSize, tempConvection);
-        DiscretizeAndSave(Path.Combine(folder, "tempNoFlow.field"), gridSize, tempNoFlow);
-        DiscretizeAndSave(Path.Combine(folder, "convectiveHeatFlux.field"), gridSize, convectiveHeatFlux);
+        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "diffFlux.field"), gridSize, diffFlux);
+        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "tempTot.field"), gridSize, tempTot);
+        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "tempConvection.field"), gridSize, tempConvection);
+        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "tempNoFlow.field"), gridSize, tempNoFlow);
+        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "convectiveHeatFlux.field"), gridSize, convectiveHeatFlux);
 
+        Dictionary<string, string> props = new Dictionary<string, string>();
+        props.Add("Pe", Pe.ToString(CultureInfo.InvariantCulture));
+        props.Add("EPS", Epsilon.ToString(CultureInfo.InvariantCulture));
+        props.Add("P", P.ToString(CultureInfo.InvariantCulture));
+        props.Add("Name", $"Double Gyre EPS={Epsilon}, Pe={Pe}");
+
+        var ser = JsonConvert.SerializeObject(props, Formatting.Indented);
+        File.WriteAllText(Path.Combine(outputFieldsFolder, "properties.json"), ser);
 
         void DiscretizeAndSave<TData>(string path, Vec3i gridSize, IVectorField<Vec3, TData> field)
             where TData : IMultiplyOperators<TData, double, TData>, IAdditionOperators<TData, TData, TData>

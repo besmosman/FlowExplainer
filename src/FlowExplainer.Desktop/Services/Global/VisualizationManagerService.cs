@@ -1,4 +1,6 @@
-﻿namespace FlowExplainer
+﻿using Newtonsoft.Json;
+
+namespace FlowExplainer
 {
     public class DatasetsService : GlobalService
     {
@@ -6,30 +8,38 @@
 
         public override void Initialize()
         {
-            var eps01 = new Dataset("Double Gyre eps=0.1", dataset =>
-            {
-                string fieldsFolder = "speetjens-computed-fields";
-                var DiffFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "diffFlux.field"));
-                var ConvFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "convectiveHeatFlux.field"));
-                var TempConvection = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
-                var TempTot = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
-                var TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));
-                var totalFlux = new ArbitraryField<Vec3, Vec2>(DiffFluxField.Domain, p => DiffFluxField.Evaluate(p) + ConvFluxField.Evaluate(p));
-                var velocityField = new SpeetjensVelocityField()
+            if (Directory.Exists("Datasets"))
+                foreach (var fieldsFolder in Directory.GetDirectories("Datasets"))
                 {
-                    epsilon = .1f,
-                };
-                dataset.VectorFields.Clear();
-                dataset.ScalerFields.Clear();
-                dataset.VectorFields.Add("Velocity", velocityField);
-                dataset.VectorFields.Add("Diffusion Flux", DiffFluxField);
-                dataset.VectorFields.Add("Convection Flux", ConvFluxField);
-                dataset.VectorFields.Add("Total Flux", totalFlux);
-                dataset.ScalerFields.Add("Total Temperature", TempTot);
-                dataset.ScalerFields.Add("Convective Temperature", TempConvection);
-                dataset.ScalerFields.Add("No Flow Temperature", TempTotNoFlow);
-            });
-            Datasets.Add(eps01.Name, eps01);
+                    var props = JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(Path.Combine(fieldsFolder, "properties.json")));
+                    if (props != null)
+                    {
+                        props.TryAdd("Name", "?");
+                        var data = new Dataset(props, dataset =>
+                        {
+                            var DiffFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "diffFlux.field"));
+                            var ConvFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "convectiveHeatFlux.field"));
+                            var TempConvection = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
+                            var TempTot = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
+                            var TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));
+                            var totalFlux = new ArbitraryField<Vec3, Vec2>(DiffFluxField.Domain, p => DiffFluxField.Evaluate(p) + ConvFluxField.Evaluate(p));
+                            var velocityField = new SpeetjensVelocityField()
+                            {
+                                epsilon = double.Parse(props!["EPS"]),
+                            };
+                            dataset.VectorFields.Add("Velocity", velocityField);
+                            dataset.VectorFields.Add("Diffusion Flux", DiffFluxField);
+                            dataset.VectorFields.Add("Convection Flux", ConvFluxField);
+                            dataset.VectorFields.Add("Total Flux", totalFlux);
+                            dataset.ScalerFields.Add("Total Temperature", TempTot);
+                            dataset.ScalerFields.Add("Convective Temperature", TempConvection);
+                            dataset.ScalerFields.Add("No Flow Temperature", TempTotNoFlow);
+                        });
+
+                        Datasets.Add(data.Name, data);
+                    }
+                }
+            
         }
 
         public override void Draw()
@@ -77,10 +87,10 @@
             v.AddVisualisationService(new FlowDirectionVisualization());
             v.AddVisualisationService(new HeatSimulation3DVisualizer());
             v.AddVisualisationService(new HeatSimulationService());
-            v.AddVisualisationService(new StochasticPoincare());
+            v.AddVisualisationService(new StochasticVisualization());
             v.AddVisualisationService(new CriticalPointIdentifier());
             v.AddVisualisationService(new HeatSimulationReplayer());
-            v.AddVisualisationService(new FlowFieldVisualizer());
+            v.AddVisualisationService(new FlowArrowVisualizer());
             v.AddVisualisationService(new PoincareVisualizer());
             v.AddVisualisationService(new AxisVisualizer()
             {

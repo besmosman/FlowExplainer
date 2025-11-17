@@ -41,6 +41,8 @@ namespace FlowExplainer
             Services.Remove(service);
         }
 
+        public DataService DataService => GetWorldService<DataService>();
+
         public T GetWorldService<T>() where T : WorldService
         {
             foreach (var s in Services)

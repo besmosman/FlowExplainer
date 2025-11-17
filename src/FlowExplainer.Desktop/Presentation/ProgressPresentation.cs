@@ -2,7 +2,7 @@ namespace FlowExplainer;
 
 public class ProgressPresentation : Presentation
 {
-    
+
     public class SmearSlide : Slide
     {
         public ImageTexture Image = new ImageTexture("Assets/Images/presi/smear.png");
@@ -42,7 +42,7 @@ public class ProgressPresentation : Presentation
         }
     }
 
-    
+
     public class CoherentPointPhase3DSlide : Phase3DSlide
     {
         public override string Title => "Coherent trajectory";
@@ -187,7 +187,7 @@ public class ProgressPresentation : Presentation
     {
         return
         [
-          
+
             new MixingSlide(),
             new CoherentPointPhase3DSlide(),
             new ChaosPointPhase3DSlide(),

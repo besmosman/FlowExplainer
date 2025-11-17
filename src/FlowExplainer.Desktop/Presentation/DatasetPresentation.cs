@@ -42,8 +42,8 @@ public class DatasetPresentation2 : Presentation
     {
         public override void OnEnter()
         {
-            Presi.GetView("v0").World.GetWorldService<FlowFieldVisualizer>().Enable();
-            Presi.GetView("v0").World.GetWorldService<FlowFieldVisualizer>().colorByGradient = true;
+            Presi.GetView("v0").World.GetWorldService<FlowArrowVisualizer>().Enable();
+            Presi.GetView("v0").World.GetWorldService<FlowArrowVisualizer>().colorByGradient = true;
             Presi.GetView("v0").World.GetWorldService<DataService>().ColorGradient = Gradients.Parula;
             Presi.GetView("v0").World.GetWorldService<DataService>().TimeMultiplier = .4f;
             Presi.GetView("v0").World.GetWorldService<DataService>().SimulationTime = .0f;
@@ -86,7 +86,7 @@ public class DatasetPresentation2 : Presentation
 
         public override void OnEnter()
         {
-            Presi.GetView("v0").World.GetWorldService<FlowFieldVisualizer>().Disable();
+            Presi.GetView("v0").World.GetWorldService<FlowArrowVisualizer>().Disable();
             //Presi.GetView("v0").World.GetWorldService<DataService>().ColorGradient = Gradients.GetGradient("BlueGrayRed");
             Presi.GetView("v0").World.GetWorldService<DataService>().SimulationTime = .0f;
             Presi.GetView("v0").World.GetWorldService<DataService>().TimeMultiplier = .0f;
@@ -191,10 +191,10 @@ public class DatasetPresentation2 : Presentation
             dat.TimeMultiplier = .0f;
             dat.currentSelectedVectorField = "Convection Flux";
             dat.currentSelectedScaler = "Convective Temperature";
-            var flowFieldVisualizer = world.GetWorldService<FlowFieldVisualizer>();
+            var flowFieldVisualizer = world.GetWorldService<FlowArrowVisualizer>();
             flowFieldVisualizer.Enable();
             flowFieldVisualizer.colorByGradient = false;
-            Presi.GetView("v0").World.GetWorldService<FlowFieldVisualizer>().Disable();
+            Presi.GetView("v0").World.GetWorldService<FlowArrowVisualizer>().Disable();
             base.Load();
         }
 
@@ -231,7 +231,7 @@ public class DatasetPresentation2 : Presentation
             dat.TimeMultiplier = .0f;
             dat.currentSelectedVectorField = "Diffusion Flux";
             dat.currentSelectedScaler = "Convective Temperature";
-            var flowFieldVisualizer = world.GetWorldService<FlowFieldVisualizer>();
+            var flowFieldVisualizer = world.GetWorldService<FlowArrowVisualizer>();
             flowFieldVisualizer.Disable();
             flowFieldVisualizer.colorByGradient = false;
             base.Load();
@@ -270,7 +270,7 @@ public class DatasetPresentation2 : Presentation
                 dat.currentSelectedVectorField = "Velocity";
             }
 
-            w0.GetWorldService<FlowFieldVisualizer>().Disable();
+            w0.GetWorldService<FlowArrowVisualizer>().Disable();
             w1.GetWorldService<DataService>().currentSelectedScaler = "Total Temperature";
             w0.GetWorldService<DataService>().currentSelectedScaler = "Convective Temperature";
             w2.GetWorldService<DataService>().currentSelectedScaler = "No Flow Temperature";
@@ -404,7 +404,7 @@ public class DatasetPresentation2 : Presentation
         w0.GetWorldService<DataService>().currentSelectedVectorField = "Diffusion Flux";
         w0.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
 
-        w0.GetWorldService<FlowFieldVisualizer>().Enable();
+        w0.GetWorldService<FlowArrowVisualizer>().Enable();
 
         w1.GetWorldService<DataService>().currentSelectedScaler = "Total Temperature";
         presentationService.Presi.GetView("v0").World = w0;
@@ -453,8 +453,8 @@ public class DatasetPresentation : Presentation
     {
         public override void OnEnter()
         {
-            Presi.GetView("v0").World.GetWorldService<FlowFieldVisualizer>().Enable();
-            Presi.GetView("v0").World.GetWorldService<FlowFieldVisualizer>().colorByGradient = true;
+            Presi.GetView("v0").World.GetWorldService<FlowArrowVisualizer>().Enable();
+            Presi.GetView("v0").World.GetWorldService<FlowArrowVisualizer>().colorByGradient = true;
             Presi.GetView("v0").World.GetWorldService<DataService>().ColorGradient = Gradients.Parula;
             Presi.GetView("v0").World.GetWorldService<DataService>().TimeMultiplier = .4f;
             Presi.GetView("v0").World.GetWorldService<DataService>().SimulationTime = .0f;
@@ -497,7 +497,7 @@ public class DatasetPresentation : Presentation
 
         public override void OnEnter()
         {
-            Presi.GetView("v0").World.GetWorldService<FlowFieldVisualizer>().Disable();
+            Presi.GetView("v0").World.GetWorldService<FlowArrowVisualizer>().Disable();
             //Presi.GetView("v0").World.GetWorldService<DataService>().ColorGradient = Gradients.GetGradient("BlueGrayRed");
             Presi.GetView("v0").World.GetWorldService<DataService>().SimulationTime = .0f;
             Presi.GetView("v0").World.GetWorldService<DataService>().TimeMultiplier = .0f;
@@ -599,7 +599,7 @@ public class DatasetPresentation : Presentation
             dat.TimeMultiplier = .0f;
             dat.currentSelectedVectorField = "Convection Flux";
             dat.currentSelectedScaler = "Convective Temperature";
-            var flowFieldVisualizer = world.GetWorldService<FlowFieldVisualizer>();
+            var flowFieldVisualizer = world.GetWorldService<FlowArrowVisualizer>();
             flowFieldVisualizer.Enable();
             flowFieldVisualizer.colorByGradient = false;
             base.Load();
@@ -633,7 +633,7 @@ public class DatasetPresentation : Presentation
             dat.TimeMultiplier = .0f;
             dat.currentSelectedVectorField = "Diffusion Flux";
             dat.currentSelectedScaler = "Convective Temperature";
-            var flowFieldVisualizer = world.GetWorldService<FlowFieldVisualizer>();
+            var flowFieldVisualizer = world.GetWorldService<FlowArrowVisualizer>();
             flowFieldVisualizer.Enable();
             flowFieldVisualizer.colorByGradient = false;
             base.Load();
@@ -671,7 +671,7 @@ public class DatasetPresentation : Presentation
                 dat.currentSelectedVectorField = "Velocity";
             }
 
-            w0.GetWorldService<FlowFieldVisualizer>().Disable();
+            w0.GetWorldService<FlowArrowVisualizer>().Disable();
             w1.GetWorldService<DataService>().currentSelectedScaler = "Total Temperature";
             w0.GetWorldService<DataService>().currentSelectedScaler = "Convective Temperature";
             w2.GetWorldService<DataService>().currentSelectedScaler = "No Flow Temperature";
@@ -749,7 +749,7 @@ public class DatasetPresentation : Presentation
         w0.GetWorldService<DataService>().currentSelectedVectorField = "Diffusion Flux";
         w0.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
 
-        w0.GetWorldService<FlowFieldVisualizer>().Enable();
+        w0.GetWorldService<FlowArrowVisualizer>().Enable();
 
         w1.GetWorldService<DataService>().currentSelectedScaler = "Total Temperature";
         presentationService.Presi.GetView("v0").World = w0;
