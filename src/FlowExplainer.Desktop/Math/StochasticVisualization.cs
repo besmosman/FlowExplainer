@@ -150,6 +150,7 @@ public class StochasticVisualization : WorldService
         ImGuiHelpers.SliderFloat("Alpha", ref alpha, 0, .1f);
         
         ImGui.Checkbox("Locked t", ref FixedT);
+        ImGui.Checkbox("Color by Gradient", ref ColorByGradient);
         base.DrawImGuiEdit();
     }
 

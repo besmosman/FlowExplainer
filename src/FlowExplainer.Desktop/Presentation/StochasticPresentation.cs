@@ -142,7 +142,7 @@ public class StochasticPresentation : Presentation
                 stochasticPoincare.dt *= 2;
             stochasticPoincare.alpha = 1;
             stochasticPoincare.additiveBlending = false;
-            stochasticPoincare.fadeIn = false;
+            //stochasticPoincare.fadeIn = false;
             stochasticPoincare.RenderRadius = .004f;
             stochasticPoincare.ColorByGradient = false;
             stochasticPoincare.Initialize();
@@ -251,7 +251,7 @@ public class StochasticPresentation : Presentation
         {
             w0.GetWorldService<GridVisualizer>().Continous = true;
             LayoutMain();
-            Title("Unsteady Periodic Flow");
+            Title("Unsteady Periodic Flow t = [3..4]");
             var time2 = w0.DataService.SimulationTime % 1f + 3;
             Presi.Slider("time", ref time2, 0, 5, new Vec2(Presi.CanvasCenter.X, 100), 900);
             MainPanel(this);
