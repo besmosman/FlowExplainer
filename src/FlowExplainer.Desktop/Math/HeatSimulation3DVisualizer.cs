@@ -207,7 +207,6 @@ public class HeatSimulation3DVisualizer : WorldService
     private double heatfilterMax = 1;
     private double heatfilterMin;
     private double timeFilter;
-    public override ToolCategory Category => ToolCategory.Heat;
 
     public override void Initialize()
     {
@@ -219,7 +218,7 @@ public class HeatSimulation3DVisualizer : WorldService
     }
 
 
-    public override void DrawImGuiEdit()
+    public override void DrawImGuiSettings()
     {
         if (loaded.HasValue)
         {
@@ -235,7 +234,7 @@ public class HeatSimulation3DVisualizer : WorldService
             LoadHeatSim();
         }
 
-        base.DrawImGuiEdit();
+        base.DrawImGuiSettings();
     }
 
     public override void Draw(RenderTexture rendertarget, View view)

@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using System.Reflection;
+using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer
 {
@@ -23,7 +24,7 @@ namespace FlowExplainer
                 Services.Add(service);
             else
                 Services.Insert(index.Value, service);
-
+            
             service.FlowExplainer = FlowExplainer;
             service.World = this;
         }
@@ -35,10 +36,10 @@ namespace FlowExplainer
             AddVisualisationService(service, index);
         }
 
+        private List<WorldService> toRemove = new();
         public void RemoveWorldService(WorldService service)
         {
-            service.Deinitialize();
-            Services.Remove(service);
+            toRemove.Add(service);
         }
 
         public DataService DataService => GetWorldService<DataService>();
@@ -72,6 +73,13 @@ namespace FlowExplainer
 
         public void Update()
         {
+            foreach (var service in toRemove)
+            {
+                service.Deinitialize();
+                Services.Remove(service);
+            }
+            toRemove.Clear();
+            
             foreach (var service in Services)
                 if (service.IsEnabled)
                 {

@@ -4,12 +4,11 @@ namespace FlowExplainer;
 
 public class HeatSimulationReplayer : WorldService
 {
-    public override ToolCategory Category => ToolCategory.Heat;
     private HeatSimulation? loaded;
     private double time = 0;
     private double replaySpeed = 1;
 
-    public override void DrawImGuiEdit()
+    public override void DrawImGuiSettings()
     {
         if (ImGui.Button("Load"))
         {
@@ -23,7 +22,7 @@ public class HeatSimulationReplayer : WorldService
             ImGuiHelpers.SliderFloat("time", ref time, loaded.Value.States.First().Time, loaded.Value.States.Last().Time);
         }
 
-        base.DrawImGuiEdit();
+        base.DrawImGuiSettings();
     }
 
     public override void Initialize()

@@ -1,16 +1,10 @@
 using ImGuiNET;
-using OpenTK.Graphics.ES20;
-using OpenTK.Graphics.OpenGL;
-using OpenTK.Windowing.Common.Input;
-using SixLabors.ImageSharp;
-using GL = OpenTK.Graphics.OpenGL.GL;
 
 namespace FlowExplainer;
 
-
-public class FlowArrowVisualizer : WorldService, IAxisTitle
+public class ArrowVisualizer : WorldService, IAxisTitle
 {
-    public override void DrawImGuiEdit()
+    public override void DrawImGuiSettings()
     {
         var dat = GetRequiredWorldService<DataService>();
         var domainArea = dat.VectorField.Domain.RectBoundary.Size.X * dat.VectorField.Domain.RectBoundary.Size.Y;
@@ -21,7 +15,7 @@ public class FlowArrowVisualizer : WorldService, IAxisTitle
         ImGui.Checkbox("Color by gradient", ref colorByGradient);
         ImGuiHelpers.SliderFloat("Thickness", ref Thickness, 0, dat.VectorField.Domain.RectBoundary.Size.Length() / 10f);
         ImGui.Checkbox("Auto Resize", ref AutoResize);
-        base.DrawImGuiEdit();
+        base.DrawImGuiSettings();
     }
 
     public int GridCells = 250;
@@ -29,6 +23,12 @@ public class FlowArrowVisualizer : WorldService, IAxisTitle
     public double Thickness;
     public bool AutoResize = true;
     public bool colorByGradient = true;
+
+    public override string? Name => "Arrow Glyphs";
+    public override string? CategoryN => "Vectorfield";
+    public override string? Description => "Visualize a vectorfield using arrow glyphs";
+
+    public IVectorField<Vec3, Vec2>? AltVectorfield;
 
     public override void Initialize()
     {
@@ -42,7 +42,7 @@ public class FlowArrowVisualizer : WorldService, IAxisTitle
         var domainSize = domain.Size.Down();
         var domainArea = domainSize.X * domainSize.Y;
         var spacing = Math.Sqrt(domainArea / GridCells);
-        var maxDirLenght2 =0.0;
+        var maxDirLenght2 = 0.0;
         var gridSize = (domainSize / spacing).CeilInt();
         var cellSize = domainSize / gridSize.ToVec2();
         for (int x = 0; x < gridSize.X; x++)
@@ -114,6 +114,6 @@ public class FlowArrowVisualizer : WorldService, IAxisTitle
 
     public string GetTitle()
     {
-        return "Velocity Field";
+        return "Arrows (" + (AltVectorfield?.DisplayName ?? GetRequiredWorldService<DataService>().VectorField.DisplayName)+")";
     }
 }

@@ -13,6 +13,8 @@ public class AnalyticalEvolvingVelocityField : IVectorField<Vec3, Vec2>
     public double Period => (2f * Pi) / w;
     public IDomain<Vec3> Domain => new RectDomain<Vec3>(new Vec3(0, 0, 0), new Vec3(2, 1f, Period), BoundingFunctions.None<Vec3>());
 
+    public string DisplayName { get; set; } = "Double Gyre";
+
     public Vec3 Wrap(Vec3 x)
     {
         var r = x;

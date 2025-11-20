@@ -9,4 +9,6 @@ public abstract class GlobalService : Service
     /// Gets called every frame before executing rendertasks.
     /// </summary>
     public abstract void Draw();
+
+    public virtual void AfterDraw() {}
 }

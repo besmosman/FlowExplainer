@@ -25,10 +25,7 @@ public class ImGuiHelpers
         return false;
     }
 
-    public static bool VectorFieldSelector(ref IVectorField<Vec3, Vec2> vectorField)
-    {
-        return false;
-    }
+   
 
     public static bool SliderInt(string name, ref int f, int min, int max)
     {
@@ -45,6 +42,16 @@ public class ImGuiHelpers
     {
         LastMessage = name + ": " + value;
         MessageTime = DateTime.Now;
+    }
+
+    public static bool StartDataSection()
+    {
+        return ImGui.BeginPopup("data");
+    }
+
+    public static void EndDataSection()
+    {
+        ImGui.EndPopup();
     }
 
     public static bool Combo<T>(string name, ref T value) where T : struct, Enum

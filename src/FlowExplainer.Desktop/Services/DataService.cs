@@ -21,9 +21,12 @@ public class DataService : WorldService
 
     public double TimeMultiplier = 0;
 
-    public override ToolCategory Category => ToolCategory.Data;
 
     public double MultipliedDeltaTime { get; private set; }
+
+    public override string? Name => "Dataset";
+    public override string? CategoryN => "General";
+    public override string? Description => "Global dataset settings";
 
     public override void Initialize()
     {
@@ -94,7 +97,7 @@ public class DataService : WorldService
     }
 
 
-    public override void DrawImGuiEdit()
+    public override void DrawImGuiSettings()
     {
         ImGuiHelpers.SliderFloat("Time Multiplier", ref TimeMultiplier, 0, 10);
         ImGuiHelpers.SliderFloat("Time", ref SimulationTime, 0, LoadedDataset.ScalerFields[currentSelectedScaler].Domain.RectBoundary.Size.Z);
@@ -147,7 +150,7 @@ public class DataService : WorldService
         }
 
         ImGui.Columns(1);
-        base.DrawImGuiEdit();
+        base.DrawImGuiSettings();
     }
 
 

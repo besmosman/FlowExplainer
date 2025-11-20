@@ -8,13 +8,15 @@ public class Heat3DViewer : WorldService
     private List<(Vec3, double h)> particles = new();
     private RegularGridVectorField<Vec3, Vec3i, double> heat3d;
     private StorageBuffer<double> StorageBuffer;
-    public override ToolCategory Category => ToolCategory.Heat;
 
-    private Material mat = new Material(Shader.DefaultWorldSpaceVertex, new Shader("Assets/Shaders/volume.frag", ShaderType.FragmentShader));
+    private Material mat;
     public double zScale =2;
     public double depthScaling = 50;
+    
+    
     public override void Initialize()
     {
+        mat = new Material(Shader.DefaultWorldSpaceVertex, new Shader("Assets/Shaders/volume.frag", ShaderType.FragmentShader));
         //   heat3d = HeatSimulationToField.Convert(BinarySerializer.Load<HeatSimulation>("heat.sim"));
         //heat3d = SpeetjensSpectralImporter.Load("C:\\Users\\osman\\Downloads\\ScalarTransportBasicVersion\\ScalarTransportBasicVersion\\DataSet1");
         //heat3d = SpeetjensSpectralImporter.Load(Config.GetValue<string>("spectral-data-path"));
@@ -81,13 +83,13 @@ public class Heat3DViewer : WorldService
 
     private double heatfilterSize = 2;
     private double heatfilterTemp = 1;
-    public override void DrawImGuiEdit()
+    public override void DrawImGuiSettings()
     {
         ImGuiHelpers.SliderFloat("Filter Radius", ref heatfilterSize, 0, 2);
         ImGuiHelpers.SliderFloat("Filter Temperature", ref heatfilterTemp, 0, 2);
         ImGuiHelpers.SliderFloat("z Scale", ref zScale, 1, 10);
         ImGuiHelpers.SliderFloat("Depth Scaling", ref depthScaling, 1, 10_0);
-        base.DrawImGuiEdit();
+        base.DrawImGuiSettings();
     }
     /*private void Update()
     {

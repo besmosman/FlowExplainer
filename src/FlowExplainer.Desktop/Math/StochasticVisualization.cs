@@ -3,7 +3,21 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
 
-public class StochasticVisualization : WorldService
+public class Stochastic3DVisualization : WorldService
+{
+
+    public override void Initialize()
+    {
+
+    }
+
+    public override void Draw(RenderTexture rendertarget, View view)
+    {
+
+    }
+}
+
+public class StochasticVisualization : WorldService, IAxisTitle
 {
     public struct Particle
     {
@@ -13,8 +27,10 @@ public class StochasticVisualization : WorldService
     }
 
     public Particle[] Particles;
-    public int Count = 100000;
+    public int Count = 10000;
 
+    public IVectorField<Vec3, Vec2>? AltVectorfield;
+    public ColorGradient? AltGradient;
     public double dt = 0.01;
     public double RenderRadius = .008f;
 
@@ -25,7 +41,12 @@ public class StochasticVisualization : WorldService
     public bool additiveBlending = true;
     public bool FixedT = true;
     public bool ColorByGradient = false;
-    public override ToolCategory Category => ToolCategory.Flow;
+    public bool TimeIntegration = true;
+    
+
+    public override string? Name => "Stochastic Structures";
+    public override string? CategoryN => "Structure";
+    public override string? Description => "Visualize attracting/repelling regions using particle advection transparent rendering";
 
     public override void Initialize()
     {
@@ -50,13 +71,17 @@ public class StochasticVisualization : WorldService
 
     public void Step(double dt)
     {
+        if (Count != Particles.Length)
+            Reset();
+
         var dat = GetRequiredWorldService<DataService>();
-        var advection = dat.VectorField;
-        var advectionR = new ArbitraryField<Vec3, Vec2>(dat.VectorField.Domain, p => -advection.Evaluate(p));
+        var vectorfield = AltVectorfield ?? dat.VectorField;
+        var advection = vectorfield;
+        var advectionR = new ArbitraryField<Vec3, Vec2>(vectorfield.Domain, p => -advection.Evaluate(p));
         var Pe = 1000000;
 
         double sqrt = double.Sqrt((2 * dt) / Pe);
-        var domainRectBoundary = dat.VectorField.Domain.RectBoundary;
+        var domainRectBoundary = vectorfield.Domain.RectBoundary;
         var rk4 = IIntegrator<Vec3, Vec2>.Rk4;
         Parallel.For(0, Particles.Length, (i) =>
         {
@@ -78,10 +103,22 @@ public class StochasticVisualization : WorldService
             if (!FixedT)
                 t = Particles[i].T;
 
-            if (reverse)
-                p.Position = rk4.Integrate(advectionR, p.Position.Up(t), dt);
+            var r = reverse;
+            
+            if (TimeIntegration)
+            {
+                if (r)
+                    p.Position = rk4.Integrate(advectionR, p.Position.Up(t), dt);
+                else
+                    p.Position = rk4.Integrate(advection, p.Position.Up(t), dt);
+            }
             else
-                p.Position = rk4.Integrate(advection, p.Position.Up(t), dt);
+            {
+                if (r)
+                    p.Position = rk4.Integrate(advectionR, p.Position.Up(t), dt);
+                else
+                    p.Position = rk4.Integrate(advection, p.Position.Up(t), dt);
+            }
             //p.Position += Vec2.Normalize(advectionR.Evaluate(p.Position.Up(t))) * dt;
             //p.Position += sqrt * RandomWienerVector();
             p.Position = advection.Domain.Bounding.Bound(p.Position.Up(t)).XY;
@@ -98,7 +135,15 @@ public class StochasticVisualization : WorldService
             Reset();
         }
         var dat = GetRequiredWorldService<DataService>();
-        Step(dt);
+        if (TimeIntegration)
+        {
+            Step(dat.MultipliedDeltaTime);
+        }
+        else
+        {
+            Step(dt);
+        }
+
 
         if (!view.Is2DCamera)
             return;
@@ -112,14 +157,16 @@ public class StochasticVisualization : WorldService
                 BlendingFactorSrc.One, BlendingFactorDest.One
             );
 
+        double maxLast = dat.VectorField.Domain.RectBoundary.Max.Last;
+        var grad = (AltGradient ?? dat.ColorGradient);
         foreach (var p in Particles)
         {
-            var c = p.T / dat.VectorField.Domain.RectBoundary.Max.Last;
+            var c = p.T / maxLast;
             var color = Color.White;
 
             if (ColorByGradient)
             {
-                color = dat.ColorGradient.GetCached(c);
+                color = grad.GetCached(c);
             }
             color.A = (float)alpha;
             if (fadeIn)
@@ -132,12 +179,15 @@ public class StochasticVisualization : WorldService
         return;
     }
 
-    public override void DrawImGuiEdit()
+    public override void DrawImGuiDataSettings()
     {
-        ImGui.BeginGroup();
+        OptonalVectorFieldSelector(ref AltVectorfield);
+        AltGradientSelector(ref AltGradient);
+        base.DrawImGuiDataSettings();
+    }
 
-        ImGui.EndGroup();
-
+    public override void DrawImGuiSettings()
+    {
         if (ImGui.Button("Reset"))
         {
             Reset();
@@ -147,10 +197,12 @@ public class StochasticVisualization : WorldService
         ImGuiHelpers.SliderFloat("dt", ref dt, 0, .1f);
         ImGuiHelpers.SliderFloat("Respawn Rate", ref RespawnChance, 0, .1f);
         ImGuiHelpers.SliderFloat("Render Radius", ref RenderRadius, 0, .1f);
-        ImGuiHelpers.SliderFloat("Alpha", ref alpha, 0, .1f);
-        
+        ImGuiHelpers.SliderFloat("Alpha", ref alpha, 0, .5f);
+
+        ImGui.Checkbox("Color by gradient", ref ColorByGradient);
+        ImGui.Checkbox("Reverse", ref reverse);
         ImGui.Checkbox("Locked t", ref FixedT);
-        base.DrawImGuiEdit();
+        base.DrawImGuiSettings();
     }
 
     private void Reset()
@@ -163,5 +215,10 @@ public class StochasticVisualization : WorldService
             Particles[i].T = (Random.Shared.NextDouble()) * dat.VectorField.Domain.RectBoundary.Max.Last;
             Particles[i].Timealive = 0;
         }
+    }
+    public string GetTitle()
+    {
+        string type = reverse ? "Repelling" : "Attracting";
+        return $"{type} regions ({(AltVectorfield ?? GetRequiredWorldService<DataService>().VectorField).DisplayName})";
     }
 }

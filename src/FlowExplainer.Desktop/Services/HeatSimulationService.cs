@@ -26,7 +26,6 @@ public partial struct Snapshot
 
 public class HeatSimulationService : WorldService
 {
-    public override ToolCategory Category => ToolCategory.Heat;
     public BasicLagrangianHeatSim basicLagrangianHeatSim = new BasicLagrangianHeatSim();
 
     public double particleSpacing = 0.1f;
@@ -35,7 +34,7 @@ public class HeatSimulationService : WorldService
 
     private static double builderProgress = 0;
 
-    public override void DrawImGuiEdit()
+    public override void DrawImGuiSettings()
     {
         var dat = GetRequiredWorldService<DataService>();
         ImGuiHelpers.SliderFloat("Particle Spacing", ref particleSpacing, 0, dat.VectorField.Domain.RectBoundary.Size.X / 4f);
@@ -114,7 +113,7 @@ public class HeatSimulationService : WorldService
         if (builderProgress != 0 && builderProgress != 1)
             ImGui.ProgressBar((float)builderProgress, new Vector2(400, 10), "progress");
 
-        base.DrawImGuiEdit();
+        base.DrawImGuiSettings();
     }
     public void Reset()
     {

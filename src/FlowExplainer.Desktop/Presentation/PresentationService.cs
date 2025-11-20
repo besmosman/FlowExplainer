@@ -95,7 +95,7 @@ public class PresentationService : GlobalService
                 PausePresenting();
         }
 
-        if (window.IsMouseButtonDown(MouseButton.Right))
+        if (PresiView != null && window.IsMouseButtonDown(MouseButton.Right))
         {
             if (Vec2.Distance(highlighted.LastOrDefault(), PresiView.MousePosition) > 3)
                 highlighted.Add(PresiView.MousePosition);

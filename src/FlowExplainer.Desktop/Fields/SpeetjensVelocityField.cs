@@ -7,7 +7,7 @@ public class SpeetjensVelocityField : IVectorField<Vec3, Vec2>
 {
     public double epsilon =0.0;
     public double Period => 1;
-
+    public string DisplayName { get; set; }
     private Rect<Vec3> Rect = new(Vec3.Zero, new Vec3(1, .5f, 1));
     public IDomain<Vec3> Domain => new RectDomain<Vec3>(Rect,  BoundingFunctions.Build(
         [BoundaryType.Periodic, BoundaryType.Fixed, BoundaryType.Periodic], Rect));

@@ -23,8 +23,8 @@ public interface IVectorField<TInput, TOutput> where TInput : IVec<TInput>
     /// <param name="x"></param>
     /// <returns></returns>
     TOutput Evaluate(TInput x);
-
     bool TryEvaluate(TInput x, [MaybeNullWhen(false)] out TOutput value);
+    public virtual string DisplayName => "?";
 
     void OnImGuiEdit()
     {
@@ -41,7 +41,8 @@ public interface IVectorField<TInput, TOutput> where TInput : IVec<TInput>
         private readonly IDomain<TInput> domain;
         public IDomain<TInput> Domain => domain;
         public IBounding<TInput> Bounding { get; } = BoundingFunctions.None<TInput>();
-
+        public string DisplayName { get; } = "Constant";
+        
         public ConstantField(TOutput value, IDomain<TInput> domain)
         {
             Value = value;

@@ -10,6 +10,8 @@ public class DiscretizedField<Vec, Veci, TData> : IVectorField<Vec, TData>
     public RegularGridVectorField<Vec, Veci, TData> GridField { get; }
     public IDomain<Vec> Domain => GridField.Domain;
 
+    public string DisplayName { get => GridField.DisplayName; set => GridField.DisplayName = value; }
+
     public DiscretizedField(Veci gridSize, IVectorField<Vec, TData> vectorField, GenBounding<Vec>? altbounding = null)
     {
         var bounding = vectorField.Domain.Bounding;

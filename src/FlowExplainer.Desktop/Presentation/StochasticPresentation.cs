@@ -2,6 +2,7 @@ using Microsoft.VisualBasic;
 
 namespace FlowExplainer;
 
+
 public class StochasticPresentation : Presentation
 {
 
@@ -160,12 +161,12 @@ public class StochasticPresentation : Presentation
         public override void Draw()
         {
             LayoutMain();
-            if (showArrows != w0.GetWorldService<FlowArrowVisualizer>().IsEnabled)
+            if (showArrows != w0.GetWorldService<ArrowVisualizer>().IsEnabled)
             {
                 if (showArrows)
-                    w0.GetWorldService<FlowArrowVisualizer>().Enable();
+                    w0.GetWorldService<ArrowVisualizer>().Enable();
                 else
-                    w0.GetWorldService<FlowArrowVisualizer>().Disable();
+                    w0.GetWorldService<ArrowVisualizer>().Disable();
             }
             var stochasticPoincare = w0.GetWorldService<StochasticVisualization>();
             Title("Stochastic " + (stochasticPoincare.reverse ? "Repelling Regions" : "Attracting Regions") + " (" + w0.DataService.currentSelectedVectorField + ")");
@@ -189,7 +190,7 @@ public class StochasticPresentation : Presentation
         public override void OnEnter()
         {
             w0.GetWorldService<GridVisualizer>().Enable();
-            w0.GetWorldService<FlowArrowVisualizer>().Disable();
+            w0.GetWorldService<ArrowVisualizer>().Disable();
             w0.GetWorldService<GridVisualizer>().SetGridDiagnostic(new ScalerGridDiagnostic());
             w0.GetWorldService<GridVisualizer>().MarkDirty = true;
             w0.GetWorldService<StochasticVisualization>().Disable();
@@ -265,7 +266,7 @@ public class StochasticPresentation : Presentation
         {
             w0.DataService.TimeMultiplier = .3f;
             w0.GetWorldService<GridVisualizer>().Disable();
-            w0.GetWorldService<FlowArrowVisualizer>().Enable();
+            w0.GetWorldService<ArrowVisualizer>().Enable();
             w0.GetWorldService<StochasticVisualization>().Disable();
             base.OnEnter();
         }
@@ -290,7 +291,7 @@ public class StochasticPresentation : Presentation
 
         public override void OnEnter()
         {
-            w0.GetWorldService<FlowArrowVisualizer>().Disable();
+            w0.GetWorldService<ArrowVisualizer>().Disable();
             w0.DataService.currentSelectedVectorField = vectorFieldName;
             var stochasticPoincare = w0.GetWorldService<StochasticVisualization>();
             stochasticPoincare.Enable();
@@ -313,12 +314,12 @@ public class StochasticPresentation : Presentation
             LayoutMain();
             w0.DataService.TimeMultiplier = animate ? .2f : 0f;
             
-            if (showArrows != w0.GetWorldService<FlowArrowVisualizer>().IsEnabled)
+            if (showArrows != w0.GetWorldService<ArrowVisualizer>().IsEnabled)
             {
                 if (showArrows)
-                    w0.GetWorldService<FlowArrowVisualizer>().Enable();
+                    w0.GetWorldService<ArrowVisualizer>().Enable();
                 else
-                    w0.GetWorldService<FlowArrowVisualizer>().Disable();
+                    w0.GetWorldService<ArrowVisualizer>().Disable();
             }
             
             w0.DataService.SimulationTime = w0.DataService.SimulationTime % 1;

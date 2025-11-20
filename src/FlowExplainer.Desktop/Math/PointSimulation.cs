@@ -333,13 +333,11 @@ public class PointSimulation : WorldService
         Gizmos2D.Instanced.RenderCircles(view.Camera2D);
         Gizmos2D.Instanced.RenderRects(view.Camera2D);
     }
-
-    public override ToolCategory Category => ToolCategory.Heat;
-
-    public override void DrawImGuiEdit()
+    
+    public override void DrawImGuiSettings()
     {
         ImGuiHelpers.SliderFloat("Advection Factor", ref advectionFactor, 0, 1);
         ImGuiHelpers.SliderFloat("Diffusion Factor", ref diffusionFactor, 0, .1f);
-        base.DrawImGuiEdit();
+        base.DrawImGuiSettings();
     }
 }

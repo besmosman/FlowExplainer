@@ -10,11 +10,11 @@ public static class Scripting
 {
     public static void Startup(World world)
     {
-        
+
         string datasetPath = Config.GetValue<string>("spectral-data-path")!;
-        //RebuildSpeetjensDatasets(datasetPath);
-        
-        
+        // RebuildSpeetjensDatasets(datasetPath);
+
+
         var datasetsService = world.FlowExplainer.GetGlobalService<DatasetsService>();
         foreach (var d in datasetsService.Datasets.ToList())
         {
@@ -25,18 +25,21 @@ public static class Scripting
                 d.Value.Load(dataset);
                 MakeDatasetPeriodic(dataset, 5, 1);
             };
-            
+
             cop.Properties["Name"] = "(P) " + cop.Properties["Name"];
             datasetsService.Datasets.Add(cop.Name, cop);
         }
-        
+        world.AddVisualisationService(new AxisVisualizer());
 
+        SetGyreDataset(world);
+        /*
         world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new StochasticPresentation());
         world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
         SetGyreDataset(world);
-     
+        */
 
-     
+
+
 
         // MakeDatasetPeriodic(world);
         //world.GetWorldService<DataService>().currentSelectedVectorField = "Total Flux";
@@ -199,7 +202,10 @@ public static class Scripting
                 var pPeriodic = c;
                 pPeriodic.Z = pPeriodic.Last % period + t;
                 return p.Value.Evaluate(pPeriodic);
-            });
+            })
+            {
+                DisplayName = p.Value.DisplayName,
+            };
         }
 
         foreach (var p in dat.ScalerFields.ToList())
@@ -211,7 +217,10 @@ public static class Scripting
                 var pPeriodic = c;
                 pPeriodic.Z = pPeriodic.Last % period + t;
                 return p.Value.Evaluate(pPeriodic);
-            });
+            })
+            {
+                DisplayName = p.Value.DisplayName,
+            };
         }
     }
 
@@ -260,11 +269,11 @@ public static class Scripting
         if (!Directory.Exists(outputFieldsFolder))
             Directory.CreateDirectory(outputFieldsFolder);
 
-        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "diffFlux.field"), gridSize, diffFlux);
-        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "tempTot.field"), gridSize, tempTot);
-        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "tempConvection.field"), gridSize, tempConvection);
-        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "tempNoFlow.field"), gridSize, tempNoFlow);
-        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "convectiveHeatFlux.field"), gridSize, convectiveHeatFlux);
+        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "diffFlux"), "Diffusion Flux", gridSize, diffFlux);
+        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "convectiveHeatFlux"), "Convection Flux", gridSize, convectiveHeatFlux);
+        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "tempConvection"), "Convective Temperature", gridSize, tempConvection);
+        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "tempTot"), "Total Temperature", gridSize, tempTot);
+        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "tempNoFlow"), "No Flow Temperature", gridSize, tempNoFlow);
 
         Dictionary<string, string> props = new Dictionary<string, string>();
         props.Add("Pe", Pe.ToString(CultureInfo.InvariantCulture));
@@ -275,11 +284,21 @@ public static class Scripting
         var ser = JsonConvert.SerializeObject(props, Formatting.Indented);
         File.WriteAllText(Path.Combine(outputFieldsFolder, "properties.json"), ser);
 
-        void DiscretizeAndSave<TData>(string path, Vec3i gridSize, IVectorField<Vec3, TData> field)
+        void DiscretizeAndSave<TData>(string path, string name, Vec3i gridSize, IVectorField<Vec3, TData> field)
             where TData : IMultiplyOperators<TData, double, TData>, IAdditionOperators<TData, TData, TData>
         {
             var discritized = new DiscretizedField<Vec3, Vec3i, TData>(gridSize, field, bounds);
-            discritized.GridField.Save(path);
+            discritized.DisplayName = name;
+
+            var ext = ".vec3_???_field";
+            if (typeof(TData) == typeof(double))
+                ext = ".vec3_vec1_field";
+            if (typeof(TData) == typeof(Vec2))
+                ext = ".vec3_vec2_field";
+            if (typeof(TData) == typeof(Vec3))
+                ext = ".vec3_vec3_field";
+
+            discritized.GridField.Save(path + ext);
         }
     }
 

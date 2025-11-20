@@ -4,7 +4,6 @@ namespace FlowExplainer;
 
 public class HeatSimulationVisualizer : WorldService, IAxisTitle
 {
-    public override ToolCategory Category => ToolCategory.Heat;
     public double RenderRadius = .01f;
 
     public Colorings Coloring;
@@ -23,7 +22,7 @@ public class HeatSimulationVisualizer : WorldService, IAxisTitle
     {
     }
 
-    public override void DrawImGuiEdit()
+    public override void DrawImGuiSettings()
     {
         ImGuiHelpers.SliderFloat("Render Radius", ref RenderRadius, 0, .06f);
         int selected = (int)Coloring;
@@ -36,7 +35,7 @@ public class HeatSimulationVisualizer : WorldService, IAxisTitle
         ImGui.Checkbox("Scaled", ref Scaled);
 
 
-        base.DrawImGuiEdit();
+        base.DrawImGuiSettings();
     }
 
     private double lastMin;
@@ -50,7 +49,6 @@ public class HeatSimulationVisualizer : WorldService, IAxisTitle
         var particles = GetRequiredWorldService<HeatSimulationViewData>().ViewParticles;
         if (particles != null)
         {
-            GetRequiredWorldService<AxisVisualizer>().titler = this;
             var min = double.MaxValue;
             var max = double.MinValue;
             foreach (ref var p in particles.AsSpan())

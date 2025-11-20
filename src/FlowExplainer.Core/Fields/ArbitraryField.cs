@@ -3,6 +3,7 @@ namespace FlowExplainer;
 public class ArbitraryField<Veci, Data> : IVectorField<Veci, Data> where Veci : IVec<Veci>
 {
     public Func<Veci, Data> eval;
+    public string DisplayName { get; set; }
 
     public ArbitraryField(IDomain<Veci> domain, Func<Veci, Data> eval)
     {
