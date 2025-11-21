@@ -96,9 +96,17 @@ public class ArrowVisualizer : WorldService, IAxisTitle
                 var targetPos = perpDir / 2 + (top * .6f + bot * .4f);
                 var targetPos2 = -perpDir / 2 + (top * .6f + bot * .4f);
                 var offset = Vec2.Normalize(-(targetPos - top)) * thick / 2;
-                Gizmos2D.Instanced.RegisterLine(bot, top, color, thick);
-                Gizmos2D.Instanced.RegisterLine(top + offset, targetPos, color, thick);
-                Gizmos2D.Instanced.RegisterLine(top, targetPos2, color, thick);
+                if (maxDirLenght2 <= 0)
+                {
+                    Gizmos2D.Instanced.RegisterCircle(pos, Length/10, color);
+
+                }
+                else
+                {
+                    Gizmos2D.Instanced.RegisterLine(bot, top, color, thick);
+                    Gizmos2D.Instanced.RegisterLine(top + offset, targetPos, color, thick);
+                    Gizmos2D.Instanced.RegisterLine(top, targetPos2, color, thick);
+                }
 
             }
         }
@@ -114,6 +122,6 @@ public class ArrowVisualizer : WorldService, IAxisTitle
 
     public string GetTitle()
     {
-        return "Arrows (" + (AltVectorfield?.DisplayName ?? GetRequiredWorldService<DataService>().VectorField.DisplayName)+")";
+        return "Arrows (" + (AltVectorfield?.DisplayName ?? GetRequiredWorldService<DataService>().VectorField.DisplayName) + ")";
     }
 }
