@@ -25,7 +25,117 @@ public class ImGuiHelpers
         return false;
     }
 
-   
+
+    public static void OptionalGradientSelector(ref ColorGradient? ColorGradient)
+    {
+        var f = ColorGradient != null;
+
+        string name = ColorGradient?.Name ?? "";
+        ImGui.Text("Alt gradient");
+        ImGui.SameLine();
+        ImGui.SetCursorPosX(150);
+        
+        ImGui.Checkbox("##grad-check", ref f);
+
+        if (!f && ColorGradient != null)
+        {
+            ColorGradient = null;
+        }
+
+        if (f && ColorGradient == null)
+        {
+            ColorGradient = Gradients.Parula;
+        }
+        ImGui.SameLine();
+        if (ImGui.BeginCombo("##gradient", name))
+        {
+            foreach (var grad in Gradients.All)
+            {
+                bool isSelected = ColorGradient == grad;
+                ImGui.Image(grad.Texture.Value.TextureHandle, new Vec2(ImGui.GetTextLineHeight(), ImGui.GetTextLineHeight()));
+                ImGui.SameLine();
+                if (ImGui.Selectable(grad.Name, ref isSelected))
+                {
+                    ColorGradient = grad;
+                }
+            }
+
+            ImGui.EndCombo();
+        }
+    }
+
+    public static void OptionalDoubleSlider(string name, ref double? v, double min, double max)
+    {
+        var f = v != null;
+        ImGui.Text(name);
+        ImGui.SameLine();
+        ImGui.SetCursorPosX(150);
+        ImGui.Checkbox("##double", ref f);
+        ImGui.SameLine();
+        if (v == null)
+            name = " ";
+
+        if (!f)
+            v = null;
+
+        if (v == null && f)
+            v = min;
+
+        var t = v ?? 0;
+        if (v == null)
+        {
+            ImGui.BeginDisabled();
+        }
+        ImGuiHelpers.SliderFloat($"##{name}", ref t, min, max);
+        if (v == null)
+        {
+            ImGui.EndDisabled();
+        }
+        if (v != null)
+            v = t;
+    }
+
+    public static void OptonalVectorFieldSelector(Dataset dataset, ref IVectorField<Vec3, Vec2>? vectorField)
+    {
+        var f = vectorField != null;
+        ImGui.Text("Alt vectorfield");
+        ImGui.SameLine();
+        ImGui.SetCursorPosX(150);
+        ImGui.Checkbox("##r", ref f);
+        ImGui.SameLine();
+        string name = " ";
+        if (vectorField == null)
+            name = " ";
+
+        if (!f)
+            vectorField = null;
+
+        if (vectorField == null && f)
+            vectorField = dataset.VectorFields.First().Value;
+        foreach (var loadedDatasetVectorField in dataset.VectorFields)
+        {
+            if (loadedDatasetVectorField.Value == vectorField)
+            {
+                name = loadedDatasetVectorField.Key;
+            }
+        }
+
+        if (!f)
+            ImGui.BeginDisabled();
+        if (ImGui.BeginCombo("##a", name))
+        {
+            foreach (var v in dataset.VectorFields)
+                if (ImGui.Selectable(v.Key))
+                    vectorField = v.Value;
+
+            ImGui.EndCombo();
+        }
+
+        if (!f)
+            ImGui.EndDisabled();
+    }
+
+
 
     public static bool SliderInt(string name, ref int f, int min, int max)
     {

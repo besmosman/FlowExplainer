@@ -24,11 +24,14 @@ public class ArrowVisualizer : WorldService, IAxisTitle
     public bool AutoResize = true;
     public bool colorByGradient = true;
 
+
     public override string? Name => "Arrow Glyphs";
     public override string? CategoryN => "Vectorfield";
     public override string? Description => "Visualize a vectorfield using arrow glyphs";
 
     public IVectorField<Vec3, Vec2>? AltVectorfield;
+    public double? AltTime;
+    public ColorGradient? AltGradient;
 
     public override void Initialize()
     {
@@ -37,8 +40,11 @@ public class ArrowVisualizer : WorldService, IAxisTitle
     public override void Draw(RenderTexture rendertarget, View view)
     {
         var dat = GetRequiredWorldService<DataService>();
+        var vectorfield = AltVectorfield ?? dat.VectorField;
+        var t = AltTime ?? dat.SimulationTime;
+        var gradient = AltGradient ?? dat.ColorGradient;
 
-        var domain = dat.VectorField.Domain.RectBoundary;
+        var domain = vectorfield.Domain.RectBoundary;
         var domainSize = domain.Size.Down();
         var domainArea = domainSize.X * domainSize.Y;
         var spacing = Math.Sqrt(domainArea / GridCells);
@@ -51,7 +57,7 @@ public class ArrowVisualizer : WorldService, IAxisTitle
             {
                 var rel = new Vec2(x + .5f, y + .5f) / gridSize.ToVec2();
                 var pos = rel * domainSize + domain.Min.Down();
-                var dir = dat.VectorField.Evaluate(pos.Up(dat.SimulationTime));
+                var dir = vectorfield.Evaluate(pos.Up(t));
                 if (double.IsNaN(dir.X) || double.IsNaN(dir.Y))
                     continue;
                 maxDirLenght2 = Math.Max(maxDirLenght2, dir.LengthSquared());
@@ -63,14 +69,17 @@ public class ArrowVisualizer : WorldService, IAxisTitle
             {
                 var rel = new Vec2(x + .5f, y + .5f) / gridSize.ToVec2();
                 var pos = rel * domainSize + domain.Min.Down();
-                var dir = dat.VectorField.Evaluate(pos.Up(dat.SimulationTime));
+                var dir = vectorfield.Evaluate(pos.Up(t));
                 if (double.IsNaN(dir.X) || double.IsNaN(dir.Y))
                     continue;
 
                 dir = double.Clamp(((dir.Length()) / (double.Sqrt(maxDirLenght2))), .2f, .9f) * Vec2.Normalize(dir);
-                var color = dat.ColorGradient.Get(0);
+                if (double.IsNaN(dir.X) || double.IsNaN(dir.Y))
+                    continue;
+                    
+                var color = gradient.Get(0);
                 if (maxDirLenght2 != 0)
-                    color = dat.ColorGradient.Get(dir.Length() * 1);
+                    color = gradient.Get(dir.Length() * 1);
 
                 if (!colorByGradient)
                     color = Color.White;
@@ -98,7 +107,7 @@ public class ArrowVisualizer : WorldService, IAxisTitle
                 var offset = Vec2.Normalize(-(targetPos - top)) * thick / 2;
                 if (maxDirLenght2 <= 0)
                 {
-                    Gizmos2D.Instanced.RegisterCircle(pos, Length/10, color);
+                    Gizmos2D.Instanced.RegisterCircle(pos, Length / 10, color);
 
                 }
                 else
@@ -120,6 +129,16 @@ public class ArrowVisualizer : WorldService, IAxisTitle
         }
     }
 
+
+    public override void DrawImGuiDataSettings()
+    {
+        var dat = GetRequiredWorldService<DataService>();
+        var bounds = (AltVectorfield ?? dat.VectorField).Domain.RectBoundary;
+        ImGuiHelpers.OptionalDoubleSlider("Alt time", ref AltTime, bounds.Min.Last, bounds.Max.Last);
+        ImGuiHelpers.OptonalVectorFieldSelector(dat.LoadedDataset, ref AltVectorfield);
+        ImGuiHelpers.OptionalGradientSelector(ref AltGradient);
+        base.DrawImGuiDataSettings();
+    }
     public string GetTitle()
     {
         return "Arrows (" + (AltVectorfield?.DisplayName ?? GetRequiredWorldService<DataService>().VectorField.DisplayName) + ")";

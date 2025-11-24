@@ -1,19 +1,90 @@
+using System.Buffers;
+using System.Runtime.InteropServices;
 using ImGuiNET;
 using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
 
-public class Stochastic3DVisualization : WorldService
+public class SpatialPartitioner<T, Vec, Veci> where Veci : IVec<Veci, int>
+    where Vec : IVec<Vec>, IVecIntegerEquivalent<Veci>
 {
+    public RegularGrid<Veci, List<int>?> Partioner;
 
-    public override void Initialize()
+    public void Register(T[] entries, Func<T[], int, Vec> getPos)
     {
+        for (int i = 0; i < entries.Length; i++)
+        {
+            var pos = getPos(entries, i);
+            var cell = pos.FloorInt();
+            ref var p = ref Partioner[cell];
+            if (p == null)
+                p = [];
+            p.Add(i);
+        }
+    }
+}
+
+public class PointSpatialPartitioner2D<T>
+{
+    public Dictionary<Vec2i, List<int>?> Partitioner = new();
+    public Rect<Vec2> Bounds;
+    public double CellSize;
+
+    private T[] Entries;
+    private Func<T[], int, Vec2> GetPos;
+
+    public PointSpatialPartitioner2D(double cellSize)
+    {
+        CellSize = cellSize;
 
     }
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public void Init(T[] entries, Func<T[], int, Vec2> getPos)
     {
+        Entries = entries;
+        GetPos = getPos;
+    }
 
+    public void UpdateEntries()
+    {
+        foreach (var l in Partitioner.Values)
+            l?.Clear();
+
+        for (int i = 0; i < Entries.Length; i++)
+        {
+            var pos = GetPos(Entries, i);
+            var cell = GetVoxelCoords(pos);
+            if (!Partitioner.TryGetValue(cell, out var list))
+            {
+                if (list == null)
+                {
+                    list = new();
+                    Partitioner.Add(cell, list);
+                }
+            }
+            list!.Add(i);
+        }
+    }
+
+    private Vec2i GetVoxelCoords(Vec2 pos)
+    {
+        return (pos / CellSize).FloorInt();
+    }
+
+    public IEnumerable<int> GetWithinRadius(Vec2 p, double radius)
+    {
+        var cellRadius = (int)double.Ceiling(radius * CellSize);
+        var center = GetVoxelCoords(p);
+        var r2 = radius * radius;
+        for (int x = -cellRadius; x < cellRadius; x++)
+        for (int y = -cellRadius; y < cellRadius; y++)
+        {
+            var coord = center + new Vec2i(x, y);
+            if (Partitioner.TryGetValue(coord, out var list))
+                foreach (int e in list!)
+                    if (Vec2.DistanceSquared(GetPos(Entries, e), p) < r2)
+                        yield return e;
+        }
     }
 }
 
@@ -42,7 +113,7 @@ public class StochasticVisualization : WorldService, IAxisTitle
     public bool FixedT = true;
     public bool ColorByGradient = false;
     public bool TimeIntegration = true;
-    
+
 
     public override string? Name => "Stochastic Structures";
     public override string? CategoryN => "Structure";
@@ -78,7 +149,7 @@ public class StochasticVisualization : WorldService, IAxisTitle
         var vectorfield = AltVectorfield ?? dat.VectorField;
         var advection = vectorfield;
         var advectionR = new ArbitraryField<Vec3, Vec2>(vectorfield.Domain, p => -advection.Evaluate(p));
-        var Pe = 1000000;
+        var Pe = 1009;
 
         double sqrt = double.Sqrt((2 * dt) / Pe);
         var domainRectBoundary = vectorfield.Domain.RectBoundary;
@@ -86,8 +157,8 @@ public class StochasticVisualization : WorldService, IAxisTitle
         Parallel.For(0, Particles.Length, (i) =>
         {
             ref var p = ref Particles[i];
-            p.Timealive += dat.FlowExplainer.DeltaTime;
-            if (Random.Shared.NextSingle() < RespawnChance)
+            p.Timealive += dt;
+            if (Random.Shared.NextSingle() < RespawnChance * dt)
             {
                 Particles[i].Position = Utils.Random(domainRectBoundary).XY;
                 Particles[i].Timealive = 0;
@@ -104,21 +175,12 @@ public class StochasticVisualization : WorldService, IAxisTitle
                 t = Particles[i].T;
 
             var r = reverse;
-            
-            if (TimeIntegration)
-            {
-                if (r)
-                    p.Position = rk4.Integrate(advectionR, p.Position.Up(t), dt);
-                else
-                    p.Position = rk4.Integrate(advection, p.Position.Up(t), dt);
-            }
+
+
+            if (r)
+                p.Position = rk4.Integrate(advectionR, p.Position.Up(t), dt);
             else
-            {
-                if (r)
-                    p.Position = rk4.Integrate(advectionR, p.Position.Up(t), dt);
-                else
-                    p.Position = rk4.Integrate(advection, p.Position.Up(t), dt);
-            }
+                p.Position = rk4.Integrate(advection, p.Position.Up(t), dt);
             //p.Position += Vec2.Normalize(advectionR.Evaluate(p.Position.Up(t))) * dt;
             //p.Position += sqrt * RandomWienerVector();
             p.Position = advection.Domain.Bounding.Bound(p.Position.Up(t)).XY;
@@ -181,8 +243,8 @@ public class StochasticVisualization : WorldService, IAxisTitle
 
     public override void DrawImGuiDataSettings()
     {
-        OptonalVectorFieldSelector(ref AltVectorfield);
-        AltGradientSelector(ref AltGradient);
+        ImGuiHelpers.OptonalVectorFieldSelector(GetRequiredWorldService<DataService>().LoadedDataset, ref AltVectorfield);
+        ImGuiHelpers.OptionalGradientSelector(ref AltGradient);
         base.DrawImGuiDataSettings();
     }
 
@@ -201,6 +263,7 @@ public class StochasticVisualization : WorldService, IAxisTitle
 
         ImGui.Checkbox("Color by gradient", ref ColorByGradient);
         ImGui.Checkbox("Reverse", ref reverse);
+        ImGui.Checkbox("Time Integration", ref TimeIntegration);
         ImGui.Checkbox("Locked t", ref FixedT);
         base.DrawImGuiSettings();
     }

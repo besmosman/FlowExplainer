@@ -6,14 +6,24 @@ using Newtonsoft.Json;
 
 namespace FlowExplainer;
 
+
 public static class Scripting
 {
     public static void Startup(World world)
     {
-
         string datasetPath = Config.GetValue<string>("spectral-data-path")!;
-        // RebuildSpeetjensDatasets(datasetPath);
+       // RebuildSpeetjensDatasets(datasetPath);
+       
+        LoadPeriodicCopies(world);
 
+        SetGyreDataset(world);
+        world.DataService.LoadedDataset.VectorFields.Add("s", new NonlinearSaddleFlow());
+        
+        world.AddVisualisationService(new AxisVisualizer());
+       // world.AddVisualisationService(new StochasticConnectionVisualization());
+    }
+    private static void LoadPeriodicCopies(World world)
+    {
 
         var datasetsService = world.FlowExplainer.GetGlobalService<DatasetsService>();
         foreach (var d in datasetsService.Datasets.ToList())
@@ -29,146 +39,6 @@ public static class Scripting
             cop.Properties["Name"] = "(P) " + cop.Properties["Name"];
             datasetsService.Datasets.Add(cop.Name, cop);
         }
-        world.AddVisualisationService(new AxisVisualizer());
-
-        SetGyreDataset(world);
-        /*
-        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new StochasticPresentation());
-        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
-        SetGyreDataset(world);
-        */
-
-
-
-
-        // MakeDatasetPeriodic(world);
-        //world.GetWorldService<DataService>().currentSelectedVectorField = "Total Flux";
-        //world.GetWorldService<CriticalPointIdentifier>().Enable();
-        //world.GetWorldService<StochasticPoincare>().Enable();
-
-        //MakeDatasetPeriodic(world);
-
-        /*var vel = world.GetWorldService<DataService>().VectorFields["Total Flux"];
-        DiscretizedField<Vec3, Vec3i, Vec2> velDisc = new DiscretizedField<Vec3, Vec3i, Vec2>(new Vec3i(64, 32, 800), vel);
-        StringBuilder s = new StringBuilder();
-        s.Append("time,divergence,changeovertime\r\n");
-        for (int z = 1; z < velDisc.GridField.GridSize.Z-1; z++)
-        {
-            double divergence =0.0;
-            double changeOverTime =0.0;
-            var d = velDisc.Domain.RectBoundary.Size.Down() / (velDisc.GridField.GridSize.X * velDisc.GridField.GridSize.Y);
-            for (int x = 5; x < velDisc.GridField.GridSize.X - 5; x++)
-            for (int y = 5; y < velDisc.GridField.GridSize.Y - 5; y++)
-            {
-                var left = velDisc.GridField.Grid[new Vec3i(x - 1, y, z)];
-                var right = velDisc.GridField.Grid[new Vec3i(x + 1, y, z)];
-                var up = velDisc.GridField.Grid[new Vec3i(x, y + 1, z)];
-                var down = velDisc.GridField.Grid[new Vec3i(x, y - 1, z)];
-
-                divergence += (right - left).X / (2 * d.X) + (up - down).Y / (2 * d.Y);
-                changeOverTime += Vec2.Distance(velDisc.GridField.Grid[new Vec3i(x, y, z + 1)], velDisc.GridField.Grid[new Vec3i(x, y, z)]);
-            }
-            s.AppendLine($"{z.ToString(CultureInfo.InvariantCulture)},{divergence.ToString(CultureInfo.InvariantCulture)},{changeOverTime.ToString(CultureInfo.InvariantCulture)}");
-            //changeOverTime /= velDisc.GridField.GridSize.X * velDisc.GridField.GridSize.Y;
-        }
-
-       File.WriteAllText("test.csv",s.ToString());*/
-        int c = 5;
-        //orld.GetWorldService<DataService>().currentSelectedVectorField = "Total Flux";
-        //orld.GetWorldService<Poincare3DVisualizer>().Enable();
-        //orld.GetWorldService<Poincare3DVisualizer>().SetupTrajects([new Vec2(.4f,.4f)]);
-        /*
-        var gridVisualizer = world.GetWorldService<GridVisualizer>();
-        if (false)
-        {
-            gridVisualizer.TargetCellCount = 1000;
-            gridVisualizer.Enable();
-            gridVisualizer.RegularGrid.Interpolate = false;
-            gridVisualizer.SetGridDiagnostic(new PoincareSmearGridDiagnostic());
-            return;
-            /*world.GetWorldService<Poincare3DVisualizer>().Enable();
-            world.FlowExplainer.GetGlobalService<ViewsService>().Views[0].Is3DCamera = true;#1#
-            /*gridVisualizer.TargetCellCount = 2000;
-            gridVisualizer.Enable();
-            gridVisualizer.RegularGrid.Interpolate = false;
-            gridVisualizer.SetGridDiagnostic(new PoincareSmearGridDiagnostic()
-            {
-                //UseUnsteady = true,
-            });#1#
-        }
-        else
-        {
-            var presentationService = world.FlowExplainer.GetGlobalService<PresentationService>()!;
-            var updatePresentation = new ProgressPresentation();
-            updatePresentation.Prepare(world.FlowExplainer);
-            presentationService.LoadPresentation(updatePresentation);
-            presentationService.StartPresenting();
-            return;
-        }
-        */
-
-
-        /*var data = world.GetWorldService<DataService>();
-        var gridVisualizer = world.GetWorldService<GridVisualizer>();
-        gridVisualizer.Enable();
-
-        //ComputeSpeetjensFields(data, "speetjens-computed-fields");
-        //SetGyreDataset(world);
-        data.SimulationTime =0.0;
-        data.TimeMultiplier = .1f;
-        data.currentSelectedVectorField = "Velocity"; //"Total Flux";*/
-        /*gridVisualizer.TargetCellCount = 20000;
-        gridVisualizer.Enable();
-        gridVisualizer.RegularGrid.Interpolate = false;
-        gridVisualizer.SetGridDiagnostic(new UFLIC()
-        {
-            //UseUnsteady = true,
-        });*/
-        /*return;
-
-
-
-        world.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
-        var v = gridVisualizer;
-        v.Enable();
-        v.TargetCellCount = 200000;
-
-        var dat = world.GetWorldService<DataService>();
-        dat.currentSelectedVectorField = "Diffusion Flux";
-
-
-        double[] ts = [0.01f, 0.3f];
-
-        int timeSteps = 100;
-        foreach (double t in ts)
-        {
-            var title = t.ToString(CultureInfo.InvariantCulture);
-            var heatStructureGridDiagnostic = new HeatStructureGridDiagnostic()
-            {
-                T = t,
-                M = 4,
-                // K = 25,
-            };
-            v.SetGridDiagnostic(heatStructureGridDiagnostic);
-
-            v.Save($"diffusion-sinks-T={title}.field", .0f, 1f, timeSteps);
-            heatStructureGridDiagnostic.Reverse = true;
-            v.Save($"diffusion-sources-T={title}.field", .0f, 1f, timeSteps);
-
-
-            dat.currentSelectedVectorField = "Convection Flux";
-            heatStructureGridDiagnostic.Reverse = false;
-            v.Save($"convection-sinks-T={title}.field", .0f, 1f, timeSteps);
-            heatStructureGridDiagnostic.Reverse = true;
-            v.Save($"convection-sources-T={title}.field", .0f, 1f, timeSteps);
-        }
-
-        world.GetWorldService<DataService>().ColorGradient = Gradients.Parula;*/
-        /*var regularGridVectorField = RegularGridVectorField<Vec3, Vec3i, double>.Load("sources.field");
-        dat.ScalerFields.Add("sources", regularGridVectorField);
-        dat.currentSelectedScaler = "sources";
-        v.SetGridDiagnostic(new TemperatureGridDiagnostic());
-        v.Continous = true;*/
     }
 
 

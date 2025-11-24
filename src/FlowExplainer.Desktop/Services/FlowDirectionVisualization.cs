@@ -30,7 +30,7 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
     {
         public double TimeAlive;
     }
-    
+
     public override void DrawImGuiSettings()
     {
         ImGui.SliderInt("Amount", ref amount, 100, 10_000);
@@ -45,8 +45,8 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
         var dat = GetRequiredWorldService<DataService>();
         var field = AltVectorField ?? dat.VectorField;
         //ImGui.SameLine();
-        OptionalDoubleSlider("Alt time", ref AltTime, field.Domain.RectBoundary.Min.Last, field.Domain.RectBoundary.Max.Last);
-        OptonalVectorFieldSelector(ref AltVectorField);
+        ImGuiHelpers.OptionalDoubleSlider("Alt time", ref AltTime, field.Domain.RectBoundary.Min.Last, field.Domain.RectBoundary.Max.Last);
+        ImGuiHelpers.OptonalVectorFieldSelector(GetRequiredWorldService<DataService>().LoadedDataset, ref AltVectorField);
         base.DrawImGuiDataSettings();
     }
 
@@ -115,11 +115,11 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
         }
         lastSimTime = time;
         int c = 0;
-        
+
         if (amount != PerData.Length)
             Init();
 
-        
+
         for (int i = 0; i < amount; i++)
         {
             var span = centers.AsSpan(i * posPer, posPer);
@@ -251,6 +251,6 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
     }
     public string GetTitle()
     {
-        return "Animated Glyphs (" + (AltVectorField?.DisplayName ?? GetRequiredWorldService<DataService>().VectorField.DisplayName)+")";
+        return "Animated Glyphs (" + (AltVectorField?.DisplayName ?? GetRequiredWorldService<DataService>().VectorField.DisplayName) + ")";
     }
 }

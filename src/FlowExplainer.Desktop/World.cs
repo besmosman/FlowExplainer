@@ -27,6 +27,9 @@ namespace FlowExplainer
             
             service.FlowExplainer = FlowExplainer;
             service.World = this;
+            
+            if(!service.IsEnabled)
+                service.Enable();
         }
 
         public void ReplaceVisualizationService(WorldService old, WorldService service)
