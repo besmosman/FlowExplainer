@@ -93,6 +93,10 @@ public struct Vec4i : IVec<Vec4i, int>, IVecDoubleEquivalent<Vec4>
     {
         return new Vec4i(left.X * right.X, left.Y * right.Y, left.Z * right.Z, left.W * right.W);
     }
+    public static Vec4i operator /(Vec4i left, Vec4i right)
+    {
+        return new Vec4i(left.X / right.X, left.Y / right.Y, left.Z / right.Z, left.W / right.W);
+    }
     public static bool operator >(Vec4i left, Vec4i right)
     {
         return left.X > right.X && left.Y > right.Y && left.Z > right.Z && left.W > right.W;

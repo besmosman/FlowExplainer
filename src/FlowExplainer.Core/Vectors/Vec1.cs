@@ -47,6 +47,10 @@ public struct Vec1 : IVec<Vec1>
 
     public static Vec1 operator *(double left, Vec1 right) => left * right.X;
     public static Vec1 operator *(Vec1 left, Vec1 right) => left.X * right.X;
+    public static Vec1 operator /(Vec1 left, Vec1 right)
+    {
+        return left.X / right.X;
+    }
     public static bool operator >(Vec1 left, Vec1 right)
     {
         return left.X > right.X;

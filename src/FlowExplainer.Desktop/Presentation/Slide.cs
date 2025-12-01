@@ -2,12 +2,12 @@ namespace FlowExplainer;
 
 public abstract class Slide
 {
-    protected World w0 => v0.World;
+    /*protected World w0 => v0.World;
     protected World w1 => Presi.GetView("v1").World;
     protected World w2 => Presi.GetView("v2").World;
     protected World w3 => Presi.GetView("v3").World;
     protected World[] worlds => [w0, w1, w2, w3];
-    protected View v0 => Presi.GetView("v0");
+    protected View v0 => Presi.GetView("v0");*/
     public PresiContext Presi = null!;
 
     public bool OverrideNextSlideAction = false;

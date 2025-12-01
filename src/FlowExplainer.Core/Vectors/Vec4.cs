@@ -126,6 +126,10 @@ public struct Vec4 : IVec<Vec4>, IVecDownDimension<Vec3>, IVecIntegerEquivalent<
     {
         return new Vec4(left.X * right.X, left.Y * right.Y, left.Z * right.Z, left.W * right.W);
     }
+    public static Vec4 operator /(Vec4 left, Vec4 right)
+    {
+        return new Vec4(left.X / right.X, left.Y / right.Y, left.Z / right.Z, left.W / right.W);
+    }
 
     public static bool operator >(Vec4 left, Vec4 right)
     {

@@ -39,6 +39,9 @@ public class ArrowVisualizer : WorldService, IAxisTitle
 
     public override void Draw(RenderTexture rendertarget, View view)
     {
+        if(!view.Is2DCamera)
+            return;
+        
         var dat = GetRequiredWorldService<DataService>();
         var vectorfield = AltVectorfield ?? dat.VectorField;
         var t = AltTime ?? dat.SimulationTime;
@@ -51,6 +54,7 @@ public class ArrowVisualizer : WorldService, IAxisTitle
         var maxDirLenght2 = 0.0;
         var gridSize = (domainSize / spacing).CeilInt();
         var cellSize = domainSize / gridSize.ToVec2();
+        var domainBounding = vectorfield.Domain.Bounding;
         for (int x = 0; x < gridSize.X; x++)
         {
             for (int y = 0; y < gridSize.Y; y++)
@@ -69,20 +73,20 @@ public class ArrowVisualizer : WorldService, IAxisTitle
             {
                 var rel = new Vec2(x + .5f, y + .5f) / gridSize.ToVec2();
                 var pos = rel * domainSize + domain.Min.Down();
-                var dir = vectorfield.Evaluate(pos.Up(t));
+                var dir = vectorfield.Evaluate(domainBounding.Bound(pos.Up(t)));
                 if (double.IsNaN(dir.X) || double.IsNaN(dir.Y))
                     continue;
 
                 dir = double.Clamp(((dir.Length()) / (double.Sqrt(maxDirLenght2))), .2f, .9f) * Vec2.Normalize(dir);
                 if (double.IsNaN(dir.X) || double.IsNaN(dir.Y))
                     continue;
-                    
+
                 var color = gradient.Get(0);
                 if (maxDirLenght2 != 0)
                     color = gradient.Get(dir.Length() * 1);
 
                 if (!colorByGradient)
-                    color = Color.White;
+                    color = Color.Grey(.8f);
                 //color = new Color((dir + new Vec2(.1f,.1f)).Up(0).Up(1));
                 /*var traj = IFlowOperator<Vec2, Vec3>.Default.Compute(dat.SimulationTime, dat.SimulationTime + .05f, pos, dat.VelocityField);
                 var sum =0.0;

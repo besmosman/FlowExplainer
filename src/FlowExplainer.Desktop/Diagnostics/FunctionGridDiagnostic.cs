@@ -40,7 +40,7 @@ public class FunctionGridDiagnostic : IGridDiagnostic
         //LCS standard
         ParallelGrid.For(renderGrid.GridSize, token, (i, j) =>
         {
-            var pos = spatialBounds.Relative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());
+            var pos = spatialBounds.FromRelative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());
             var trajectory = flowOperator.Compute(t, tau, pos, vectorField);
             gridVisualizer.RegularGrid.Grid.AtCoords(new Vec2i(i, j)).Value = trajectory.AverageAlong(F_along);
         });
@@ -52,7 +52,7 @@ public class FunctionGridDiagnostic : IGridDiagnostic
             {
                 for (int k = 0; k < K; k++)
                 {
-                    var pos = spatialBounds.Relative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());
+                    var pos = spatialBounds.FromRelative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());
                    // pos = Utils.Random(spatialBounds);
                     var traj = flowOperator.Compute(t, tau, pos, vectorField);
 
@@ -90,7 +90,7 @@ public class FunctionGridDiagnostic : IGridDiagnostic
         ParallelGrid.For(renderGrid.GridSize, token, (i, j) =>
         {
             ref var atCoords = ref renderGrid.AtCoords(new Vec2i(i, j));
-            var pos = spatialBounds.Relative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());
+            var pos = spatialBounds.FromRelative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());
             var traj = flowOperator.Compute(t, tau, pos, vectorField);
             var last = traj.Entries[0];
             var cur = traj.Entries[^1];

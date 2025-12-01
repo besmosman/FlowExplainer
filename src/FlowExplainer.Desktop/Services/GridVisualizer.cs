@@ -51,7 +51,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
     public override string? Name => "Grid";
     public override string? CategoryN => "General";
     public override string? Description => "Compute and render diagnostics on a interpolated grid.";
-    
+
     public List<IGridDiagnostic> Diagnostics =
     [
         //new VelocityMagnitudeGridDiagnostic(),
@@ -294,11 +294,18 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             UpdateRenderData();
             ParallelGrid.For(gridSize.XY, CancellationToken.None, (i_x, i_y) =>
             {
-                var pos = spatialDomain.Relative(new Vec2(i_x + .5f, i_y + .5f) / gridSize.XY.ToVec2());
+                var pos = spatialDomain.FromRelative(new Vec2(i_x + .5f, i_y + .5f) / gridSize.XY.ToVec2());
                 field.AtCoords(new Vec3i(i_x, i_y, i_t)) = RegularGrid.Evaluate(pos).Value;
             });
         }
 
         field.Save(path);
+    }
+    public void WaitForComputation()
+    {
+        while (!currentUpdateTask.IsCompleted)
+        {
+
+        }
     }
 }

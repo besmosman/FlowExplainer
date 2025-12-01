@@ -3,7 +3,7 @@ using Microsoft.VisualBasic;
 namespace FlowExplainer;
 
 
-public class StochasticPresentation : Presentation
+/*public class StochasticPresentation : Presentation
 {
 
     public static string SteadyDatasetNameP = "(P) Double Gyre EPS=0, Pe=100";
@@ -17,7 +17,7 @@ public class StochasticPresentation : Presentation
 - Divergence != attracting/repelling structures
 - Stagnation
 -
-     */
+     #1#
 
     public static void MainPanel(Slide slide)
     {
@@ -134,7 +134,7 @@ public class StochasticPresentation : Presentation
             w0.GetWorldService<FlowDirectionVisualization>().Disable();
             var stochasticPoincare = w0.GetWorldService<StochasticVisualization>();
             stochasticPoincare.Enable();
-            stochasticPoincare.RespawnChance = 0;
+            stochasticPoincare.ReseedChance = 0;
             stochasticPoincare.Count = 5000;
             stochasticPoincare.dt = .01;
             if (paused)
@@ -142,7 +142,6 @@ public class StochasticPresentation : Presentation
                 if (VectorField.StartsWith("Diffusion"))
                 stochasticPoincare.dt *= 2;
             stochasticPoincare.alpha = 1;
-            stochasticPoincare.additiveBlending = false;
             stochasticPoincare.fadeIn = false;
             stochasticPoincare.RenderRadius = .004f;
             stochasticPoincare.ColorByGradient = false;
@@ -170,13 +169,12 @@ public class StochasticPresentation : Presentation
             }
             var stochasticPoincare = w0.GetWorldService<StochasticVisualization>();
             Title("Stochastic " + (stochasticPoincare.reverse ? "Repelling Regions" : "Attracting Regions") + " (" + w0.DataService.currentSelectedVectorField + ")");
-            stochasticPoincare.RespawnChance = respawnChance ? .0015f : 0f;
+            stochasticPoincare.ReseedChance = respawnChance ? .0015f : 0f;
             stochasticPoincare.fadeIn = fadeIn;
-            stochasticPoincare.additiveBlending = fadeIn;
             stochasticPoincare.alpha = fadeIn ? .3f : 1f;
             float y = 40;
             float y1 = 130;
-            Presi.Checkbox("Respawn chance", ref respawnChance, new Vec2(600, y));
+            Presi.Checkbox("Reseed chance", ref respawnChance, new Vec2(600, y));
             Presi.Checkbox("Show Arrows", ref showArrows, new Vec2(600, y1));
             Presi.Checkbox("Reverse", ref stochasticPoincare.reverse, new Vec2(1100, y1));
             Presi.Checkbox("Fade In & additive blending", ref fadeIn, new Vec2(1100, y));
@@ -298,11 +296,10 @@ public class StochasticPresentation : Presentation
             stochasticPoincare.reverse = false;
             w0.DataService.SimulationTime = 0;
             stochasticPoincare.Count = 20000;
-            stochasticPoincare.RespawnChance = .01f;
+            stochasticPoincare.ReseedChance = .01f;
             stochasticPoincare.dt = .1;
             stochasticPoincare.alpha = .5f;
             stochasticPoincare.fadeIn =true;
-            stochasticPoincare.FixedT = true;
             stochasticPoincare.Initialize();
             base.OnEnter();
         }
@@ -339,7 +336,6 @@ public class StochasticPresentation : Presentation
         public override void OnLeave()
         {
             var stochasticPoincare = w0.GetWorldService<StochasticVisualization>();
-            stochasticPoincare.FixedT = true;
             stochasticPoincare.ColorByGradient = false;
             base.OnLeave();
         }
@@ -347,11 +343,10 @@ public class StochasticPresentation : Presentation
         public override void OnEnter()
         {
             var stochasticPoincare = w0.GetWorldService<StochasticVisualization>();
-            stochasticPoincare.FixedT = false;
             stochasticPoincare.ColorByGradient = false;
             stochasticPoincare.RenderRadius = .002f;
             stochasticPoincare.dt = .02f;
-            stochasticPoincare.RespawnChance = .002f;
+            stochasticPoincare.ReseedChance = .002f;
             stochasticPoincare.alpha = 1;
             base.OnEnter();
         }
@@ -375,10 +370,9 @@ public class StochasticPresentation : Presentation
         {
             var stochasticPoincare = w0.GetWorldService<StochasticVisualization>();
             stochasticPoincare.RenderRadius = .002f;
-            stochasticPoincare.RespawnChance = 0f;
+            stochasticPoincare.ReseedChance = 0f;
             stochasticPoincare.alpha = 0.1f;
             stochasticPoincare.ColorByGradient = true;
-            stochasticPoincare.FixedT = false;
             stochasticPoincare.dt = .1f;
             base.OnEnter();
         }
@@ -427,4 +421,4 @@ public class StochasticPresentation : Presentation
         presentationService.Presi.GetView("v0").World = w0;
         w0.GetWorldService<DataService>().SetDataset(SteadyDatasetNameP);
     }
-}
+}*/

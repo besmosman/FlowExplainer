@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using ImGuiNET;
 using OpenTK.Graphics.OpenGL4;
@@ -24,14 +25,16 @@ public class SpatialPartitioner<T, Vec, Veci> where Veci : IVec<Veci, int>
     }
 }
 
-public class PointSpatialPartitioner2D<T>
+public class PointSpatialPartitioner2D<Vec, Veci, T>
+    where Vec : IVec<Vec>, IVecIntegerEquivalent<Veci>
+    where Veci : IVec<Veci, int>
 {
-    public Dictionary<Vec2i, List<int>?> Partitioner = new();
-    public Rect<Vec2> Bounds;
+    public Dictionary<Veci, List<int>?> Partitioner = new();
+    public Rect<Vec> Bounds;
     public double CellSize;
 
     private T[] Entries;
-    private Func<T[], int, Vec2> GetPos;
+    private Func<T[], int, Vec> GetPos;
 
     public PointSpatialPartitioner2D(double cellSize)
     {
@@ -39,7 +42,7 @@ public class PointSpatialPartitioner2D<T>
 
     }
 
-    public void Init(T[] entries, Func<T[], int, Vec2> getPos)
+    public void Init(T[] entries, Func<T[], int, Vec> getPos)
     {
         Entries = entries;
         GetPos = getPos;
@@ -66,12 +69,12 @@ public class PointSpatialPartitioner2D<T>
         }
     }
 
-    private Vec2i GetVoxelCoords(Vec2 pos)
+    private Veci GetVoxelCoords(Vec pos)
     {
         return (pos / CellSize).FloorInt();
     }
 
-    public IEnumerable<int> GetWithinRadius(Vec2 p, double radius)
+    /*public IEnumerable<int> GetWithinRadius(Vec p, double radius)
     {
         var cellRadius = (int)double.Ceiling(radius * CellSize);
         var center = GetVoxelCoords(p);
@@ -79,13 +82,13 @@ public class PointSpatialPartitioner2D<T>
         for (int x = -cellRadius; x < cellRadius; x++)
         for (int y = -cellRadius; y < cellRadius; y++)
         {
-            var coord = center + new Vec2i(x, y);
+            var coord = center + new Veci(x, y);
             if (Partitioner.TryGetValue(coord, out var list))
                 foreach (int e in list!)
                     if (Vec2.DistanceSquared(GetPos(Entries, e), p) < r2)
                         yield return e;
         }
-    }
+    }*/
 }
 
 public class StochasticVisualization : WorldService, IAxisTitle
@@ -108,12 +111,21 @@ public class StochasticVisualization : WorldService, IAxisTitle
     public double alpha = .1f;
     public bool reverse;
     public bool fadeIn = true;
-    public double RespawnChance = .01f;
-    public bool additiveBlending = true;
-    public bool FixedT = true;
+    public double ReseedChance = .01f;
     public bool ColorByGradient = false;
-    public bool TimeIntegration = true;
+    public Color Color = Color.White;
 
+    //public bool Extraction;
+    //public PointSpatialPartitioner2D<Particle> Partitioner2D = new PointSpatialPartitioner2D<Particle>(.1f);
+
+    public enum Mode
+    {
+        Instantaneous,
+        InstantaneousMerged,
+        TimeIntegration,
+    }
+
+    public Mode mode;
 
     public override string? Name => "Stochastic Structures";
     public override string? CategoryN => "Structure";
@@ -148,42 +160,46 @@ public class StochasticVisualization : WorldService, IAxisTitle
         var dat = GetRequiredWorldService<DataService>();
         var vectorfield = AltVectorfield ?? dat.VectorField;
         var advection = vectorfield;
-        var advectionR = new ArbitraryField<Vec3, Vec2>(vectorfield.Domain, p => -advection.Evaluate(p));
+        if (reverse)
+            advection = new ArbitraryField<Vec3, Vec2>(vectorfield.Domain, p => -vectorfield.Evaluate(p));
         var Pe = 1009;
 
         double sqrt = double.Sqrt((2 * dt) / Pe);
         var domainRectBoundary = vectorfield.Domain.RectBoundary;
         var rk4 = IIntegrator<Vec3, Vec2>.Rk4;
-        Parallel.For(0, Particles.Length, (i) =>
+        var domainBounding = advection.Domain.Bounding;
+        Parallel.ForEach(Partitioner.Create(0, Particles.Length), (range) =>
         {
-            ref var p = ref Particles[i];
-            p.Timealive += dt;
-            if (Random.Shared.NextSingle() < RespawnChance * dt)
+            for (int i = range.Item1; i < range.Item2; i++)
             {
-                Particles[i].Position = Utils.Random(domainRectBoundary).XY;
-                Particles[i].Timealive = 0;
-                /*var max = .24f;
-                var min = -.24f;
-                if (Random.Shared.NextSingle()< dat.ScalerField.Evaluate(Particles[i].Position.Up(.4f)))
+                ref var p = ref Particles[i];
+                p.Timealive += double.Abs(dt);
+                var t = dat.SimulationTime;
+                if (mode == Mode.InstantaneousMerged)
+                    t = Particles[i].T;
+
+
+                var relative = domainRectBoundary.ToRelative(p.Position.Up(t));
+                if (Random.Shared.NextSingle() < ReseedChance * dt || relative.X < -0.1 || relative.Y < -0.1 || relative.X > 1.1 || relative.Y > 1.1)
                 {
-                    break;
-                }*/
+                    Particles[i].Position = Utils.Random(domainRectBoundary).XY;
+                    Particles[i].Timealive = 0;
+                    /*var max = .24f;
+                    var min = -.24f;
+                    if (Random.Shared.NextSingle()< dat.ScalerField.Evaluate(Particles[i].Position.Up(.4f)))
+                    {
+                        break;
+                    }*/
+                }
+
+
+                var r = reverse;
+
+
+                p.Position = rk4.Integrate(advection, domainBounding.Bound(p.Position.Up(t)), dt);
+                //p.Position += Vec2.Normalize(advectionR.Evaluate(p.Position.Up(t))) * dt;
+                //p.Position += sqrt * RandomWienerVector();
             }
-
-            var t = dat.SimulationTime;
-            if (!FixedT)
-                t = Particles[i].T;
-
-            var r = reverse;
-
-
-            if (r)
-                p.Position = rk4.Integrate(advectionR, p.Position.Up(t), dt);
-            else
-                p.Position = rk4.Integrate(advection, p.Position.Up(t), dt);
-            //p.Position += Vec2.Normalize(advectionR.Evaluate(p.Position.Up(t))) * dt;
-            //p.Position += sqrt * RandomWienerVector();
-            p.Position = advection.Domain.Bounding.Bound(p.Position.Up(t)).XY;
         });
     }
 
@@ -197,34 +213,36 @@ public class StochasticVisualization : WorldService, IAxisTitle
             Reset();
         }
         var dat = GetRequiredWorldService<DataService>();
-        if (TimeIntegration)
-        {
-            Step(dat.MultipliedDeltaTime);
-        }
-        else
-        {
-            Step(dt);
-        }
 
-
+        switch (mode)
+        {
+            case Mode.Instantaneous:
+                Step(dt);
+                break;
+            case Mode.InstantaneousMerged:
+                Step(dt);
+                break;
+            case Mode.TimeIntegration:
+                Step(dat.MultipliedDeltaTime);
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
         if (!view.Is2DCamera)
             return;
 
-        if (additiveBlending)
-            GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
-
-        if (!FixedT)
-            GL.BlendFuncSeparate(
-                BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha,
-                BlendingFactorSrc.One, BlendingFactorDest.One
-            );
+        //if (additiveBlending)
+        GL.BlendFuncSeparate(
+            BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha,
+            BlendingFactorSrc.One, BlendingFactorDest.One
+        );
 
         double maxLast = dat.VectorField.Domain.RectBoundary.Max.Last;
         var grad = (AltGradient ?? dat.ColorGradient);
         foreach (var p in Particles)
         {
             var c = p.T / maxLast;
-            var color = Color.White;
+            var color = Color;
 
             if (ColorByGradient)
             {
@@ -238,7 +256,6 @@ public class StochasticVisualization : WorldService, IAxisTitle
 
         Gizmos2D.Instanced.RenderCircles(view.Camera2D);
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
-        return;
     }
 
     public override void DrawImGuiDataSettings()
@@ -256,26 +273,45 @@ public class StochasticVisualization : WorldService, IAxisTitle
         }
 
         ImGuiHelpers.SliderInt("Particle Count", ref Count, 1, 100000);
-        ImGuiHelpers.SliderFloat("dt", ref dt, 0, .1f);
-        ImGuiHelpers.SliderFloat("Respawn Rate", ref RespawnChance, 0, .1f);
+        ImGuiHelpers.SliderFloat("Reseed Rate", ref ReseedChance, 0, .1f);
         ImGuiHelpers.SliderFloat("Render Radius", ref RenderRadius, 0, .1f);
-        ImGuiHelpers.SliderFloat("Alpha", ref alpha, 0, .5f);
-
+        ImGui.NewLine();
         ImGui.Checkbox("Color by gradient", ref ColorByGradient);
+        if (ColorByGradient)
+            ImGui.BeginDisabled();
+        ImGuiHelpers.ColorPicker("Particle Color", ref Color);
+        if (ColorByGradient)
+            ImGui.EndDisabled();
+        ImGuiHelpers.SliderFloat("Max alpha", ref alpha, 0, .5f);
+
+        if (ImGui.BeginCombo("Integration Mode", Enum.GetName(mode)))
+        {
+            foreach (var m in Enum.GetValues<Mode>())
+            {
+                if (ImGui.Selectable(Enum.GetName(m)))
+                    mode = m;
+            }
+            ImGui.EndCombo();
+        }
+        bool dtUsed = mode == Mode.Instantaneous || mode == Mode.InstantaneousMerged;
+        if (!dtUsed)
+            ImGui.BeginDisabled();
+        ImGuiHelpers.SliderFloat("dt", ref dt, 0, .1f);
+        if (!dtUsed)
+            ImGui.EndDisabled();
         ImGui.Checkbox("Reverse", ref reverse);
-        ImGui.Checkbox("Time Integration", ref TimeIntegration);
-        ImGui.Checkbox("Locked t", ref FixedT);
         base.DrawImGuiSettings();
     }
 
     private void Reset()
     {
         var dat = GetRequiredWorldService<DataService>();
+        var vectorFieldDomain = (AltVectorfield ?? dat.VectorField).Domain;
         Particles = new Particle[Count];
         for (int i = 0; i < Count; i++)
         {
-            Particles[i].Position = Utils.Random(dat.VectorField.Domain.RectBoundary).XY;
-            Particles[i].T = (Random.Shared.NextDouble()) * dat.VectorField.Domain.RectBoundary.Max.Last;
+            Particles[i].Position = Utils.Random(vectorFieldDomain.RectBoundary).XY;
+            Particles[i].T = (Random.Shared.NextDouble()) * vectorFieldDomain.RectBoundary.Max.Last;
             Particles[i].Timealive = 0;
         }
     }

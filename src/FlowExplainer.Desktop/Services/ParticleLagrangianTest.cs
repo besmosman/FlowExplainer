@@ -221,8 +221,8 @@ public class ParticleLagrangianTest : WorldService
             var traj = IFlowOperator<Vec2, Vec3>.Default.Compute(dat.SimulationTime, dat.SimulationTime + T, pos, datVectorField);
             var trajBack = IFlowOperator<Vec2, Vec3>.Default.Compute(dat.SimulationTime, dat.SimulationTime + T, pos, datVectorFieldBack);
             var final = traj.Entries.Last();
-            var rel = spatialbounds.Relative(final.Down());
-            var rel2 = spatialbounds.Relative(trajBack.Entries.Last().Down());
+            var rel = spatialbounds.FromRelative(final.Down());
+            var rel2 = spatialbounds.FromRelative(trajBack.Entries.Last().Down());
             //var value = double.Sin((rel.X - rel.Y * 90) / 550);
             //var value = traj.Entries.Sum(f => double.Sin((f.X - f.Y * 90) / 250));
             //value += double.Sin((rel2.X - rel2.Y * 90) / 550);

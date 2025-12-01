@@ -11,8 +11,8 @@ public static class Gizmos
     public static Mesh UnitCube;
 
     static Gizmos()
-    {        
-        sphereMesh = new Mesh(GeometryGen.UVSphere(6, 6));
+    {
+        sphereMesh = new Mesh(GeometryGen.UVSphere(3, 3));
         UnitCube = new Mesh(GeometryGen.TriangleCube(Vec3.Zero, Vec3.One, Vec4.One));
         UnitCube.PrimitiveType = PrimitiveType.Triangles;
     }
@@ -27,7 +27,7 @@ public static class Gizmos
         debugMat.SetUniform("tint", color);
         sphereMesh.Draw();
     }
-    
+
     public static void DrawLine(View view, Vec3 p1, Vec3 p2, double thickness, Color color)
     {
         var dis = Vector3.Distance(p1, p2);
@@ -42,33 +42,38 @@ public static class Gizmos
         UnitCube.Draw();
     }
 
-      
-   
+
+
 
 
 
     public static GizmosInstanced Instanced = new();
-    
+
     public class GizmosInstanced
     {
         [StructLayout(LayoutKind.Sequential)]
         struct SphereRenderInfo
         {
-            public Vec3 Position;
-            public double Radius;
+            public float PositionX;
+            public float PositionY;
+            public float PositionZ;
+            public float Radius;
             public Color Color;
         }
+
         private AutoExpandStorageBuffer<SphereRenderInfo> sphereStorage = new();
-        private Material sphereMat = new Material(new Shader("Assets/Shaders/sphere-instanced.vert", 
+        private Material sphereMat = new Material(new Shader("Assets/Shaders/sphere-instanced.vert",
             ShaderType.VertexShader), Shader.DefaultUnlitFragment);
 
         public void RegisterSphere(Vec3 center, double radius, Color color)
         {
             sphereStorage.Register(new SphereRenderInfo
             {
-                Position = center,
+                PositionX = (float)center.X,
+                PositionY = (float)center.Y,
+                PositionZ = (float)center.Z,
+                Radius = (float)radius,
                 Color = color,
-                Radius = radius,
             });
         }
 
@@ -76,12 +81,12 @@ public static class Gizmos
         {
             sphereMat.Use();
             sphereMat.SetUniform("view", camera.GetViewMatrix());
-            sphereMat.SetUniform("tint",new Color(1,1,1));
+            sphereMat.SetUniform("tint", new Color(1, 1, 1));
             sphereMat.SetUniform("projection", camera.GetProjectionMatrix());
-        
+
             sphereStorage.Use();
             sphereStorage.Upload();
-            
+
             sphereMesh.DrawInstanced(sphereStorage.GetCurrentIndex());
             sphereStorage.Reset();
         }

@@ -13,22 +13,28 @@ namespace FlowExplainer
         public World(FlowExplainer flowExplainer)
         {
             FlowExplainer = flowExplainer;
-            Name = "visualisation " + worldCount++;
+            Name = "world " + worldCount++;
         }
 
         public readonly List<WorldService> Services = new();
 
+        public T AddVisualisationService<T>(int? index = null) where T : WorldService
+        {
+            var worldService = Activator.CreateInstance<T>();
+            AddVisualisationService(worldService);
+            return worldService;
+        }
         public void AddVisualisationService(WorldService service, int? index = null)
         {
             if (index == null)
                 Services.Add(service);
             else
                 Services.Insert(index.Value, service);
-            
+
             service.FlowExplainer = FlowExplainer;
             service.World = this;
-            
-            if(!service.IsEnabled)
+
+            if (!service.IsEnabled)
                 service.Enable();
         }
 
@@ -82,7 +88,7 @@ namespace FlowExplainer
                 Services.Remove(service);
             }
             toRemove.Clear();
-            
+
             foreach (var service in Services)
                 if (service.IsEnabled)
                 {
@@ -105,7 +111,7 @@ namespace FlowExplainer
             view.RenderTarget.DrawTo(() =>
             {
                 var clearColor = view.AltClearColor ?? Style.Current.BackgroundColor;
-                GL.ClearColor((float)clearColor.R, (float)clearColor.G,(float)clearColor.B,(float)clearColor.A);
+                GL.ClearColor((float)clearColor.R, (float)clearColor.G, (float)clearColor.B, (float)clearColor.A);
                 GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
                 foreach (var service in Services)
                 {

@@ -2,6 +2,7 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
 
+/*
 public class DatasetPresentation2 : Presentation
 {
     public class IntroSlide : Slide
@@ -396,7 +397,7 @@ public class DatasetPresentation2 : Presentation
         ConvFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "convectiveHeatFlux.field"));
         TempConvection = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
         TempTot = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
-        TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));*/
+        TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));#1#
         Scripting.SetGyreDataset(w0);
         Scripting.SetGyreDataset(w1);
         Scripting.SetGyreDataset(w2);
@@ -741,7 +742,7 @@ public class DatasetPresentation : Presentation
         ConvFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "convectiveHeatFlux.field"));
         TempConvection = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
         TempTot = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
-        TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));*/
+        TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));#1#
         Scripting.SetGyreDataset(w0);
         Scripting.SetGyreDataset(w1);
         Scripting.SetGyreDataset(w2);
@@ -756,4 +757,4 @@ public class DatasetPresentation : Presentation
         presentationService.Presi.GetView("v1").World = w1;
         presentationService.Presi.GetView("v2").World = w2;
     }
-}
+}*/

@@ -1,5 +1,7 @@
+using System.Numerics;
 using ImGuiNET;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace FlowExplainer;
 
@@ -8,10 +10,20 @@ public class ImGUIViewRenderer
     public static void Render(View view, FlowExplainer flowExplainer)
     {
         if (view.IsFullScreen)
+        {
+            ImGui.SetNextWindowPos(new Vector2(0,0));
+            var windowSize = flowExplainer.GetGlobalService<WindowService>().Window.Size;
+            ImGui.SetNextWindowSize(ImGui.GetIO().DisplaySize);
+            if (ImGui.Begin(view.Name))
+            {
+                ImGui.Text("wow");
+                ImGui.End();
+            }
             return;
+        }
 
         var rendertexture = view.PostProcessingTarget;
-
+        
         ImGui.SetNextWindowSize(rendertexture.Size.ToNumerics(), ImGuiCond.Appearing);
         ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vec2(0, 0));
         if (ImGui.Begin(view.Name, ref view.IsOpen))

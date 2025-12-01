@@ -1,5 +1,6 @@
 namespace FlowExplainer;
 
+
 public interface IDomain<Vec> where Vec : IVec<Vec>
 {
     bool IsWithinPhase(Vec p);
@@ -9,6 +10,7 @@ public interface IDomain<Vec> where Vec : IVec<Vec>
     public IBounding<Vec> Bounding { get; }
     public static IDomain<Vec> Infinite => new InfiniteDomain();
 
+    
 
     private struct InfiniteDomain : IDomain<Vec>
     {

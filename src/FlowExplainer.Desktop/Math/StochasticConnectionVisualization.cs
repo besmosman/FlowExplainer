@@ -1,6 +1,6 @@
 namespace FlowExplainer;
 
-public class StochasticConnectionVisualization : WorldService
+/*public class StochasticConnectionVisualization : WorldService
 {
 
     struct Particle
@@ -74,7 +74,7 @@ public class StochasticConnectionVisualization : WorldService
             {
                 var p2 = Particles[i].Position;
                 Gizmos2D.Instanced.RegisterLine(p.Position, p2, new Color(1, 0, 1, 1), .003f);
-            }*/
+            }#1#
         }
         Gizmos2D.Instanced.RenderRects(view.Camera2D);
         Gizmos2D.Instanced.RenderCircles(view.Camera2D);
@@ -85,4 +85,4 @@ public class StochasticConnectionVisualization : WorldService
         ImGuiHelpers.SliderFloat("Speed", ref Speed, 0, .1);
         base.DrawImGuiSettings();
     }
-}
+}*/

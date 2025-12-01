@@ -38,6 +38,7 @@ class BoundingPeriodicXyPeriodicZ : IBounding<Vec3>
     }
 }
 
+
 /// <summary>
 /// Arbitrary dimension grid based vector field with mutlivariate interpolator
 /// </summary>

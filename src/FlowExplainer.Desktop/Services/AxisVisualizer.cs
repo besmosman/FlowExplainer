@@ -11,6 +11,7 @@ public class AxisVisualizer : WorldService
     public int StepsX = 5;
     public int StepsY = 5;
     public bool DrawGradient = true;
+    public bool DrawTitle = true;
 
     public string? Title;
     public IGradientScaler? scaler;
@@ -56,6 +57,7 @@ public class AxisVisualizer : WorldService
 
 
             var y = lt.Y - lh * 2;
+            if(DrawTitle)
             for (int index = World.Services.Count - 1; index >= 0; index--)
             {
                 var service = World.Services[index];

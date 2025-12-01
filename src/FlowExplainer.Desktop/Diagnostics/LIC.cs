@@ -18,7 +18,7 @@ public static class LIC
             //var pos = domainBoundary.Relative(new Vec2(x, y) / output.GridSize.ToVec2());
             var noiseSum = 0.0;
             var weightSum = 0.0;
-            var cur = domainBoundary.Relative(new Vec2(x + .5f, y + .5f) / output.GridSize.ToVec2());
+            var cur = domainBoundary.FromRelative(new Vec2(x + .5f, y + .5f) / output.GridSize.ToVec2());
             double stepSizePerCell = cellSize * .5f;
             var steps = double.Ceiling(arcLength / stepSizePerCell) + 1;
             bool failed = false;
@@ -83,7 +83,7 @@ public static class LIC
             //var pos = domainBoundary.Relative(new Vec2(x, y) / output.GridSize.ToVec2());
             var noiseSum = 0.0;
             var weightSum = 0.0;
-            var cur = domainBoundary.Relative(new Vec2(x + .5f, y + .5f) / output.GridSize.ToVec2());
+            var cur = domainBoundary.FromRelative(new Vec2(x + .5f, y + .5f) / output.GridSize.ToVec2());
             double stepSizePerCell = cellSize * .5f;
             var steps = double.Ceiling(arcLength / stepSizePerCell) + 1;
             bool failed = false;
@@ -107,7 +107,7 @@ public static class LIC
                 }
             }
 
-            cur = domainBoundary.Relative(new Vec2(x + .5f, y + .5f) / output.GridSize.ToVec2());
+            cur = domainBoundary.FromRelative(new Vec2(x + .5f, y + .5f) / output.GridSize.ToVec2());
             for (int k = 1; k < steps; k++)
             {
                 cur.X = cur.X % domainBoundary.Max.X;

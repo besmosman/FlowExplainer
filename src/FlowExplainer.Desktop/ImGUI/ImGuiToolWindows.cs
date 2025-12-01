@@ -25,19 +25,35 @@ public static class ImGuiToolWindows
     }
 
 
+    public static World? toolWorld;
 
     public static void Draw(ImGUIService imguiService)
     {
-
-        var visualizationService = imguiService.GetRequiredGlobalService<WorldManagerService>();
-        lastDraggingIndex = draggingIndex;
-        var toolWorld = imguiService.GetGlobalService<ViewsService>().Views[0].World;
         if (ImGui.Begin("Services", ref imguiService.RenderData.ShowToolWindow))
         {
-            if (ImGui.Button("Add service"))
+            
+            var visualizationService = imguiService.GetRequiredGlobalService<WorldManagerService>();
+            toolWorld ??= visualizationService.Worlds.First();
+            lastDraggingIndex = draggingIndex;
+
+            if (ImGui.BeginCombo("World", toolWorld.Name))
+            {
+                foreach (var world in visualizationService.Worlds)
+                {
+                    if (ImGui.Selectable(world.Name, world == toolWorld))
+                    {
+                        toolWorld = world;
+                    }
+                }
+                ImGui.EndCombo();
+            }
+            
+            ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(.2f, .2f, .2f, 1));
+            if (ImGui.Button("Add service", new Vector2(ImGui.GetWindowWidth() - 18, 32)))
             {
                 ImGui.OpenPopup("new-service");
             }
+            ImGui.PopStyleColor();
 
             var lastCurserY = ImGui.GetCursorScreenPos().Y;
             for (int i = 0; i < toolWorld.Services.Count; i++)
@@ -86,13 +102,14 @@ public static class ImGuiToolWindows
                 toolWorld.Services.RemoveAt(i);
                 if (i < draggingIndex)
                     draggingIndex--;
-                
+
                 if (draggingIndex == toolWorld.Services.Count + 1)
                 {
                     toolWorld.Services.Add(dragging);
-                    
-                    
-                }else
+
+
+                }
+                else
                     toolWorld.Services.Insert(draggingIndex, dragging);
                 dragging = null;
 
@@ -176,6 +193,7 @@ public static class ImGuiToolWindows
 
 
         lastCurserY = ImGui.GetCursorScreenPos().Y;
+        ImGui.PushID(s.GetHashCode());
 
         if (CheckableCollapsingHeader(s, ref sIsEnabled, ImGuiTreeNodeFlags.DefaultOpen))
         {
@@ -190,14 +208,12 @@ public static class ImGuiToolWindows
 
             if (!s.IsEnabled)
                 ImGui.BeginDisabled();
-            ImGui.PushID(s.GetType().Name);
             //if (OverridesImGuiDrawCall(s.GetType()))
             {
                 s.DrawImGuiSettings();
                 ImGui.Spacing();
                 ImGui.Spacing();
             }
-            ImGui.PopID();
             // ImGui.colla();
             if (!s.IsEnabled)
                 ImGui.EndDisabled();
@@ -207,6 +223,7 @@ public static class ImGuiToolWindows
                 dragginHeight = ImGui.GetCursorScreenPos().Y - lastCurserY;
             }
         }
+        ImGui.PopID();
         return sIsEnabled;
     }
 

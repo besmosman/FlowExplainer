@@ -6,21 +6,50 @@ using Newtonsoft.Json;
 
 namespace FlowExplainer;
 
-
 public static class Scripting
 {
     public static void Startup(World world)
     {
         string datasetPath = Config.GetValue<string>("spectral-data-path")!;
-       // RebuildSpeetjensDatasets(datasetPath);
-       
-        LoadPeriodicCopies(world);
+        // RebuildSpeetjensDatasets(datasetPath);
 
+
+
+
+
+        LoadPeriodicCopies(world);
         SetGyreDataset(world);
-        world.DataService.LoadedDataset.VectorFields.Add("s", new NonlinearSaddleFlow());
-        
+        /*var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(0).Key;
+        world.GetWorldService<DataService>().SetDataset(name);
+        var temp = world.DataService.LoadedDataset.ScalerFields.ElementAt(2).Value;
+
+        var tot = 0.0;
+        int it = 10000;
+        for (int i = 0; i < it; i++)
+        {
+            var p0 = new Vec3(Random.Shared.NextDouble(), Random.Shared.NextDouble() / 2, 5);
+            var diff = temp.Evaluate(p0) - temp.Evaluate(p0 + new Vec3(0, 0, 1));
+            tot += double.Abs(diff);
+        }
+        tot /= it;*/
+        // world.DataService.LoadedDataset.VectorFields.Add("s", new NonlinearSaddleFlow());
+
         world.AddVisualisationService(new AxisVisualizer());
-       // world.AddVisualisationService(new StochasticConnectionVisualization());
+        world.AddVisualisationService(new Axis3D());
+        world.AddVisualisationService(new ArrowVisualizer());
+
+        //var flowGenerator = world.AddVisualisationService<StructuredFlowGenerator>();
+        //var vectorField = flowGenerator.Generate();
+        //world.DataService.LoadedDataset.VectorFields.Add("ss", vectorField);
+        //world.DataService.currentSelectedVectorField = "ss";
+        // var stochasticVisualization3D = new StochasticVisualization3D();
+        //  world.AddVisualisationService(stochasticVisualization3D);
+        // world.FlowExplainer.GetGlobalService<ViewsService>().Views.First().Is3DCamera = true;
+        // stochasticVisualization3D.VolumeRender = true;
+
+        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new UpdatePresentation());
+        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+        // world.AddVisualisationService(new StochasticConnectionVisualization());
     }
     private static void LoadPeriodicCopies(World world)
     {
@@ -66,11 +95,11 @@ public static class Scripting
         foreach (var p in dat.VectorFields.ToList())
         {
             var domain = new RectDomain<Vec3>(p.Value.Domain.RectBoundary, p.Value.Domain.Bounding);
-            domain.MakeFinalAxisPeriodicSlice(t, period);
+            domain.MakeFinalAxisPeriodicSlice(0, period);
             dat.VectorFields[p.Key] = new ArbitraryField<Vec3, Vec2>(domain, c =>
             {
                 var pPeriodic = c;
-                pPeriodic.Z = pPeriodic.Last % period + t;
+                pPeriodic.Z = (pPeriodic.Z % period) + t;
                 return p.Value.Evaluate(pPeriodic);
             })
             {
@@ -81,11 +110,11 @@ public static class Scripting
         foreach (var p in dat.ScalerFields.ToList())
         {
             var domain = new RectDomain<Vec3>(p.Value.Domain.RectBoundary);
-            domain.MakeFinalAxisPeriodicSlice(t, period);
+            domain.MakeFinalAxisPeriodicSlice(0, period);
             dat.ScalerFields[p.Key] = new ArbitraryField<Vec3, double>(domain, c =>
             {
                 var pPeriodic = c;
-                pPeriodic.Z = pPeriodic.Last % period + t;
+                pPeriodic.Z = (pPeriodic.Z * period) + t;
                 return p.Value.Evaluate(pPeriodic);
             })
             {

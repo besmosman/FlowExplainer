@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Numerics;
 using ImGuiNET;
 
 namespace FlowExplainer;
@@ -34,7 +35,7 @@ public class ImGuiHelpers
         ImGui.Text("Alt gradient");
         ImGui.SameLine();
         ImGui.SetCursorPosX(150);
-        
+
         ImGui.Checkbox("##grad-check", ref f);
 
         if (!f && ColorGradient != null)
@@ -182,5 +183,24 @@ public class ImGuiHelpers
         }
 
         return set;
+    }
+    public static void ColorPicker(string name, ref Color color)
+    {
+        ImGui.BeginGroup();
+        if (ImGui.ColorButton(name, color.ToNumerics()))
+        {
+        }
+        ImGui.SameLine();
+        ImGui.Text("Color");
+        ImGui.EndGroup();
+        if(ImGui.IsItemClicked())
+            ImGui.OpenPopup(name + " picker popup");
+        if (ImGui.BeginPopup(name + " picker popup"))
+        {
+            var r = color.ToVec4().Down().ToNumerics();
+            ImGui.ColorPicker3(name + " picker", ref r);
+            color = new Color(r.X, r.Y, r.Z, color.A);
+            ImGui.EndPopup();
+        }
     }
 }

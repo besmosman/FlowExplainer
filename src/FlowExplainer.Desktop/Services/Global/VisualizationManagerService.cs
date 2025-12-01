@@ -35,7 +35,10 @@ namespace FlowExplainer
 
                             var DiffFluxField = dataset.VectorFields["Diffusion Flux"];
                             var ConvFluxField = dataset.VectorFields["Convection Flux"];
-                            var totalFlux = new ArbitraryField<Vec3, Vec2>(DiffFluxField.Domain, p => DiffFluxField.Evaluate(p) + ConvFluxField.Evaluate(p))
+                            var totalFlux = new ArbitraryField<Vec3, Vec2>(DiffFluxField.Domain, p =>
+                            {
+                                return DiffFluxField.Evaluate(p) + ConvFluxField.Evaluate(p);
+                            })
                             {
                                 DisplayName = "Total Flux",
                             };

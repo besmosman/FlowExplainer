@@ -42,10 +42,21 @@ public struct RectDomain<Vec> : IDomain<Vec> where Vec : IVec<Vec>
         return true;
     }
 
+    public void MakeFinalAxisSlice(double t_start, double t_end, double new_t_start = 0, double new_t_end = 1)
+    {
+        Rect.Min[Rect.Min.ElementCount - 1] = new_t_start;
+        Rect.Max[Rect.Min.ElementCount - 1] = new_t_end;
+        Bounding = new LastSliceBounding<Vec>(Bounding, t_start, t_end, new_t_start, new_t_end);
+    }
     public void MakeFinalAxisPeriodicSlice(double t, double period)
     {
         Rect.Max[Rect.Min.ElementCount - 1] = period;
         Rect.Min[Rect.Min.ElementCount - 1] = 0;
         Bounding = new LastPeriodicBounding<Vec>(Bounding, t, period);
+    }
+    
+    public void MakeFinalAxisPeriodic()
+    {
+        Bounding = new LastPeriodicBounding<Vec>(Bounding, Rect.Min[Rect.Min.ElementCount - 1], Rect.Max[Rect.Min.ElementCount - 1]);
     }
 }

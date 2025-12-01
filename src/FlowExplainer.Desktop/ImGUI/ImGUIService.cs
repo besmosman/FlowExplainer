@@ -76,7 +76,12 @@ public class ImGUIService : GlobalService
 
                 if (ImGui.MenuItem("New view"))
                     GetRequiredGlobalService<ViewsService>().NewView();
-
+                if (ImGui.MenuItem("New world"))
+                {
+                    var w = GetRequiredGlobalService<WorldManagerService>().NewWorld();
+                    Scripting.SetGyreDataset(w);
+                    w.AddVisualisationService(new AxisVisualizer());
+                }
                 ImGui.EndMenu();
             }
 
