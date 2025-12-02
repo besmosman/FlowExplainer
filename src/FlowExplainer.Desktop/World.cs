@@ -1,4 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
+﻿using System.Reflection;
+using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer
 {
@@ -12,11 +13,17 @@ namespace FlowExplainer
         public World(FlowExplainer flowExplainer)
         {
             FlowExplainer = flowExplainer;
-            Name = "visualisation " + worldCount++;
+            Name = "world " + worldCount++;
         }
 
         public readonly List<WorldService> Services = new();
 
+        public T AddVisualisationService<T>(int? index = null) where T : WorldService
+        {
+            var worldService = Activator.CreateInstance<T>();
+            AddVisualisationService(worldService);
+            return worldService;
+        }
         public void AddVisualisationService(WorldService service, int? index = null)
         {
             if (index == null)
@@ -26,6 +33,9 @@ namespace FlowExplainer
 
             service.FlowExplainer = FlowExplainer;
             service.World = this;
+
+            if (!service.IsEnabled)
+                service.Enable();
         }
 
         public void ReplaceVisualizationService(WorldService old, WorldService service)
@@ -35,10 +45,10 @@ namespace FlowExplainer
             AddVisualisationService(service, index);
         }
 
+        private List<WorldService> toRemove = new();
         public void RemoveWorldService(WorldService service)
         {
-            service.Deinitialize();
-            Services.Remove(service);
+            toRemove.Add(service);
         }
 
         public DataService DataService => GetWorldService<DataService>();
@@ -72,6 +82,13 @@ namespace FlowExplainer
 
         public void Update()
         {
+            foreach (var service in toRemove)
+            {
+                service.Deinitialize();
+                Services.Remove(service);
+            }
+            toRemove.Clear();
+
             foreach (var service in Services)
                 if (service.IsEnabled)
                 {
@@ -94,7 +111,7 @@ namespace FlowExplainer
             view.RenderTarget.DrawTo(() =>
             {
                 var clearColor = view.AltClearColor ?? Style.Current.BackgroundColor;
-                GL.ClearColor((float)clearColor.R, (float)clearColor.G,(float)clearColor.B,(float)clearColor.A);
+                GL.ClearColor((float)clearColor.R, (float)clearColor.G, (float)clearColor.B, (float)clearColor.A);
                 GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
                 foreach (var service in Services)
                 {

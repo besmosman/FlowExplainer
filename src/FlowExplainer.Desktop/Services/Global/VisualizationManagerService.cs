@@ -17,7 +17,40 @@ namespace FlowExplainer
                         props.TryAdd("Name", "?");
                         var data = new Dataset(props, dataset =>
                         {
-                            var DiffFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "diffFlux.field"));
+
+                            foreach (var f in Directory.EnumerateFiles(fieldsFolder))
+                            {
+                                if (f.EndsWith(".vec3_vec2_field"))
+                                {
+                                    var field = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(f);
+                                    dataset.VectorFields.Add(field.DisplayName, field);
+                                }
+                                
+                                if (f.EndsWith(".vec3_vec1_field"))
+                                {
+                                    var field = RegularGridVectorField<Vec3, Vec3i, Double>.Load(f);
+                                    dataset.ScalerFields.Add(field.DisplayName, field);
+                                }
+                            }
+
+                            var DiffFluxField = dataset.VectorFields["Diffusion Flux"];
+                            var ConvFluxField = dataset.VectorFields["Convection Flux"];
+                            var totalFlux = new ArbitraryField<Vec3, Vec2>(DiffFluxField.Domain, p =>
+                            {
+                                return DiffFluxField.Evaluate(p) + ConvFluxField.Evaluate(p);
+                            })
+                            {
+                                DisplayName = "Total Flux",
+                            };
+                            var velocityField = new SpeetjensVelocityField()
+                            {
+                                DisplayName = "Velocity",
+                                epsilon = double.Parse(props!["EPS"]),
+                            };
+                            dataset.VectorFields.Add(totalFlux.DisplayName, totalFlux);
+                            dataset.VectorFields.Add(velocityField.DisplayName, velocityField);
+
+                            /*var DiffFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "diffFlux.field"));
                             var ConvFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "convectiveHeatFlux.field"));
                             var TempConvection = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
                             var TempTot = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
@@ -33,7 +66,7 @@ namespace FlowExplainer
                             dataset.VectorFields.Add("Total Flux", totalFlux);
                             dataset.ScalerFields.Add("Total Temperature", TempTot);
                             dataset.ScalerFields.Add("Convective Temperature", TempConvection);
-                            dataset.ScalerFields.Add("No Flow Temperature", TempTotNoFlow);
+                            dataset.ScalerFields.Add("No Flow Temperature", TempTotNoFlow);*/
                         });
 
                         Datasets.Add(data.Name, data);
@@ -74,12 +107,12 @@ namespace FlowExplainer
             {
                 IsEnabled = true,
             });
-            v.AddVisualisationService(new Axis3D()
+            /*v.AddVisualisationService(new Axis3D()
             {
                 IsEnabled = true,
-            });
+            });*/
             //v.AddVisualisationService(new HeatSimTest(){ IsEnabled = true});
-            v.AddVisualisationService(new HeatSimulationViewData());
+            /*v.AddVisualisationService(new HeatSimulationViewData());
             v.AddVisualisationService(new HeatSimulationVisualizer());
             v.AddVisualisationService(new GridVisualizer());
             v.AddVisualisationService(new Poincare3DVisualizer());
@@ -98,7 +131,7 @@ namespace FlowExplainer
             });
             v.AddVisualisationService(new StructureIdentifier());
             //v.AddVisualisationService(new FDTest(){ IsEnabled = true});
-            v.AddVisualisationService(new FlowVisService());
+            v.AddVisualisationService(new FlowVisService());*/
             //v.AddVisualisationService(new FDTest());
             //v.AddVisualisationService(new Heat3DViewer());
             Worlds.Add(v);

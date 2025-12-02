@@ -13,7 +13,6 @@ public class Poincare3DVisualizer : WorldService
         public Mesh Mesh;
     }
 
-    public override ToolCategory Category => ToolCategory.Flow;
     private List<Path> paths = new();
 
     public double offset = .4f;
@@ -24,6 +23,7 @@ public class Poincare3DVisualizer : WorldService
     public double tubeFactor =0.0;
     public override void Initialize()
     {
+        material = new Material(Shader.DefaultWorldSpaceVertex, new Shader("Assets//Shaders//traject.frag", ShaderType.FragmentShader));
     }
     public void SetupTrajects(IEnumerable<Vec2> seeds)
     {
@@ -99,7 +99,7 @@ public class Poincare3DVisualizer : WorldService
     }
 
     public double speed;
-    private Material material = new Material(Shader.DefaultWorldSpaceVertex, new Shader("Assets//Shaders//traject.frag", ShaderType.FragmentShader));
+    private Material material;
     public override void Draw(RenderTexture rendertarget, View view)
     {
         if (!view.Is3DCamera)
@@ -175,11 +175,11 @@ public class Poincare3DVisualizer : WorldService
             UpdateLineMesh(path, period, offset);
     }
 
-    public override void DrawImGuiEdit()
+    public override void DrawImGuiSettings()
     {
         ImGuiHelpers.SliderFloat("slice t", ref sliceT, 0, 1);
         ImGuiHelpers.SliderFloat("offset", ref offset, 0, 1);
         ImGuiHelpers.SliderFloat("t", ref t, 0,30);
-        base.DrawImGuiEdit();
+        base.DrawImGuiSettings();
     }
 }

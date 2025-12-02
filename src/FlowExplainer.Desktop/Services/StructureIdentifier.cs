@@ -6,7 +6,6 @@ namespace FlowExplainer;
 
 public class StructureIdentifier : WorldService
 {
-    public override ToolCategory Category => ToolCategory.Flow;
 
     private Structure structure;
 
@@ -142,9 +141,9 @@ public class StructureIdentifier : WorldService
         return filled;
     }
     private double radius = .1f;
-    public override void DrawImGuiEdit()
+    public override void DrawImGuiSettings()
     {
         ImGuiHelpers.SliderFloat("Identify radius", ref radius, 0, .3f);
-        base.DrawImGuiEdit();
+        base.DrawImGuiSettings();
     }
 }

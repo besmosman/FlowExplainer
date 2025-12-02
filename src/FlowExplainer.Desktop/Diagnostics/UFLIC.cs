@@ -32,7 +32,7 @@ public class UFLIC : IGridDiagnostic
             InputTextureCopy.Resize(gridVisualizer.RegularGrid.GridSize);
             globalStep = 0;
             var domainBoundary = gridVisualizer.RegularGrid.Domain.RectBoundary;
-            ParallelGrid.For(InputTexture.GridSize, token, (i, j) => { InputTexture.AtCoords(new Vec2i(i, j)) = NoiseField.Evaluate(domainBoundary.Relative(new Vec2(i, j) / gridVisualizer.RegularGrid.GridSize.ToVec2())); });
+            ParallelGrid.For(InputTexture.GridSize, token, (i, j) => { InputTexture.AtCoords(new Vec2i(i, j)) = NoiseField.Evaluate(domainBoundary.FromRelative(new Vec2(i, j) / gridVisualizer.RegularGrid.GridSize.ToVec2())); });
             startTime = t;
             if (auto)
                 warm(gridVisualizer, max_steps);
@@ -70,7 +70,7 @@ public class UFLIC : IGridDiagnostic
         for (int i = 0; i < outputGrid.GridSize.X; i++)
         for (int j = 0; j < outputGrid.GridSize.Y; j++)
         {
-            var pos = domainBoundary.Relative(new Vec2(i + .5f, j + .5f) / outputGrid.GridSize.ToVec2());
+            var pos = domainBoundary.FromRelative(new Vec2(i + .5f, j + .5f) / outputGrid.GridSize.ToVec2());
             var scatterValue = InputTexture.AtCoords(new Vec2i(i, j));
 
             double t = start_t + globalStep * dt;

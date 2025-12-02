@@ -68,6 +68,10 @@ namespace FlowExplainer
 
                     foreach (var service in Services)
                         service.Draw();
+                    
+                    foreach (var service in Services)
+                        service.AfterDraw();
+                    
                     double endTime = total.Elapsed.TotalSeconds;
 
                     /*while (endTime - startTime < 1 / 144f)

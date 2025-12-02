@@ -36,6 +36,7 @@ public interface IVec<TVec, TNumber> :
 
     static abstract TVec operator *(TNumber left, TVec right);
     static abstract TVec operator *(TVec left, TVec right);
+    static abstract TVec operator /(TVec left, TVec right);
     static abstract bool operator >(TVec left, TVec right);
     static abstract bool operator <(TVec left, TVec right);
 
@@ -73,7 +74,9 @@ public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>,
 
     public static Vec2 Zero => new Vec2();
     public static Vec2 One { get; } = new Vec2(1, 1);
+    public static Vec2 Half { get; } = new Vec2(.5, .5);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vec3 Up(double f)
     {
         return new Vec3(X, Y, f);

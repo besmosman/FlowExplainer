@@ -3,6 +3,52 @@ using OpenTK.Windowing.Common;
 
 namespace FlowExplainer;
 
+public class NewImGUIRenderService : GlobalService
+{
+    public override void Initialize()
+    {
+        ImGui.CreateContext();
+        ImGuiIOPtr io = ImGui.GetIO();
+        io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
+        io.ConfigFlags |= ImGuiConfigFlags.NavEnableGamepad;
+        io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+        io.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
+
+        ImGuiStylePtr style = ImGui.GetStyle();
+        if ((io.ConfigFlags & ImGuiConfigFlags.ViewportsEnable) != 0)
+        {
+            style.WindowRounding = 0.0f;
+            style.Colors[(int)ImGuiCol.WindowBg].W = 1.0f;
+        }
+        ImguiImplOpenTK4.Init(GetGlobalService<WindowService>()!.Window);
+        ImguiImplOpenGL3.Init();
+        ImGuiController.RefreshImGuiStyleDark();
+
+
+    }
+    public override void Draw()
+    {
+        ImguiImplOpenGL3.NewFrame();
+        ImguiImplOpenTK4.NewFrame();
+        ImGui.NewFrame();
+        ImGui.DockSpaceOverViewport();
+    }
+
+    public override void AfterDraw()
+    {
+        ImGui.Render();
+        ImguiImplOpenGL3.RenderDrawData(ImGui.GetDrawData());
+
+        if (ImGui.GetIO().ConfigFlags.HasFlag(ImGuiConfigFlags.ViewportsEnable))
+        {
+            ImGui.UpdatePlatformWindows();
+            ImGui.RenderPlatformWindowsDefault();
+            WindowService.SWindow.Context.MakeCurrent();
+        }
+        base.AfterDraw();
+    }
+}
+
 public class ImGUIRenderService : GlobalService
 {
     private ImGuiController controller;

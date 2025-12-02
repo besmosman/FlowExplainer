@@ -79,8 +79,8 @@ public class HeatSimTest : WorldService
         Gizmos2D.Instanced.RenderRects(view.Camera2D);
     }
 
-    public override void DrawImGuiEdit()
+    public override void DrawImGuiSettings()
     {
-        base.DrawImGuiEdit();
+        base.DrawImGuiSettings();
     }
 }

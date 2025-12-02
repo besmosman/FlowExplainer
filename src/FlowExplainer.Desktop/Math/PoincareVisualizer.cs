@@ -26,8 +26,11 @@ public class PoincareVisualizer : WorldService, IAxisTitle
 
 
     public string GetTitle() => "Poincaré Section";
+    public override string? Description { get; } = "Computes and visualizes 2D Poincaré sections of a time-dependent flow.";
+    public override string? Name { get; } = "Poincaré Visualizer";
+    public override string? CategoryN { get; } = "Structure";
 
-    public override void DrawImGuiEdit()
+    public override void DrawImGuiSettings()
     {
         var dat = GetRequiredWorldService<DataService>();
         ImGui.SliderInt("Periods", ref Periods, 0, 5000);
@@ -58,7 +61,6 @@ public class PoincareVisualizer : WorldService, IAxisTitle
             {
                 var traj = poincare.ComputeOne(p.Up(Offset), dat.VectorField.Domain.RectBoundary.Size.Z, StepsPerPeriod, Periods);
                 Trajectories.Add(traj);
-
             });
 
 
@@ -96,7 +98,7 @@ public class PoincareVisualizer : WorldService, IAxisTitle
 
         }
 
-        base.DrawImGuiEdit();
+        base.DrawImGuiSettings();
     }
 
     public override void Initialize()

@@ -27,6 +27,7 @@ namespace FlowExplainer
         public ICamera ScreenCamera => new ScreenCamera(RenderTarget.Size);
 
         public bool IsOpen = true;
+        public bool IsActive = true;
         public bool Is3DCamera = false;
         public bool Is2DCamera => !Is3DCamera;
         public Camera Camera = new();

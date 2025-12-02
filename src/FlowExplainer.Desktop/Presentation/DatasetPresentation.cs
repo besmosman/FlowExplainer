@@ -2,6 +2,7 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
 
+/*
 public class DatasetPresentation2 : Presentation
 {
     public class IntroSlide : Slide
@@ -42,8 +43,8 @@ public class DatasetPresentation2 : Presentation
     {
         public override void OnEnter()
         {
-            Presi.GetView("v0").World.GetWorldService<FlowArrowVisualizer>().Enable();
-            Presi.GetView("v0").World.GetWorldService<FlowArrowVisualizer>().colorByGradient = true;
+            Presi.GetView("v0").World.GetWorldService<ArrowVisualizer>().Enable();
+            Presi.GetView("v0").World.GetWorldService<ArrowVisualizer>().colorByGradient = true;
             Presi.GetView("v0").World.GetWorldService<DataService>().ColorGradient = Gradients.Parula;
             Presi.GetView("v0").World.GetWorldService<DataService>().TimeMultiplier = .4f;
             Presi.GetView("v0").World.GetWorldService<DataService>().SimulationTime = .0f;
@@ -86,7 +87,7 @@ public class DatasetPresentation2 : Presentation
 
         public override void OnEnter()
         {
-            Presi.GetView("v0").World.GetWorldService<FlowArrowVisualizer>().Disable();
+            Presi.GetView("v0").World.GetWorldService<ArrowVisualizer>().Disable();
             //Presi.GetView("v0").World.GetWorldService<DataService>().ColorGradient = Gradients.GetGradient("BlueGrayRed");
             Presi.GetView("v0").World.GetWorldService<DataService>().SimulationTime = .0f;
             Presi.GetView("v0").World.GetWorldService<DataService>().TimeMultiplier = .0f;
@@ -191,10 +192,10 @@ public class DatasetPresentation2 : Presentation
             dat.TimeMultiplier = .0f;
             dat.currentSelectedVectorField = "Convection Flux";
             dat.currentSelectedScaler = "Convective Temperature";
-            var flowFieldVisualizer = world.GetWorldService<FlowArrowVisualizer>();
+            var flowFieldVisualizer = world.GetWorldService<ArrowVisualizer>();
             flowFieldVisualizer.Enable();
             flowFieldVisualizer.colorByGradient = false;
-            Presi.GetView("v0").World.GetWorldService<FlowArrowVisualizer>().Disable();
+            Presi.GetView("v0").World.GetWorldService<ArrowVisualizer>().Disable();
             base.Load();
         }
 
@@ -231,7 +232,7 @@ public class DatasetPresentation2 : Presentation
             dat.TimeMultiplier = .0f;
             dat.currentSelectedVectorField = "Diffusion Flux";
             dat.currentSelectedScaler = "Convective Temperature";
-            var flowFieldVisualizer = world.GetWorldService<FlowArrowVisualizer>();
+            var flowFieldVisualizer = world.GetWorldService<ArrowVisualizer>();
             flowFieldVisualizer.Disable();
             flowFieldVisualizer.colorByGradient = false;
             base.Load();
@@ -270,7 +271,7 @@ public class DatasetPresentation2 : Presentation
                 dat.currentSelectedVectorField = "Velocity";
             }
 
-            w0.GetWorldService<FlowArrowVisualizer>().Disable();
+            w0.GetWorldService<ArrowVisualizer>().Disable();
             w1.GetWorldService<DataService>().currentSelectedScaler = "Total Temperature";
             w0.GetWorldService<DataService>().currentSelectedScaler = "Convective Temperature";
             w2.GetWorldService<DataService>().currentSelectedScaler = "No Flow Temperature";
@@ -396,7 +397,7 @@ public class DatasetPresentation2 : Presentation
         ConvFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "convectiveHeatFlux.field"));
         TempConvection = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
         TempTot = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
-        TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));*/
+        TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));#1#
         Scripting.SetGyreDataset(w0);
         Scripting.SetGyreDataset(w1);
         Scripting.SetGyreDataset(w2);
@@ -404,7 +405,7 @@ public class DatasetPresentation2 : Presentation
         w0.GetWorldService<DataService>().currentSelectedVectorField = "Diffusion Flux";
         w0.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
 
-        w0.GetWorldService<FlowArrowVisualizer>().Enable();
+        w0.GetWorldService<ArrowVisualizer>().Enable();
 
         w1.GetWorldService<DataService>().currentSelectedScaler = "Total Temperature";
         presentationService.Presi.GetView("v0").World = w0;
@@ -453,8 +454,8 @@ public class DatasetPresentation : Presentation
     {
         public override void OnEnter()
         {
-            Presi.GetView("v0").World.GetWorldService<FlowArrowVisualizer>().Enable();
-            Presi.GetView("v0").World.GetWorldService<FlowArrowVisualizer>().colorByGradient = true;
+            Presi.GetView("v0").World.GetWorldService<ArrowVisualizer>().Enable();
+            Presi.GetView("v0").World.GetWorldService<ArrowVisualizer>().colorByGradient = true;
             Presi.GetView("v0").World.GetWorldService<DataService>().ColorGradient = Gradients.Parula;
             Presi.GetView("v0").World.GetWorldService<DataService>().TimeMultiplier = .4f;
             Presi.GetView("v0").World.GetWorldService<DataService>().SimulationTime = .0f;
@@ -497,7 +498,7 @@ public class DatasetPresentation : Presentation
 
         public override void OnEnter()
         {
-            Presi.GetView("v0").World.GetWorldService<FlowArrowVisualizer>().Disable();
+            Presi.GetView("v0").World.GetWorldService<ArrowVisualizer>().Disable();
             //Presi.GetView("v0").World.GetWorldService<DataService>().ColorGradient = Gradients.GetGradient("BlueGrayRed");
             Presi.GetView("v0").World.GetWorldService<DataService>().SimulationTime = .0f;
             Presi.GetView("v0").World.GetWorldService<DataService>().TimeMultiplier = .0f;
@@ -599,7 +600,7 @@ public class DatasetPresentation : Presentation
             dat.TimeMultiplier = .0f;
             dat.currentSelectedVectorField = "Convection Flux";
             dat.currentSelectedScaler = "Convective Temperature";
-            var flowFieldVisualizer = world.GetWorldService<FlowArrowVisualizer>();
+            var flowFieldVisualizer = world.GetWorldService<ArrowVisualizer>();
             flowFieldVisualizer.Enable();
             flowFieldVisualizer.colorByGradient = false;
             base.Load();
@@ -633,7 +634,7 @@ public class DatasetPresentation : Presentation
             dat.TimeMultiplier = .0f;
             dat.currentSelectedVectorField = "Diffusion Flux";
             dat.currentSelectedScaler = "Convective Temperature";
-            var flowFieldVisualizer = world.GetWorldService<FlowArrowVisualizer>();
+            var flowFieldVisualizer = world.GetWorldService<ArrowVisualizer>();
             flowFieldVisualizer.Enable();
             flowFieldVisualizer.colorByGradient = false;
             base.Load();
@@ -671,7 +672,7 @@ public class DatasetPresentation : Presentation
                 dat.currentSelectedVectorField = "Velocity";
             }
 
-            w0.GetWorldService<FlowArrowVisualizer>().Disable();
+            w0.GetWorldService<ArrowVisualizer>().Disable();
             w1.GetWorldService<DataService>().currentSelectedScaler = "Total Temperature";
             w0.GetWorldService<DataService>().currentSelectedScaler = "Convective Temperature";
             w2.GetWorldService<DataService>().currentSelectedScaler = "No Flow Temperature";
@@ -741,7 +742,7 @@ public class DatasetPresentation : Presentation
         ConvFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "convectiveHeatFlux.field"));
         TempConvection = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
         TempTot = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
-        TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));*/
+        TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));#1#
         Scripting.SetGyreDataset(w0);
         Scripting.SetGyreDataset(w1);
         Scripting.SetGyreDataset(w2);
@@ -749,11 +750,11 @@ public class DatasetPresentation : Presentation
         w0.GetWorldService<DataService>().currentSelectedVectorField = "Diffusion Flux";
         w0.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
 
-        w0.GetWorldService<FlowArrowVisualizer>().Enable();
+        w0.GetWorldService<ArrowVisualizer>().Enable();
 
         w1.GetWorldService<DataService>().currentSelectedScaler = "Total Temperature";
         presentationService.Presi.GetView("v0").World = w0;
         presentationService.Presi.GetView("v1").World = w1;
         presentationService.Presi.GetView("v2").World = w2;
     }
-}
+}*/

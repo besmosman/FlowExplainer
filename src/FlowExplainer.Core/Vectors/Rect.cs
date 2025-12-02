@@ -27,9 +27,14 @@ public partial struct Rect<Vec> where Vec : IVec<Vec>
         return p > Min && p < Max;
     }
 
-    public Vec Relative(Vec p)
+    public Vec FromRelative(Vec p)
     {
         return Min + Size * p;
+    }
+    
+    public Vec ToRelative(Vec p)
+    {
+        return (p - Min) / Size;
     }
 
     public Rect<T> Reduce<T>() where T : IVec<T>, IVecUpDimension<Vec>

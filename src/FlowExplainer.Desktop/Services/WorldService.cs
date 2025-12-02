@@ -1,5 +1,6 @@
 using FlowExplainer;
 using FlowExplainer;
+using ImGuiNET;
 
 namespace FlowExplainer;
 
@@ -8,13 +9,17 @@ namespace FlowExplainer;
 /// </summary>
 public abstract class WorldService : Service
 {
-    public virtual ToolCategory Category => ToolCategory.Flow;
     public World World { get; internal set; } = null!;
     public bool IsEnabled { get; set; } = false;
     public bool IsInitialzied { get; set; }
-    
-    
-    
+
+    public bool ui_needs_open;
+
+    public virtual string? Description { get; }
+    public virtual string? Name { get; }
+    public virtual string? CategoryN { get; }
+
+  
     public virtual void OnEnable()
     {
     }
@@ -29,38 +34,43 @@ public abstract class WorldService : Service
         }
         OnEnable();
     }
-    
+
     public void Disable()
     {
         IsEnabled = false;
         OnDisable();
     }
 
-    
-    
+
+
     public virtual void OnDisable()
     {
-        
+
     }
-    
+
     /// <summary>
     /// Can be called multiple times each frame (multiple views with same world).
     /// </summary>
     public abstract void Draw(RenderTexture rendertarget, View view);
 
-    
+
     /// <summary>
     /// Gets called once per frame.
     /// </summary>
-    public virtual void Update() {}
-    
+    public virtual void Update() { }
+
     public T? GetWorldService<T>() where T : WorldService =>
         World.GetWorldService<T>();
 
     public T GetRequiredWorldService<T>() where T : WorldService => GetWorldService<T>() ?? throw new Exception($"No instance of {typeof(T)} found in the visualisation");
-    
-    public virtual void DrawImGuiEdit()
+
+    public virtual void DrawImGuiDataSettings()
     {
-        
+
+    }
+
+    public virtual void DrawImGuiSettings()
+    {
+
     }
 }

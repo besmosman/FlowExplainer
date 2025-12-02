@@ -10,11 +10,50 @@ public static class Scripting
 {
     public static void Startup(World world)
     {
-        
         string datasetPath = Config.GetValue<string>("spectral-data-path")!;
-        //RebuildSpeetjensDatasets(datasetPath);
-        
-        
+        // RebuildSpeetjensDatasets(datasetPath);
+
+
+
+
+
+        LoadPeriodicCopies(world);
+        SetGyreDataset(world);
+        /*var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(0).Key;
+        world.GetWorldService<DataService>().SetDataset(name);
+        var temp = world.DataService.LoadedDataset.ScalerFields.ElementAt(2).Value;
+
+        var tot = 0.0;
+        int it = 10000;
+        for (int i = 0; i < it; i++)
+        {
+            var p0 = new Vec3(Random.Shared.NextDouble(), Random.Shared.NextDouble() / 2, 5);
+            var diff = temp.Evaluate(p0) - temp.Evaluate(p0 + new Vec3(0, 0, 1));
+            tot += double.Abs(diff);
+        }
+        tot /= it;*/
+        // world.DataService.LoadedDataset.VectorFields.Add("s", new NonlinearSaddleFlow());
+
+        world.AddVisualisationService(new AxisVisualizer());
+        world.AddVisualisationService(new Axis3D());
+        world.AddVisualisationService(new ArrowVisualizer());
+
+        //var flowGenerator = world.AddVisualisationService<StructuredFlowGenerator>();
+        //var vectorField = flowGenerator.Generate();
+        //world.DataService.LoadedDataset.VectorFields.Add("ss", vectorField);
+        //world.DataService.currentSelectedVectorField = "ss";
+        // var stochasticVisualization3D = new StochasticVisualization3D();
+        //  world.AddVisualisationService(stochasticVisualization3D);
+        // world.FlowExplainer.GetGlobalService<ViewsService>().Views.First().Is3DCamera = true;
+        // stochasticVisualization3D.VolumeRender = true;
+
+        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new UpdatePresentation());
+        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+        // world.AddVisualisationService(new StochasticConnectionVisualization());
+    }
+    private static void LoadPeriodicCopies(World world)
+    {
+
         var datasetsService = world.FlowExplainer.GetGlobalService<DatasetsService>();
         foreach (var d in datasetsService.Datasets.ToList())
         {
@@ -25,147 +64,10 @@ public static class Scripting
                 d.Value.Load(dataset);
                 MakeDatasetPeriodic(dataset, 5, 1);
             };
-            
+
             cop.Properties["Name"] = "(P) " + cop.Properties["Name"];
             datasetsService.Datasets.Add(cop.Name, cop);
         }
-        
-
-        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new StochasticPresentation());
-        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
-        SetGyreDataset(world);
-     
-
-     
-
-        // MakeDatasetPeriodic(world);
-        //world.GetWorldService<DataService>().currentSelectedVectorField = "Total Flux";
-        //world.GetWorldService<CriticalPointIdentifier>().Enable();
-        //world.GetWorldService<StochasticPoincare>().Enable();
-
-        //MakeDatasetPeriodic(world);
-
-        /*var vel = world.GetWorldService<DataService>().VectorFields["Total Flux"];
-        DiscretizedField<Vec3, Vec3i, Vec2> velDisc = new DiscretizedField<Vec3, Vec3i, Vec2>(new Vec3i(64, 32, 800), vel);
-        StringBuilder s = new StringBuilder();
-        s.Append("time,divergence,changeovertime\r\n");
-        for (int z = 1; z < velDisc.GridField.GridSize.Z-1; z++)
-        {
-            double divergence =0.0;
-            double changeOverTime =0.0;
-            var d = velDisc.Domain.RectBoundary.Size.Down() / (velDisc.GridField.GridSize.X * velDisc.GridField.GridSize.Y);
-            for (int x = 5; x < velDisc.GridField.GridSize.X - 5; x++)
-            for (int y = 5; y < velDisc.GridField.GridSize.Y - 5; y++)
-            {
-                var left = velDisc.GridField.Grid[new Vec3i(x - 1, y, z)];
-                var right = velDisc.GridField.Grid[new Vec3i(x + 1, y, z)];
-                var up = velDisc.GridField.Grid[new Vec3i(x, y + 1, z)];
-                var down = velDisc.GridField.Grid[new Vec3i(x, y - 1, z)];
-
-                divergence += (right - left).X / (2 * d.X) + (up - down).Y / (2 * d.Y);
-                changeOverTime += Vec2.Distance(velDisc.GridField.Grid[new Vec3i(x, y, z + 1)], velDisc.GridField.Grid[new Vec3i(x, y, z)]);
-            }
-            s.AppendLine($"{z.ToString(CultureInfo.InvariantCulture)},{divergence.ToString(CultureInfo.InvariantCulture)},{changeOverTime.ToString(CultureInfo.InvariantCulture)}");
-            //changeOverTime /= velDisc.GridField.GridSize.X * velDisc.GridField.GridSize.Y;
-        }
-
-       File.WriteAllText("test.csv",s.ToString());*/
-        int c = 5;
-        //orld.GetWorldService<DataService>().currentSelectedVectorField = "Total Flux";
-        //orld.GetWorldService<Poincare3DVisualizer>().Enable();
-        //orld.GetWorldService<Poincare3DVisualizer>().SetupTrajects([new Vec2(.4f,.4f)]);
-        /*
-        var gridVisualizer = world.GetWorldService<GridVisualizer>();
-        if (false)
-        {
-            gridVisualizer.TargetCellCount = 1000;
-            gridVisualizer.Enable();
-            gridVisualizer.RegularGrid.Interpolate = false;
-            gridVisualizer.SetGridDiagnostic(new PoincareSmearGridDiagnostic());
-            return;
-            /*world.GetWorldService<Poincare3DVisualizer>().Enable();
-            world.FlowExplainer.GetGlobalService<ViewsService>().Views[0].Is3DCamera = true;#1#
-            /*gridVisualizer.TargetCellCount = 2000;
-            gridVisualizer.Enable();
-            gridVisualizer.RegularGrid.Interpolate = false;
-            gridVisualizer.SetGridDiagnostic(new PoincareSmearGridDiagnostic()
-            {
-                //UseUnsteady = true,
-            });#1#
-        }
-        else
-        {
-            var presentationService = world.FlowExplainer.GetGlobalService<PresentationService>()!;
-            var updatePresentation = new ProgressPresentation();
-            updatePresentation.Prepare(world.FlowExplainer);
-            presentationService.LoadPresentation(updatePresentation);
-            presentationService.StartPresenting();
-            return;
-        }
-        */
-
-
-        /*var data = world.GetWorldService<DataService>();
-        var gridVisualizer = world.GetWorldService<GridVisualizer>();
-        gridVisualizer.Enable();
-
-        //ComputeSpeetjensFields(data, "speetjens-computed-fields");
-        //SetGyreDataset(world);
-        data.SimulationTime =0.0;
-        data.TimeMultiplier = .1f;
-        data.currentSelectedVectorField = "Velocity"; //"Total Flux";*/
-        /*gridVisualizer.TargetCellCount = 20000;
-        gridVisualizer.Enable();
-        gridVisualizer.RegularGrid.Interpolate = false;
-        gridVisualizer.SetGridDiagnostic(new UFLIC()
-        {
-            //UseUnsteady = true,
-        });*/
-        /*return;
-
-
-
-        world.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
-        var v = gridVisualizer;
-        v.Enable();
-        v.TargetCellCount = 200000;
-
-        var dat = world.GetWorldService<DataService>();
-        dat.currentSelectedVectorField = "Diffusion Flux";
-
-
-        double[] ts = [0.01f, 0.3f];
-
-        int timeSteps = 100;
-        foreach (double t in ts)
-        {
-            var title = t.ToString(CultureInfo.InvariantCulture);
-            var heatStructureGridDiagnostic = new HeatStructureGridDiagnostic()
-            {
-                T = t,
-                M = 4,
-                // K = 25,
-            };
-            v.SetGridDiagnostic(heatStructureGridDiagnostic);
-
-            v.Save($"diffusion-sinks-T={title}.field", .0f, 1f, timeSteps);
-            heatStructureGridDiagnostic.Reverse = true;
-            v.Save($"diffusion-sources-T={title}.field", .0f, 1f, timeSteps);
-
-
-            dat.currentSelectedVectorField = "Convection Flux";
-            heatStructureGridDiagnostic.Reverse = false;
-            v.Save($"convection-sinks-T={title}.field", .0f, 1f, timeSteps);
-            heatStructureGridDiagnostic.Reverse = true;
-            v.Save($"convection-sources-T={title}.field", .0f, 1f, timeSteps);
-        }
-
-        world.GetWorldService<DataService>().ColorGradient = Gradients.Parula;*/
-        /*var regularGridVectorField = RegularGridVectorField<Vec3, Vec3i, double>.Load("sources.field");
-        dat.ScalerFields.Add("sources", regularGridVectorField);
-        dat.currentSelectedScaler = "sources";
-        v.SetGridDiagnostic(new TemperatureGridDiagnostic());
-        v.Continous = true;*/
     }
 
 
@@ -193,25 +95,31 @@ public static class Scripting
         foreach (var p in dat.VectorFields.ToList())
         {
             var domain = new RectDomain<Vec3>(p.Value.Domain.RectBoundary, p.Value.Domain.Bounding);
-            domain.MakeFinalAxisPeriodicSlice(t, period);
+            domain.MakeFinalAxisPeriodicSlice(0, period);
             dat.VectorFields[p.Key] = new ArbitraryField<Vec3, Vec2>(domain, c =>
             {
                 var pPeriodic = c;
-                pPeriodic.Z = pPeriodic.Last % period + t;
+                pPeriodic.Z = (pPeriodic.Z % period) + t;
                 return p.Value.Evaluate(pPeriodic);
-            });
+            })
+            {
+                DisplayName = p.Value.DisplayName,
+            };
         }
 
         foreach (var p in dat.ScalerFields.ToList())
         {
             var domain = new RectDomain<Vec3>(p.Value.Domain.RectBoundary);
-            domain.MakeFinalAxisPeriodicSlice(t, period);
+            domain.MakeFinalAxisPeriodicSlice(0, period);
             dat.ScalerFields[p.Key] = new ArbitraryField<Vec3, double>(domain, c =>
             {
                 var pPeriodic = c;
-                pPeriodic.Z = pPeriodic.Last % period + t;
+                pPeriodic.Z = (pPeriodic.Z * period) + t;
                 return p.Value.Evaluate(pPeriodic);
-            });
+            })
+            {
+                DisplayName = p.Value.DisplayName,
+            };
         }
     }
 
@@ -260,11 +168,11 @@ public static class Scripting
         if (!Directory.Exists(outputFieldsFolder))
             Directory.CreateDirectory(outputFieldsFolder);
 
-        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "diffFlux.field"), gridSize, diffFlux);
-        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "tempTot.field"), gridSize, tempTot);
-        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "tempConvection.field"), gridSize, tempConvection);
-        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "tempNoFlow.field"), gridSize, tempNoFlow);
-        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "convectiveHeatFlux.field"), gridSize, convectiveHeatFlux);
+        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "diffFlux"), "Diffusion Flux", gridSize, diffFlux);
+        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "convectiveHeatFlux"), "Convection Flux", gridSize, convectiveHeatFlux);
+        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "tempConvection"), "Convective Temperature", gridSize, tempConvection);
+        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "tempTot"), "Total Temperature", gridSize, tempTot);
+        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "tempNoFlow"), "No Flow Temperature", gridSize, tempNoFlow);
 
         Dictionary<string, string> props = new Dictionary<string, string>();
         props.Add("Pe", Pe.ToString(CultureInfo.InvariantCulture));
@@ -275,11 +183,21 @@ public static class Scripting
         var ser = JsonConvert.SerializeObject(props, Formatting.Indented);
         File.WriteAllText(Path.Combine(outputFieldsFolder, "properties.json"), ser);
 
-        void DiscretizeAndSave<TData>(string path, Vec3i gridSize, IVectorField<Vec3, TData> field)
+        void DiscretizeAndSave<TData>(string path, string name, Vec3i gridSize, IVectorField<Vec3, TData> field)
             where TData : IMultiplyOperators<TData, double, TData>, IAdditionOperators<TData, TData, TData>
         {
             var discritized = new DiscretizedField<Vec3, Vec3i, TData>(gridSize, field, bounds);
-            discritized.GridField.Save(path);
+            discritized.DisplayName = name;
+
+            var ext = ".vec3_???_field";
+            if (typeof(TData) == typeof(double))
+                ext = ".vec3_vec1_field";
+            if (typeof(TData) == typeof(Vec2))
+                ext = ".vec3_vec2_field";
+            if (typeof(TData) == typeof(Vec3))
+                ext = ".vec3_vec3_field";
+
+            discritized.GridField.Save(path + ext);
         }
     }
 

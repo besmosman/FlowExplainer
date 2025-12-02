@@ -4,7 +4,7 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
 
-public class FlowDirectionVisualization : WorldService
+public class FlowDirectionVisualization : WorldService, IAxisTitle
 {
     private int posPer = 32;
     public int amount = 1600;
@@ -13,20 +13,41 @@ public class FlowDirectionVisualization : WorldService
     private Vec2[] centers;
 
     public double opacity = .21f;
+    double end = 2;
+
+    public double dt = .001f;
+    public double lastSimTime = -1f;
+    private double avgSpeed = 0.0;
+
+    public IVectorField<Vec3, Vec2>? AltVectorField;
+    public double? AltTime;
+
+    public override string? Name => "Animated Glyph Flow Visualizer";
+    public override string? CategoryN => "Vectorfield";
+    public override string? Description => "Visualize flow with glyphs that move along the instantaneous vectorfield.";
 
     struct Data
     {
         public double TimeAlive;
     }
 
-    public override ToolCategory Category => ToolCategory.Flow;
-    public override void DrawImGuiEdit()
+    public override void DrawImGuiSettings()
     {
         ImGui.SliderInt("Amount", ref amount, 100, 10_000);
         ImGuiHelpers.SliderFloat("Thickness", ref thickness, 0, .01f);
-        ImGuiHelpers.SliderFloat("Speed", ref speed, 0, 5);
+        ImGuiHelpers.SliderFloat("Speed", ref speed, 0, 10);
         ImGuiHelpers.SliderFloat("Opacity", ref opacity, 0, 1);
-        base.DrawImGuiEdit();
+        base.DrawImGuiSettings();
+    }
+
+    public override void DrawImGuiDataSettings()
+    {
+        var dat = GetRequiredWorldService<DataService>();
+        var field = AltVectorField ?? dat.VectorField;
+        //ImGui.SameLine();
+        ImGuiHelpers.OptionalDoubleSlider("Alt time", ref AltTime, field.Domain.RectBoundary.Min.Last, field.Domain.RectBoundary.Max.Last);
+        ImGuiHelpers.OptonalVectorFieldSelector(GetRequiredWorldService<DataService>().LoadedDataset, ref AltVectorField);
+        base.DrawImGuiDataSettings();
     }
 
 
@@ -67,43 +88,46 @@ public class FlowDirectionVisualization : WorldService
         for (int i = 0; i < amount; i++)
         {
             var span = centers.AsSpan(i * posPer, posPer);
-            var pos = velField.Domain.RectBoundary.Reduce<Vec2>().Relative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
+            var pos = velField.Domain.RectBoundary.Reduce<Vec2>().FromRelative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
 
             span.Fill(pos);
             PerData[i].TimeAlive = Random.Shared.NextSingle() * 5;
         }
     }
 
-    double end = 2;
-    public double dt = .001f;
-    public double avgSpeed =0.0;
-    public double lastSimTime = -1f;
+
     public override void Update()
     {
         var dat = GetRequiredWorldService<DataService>();
-        var velField = dat.VectorField;
-        var instantField = new InstantFieldVersionLowerDim<Vec3, Vec2, Vec2>(velField, dat.SimulationTime);
-        var velMag =0.0;
-        if (dat.SimulationTime != lastSimTime)
+        var velField = AltVectorField ?? dat.VectorField;
+        double time = AltTime ?? dat.SimulationTime;
+        var instantField = new InstantFieldVersionLowerDim<Vec3, Vec2, Vec2>(velField, time);
+        var velMag = 0.0;
+        if (time != lastSimTime)
         {
             for (int i = 0; i < amount; i++)
             {
-                PerData[i].TimeAlive = -((double)i/amount)*5;
-                var pos = velField.Domain.RectBoundary.Reduce<Vec2>().Relative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
+                PerData[i].TimeAlive = -((double)i / amount) * 5;
+                var pos = velField.Domain.RectBoundary.Reduce<Vec2>().FromRelative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
                 var span = centers.AsSpan(i * posPer, posPer);
                 span.Fill(pos);
             }
         }
-        lastSimTime = dat.SimulationTime;
+        lastSimTime = time;
         int c = 0;
+
+        if (amount != PerData.Length)
+            Init();
+
+
         for (int i = 0; i < amount; i++)
         {
             var span = centers.AsSpan(i * posPer, posPer);
-            if (PerData[i].TimeAlive > end + 2f + ((i*17 + i*1535 + i) % 1000)/1000f )
+            if (PerData[i].TimeAlive > end + 2f + ((i * 17 + i * 1535 + i) % 1000) / 1000f)
             {
-                var pos = velField.Domain.RectBoundary.Reduce<Vec2>().Relative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
+                var pos = velField.Domain.RectBoundary.Reduce<Vec2>().FromRelative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
                 span.Fill(pos);
-                PerData[i].TimeAlive = -Random.Shared.NextSingle()*5;
+                PerData[i].TimeAlive = -Random.Shared.NextSingle() * 5;
             }
 
             if (PerData[i].TimeAlive > 0)
@@ -125,24 +149,23 @@ public class FlowDirectionVisualization : WorldService
             }
             PerData[i].TimeAlive += FlowExplainer.DeltaTime;
         }
-        avgSpeed = velMag/c;
+        avgSpeed = velMag / c;
         base.Update();
     }
 
     public override void Draw(RenderTexture rendertarget, View view)
     {
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
-        var grid = GetRequiredWorldService<GridVisualizer>();
         if (amount != PerData.Length)
             Init();
-        
+
         for (int i = 0; i < amount; i++)
         {
             var span = centers.AsSpan(i * posPer, posPer);
 
             //grid.ScaleScaler(dat.TempratureField.Evaluate(span[posPer - 1].Up(dat.SimulationTime)));
-            var color = new Color(opacity, opacity,opacity);
-            var a =0.0;
+            var color = new Color(opacity, opacity, opacity);
+            var a = 0.0;
             var t = PerData[i].TimeAlive;
 
             if (t < 1 && t > .0f)
@@ -160,17 +183,17 @@ public class FlowDirectionVisualization : WorldService
                 double distanceSquared = Vec2.DistanceSquared(span[0], span[span.Length - 1]);
                 if (distanceSquared < .00005f)
                 {
-                //    color.A *= (float)distanceSquared / .00005f;
+                    //    color.A *= (float)distanceSquared / .00005f;
                 }
-                    StreamTube(view.Camera2D, span, color, thickness);
-                
+                StreamTube(view.Camera2D, span, color, thickness);
+
                 /*else
                     Gizmos2D.Circle(view.Camera2D, span[^1],color, .003f/2);*/
             }
             a = 0;
         }
 
-          GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
     }
 
     private static Mesh streamtube;
@@ -199,7 +222,7 @@ public class FlowDirectionVisualization : WorldService
 
         1 => 0
          */
-        var total =0.0;
+        var total = 0.0;
         for (int i = 1; i < centers.Length; i++)
         {
             total += Vec2.Distance(centers[i], centers[i - 1]);
@@ -225,5 +248,9 @@ public class FlowDirectionVisualization : WorldService
         material.SetUniform("model", Matrix4x4.Identity);
         streamtube.Draw();
         //  Gizmos2D.Circle(camera, centers.Last(), color, 1f);
+    }
+    public string GetTitle()
+    {
+        return "Animated Glyphs (" + (AltVectorField?.DisplayName ?? GetRequiredWorldService<DataService>().VectorField.DisplayName) + ")";
     }
 }

@@ -11,33 +11,39 @@ public class AxisVisualizer : WorldService
     public int StepsX = 5;
     public int StepsY = 5;
     public bool DrawGradient = true;
+    public bool DrawTitle = true;
 
     public string? Title;
-    public IAxisTitle? titler;
     public IGradientScaler? scaler;
 
-    Mesh gradientMesh = new Mesh(new Geometry(
-    [
-        new Vertex(new Vec3(0f,0.0, 0), new Vec2(1, 0), Vec4.One),
-        new Vertex(new Vec3(1f,0.0, 0), new Vec2(1, 1), Vec4.One),
-        new Vertex(new Vec3(1f, 1f, 0), new Vec2(0, 1), Vec4.One),
-        new Vertex(new Vec3(0f, 1f, 0), new Vec2(0, 0), Vec4.One),
-    ], [0, 1, 2, 0, 2, 3]));
+    private Mesh gradientMesh;
+
+    public override string? Name => "Axis";
+    public override string? Description => "Render axis";
+    public override string? CategoryN => "General";
 
     public override void Initialize()
     {
+        gradientMesh = new Mesh(new Geometry(
+        [
+            new Vertex(new Vec3(0f, 0.0, 0), new Vec2(1, 0), Vec4.One),
+            new Vertex(new Vec3(1f, 0.0, 0), new Vec2(1, 1), Vec4.One),
+            new Vertex(new Vec3(1f, 1f, 0), new Vec2(0, 1), Vec4.One),
+            new Vertex(new Vec3(0f, 1f, 0), new Vec2(0, 0), Vec4.One),
+        ], [0, 1, 2, 0, 2, 3]));
+
     }
 
     public override void Draw(RenderTexture rendertarget, View view)
     {
-        if(!view.Is2DCamera)
+        if (!view.Is2DCamera)
             return;
         var dat = GetRequiredWorldService<DataService>();
         var domain = dat.VectorField.Domain.RectBoundary;
 
         var color = Style.Current.TextColor;
         var thickness = 4f;
-        var margin =0.0;
+        var margin = 0.0;
 
         var lh = view.Width / 26f;
         if (DrawAxis)
@@ -49,10 +55,21 @@ public class AxisVisualizer : WorldService
             Gizmos2D.Line(view.ScreenCamera, lb + new Vec2(0, margin), rb + new Vec2(0, margin), color, thickness);
             Gizmos2D.Line(view.ScreenCamera, lb + new Vec2(-margin, 0), lt + new Vec2(-margin, 0), color, thickness);
 
-            //if (titler != null)
-            //    Gizmos2D.Text(view.ScreenCamera, new Vec2((lb.X + rb.X) / 2, lt.Y - lh * 2), lh, color, titler.GetTitle(), centered: true);
 
-            if (!GetGlobalService<PresentationService>().IsPresenting)
+            var y = lt.Y - lh * 2;
+            if(DrawTitle)
+            for (int index = World.Services.Count - 1; index >= 0; index--)
+            {
+                var service = World.Services[index];
+                if (service is IAxisTitle titler && service.IsEnabled)
+                {
+                    Gizmos2D.Text(view.ScreenCamera, new Vec2((lb.X + rb.X) / 2, y), lh, color, titler.GetTitle(), centered: true);
+                    y -= lh;
+                }
+            }
+            //if (titler != null)
+
+            /*if (!GetGlobalService<PresentationService>().IsPresenting)
             {
 
                 string title = "";
@@ -62,13 +79,13 @@ public class AxisVisualizer : WorldService
                     title += $"{gridVisualizer.GetTitle()} ({dat.currentSelectedScaler.Replace("Temperature2", "").Trim()})";
                 }
 
-                if (GetWorldService<FlowArrowVisualizer>().IsEnabled || GetWorldService<FlowDirectionVisualization>().IsEnabled)
+                if (GetWorldService<ArrowVisualizer>().IsEnabled || GetWorldService<FlowDirectionVisualization>().IsEnabled)
                 {
                     title += $" + {dat.currentSelectedVectorField.Replace("Temperature", "").Trim()} field";
                 }
 
                 Gizmos2D.Text(view.ScreenCamera, new Vec2((lb.X + rb.X) / 2, lt.Y - lh * 2), lh, color, title, centered: true);
-            }
+            }*/
             for (int i = 0; i <= StepsX; i++)
             {
                 double c = i / (double)StepsX;
@@ -120,11 +137,11 @@ public class AxisVisualizer : WorldService
         }
     }
 
-    public override void DrawImGuiEdit()
+    public override void DrawImGuiSettings()
     {
         ImGui.Checkbox("Draw Axis", ref DrawAxis);
         ImGui.Checkbox("Draw Walls", ref DrawWalls);
         ImGui.Checkbox("Draw Gradient", ref DrawGradient);
-        base.DrawImGuiEdit();
+        base.DrawImGuiSettings();
     }
 }

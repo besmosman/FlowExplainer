@@ -43,10 +43,10 @@ namespace FlowExplainer
             return HashCode.Combine(X, Y, Z);
         }
 
-        public Vec3 ToNumerics()
+        /*public System.Numerics.Vector3 ToNumerics()
         {
-            return new Vec3(X, Y, Z);
-        }
+            return new System.Numerics.Vector3(X, Y, Z);
+        }*/
 
         public override string ToString()
         {
@@ -73,6 +73,16 @@ namespace FlowExplainer
             );
         }
 
+        
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Vec3i operator /(Vec3i left, Vec3i right)
+        {
+            return new Vec3i(
+                left.X / right.X,
+                left.Y / right.Y,
+                left.Z / right.Z
+            );
+        }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vec3i operator -(Vec3i left, Vec3i right)
         {

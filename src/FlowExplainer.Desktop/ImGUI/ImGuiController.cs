@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using ImGuiNET;
 using OpenTK.Graphics.OpenGL4;
@@ -60,6 +59,7 @@ public class ImGuiController : IDisposable
 
         KHRDebugAvailable = (major == 4 && minor >= 3) || IsExtensionSupported("KHR_debug");
 
+        
         CompatibilityProfile =
             (GL.GetInteger((GetPName)All.ContextProfileMask) & (int)All.ContextCompatibilityProfileBit) != 0;
 
@@ -71,6 +71,8 @@ public class ImGuiController : IDisposable
         io.BackendFlags |= ImGuiBackendFlags.RendererHasVtxOffset;
         // Enable Docking
         io.ConfigFlags |= ImGuiConfigFlags.DockingEnable;
+        io.ConfigFlags |= ImGuiConfigFlags.ViewportsEnable;
+        
 
         CreateDeviceResources();
 
@@ -267,7 +269,7 @@ public static void SetupImGuiStyle()
         style.Colors[(int)ImGuiCol.ModalWindowDimBg] = new Vec4(0.800000011920929f, 0.800000011920929f, 0.800000011920929f, 0.3499999940395355f);
     }
 
-    private static void RefreshImGuiStyleDark()
+    public static void RefreshImGuiStyleDark()
     {
         Vec4 darkColor = new Vec4(.01f, .01f, .01f, 1);
 
@@ -520,6 +522,15 @@ public static void SetupImGuiStyle()
             _frameBegun = false;
             ImGui.Render();
             RenderImDrawData(ImGui.GetDrawData());
+
+            var io = ImGui.GetIO();
+            if (io.ConfigFlags.HasFlag(ImGuiConfigFlags.ViewportsEnable))
+            {
+                //GLFWwindow* backup_current_context = glfwGetCurrentContext();
+                ImGui.UpdatePlatformWindows();
+                ImGui.RenderPlatformWindowsDefault();
+                //glfwMakeContextCurren
+            }
         }
     }
 

@@ -1,7 +1,31 @@
+using System.Security.Cryptography;
 using ImGuiNET;
 using static System.Double;
 
 namespace FlowExplainer;
+
+//Implementation of 2.3.1 of G. Haller / Physica D 240 (2011) example of FTLE fail case
+public class NonlinearSaddleFlow : IVectorField<Vec3, Vec2>
+{
+    public string DisplayName => "Nonlinear Saddle Flow";
+    
+    public IDomain<Vec3> Domain => new RectDomain<Vec3>(new Vec3(-10, -1, 0), new Vec3(3, 1, 1));
+
+    public Vec2 Evaluate(Vec3 x)
+    {
+        return new Vec2(1 + Tanh(x.X)*Tanh(x.X), -x.Y);
+        return new Vec2(2 + Tanh(x.Y), 0);
+        return new Vec2(x.X*(1 + 3*x.Y*x.Y), - x.Y -Pow(x.Y,3));
+        return new Vec2(x.X, -x.Y);
+    }
+    public bool TryEvaluate(Vec3 x, out Vec2 value)
+    {
+        value = Evaluate(x);
+        return true;
+    }
+}
+
+
 
 //https://shaddenlab.berkeley.edu/uploads/LCS-tutorial/examples.html#x1-1200812
 public class AnalyticalEvolvingVelocityField : IVectorField<Vec3, Vec2>
@@ -12,6 +36,8 @@ public class AnalyticalEvolvingVelocityField : IVectorField<Vec3, Vec2>
 
     public double Period => (2f * Pi) / w;
     public IDomain<Vec3> Domain => new RectDomain<Vec3>(new Vec3(0, 0, 0), new Vec3(2, 1f, Period), BoundingFunctions.None<Vec3>());
+
+    public string DisplayName { get; set; } = "Double Gyre";
 
     public Vec3 Wrap(Vec3 x)
     {

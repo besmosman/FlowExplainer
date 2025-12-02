@@ -5,8 +5,6 @@ namespace FlowExplainer;
 
 public class FlowVisService : WorldService
 {
-    public override ToolCategory Category => ToolCategory.Flow;
-
     public RenderTexture RenderTexture;
     private Particle[] Particles;
 
@@ -81,7 +79,7 @@ public class FlowVisService : WorldService
 
     }
 
-    public override void DrawImGuiEdit()
+    public override void DrawImGuiSettings()
     {
         ImGui.Text("wo");
         if (ImGui.Button("init"))
@@ -90,6 +88,6 @@ public class FlowVisService : WorldService
             Init();
         }
         
-        base.DrawImGuiEdit();
+        base.DrawImGuiSettings();
     }
 }

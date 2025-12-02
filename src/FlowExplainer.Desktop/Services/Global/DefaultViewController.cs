@@ -8,6 +8,9 @@ public class PresiChildViewController : IViewController
 {
     public void UpdateAndDraw(View view)
     {
+        if(!view.IsActive)
+            return;
+        
         var window = view.World.FlowExplainer.GetGlobalService<WindowService>()?.Window;
         var presi = view.World.FlowExplainer.GetGlobalService<PresentationService>()!.Presi;
         view.IsSelected = presi.SelectedWidget?.ConnectedObject == view;

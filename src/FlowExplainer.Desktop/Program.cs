@@ -42,19 +42,21 @@ namespace FlowExplainer
             else
                 Config.Load(new Dictionary<string, JValue>());
 
+            ServicesInfo.Init();
 
             var neuroTrace = new FlowExplainer();
             neuroTrace.AddGlobalService(new AssetWatcherService());
             neuroTrace.AddGlobalService(new PreferencesService());
-            neuroTrace.AddGlobalService(new DatasetsService());
             neuroTrace.AddGlobalService(new WindowService());
+            neuroTrace.AddGlobalService(new NewImGUIRenderService());
+            neuroTrace.AddGlobalService(new ImGUIService());
+            neuroTrace.AddGlobalService(new DatasetsService());
 
             var visualisations = new WorldManagerService();
             neuroTrace.AddGlobalService(visualisations);
             var mainworld =visualisations.NewWorld();
-            neuroTrace.AddGlobalService(new ImGUIService());
             neuroTrace.AddGlobalService(new ViewsService());
-            neuroTrace.AddGlobalService(new ImGUIRenderService());
+//            neuroTrace.AddGlobalService(new ImGUIRenderService());
             neuroTrace.AddGlobalService(new PresentationService());
             Scripting.Startup(mainworld);
             neuroTrace.Run();

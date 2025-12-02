@@ -35,7 +35,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         }
     }
 
-    private IGridDiagnostic? diagnostic;
+    private IGridDiagnostic diagnostic = new ScalerGridDiagnostic();
 
     // public InterpolatedRenderGrid gridData;
     public bool Continous = true;
@@ -47,6 +47,10 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
     private Material material;
 
     public bool AutoScale = true;
+
+    public override string? Name => "Grid";
+    public override string? CategoryN => "General";
+    public override string? Description => "Compute and render diagnostics on a interpolated grid.";
 
     public List<IGridDiagnostic> Diagnostics =
     [
@@ -113,13 +117,13 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
                 while (!currentUpdateTask.IsCompleted && currentUpdateGridTime.Elapsed.TotalSeconds < 1 / 2f)
                 {
                 }
-                
+
                 if (!currentUpdateTask.IsCompleted)
                     Continous = false;
             }
             else
             {
-                
+
             }
 
             UpdateRenderData();
@@ -144,11 +148,11 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
 
             if (!currentUpdateTask.IsCompleted)
             {
-                var pos = new Vec2(RegularGrid.Domain.RectBoundary.Center.X,RegularGrid.Domain.RectBoundary.Min.Y + RegularGrid.Domain.RectBoundary.Size.Y*3/4);
-                double sizeY = RegularGrid.Domain.RectBoundary.Size.Y/5;
-                var alpha = double.Min(1,double.Max(0,currentUpdateGridTime.Elapsed.TotalSeconds-.0f) * 100);
-                Gizmos2D.RectCenter(view.Camera2D, pos, new Vec2(sizeY*6, sizeY), Color.Black.WithAlpha(alpha));
-                Gizmos2D.Text(view.Camera2D, pos, sizeY, Color.White.WithAlpha(alpha), "Recomputing", centered:true);
+                var pos = new Vec2(RegularGrid.Domain.RectBoundary.Center.X, RegularGrid.Domain.RectBoundary.Min.Y + RegularGrid.Domain.RectBoundary.Size.Y * 3 / 4);
+                double sizeY = RegularGrid.Domain.RectBoundary.Size.Y / 5;
+                var alpha = double.Min(1, double.Max(0, currentUpdateGridTime.Elapsed.TotalSeconds - .0f) * 100);
+                Gizmos2D.RectCenter(view.Camera2D, pos, new Vec2(sizeY * 6, sizeY), Color.Black.WithAlpha(alpha));
+                Gizmos2D.Text(view.Camera2D, pos, sizeY, Color.White.WithAlpha(alpha), "Recomputing", centered: true);
             }
             var boundary = dat.VectorField.Domain.RectBoundary;
         }
@@ -185,7 +189,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
 
     private void ResetGridUpdateTask()
     {
-       // if (!currentUpdateTask.IsCompleted)
+        // if (!currentUpdateTask.IsCompleted)
         {
             cancellationTokenSource.Cancel();
             cancellationTokenSource = new CancellationTokenSource();
@@ -201,7 +205,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         var task = Task.Run(action);
     }
 
-    public override void DrawImGuiEdit()
+    public override void DrawImGuiSettings()
     {
         ImGui.SliderInt("CellCount", ref TargetCellCount, 16, 512 * 512);
 
@@ -235,7 +239,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         }
 
         diagnostic?.OnImGuiEdit(this);
-        base.DrawImGuiEdit();
+        base.DrawImGuiSettings();
     }
 
     private void Resize()
@@ -290,11 +294,18 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             UpdateRenderData();
             ParallelGrid.For(gridSize.XY, CancellationToken.None, (i_x, i_y) =>
             {
-                var pos = spatialDomain.Relative(new Vec2(i_x + .5f, i_y + .5f) / gridSize.XY.ToVec2());
+                var pos = spatialDomain.FromRelative(new Vec2(i_x + .5f, i_y + .5f) / gridSize.XY.ToVec2());
                 field.AtCoords(new Vec3i(i_x, i_y, i_t)) = RegularGrid.Evaluate(pos).Value;
             });
         }
 
         field.Save(path);
+    }
+    public void WaitForComputation()
+    {
+        while (!currentUpdateTask.IsCompleted)
+        {
+
+        }
     }
 }

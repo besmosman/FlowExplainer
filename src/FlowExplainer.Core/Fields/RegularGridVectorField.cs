@@ -38,6 +38,7 @@ class BoundingPeriodicXyPeriodicZ : IBounding<Vec3>
     }
 }
 
+
 /// <summary>
 /// Arbitrary dimension grid based vector field with mutlivariate interpolator
 /// </summary>
@@ -52,6 +53,7 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
     public bool Interpolate = true;
 
     public RectDomain<Vec> RectDomain { get; set; }
+    public string DisplayName { get; set; }
 
     public TData Evaluate(Vec x)
     {
@@ -168,13 +170,17 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
     public static RegularGridVectorField<Vec, Veci, TData> Load(string path)
     {
         var save = BinarySerializer.Load<RegularGridVectorFieldSave<Vec, Veci, TData>>(path);
-        return new RegularGridVectorField<Vec, Veci, TData>(save.Data, save.GridSize, save.Min, save.Max, save.Boundings);
+        return new RegularGridVectorField<Vec, Veci, TData>(save.Data, save.GridSize, save.Min, save.Max, save.Boundings)
+        {
+            DisplayName = save.Name,
+        };
     }
 
     public void Save(string path)
     {
         var vectorFieldSave = new RegularGridVectorFieldSave<Vec, Veci, TData>()
         {
+            Name = DisplayName,
             Data = Grid.Data,
             GridSize = GridSize,
             Min = RectDomain.MinPos,

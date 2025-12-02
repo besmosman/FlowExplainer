@@ -1,16 +1,10 @@
 using ImGuiNET;
-using OpenTK.Graphics.ES20;
-using OpenTK.Graphics.OpenGL;
-using OpenTK.Windowing.Common.Input;
-using SixLabors.ImageSharp;
-using GL = OpenTK.Graphics.OpenGL.GL;
 
 namespace FlowExplainer;
 
-
-public class FlowArrowVisualizer : WorldService, IAxisTitle
+public class ArrowVisualizer : WorldService, IAxisTitle
 {
-    public override void DrawImGuiEdit()
+    public override void DrawImGuiSettings()
     {
         var dat = GetRequiredWorldService<DataService>();
         var domainArea = dat.VectorField.Domain.RectBoundary.Size.X * dat.VectorField.Domain.RectBoundary.Size.Y;
@@ -21,7 +15,7 @@ public class FlowArrowVisualizer : WorldService, IAxisTitle
         ImGui.Checkbox("Color by gradient", ref colorByGradient);
         ImGuiHelpers.SliderFloat("Thickness", ref Thickness, 0, dat.VectorField.Domain.RectBoundary.Size.Length() / 10f);
         ImGui.Checkbox("Auto Resize", ref AutoResize);
-        base.DrawImGuiEdit();
+        base.DrawImGuiSettings();
     }
 
     public int GridCells = 250;
@@ -30,28 +24,44 @@ public class FlowArrowVisualizer : WorldService, IAxisTitle
     public bool AutoResize = true;
     public bool colorByGradient = true;
 
+
+    public override string? Name => "Arrow Glyphs";
+    public override string? CategoryN => "Vectorfield";
+    public override string? Description => "Visualize a vectorfield using arrow glyphs";
+
+    public IVectorField<Vec3, Vec2>? AltVectorfield;
+    public double? AltTime;
+    public ColorGradient? AltGradient;
+
     public override void Initialize()
     {
     }
 
     public override void Draw(RenderTexture rendertarget, View view)
     {
+        if(!view.Is2DCamera)
+            return;
+        
         var dat = GetRequiredWorldService<DataService>();
+        var vectorfield = AltVectorfield ?? dat.VectorField;
+        var t = AltTime ?? dat.SimulationTime;
+        var gradient = AltGradient ?? dat.ColorGradient;
 
-        var domain = dat.VectorField.Domain.RectBoundary;
+        var domain = vectorfield.Domain.RectBoundary;
         var domainSize = domain.Size.Down();
         var domainArea = domainSize.X * domainSize.Y;
         var spacing = Math.Sqrt(domainArea / GridCells);
-        var maxDirLenght2 =0.0;
+        var maxDirLenght2 = 0.0;
         var gridSize = (domainSize / spacing).CeilInt();
         var cellSize = domainSize / gridSize.ToVec2();
+        var domainBounding = vectorfield.Domain.Bounding;
         for (int x = 0; x < gridSize.X; x++)
         {
             for (int y = 0; y < gridSize.Y; y++)
             {
                 var rel = new Vec2(x + .5f, y + .5f) / gridSize.ToVec2();
                 var pos = rel * domainSize + domain.Min.Down();
-                var dir = dat.VectorField.Evaluate(pos.Up(dat.SimulationTime));
+                var dir = vectorfield.Evaluate(pos.Up(t));
                 if (double.IsNaN(dir.X) || double.IsNaN(dir.Y))
                     continue;
                 maxDirLenght2 = Math.Max(maxDirLenght2, dir.LengthSquared());
@@ -63,17 +73,20 @@ public class FlowArrowVisualizer : WorldService, IAxisTitle
             {
                 var rel = new Vec2(x + .5f, y + .5f) / gridSize.ToVec2();
                 var pos = rel * domainSize + domain.Min.Down();
-                var dir = dat.VectorField.Evaluate(pos.Up(dat.SimulationTime));
+                var dir = vectorfield.Evaluate(domainBounding.Bound(pos.Up(t)));
                 if (double.IsNaN(dir.X) || double.IsNaN(dir.Y))
                     continue;
 
                 dir = double.Clamp(((dir.Length()) / (double.Sqrt(maxDirLenght2))), .2f, .9f) * Vec2.Normalize(dir);
-                var color = dat.ColorGradient.Get(0);
+                if (double.IsNaN(dir.X) || double.IsNaN(dir.Y))
+                    continue;
+
+                var color = gradient.Get(0);
                 if (maxDirLenght2 != 0)
-                    color = dat.ColorGradient.Get(dir.Length() * 1);
+                    color = gradient.Get(dir.Length() * 1);
 
                 if (!colorByGradient)
-                    color = Color.White;
+                    color = Color.Grey(.8f);
                 //color = new Color((dir + new Vec2(.1f,.1f)).Up(0).Up(1));
                 /*var traj = IFlowOperator<Vec2, Vec3>.Default.Compute(dat.SimulationTime, dat.SimulationTime + .05f, pos, dat.VelocityField);
                 var sum =0.0;
@@ -96,9 +109,17 @@ public class FlowArrowVisualizer : WorldService, IAxisTitle
                 var targetPos = perpDir / 2 + (top * .6f + bot * .4f);
                 var targetPos2 = -perpDir / 2 + (top * .6f + bot * .4f);
                 var offset = Vec2.Normalize(-(targetPos - top)) * thick / 2;
-                Gizmos2D.Instanced.RegisterLine(bot, top, color, thick);
-                Gizmos2D.Instanced.RegisterLine(top + offset, targetPos, color, thick);
-                Gizmos2D.Instanced.RegisterLine(top, targetPos2, color, thick);
+                if (maxDirLenght2 <= 0)
+                {
+                    Gizmos2D.Instanced.RegisterCircle(pos, Length / 10, color);
+
+                }
+                else
+                {
+                    Gizmos2D.Instanced.RegisterLine(bot, top, color, thick);
+                    Gizmos2D.Instanced.RegisterLine(top + offset, targetPos, color, thick);
+                    Gizmos2D.Instanced.RegisterLine(top, targetPos2, color, thick);
+                }
 
             }
         }
@@ -112,8 +133,18 @@ public class FlowArrowVisualizer : WorldService, IAxisTitle
         }
     }
 
+
+    public override void DrawImGuiDataSettings()
+    {
+        var dat = GetRequiredWorldService<DataService>();
+        var bounds = (AltVectorfield ?? dat.VectorField).Domain.RectBoundary;
+        ImGuiHelpers.OptionalDoubleSlider("Alt time", ref AltTime, bounds.Min.Last, bounds.Max.Last);
+        ImGuiHelpers.OptonalVectorFieldSelector(dat.LoadedDataset, ref AltVectorfield);
+        ImGuiHelpers.OptionalGradientSelector(ref AltGradient);
+        base.DrawImGuiDataSettings();
+    }
     public string GetTitle()
     {
-        return "Velocity Field";
+        return "Arrows (" + (AltVectorfield?.DisplayName ?? GetRequiredWorldService<DataService>().VectorField.DisplayName) + ")";
     }
 }

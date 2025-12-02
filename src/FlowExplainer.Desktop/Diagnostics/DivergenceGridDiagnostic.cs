@@ -17,7 +17,7 @@ public class CriticalPointDiagnostic : IGridDiagnostic
 
         ParallelGrid.For(renderGrid.GridSize, token,  (i,j) =>
         {
-            var pos = spaceBounds.Relative(new Vec2(i, j) / (renderGrid.GridSize.ToVec2() - Vec2.One));
+            var pos = spaceBounds.FromRelative(new Vec2(i, j) / (renderGrid.GridSize.ToVec2() - Vec2.One));
             renderGrid.AtCoords(new Vec2i(i, j)).Padding = vectorField.Evaluate(pos.Up(t));
         });
 
@@ -62,7 +62,7 @@ public class StagnationGridDiagnostic : IGridDiagnostic
         var d = vectorField.Domain.RectBoundary.Size.XY / (renderGrid.GridSize.ToVec2() - Vec2.One);
         ParallelGrid.For(renderGrid.GridSize, token,  (i,j) =>
         {
-            var pos = spaceBounds.Relative(new Vec2(i, j) / (renderGrid.GridSize.ToVec2() - Vec2.One));
+            var pos = spaceBounds.FromRelative(new Vec2(i, j) / (renderGrid.GridSize.ToVec2() - Vec2.One));
             renderGrid.AtCoords(new Vec2i(i, j)).Value = vectorField.Evaluate(pos.Up(t)).Length();
             /*if( vectorField.Evaluate(pos.Up(t)).Length() < 0.04f)
             renderGrid.AtCoords(new Vec2i(i, j)).Value = 1;*/
@@ -88,7 +88,7 @@ public class DivergenceGridDiagnostic : IGridDiagnostic
         var d = vectorField.Domain.RectBoundary.Size.XY / (renderGrid.GridSize.ToVec2() - Vec2.One);
         ParallelGrid.For(renderGrid.GridSize, token,  (i,j) =>
         {
-            var pos = spaceBounds.Relative(new Vec2(i, j) / (renderGrid.GridSize.ToVec2() - Vec2.One));
+            var pos = spaceBounds.FromRelative(new Vec2(i, j) / (renderGrid.GridSize.ToVec2() - Vec2.One));
             renderGrid.AtCoords(new Vec2i(i, j)).Padding = vectorField.Evaluate(pos.Up(t));
         });
 

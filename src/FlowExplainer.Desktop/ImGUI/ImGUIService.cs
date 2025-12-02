@@ -15,16 +15,12 @@ public class ImGuiRenderData
     public bool ShowTCKDataWindow = false;
     public bool ShowVisualizationManagerWindow = true;
     public bool ShowVisualisationsWindow = false;
-    public bool[] ShowToolServices = new bool[Enum.GetValues<ToolCategory>().Length];
+    public bool ShowToolWindow = true;
     public int SelectedVisualiationIndex;
     public bool showTCKMetaDataPopup;
 
     public ImGuiRenderData()
     {
-        for (int i = 0; i < ShowToolServices.Length; i++)
-        {
-            ShowToolServices[i] = true;
-        }
     }
 }
 
@@ -76,30 +72,29 @@ public class ImGUIService : GlobalService
 
                 ImGui.MenuItem("ImGUI Demo", "", ref RenderData.showDemoWindow);
                 ImGui.MenuItem("Visualisations", "", ref RenderData.ShowVisualisationsWindow);
-
-                var categories = Enum.GetValues<ToolCategory>();
-                for (int i = 0; i < categories.Length; i++)
-                {
-                    ImGui.MenuItem($"Tools - {Enum.GetName(categories[i])}", "",
-                        ref RenderData.ShowToolServices[i]);
-                }
+                ImGui.MenuItem($"Services Tool Window", "", ref RenderData.ShowToolWindow);
 
                 if (ImGui.MenuItem("New view"))
                     GetRequiredGlobalService<ViewsService>().NewView();
-
+                if (ImGui.MenuItem("New world"))
+                {
+                    var w = GetRequiredGlobalService<WorldManagerService>().NewWorld();
+                    Scripting.SetGyreDataset(w);
+                    w.AddVisualisationService(new AxisVisualizer());
+                }
                 ImGui.EndMenu();
             }
 
             ImGui.EndMainMenuBar();
         }
-        ImGui.DockSpaceOverViewport(0);
+        // ImGui.DockSpaceOverViewport(0);
 
         if (RenderData.showDemoWindow)
             ImGui.ShowDemoWindow();
 
 
         ImGuiToolWindows.Draw(this);
-        
+
 
         DrawLogger();
     }
@@ -149,9 +144,15 @@ public class ImGUIService : GlobalService
 
     Dictionary<LogLevel, Vec4> LogColours = new()
     {
-        { LogLevel.Message, new Vec4(0, 1, 0, 1) },
-        { LogLevel.Debug, new Vec4(0, 1, 1, 1) },
-        { LogLevel.Warning, new Vec4(1, 0, 1, 1) },
+        {
+            LogLevel.Message, new Vec4(0, 1, 0, 1)
+        },
+        {
+            LogLevel.Debug, new Vec4(0, 1, 1, 1)
+        },
+        {
+            LogLevel.Warning, new Vec4(1, 0, 1, 1)
+        },
     };
 
     private int lastLogId;
@@ -161,6 +162,7 @@ public class ImGUIService : GlobalService
 
     private void DrawLogger()
     {
+
         var window = GetRequiredGlobalService<WindowService>().Window;
         if (window.IsKeyPressed(Keys.GraveAccent))
         {
@@ -169,7 +171,7 @@ public class ImGUIService : GlobalService
 
         if (!ConsoleVisible)
             return;
-        
+
         Logger.Clean(500);
         ImGui.SetNextWindowPos(new Vector2(0, 0));
         var lh = ImGui.GetTextLineHeightWithSpacing();

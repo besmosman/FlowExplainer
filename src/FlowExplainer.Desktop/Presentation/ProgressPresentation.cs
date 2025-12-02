@@ -1,5 +1,6 @@
 namespace FlowExplainer;
 
+/*
 public class ProgressPresentation : Presentation
 {
 
@@ -197,6 +198,7 @@ public class ProgressPresentation : Presentation
             new SmearSlide(),
         ];
     }
+   
 
     public override void Setup(FlowExplainer flowExplainer)
     {
@@ -208,3 +210,4 @@ public class ProgressPresentation : Presentation
         presentationService.Presi.GetView("v0").World = w0;
     }
 }
+*/
