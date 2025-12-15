@@ -13,7 +13,7 @@ public class PresentationService : GlobalService
     //public int CurrentSlideIndex { get; set; }
     // public Slide CurrentSlide => Slides[CurrentSlideIndex];
     public PresiContext Presi = null!;
-    public View PresiView;
+    public View? PresiView;
     public Vec2 CanvasSize = new Vec2(1920, 1200);
 
     public override void Initialize()
@@ -94,7 +94,7 @@ public class PresentationService : GlobalService
     {
         IsPresenting = true;
         var window = GetRequiredGlobalService<WindowService>().Window;
-        PresiView.Camera2D.Scale = (window.ClientSize.Y / CanvasSize.Y) * .9f;
+        PresiView!.Camera2D.Scale = (window.ClientSize.Y / CanvasSize.Y) * .9f;
         //CurrentSlide.OnEnter();
         if (!PresiView.IsFullScreen)
             ToggleFullScreen();
@@ -169,13 +169,7 @@ public class PresentationService : GlobalService
                 ToggleFullScreen();
             }
 
-            for (int i = 0; i < highlighted.Count - 1; i++)
-            {
-                var vec2 = highlighted[i];
-                var dir = highlighted[i + 1] - vec2;
-                Gizmos2D.Instanced.RegisterLine(highlighted[i] - dir / 10, highlighted[i + 1], new Color(1, 0, 0, 1), 10f);
-            }
-            Gizmos2D.Instanced.RenderRects(presiView.Camera2D);
+        
         }
     }
 
@@ -183,7 +177,7 @@ public class PresentationService : GlobalService
     {
         var presiView = PresiView;
 
-        if (presiView.IsFullScreen)
+        if (presiView?.IsFullScreen == true)
         {
             var window = FlowExplainer.GetGlobalService<WindowService>()!.Window;
             var size = new Vec2(window.ClientSize.X, window.ClientSize.Y);
@@ -195,7 +189,13 @@ public class PresentationService : GlobalService
             Gizmos2D.ImageCentered(new ScreenCamera(size.RoundInt()), presiView.PostProcessingTarget, size / 2, size);
             GL.Enable(EnableCap.Blend);
         }
-
+        for (int i = 0; i < highlighted.Count - 1; i++)
+        {
+            var vec2 = highlighted[i];
+            var dir = highlighted[i + 1] - vec2;
+            Gizmos2D.Instanced.RegisterLine(highlighted[i] - dir / 10, highlighted[i + 1], new Color(1, 0, 0, 1), 10f);
+        }
+        Gizmos2D.Instanced.RenderRects(presiView.Camera2D);
         base.AfterDraw();
     }
     private void ToggleFullScreen()

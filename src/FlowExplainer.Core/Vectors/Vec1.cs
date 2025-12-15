@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 
 namespace FlowExplainer;
 
-public struct Vec1 : IVec<Vec1>
+public struct Vec1 : IVec<Vec1, double>
 {
     public double X;
 
@@ -15,7 +15,11 @@ public struct Vec1 : IVec<Vec1>
     public int ElementCount => 1;
     public static Vec1 One => 1;
     public static Vec1 Zero => 0;
-    public double Last => X;
+    public double Last
+    {
+        get => X;
+        set => X = value;
+    }
 
     public double this[int n]
     {

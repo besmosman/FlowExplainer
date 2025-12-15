@@ -14,7 +14,7 @@ public interface IPeriodicVectorField<TInput, TOutput> : IVectorField<TInput, TO
 }
 */
 
-public interface IVectorField<TInput, TOutput> where TInput : IVec<TInput>
+public interface IVectorField<TInput, TOutput> where TInput : IVec<TInput, double>
 {
 
     /// <summary>
@@ -35,7 +35,7 @@ public interface IVectorField<TInput, TOutput> where TInput : IVec<TInput>
     public static IVectorField<TInput, TOutput> Constant(TOutput value) => new ConstantField<TInput, TOutput>(value, IDomain<TInput>.Infinite);
     public static IVectorField<TInput, TOutput> Constant(TOutput value, IDomain<TInput> domain) => new ConstantField<TInput, TOutput>(value, domain);
 
-    private readonly struct ConstantField<TInput, TOutput> : IVectorField<TInput, TOutput> where TInput : IVec<TInput>
+    private readonly struct ConstantField<TInput, TOutput> : IVectorField<TInput, TOutput> where TInput : IVec<TInput, double>
     {
         private readonly TOutput Value;
         private readonly IDomain<TInput> domain;

@@ -278,7 +278,7 @@ public class StochasticVisualization3D : WorldService
 
         foreach (ref var p in Particles.AsSpan())
         {
-            p.Phase = domainRectBoundary.Bound(rk4.Integrate(advectionField, p.Phase, dt).Up(p.Phase.Last + dt));
+            p.Phase = domainRectBoundary.Bound(rk4.Integrate(advectionField, p.Phase, dt));
             p.TimeAlive += double.Abs(dt);
 
             if (p.Phase.Last >= domainRect.Max.Last || Random.Shared.NextSingle() < ReseedChance * dt)

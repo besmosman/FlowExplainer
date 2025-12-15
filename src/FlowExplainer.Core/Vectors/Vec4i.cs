@@ -108,8 +108,13 @@ public struct Vec4i : IVec<Vec4i, int>, IVecDoubleEquivalent<Vec4>
 
 
     public int ElementCount => 4;
-    public int Last => W;
-
+    
+    public int Last
+    {
+        get => W;
+        set => W = value;
+    }
+    
     public int this[int n]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -3,10 +3,11 @@ using System.Buffers;
 namespace FlowExplainer;
 
 public interface IFlowOperator<X, P>
-    where X : IVec<X>, IVecUpDimension<P>
-    where P : IVec<P>, IVecDownDimension<X>
+    where X : IVec<X, double>, IVecUpDimension<P>
+    where P : IVec<P, double>, IVecDownDimension<X>
 {
-    Trajectory<P> Compute(double t_start, double t_end, X x, IVectorField<P, X> v);
+    Trajectory<P> ComputeTrajectory(double t_start, double t_end, X x, IVectorField<P, X> v);
+    X ComputeEnd(double t_start, double t_end, X x, IVectorField<P, X> v);
 
     public static IFlowOperator<X, P> Default { get; } = new DefaultFlowOperator(64);
 
@@ -19,23 +20,32 @@ public interface IFlowOperator<X, P>
         }
         public static IIntegrator<P, X> Integrator = IIntegrator<P, X>.Rk4;
 
-        public Trajectory<P> Compute(double t_start, double t_end, X x, IVectorField<P, X> v)
+        public Trajectory<P> ComputeTrajectory(double t_start, double t_end, X x, IVectorField<P, X> v)
         {
             var duration = (t_end - t_start);
             double dt = duration / Steps;
-            var cur = x;
+            var phase = x.Up(t_start);
             var points = new List<P>(Steps);
-            points.Add(x.Up(t_start));
-            for (int i = 1; i < Steps; i++)
+            points.Add(phase);
+            for (int i = 0; i < Steps; i++)
             {
-                double t = ((double)i / (Steps - 1)) * duration + t_start;
-                cur = Integrator.Integrate(v, v.Domain.Bounding.Bound(cur.Up(t)), dt);
-                //if(!v.Domain.IsWithinSpace(cur))
-                //    break;
-                points.Add(cur.Up(t));
+                phase = Integrator.Integrate(v, v.Domain.Bounding.Bound(phase), dt);
+                points.Add(phase);
             }
 
             return new Trajectory<P>(points.ToArray());
+        }
+
+        public X ComputeEnd(double t_start, double t_end, X x, IVectorField<P, X> v)
+        {
+            var phase = x.Up(t_start);
+            var dt = (t_end - t_start) / Steps;
+            for (int i = 0; i < Steps; i++)
+            {
+                phase = Integrator.Integrate(v, v.Domain.Bounding.Bound(phase), dt);
+            }
+            phase.Last = t_end; //floating points really do float
+            return phase.Down();
         }
     }
 }

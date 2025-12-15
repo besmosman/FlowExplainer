@@ -10,18 +10,61 @@ public static class Scripting
 {
     public static void Startup(World world)
     {
+
+        /*
+        var lines = File.ReadAllLines("C:\\Users\\20183493\\Downloads\\input.txt");
+        var points = new List<Vec2i>();
+        foreach (string l in lines)
+        {
+            string[] strings = l.Split(",");
+            points.Add(new Vec2i(int.Parse(strings[0]), int.Parse(strings[1])));
+        }
+        long max = 0;
+        foreach (var p0 in points)
+        foreach (var p1 in points)
+        {
+            var dx = p0.X - p1.X;
+            var dy = p0.Y - p1.Y;
+
+            max = long.Max(max, (long.Abs(dx)+1) * (long.Abs(dy)+1));
+        }
+
+        long r = max;
+
+        var minG = new Vec2i(points.Min(s => s.X), points.Min(s => s.Y));
+        var maxG = new Vec2i(points.Max(s => s.X), points.Max(s => s.Y));
+        var g = new RegularGrid<Vec2i, int>(maxG - minG);
+        for (int i = 0; i < points.Count; i++)
+        {
+            var cur = points[i];
+            var n = i + 1;
+            if (i == points.Count - 1)
+                n = 0;
+            var next = points[n];
+
+
+
+        }
+        */
+
+
         string datasetPath = Config.GetValue<string>("spectral-data-path")!;
         // RebuildSpeetjensDatasets(datasetPath);
 
 
 
 
-
         LoadPeriodicCopies(world);
         SetGyreDataset(world);
-        /*var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(0).Key;
+        var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(3).Key;
         world.GetWorldService<DataService>().SetDataset(name);
-        var temp = world.DataService.LoadedDataset.ScalerFields.ElementAt(2).Value;
+        world.GetWorldService<DataService>().currentSelectedVectorField = "Diffusion Flux";
+
+       // var s = world.AddVisualisationService<StochasticConnectionVisualization>();
+       // world.AddVisualisationService<GridVisualizer>().SetGridDiagnostic(new StochasticConnectionVisualization.GridDiagnostics());
+        // new PerronFrobeniusOperatorUlamsMethod().Compute(world.GetWorldService<DataService>().VectorField);
+
+        /*var temp = world.DataService.LoadedDataset.ScalerFields.ElementAt(2).Value;
 
         var tot = 0.0;
         int it = 10000;
@@ -36,7 +79,8 @@ public static class Scripting
 
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
-        world.AddVisualisationService(new ArrowVisualizer());
+        //world.AddVisualisationService(new ArrowVisualizer());
+        // world.AddVisualisationService(new StochasticConnectionVisualization());
 
         //var flowGenerator = world.AddVisualisationService<StructuredFlowGenerator>();
         //var vectorField = flowGenerator.Generate();
@@ -47,7 +91,7 @@ public static class Scripting
         // world.FlowExplainer.GetGlobalService<ViewsService>().Views.First().Is3DCamera = true;
         // stochasticVisualization3D.VolumeRender = true;
 
-        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new UpdatePresentation());
+        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new UpdatePresentation2());
         world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
         // world.AddVisualisationService(new StochasticConnectionVisualization());
     }

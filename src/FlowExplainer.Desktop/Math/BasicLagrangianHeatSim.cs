@@ -85,10 +85,10 @@ public class BasicLagrangianHeatSim
             ref var p = ref Particles[i];
             p.RadiationHeatFlux =0.0;
             p.DiffusionHeatFlux =0.0;
-            p.Position = Integrator.Integrate(velocityField, new(p.Position, time), dt);
+            p.Position = Integrator.Integrate(velocityField, new(p.Position, time), dt).XY;
 
 
-           p.Position = velocityField.Domain.Bounding.Bound(p.Position.Up(time)).XY;
+            p.Position = velocityField.Domain.Bounding.Bound(p.Position.Up(time)).XY;
 
             /*//bounds shouldnt be needed though
             if (p.Position.X < rect.Min.X)

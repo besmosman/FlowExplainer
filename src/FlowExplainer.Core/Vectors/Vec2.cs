@@ -3,17 +3,16 @@ using System.Runtime.CompilerServices;
 
 namespace FlowExplainer;
 
-public interface IVec<TVec> : IVec<TVec, double>
+/*public interface IVec<TVec> : IVec<TVec, double>
     where TVec : IVec<TVec, double>
 {
-}
+}*/
 
 public interface IVecIntegerEquivalent<TVeci> where TVeci : IVec<TVeci, int>
 {
     TVeci FloorInt();
     TVeci RoundInt();
 }
-
 
 public interface IVec<TVec, TNumber> :
     IMultiplyOperators<TVec, TNumber, TVec>,
@@ -25,20 +24,23 @@ public interface IVec<TVec, TNumber> :
 {
     public TVec Max(TVec b);
     public TVec Min(TVec b);
+    
     public int ElementCount { get; }
 
     public TNumber Sum();
     public static abstract TVec Zero { get; }
     public static abstract TVec One { get; }
 
-    public TNumber Last => this[ElementCount - 1];
+    public TNumber Last { get; set; }
     public TNumber this[int n] { get; set; }
+    
 
     static abstract TVec operator *(TNumber left, TVec right);
     static abstract TVec operator *(TVec left, TVec right);
     static abstract TVec operator /(TVec left, TVec right);
     static abstract bool operator >(TVec left, TVec right);
     static abstract bool operator <(TVec left, TVec right);
+
 
     public TNumber Volume()
     {
@@ -51,21 +53,25 @@ public interface IVec<TVec, TNumber> :
     }
 }
 
-public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>, IVecIntegerEquivalent<Vec2i>
+public struct Vec2 : IVec<Vec2, double>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>, IVecIntegerEquivalent<Vec2i>
 {
     public double X;
     public double Y;
     public int ElementCount => 2;
 
 
-    public double Last => Y;
+    public double Last
+    {
+        get => Y;
+        set => Y = value;
+    }
 
     public Vec2(double c)
     {
         X = c;
         Y = c;
     }
-    
+
     public Vec2(double x, double y)
     {
         X = x;
@@ -83,7 +89,7 @@ public struct Vec2 : IVec<Vec2>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>,
     }
 
     public Vec2 Down(Vec3 x) => x.XY;
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vec2 operator +(Vec2 v1, Vec2 v2) => new(v1.X + v2.X, v1.Y + v2.Y);
 

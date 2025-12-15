@@ -8,10 +8,10 @@ public static class FTLEComputer
     {
         var flowOperator = IFlowOperator<Vec2, Vec3>.Default;
 
-        var trajLeft = flowOperator.Compute(t_start, t_end, x + new Vec2(d.X, 0), vectorfield);
-        var trajRight = flowOperator.Compute(t_start, t_end, x + new Vec2(-d.X, 0), vectorfield);
-        var trajUp = flowOperator.Compute(t_start, t_end, x + new Vec2(0, d.Y), vectorfield);
-        var trajDown = flowOperator.Compute(t_start, t_end, x + new Vec2(0, -d.Y), vectorfield);
+        var trajLeft = flowOperator.ComputeTrajectory(t_start, t_end, x + new Vec2(d.X, 0), vectorfield);
+        var trajRight = flowOperator.ComputeTrajectory(t_start, t_end, x + new Vec2(-d.X, 0), vectorfield);
+        var trajUp = flowOperator.ComputeTrajectory(t_start, t_end, x + new Vec2(0, d.Y), vectorfield);
+        var trajDown = flowOperator.ComputeTrajectory(t_start, t_end, x + new Vec2(0, -d.Y), vectorfield);
 
         var end_left = trajLeft.Entries[^1];
         var end_right = trajRight.Entries[^1];

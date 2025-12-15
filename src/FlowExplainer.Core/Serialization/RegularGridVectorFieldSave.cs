@@ -3,7 +3,7 @@ using MemoryPack;
 namespace FlowExplainer;
 
 [MemoryPackable]
-public partial struct RegularGridVectorFieldSave<Vec, Veci, TData> where Vec : IVec<Vec>
+public partial struct RegularGridVectorFieldSave<Vec, Veci, TData> where Vec : IVec<Vec, double>
 {
     public string Name;
     public TData[] Data;

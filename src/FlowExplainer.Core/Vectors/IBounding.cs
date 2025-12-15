@@ -2,12 +2,12 @@ using MemoryPack;
 
 namespace FlowExplainer;
 
-public interface IBounding<Vec> where Vec : IVec<Vec>
+public interface IBounding<Vec> where Vec : IVec<Vec, double>
 {
     Vec Bound(Vec x);
 }
 
-public class LastPeriodicBounding<Vec> : IBounding<Vec> where Vec : IVec<Vec>
+public class LastPeriodicBounding<Vec> : IBounding<Vec> where Vec : IVec<Vec, double>
 {
     private IBounding<Vec> Original;
     private double t_start;
@@ -38,7 +38,7 @@ public class LastPeriodicBounding<Vec> : IBounding<Vec> where Vec : IVec<Vec>
     }
 }
 
-public class LastSliceBounding<Vec> : IBounding<Vec> where Vec : IVec<Vec>
+public class LastSliceBounding<Vec> : IBounding<Vec> where Vec : IVec<Vec, double>
 {
     private IBounding<Vec> Original;
     private double sliceStart;

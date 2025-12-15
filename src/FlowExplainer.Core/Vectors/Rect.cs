@@ -3,7 +3,7 @@ using MemoryPack;
 namespace FlowExplainer;
 
 [MemoryPackable]
-public partial struct Rect<Vec> where Vec : IVec<Vec>
+public partial struct Rect<Vec> where Vec : IVec<Vec, double>
 {
     public Vec Min;
     public Vec Max;
@@ -37,7 +37,7 @@ public partial struct Rect<Vec> where Vec : IVec<Vec>
         return (p - Min) / Size;
     }
 
-    public Rect<T> Reduce<T>() where T : IVec<T>, IVecUpDimension<Vec>
+    public Rect<T> Reduce<T>() where T : IVec<T,double>, IVecUpDimension<Vec>
     {
         var min = T.Zero;
         var max = T.Zero;

@@ -19,7 +19,7 @@ public abstract class Presentation
 public abstract class NewPresentation
 {
     public PresiContext Presi { get; set; }
-    
+
 
     public Action<NewPresentation> CurrentLayout;
 
@@ -63,6 +63,8 @@ public abstract class NewPresentation
         var widgetData = Presi.GetWidgetData(filePath, lineNumber);
         var view = Presi.GetView(widgetData, load);
         view.IsActive = true;
+        widgetData.RelPosition = relCenterPos;
+        widgetData.Size = relSize;
         widgetData.ConnectedObject = view;
         widgetData.CapturesScroll = true;
 
@@ -80,7 +82,7 @@ public abstract class NewPresentation
         if (view.IsSelected)
         {
             var s = size + new Vec2(5, 5);
-         //   Gizmos2D.Rect(Presi.View.Camera2D, center - s / 2, center + s / 2, new Vec4(1, 1, 1, .1f));
+            Gizmos2D.Rect(Presi.View.Camera2D, center - s / 2, center + s / 2, new Vec4(0, 1, 0, 1f));
         }
         else
         {
@@ -90,6 +92,8 @@ public abstract class NewPresentation
         }
 
         GL.Disable(EnableCap.Blend);
+        widgetData.RenderMin = center - size / 2;
+        widgetData.RenderMax = center + size / 2;
         Gizmos2D.ImageCenteredInvertedY(Presi.View.Camera2D, view.PostProcessingTarget, center, size);
         GL.Enable(EnableCap.Blend);
         return view;

@@ -15,7 +15,7 @@ public class LagrangianTemperatureGridDiagnostic : IGridDiagnostic
         ParallelGrid.For(renderGrid.GridSize, token, (i,j) =>
         {
             var pos = (new Vec2(i, j) / renderGrid.GridSize.ToVec2()) * spaceBounds.Size + spaceBounds.Min;
-            var center = IFlowOperator<Vec2, Vec3>.Default.Compute(t, tau, pos, dat.VectorField);
+            var center = IFlowOperator<Vec2, Vec3>.Default.ComputeTrajectory(t, tau, pos, dat.VectorField);
             //change in temprature compared to neighbros doe..
             var first = center.Entries.First();
             var last = center.Entries.Last();

@@ -1,4 +1,5 @@
 using ImGuiNET;
+using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
 
@@ -86,7 +87,7 @@ public class ArrowVisualizer : WorldService, IAxisTitle
                     color = gradient.Get(dir.Length() * 1);
 
                 if (!colorByGradient)
-                    color = Color.Grey(.8f);
+                    color = Color.Grey(.5f).WithAlpha(1f);
                 //color = new Color((dir + new Vec2(.1f,.1f)).Up(0).Up(1));
                 /*var traj = IFlowOperator<Vec2, Vec3>.Default.Compute(dat.SimulationTime, dat.SimulationTime + .05f, pos, dat.VelocityField);
                 var sum =0.0;
@@ -123,8 +124,13 @@ public class ArrowVisualizer : WorldService, IAxisTitle
 
             }
         }
+        GL.BlendFuncSeparate(
+            BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha,
+            BlendingFactorSrc.One, BlendingFactorDest.One
+        );
         Gizmos2D.Instanced.RenderCircles(view.Camera2D);
         Gizmos2D.Instanced.RenderRects(view.Camera2D);
+        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
         if (AutoResize)
         {

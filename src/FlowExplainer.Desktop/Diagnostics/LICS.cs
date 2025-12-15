@@ -26,7 +26,7 @@ public class LICS : IGridDiagnostic
         {
             ref var atCoords = ref gridVisualizer.RegularGrid.AtCoords(new Vec2i(i, j));
             var pos = gridVisualizer.RegularGrid.ToWorldPos(new Vec2(i + .5f, j + .5f));
-            var traj = flowop.Compute(t_start, t_end, pos, VectorField);
+            var traj = flowop.ComputeTrajectory(t_start, t_end, pos, VectorField);
             var totWeight = 0.0;
             var sum = 0.0;
             foreach (var pair in traj.Enumerate())

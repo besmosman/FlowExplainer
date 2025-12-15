@@ -4,7 +4,7 @@ using MemoryPack;
 namespace FlowExplainer;
 
 public class Knn<Vec, Veci>
-    where Vec : IVec<Vec>, IVecIntegerEquivalent<Veci>
+    where Vec : IVec<Vec, double>, IVecIntegerEquivalent<Veci>
     where Veci : IVec<Veci, int>, IVecDoubleEquivalent<Vec>
 {
     public void BuildRented(IEnumerable<Vec> vecs)
@@ -40,7 +40,7 @@ public class PoincareSmearGridDiagnostic : IGridDiagnostic
                 for (int i = 0; i < stepsPerPeriod; i++)
                 {
                     double t = (p * stepsPerPeriod + i) * dt;
-                    pos = Integrator.Integrate(dat.VectorField, pos.Up(t), dt);
+                    pos = Integrator.Integrate(dat.VectorField, pos.Up(t), dt).XY;
                     pos = dat.VectorField.Domain.Bounding.Bound(pos.Up(t)).XY;
                 }
                 if (p > period / 5)
@@ -139,7 +139,7 @@ public class PoincareSmearGridDiagnostic : IGridDiagnostic
                 for (int i = 0; i < stepsPerPeriod; i++)
                 {
                     double t = (p * stepsPerPeriod + i) * dt + startPhase;
-                    pos = Integrator.Integrate(dat.VectorField, pos.Up(t), dt);
+                    pos = Integrator.Integrate(dat.VectorField, pos.Up(t), dt).XY;
                     pos = dat.VectorField.Domain.Bounding.Bound(pos.Up(t)).XY;
                 }
                 if (p > period / 5)

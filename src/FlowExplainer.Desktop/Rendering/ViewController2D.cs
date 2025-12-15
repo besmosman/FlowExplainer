@@ -6,12 +6,12 @@ namespace FlowExplainer;
 public static class ViewController2D
 {
 
-    public static void Update(View view, NativeWindow window )
+    public static void Update(View view, NativeWindow window)
     {
+        var mousePos = CoordinatesConverter2D.ViewToWorld(view, view.RelativeMousePosition);
+        view.MousePosition = mousePos;
         if (view.Is2DCamera && view.IsSelected)
         {
-            var mousePos = CoordinatesConverter2D.ViewToWorld(view, view.RelativeMousePosition);
-            view.MousePosition = mousePos;
             if (window.IsMouseButtonPressed(MouseButton.Right))
             {
                 view.lastClickPos = mousePos;

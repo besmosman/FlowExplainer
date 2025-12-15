@@ -81,8 +81,7 @@ public class UFLIC : IGridDiagnostic
             {
                 t += dt;
                 var last = phase;
-                phase = IIntegrator<Vec3, Vec2>.Rk4.Integrate(vectorField, phase, dt)
-                    .Up(t);
+                phase = IIntegrator<Vec3, Vec2>.Rk4.Integrate(vectorField, phase, dt);
                 if (phase.X > domainBoundary.Max.X)
                 {
                     phase.X -= domainBoundary.Size.X;

@@ -38,7 +38,7 @@ public class FTLEGridDiagnostic : IGridDiagnostic
         ParallelGrid.For(renderGrid.GridSize, token, (i, j) =>
         {
             var pos = spatialBounds.FromRelative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());
-            var center = flowOperator.Compute(t, tau, pos, vectorField);
+            var center = flowOperator.ComputeTrajectory(t, tau, pos, vectorField);
             var index = renderGrid.GetCoordsIndex(new Vec2i(i, j));
             Data[index] = new FTLEData
             {

@@ -1,29 +1,29 @@
 namespace FlowExplainer;
 
-public class ArbitraryField<Veci, Data> : IVectorField<Veci, Data> where Veci : IVec<Veci>
+public class ArbitraryField<Vec, Data> : IVectorField<Vec, Data> where Vec : IVec<Vec, double>
 {
-    public Func<Veci, Data> eval;
+    public Func<Vec, Data> eval;
     public string DisplayName { get; set; }
 
-    public ArbitraryField(IDomain<Veci> domain, Func<Veci, Data> eval)
+    public ArbitraryField(IDomain<Vec> domain, Func<Vec, Data> eval)
     {
         this.eval = eval;
         Domain = domain;
     }
 
-    public IDomain<Veci> Domain { get; set; }
+    public IDomain<Vec> Domain { get; set; }
 
-    public Data Evaluate(Veci x)
+    public Data Evaluate(Vec x)
     {
         return eval(x);
     }
-    
-    public Veci Wrap(Veci x)
+
+    public Vec Wrap(Vec x)
     {
         return x;
     }
 
-    public bool TryEvaluate(Veci x, out Data value)
+    public bool TryEvaluate(Vec x, out Data value)
     {
         value = eval(x);
         return true;

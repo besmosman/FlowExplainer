@@ -35,7 +35,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         }
     }
 
-    private IGridDiagnostic diagnostic = new ScalerGridDiagnostic();
+    public IGridDiagnostic diagnostic = new ScalerGridDiagnostic();
 
     // public InterpolatedRenderGrid gridData;
     public bool Continous = true;
@@ -67,6 +67,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         new PoincareSmearGridDiagnostic(),
         new DivergenceGridDiagnostic(),
         new StagnationGridDiagnostic(),
+        new UlamsGrid(),
         new CriticalPointDiagnostic(),
         // new CustomGridDiagnostic(),
         //new FTLEvsCustomGridDiagnostic(),
@@ -172,19 +173,26 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
 
         gridbuffer.Use();
         gridbuffer.Upload();
-        min = double.MaxValue;
-        max = double.MinValue;
+        
+        var nextMin = double.MaxValue;
+        var nextMax = double.MinValue;
         for (int i = 0; i < gridbuffer.Data.Length; i++)
         {
             var v = gridbuffer.Data[i].Value;
             if (double.IsRealNumber(v))
             {
-                min = double.Min(min, v);
-                max = double.Max(max, v);
+                nextMin = double.Min(nextMin, v);
+                nextMax = double.Max(nextMax, v);
             }
         }
-
-        max = double.Max(max, min + .00001f);
+        if (double.Abs(min - nextMin) > .01)
+        {
+            min = double.Lerp(min, nextMin, 1);
+            max = double.Lerp(max, nextMax, 1);
+        }
+        min = double.Lerp(min, nextMin, .1);
+        max = double.Lerp(max, nextMax, .1);
+        max = double.Max(max, min);
     }
 
     private void ResetGridUpdateTask()
@@ -195,7 +203,13 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             cancellationTokenSource = new CancellationTokenSource();
         }
         currentUpdateGridTime.Restart();
-        currentUpdateTask = Task.Run(() => diagnostic.UpdateGridData(this, cancellationTokenSource.Token));
+        if (diagnostic.RequireMainThread)
+        {
+            diagnostic.UpdateGridData(this, CancellationToken.None);
+            currentUpdateTask = Task.CompletedTask;
+        }
+        else
+            currentUpdateTask = Task.Run(() => diagnostic.UpdateGridData(this, cancellationTokenSource.Token));
     }
 
     private Task backgroundTask;

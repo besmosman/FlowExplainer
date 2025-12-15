@@ -9,9 +9,10 @@ public interface IVecDoubleEquivalent<TVecF>
 }
 
 public struct Vec2i :
+    IVec<Vec2i, int>,
     IEquatable<Vec2i>,
     IEqualityOperators<Vec2i, Vec2i, bool>,
-    IVecDoubleEquivalent<Vec2>, IVec<Vec2i, int>
+    IVecDoubleEquivalent<Vec2>
 {
     public int X;
     public int Y;
@@ -48,6 +49,7 @@ public struct Vec2i :
         return !(left == right);
     }
 
+    
     public static Vec2i operator +(Vec2i v1, Vec2i v2) => new(v1.X + v2.X, v1.Y + v2.Y);
     public static Vec2i operator -(Vec2i v1, Vec2i v2) => new(v1.X - v2.X, v1.Y - v2.Y);
     public static Vec2i operator *(Vec2i v1, Vec2i v2) => new(v1.X * v2.X, v1.Y * v2.Y);
@@ -128,7 +130,11 @@ public struct Vec2i :
     }
 
     public int ElementCount => 2;
-    public int Last => Y;
+    public int Last
+    {
+        get => Y;
+        set => Y = value;
+    }
 
 
     public int this[int n]
@@ -157,5 +163,9 @@ public struct Vec2i :
     public static Vec2i operator *(int left, Vec2i right)
     {
         return right * left;
+    }
+    public int Volume()
+    {
+        return X * Y;
     }
 }

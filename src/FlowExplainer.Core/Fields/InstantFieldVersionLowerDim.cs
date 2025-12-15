@@ -3,8 +3,8 @@ using System.Diagnostics.CodeAnalysis;
 namespace FlowExplainer;
 
 public struct InstantFieldVersionLowerDim<VecOri, VecNew, Data> : IVectorField<VecNew, Data>
-    where VecNew : IVec<VecNew>, IVecUpDimension<VecOri>
-    where VecOri : IVec<VecOri>, IVecDownDimension<VecNew>
+    where VecNew : IVec<VecNew, double>, IVecUpDimension<VecOri>
+    where VecOri : IVec<VecOri, double>, IVecDownDimension<VecNew>
 {
     public double Time { get; private set; }
     public IDomain<VecNew> Domain { get; set; }
@@ -47,7 +47,7 @@ public struct InstantFieldVersionLowerDim<VecOri, VecNew, Data> : IVectorField<V
 }
 
 public struct InstantField<VecOri, Data> : IVectorField<VecOri, Data>
-    where VecOri : IVec<VecOri>
+    where VecOri : IVec<VecOri, double>
 {
     public double Time { get; set; }
     public IDomain<VecOri> Domain => orifield.Domain;

@@ -21,7 +21,6 @@ public class Axis3D : WorldService
             Gizmos.DrawLine(view, domain.Min, new Vec3(domain.Min.X, domain.Max.Y, domain.Min.Z), th, new Color(0, 1, 0, 1));
             Gizmos.DrawLine(view, domain.Min, new Vec3(domain.Min.X, domain.Min.Y, domain.Max.Z), th, new Color(0, 0, 1, 1));
             GL.Disable(EnableCap.DepthTest);
-
         }
 
     }
