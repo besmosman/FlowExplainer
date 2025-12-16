@@ -1,6 +1,6 @@
 namespace FlowExplainer;
 
-public struct RectDomain<Vec> : IDomain<Vec> where Vec : IVec<Vec>
+public struct RectDomain<Vec> : IDomain<Vec> where Vec : IVec<Vec, double>
 {
     public Rect<Vec> Rect;
 
@@ -27,7 +27,7 @@ public struct RectDomain<Vec> : IDomain<Vec> where Vec : IVec<Vec>
     {
         return p > Rect.Min && p < Rect.Max;
     }
-    public bool IsWithinSpace<T>(T p) where T : IVec<T>
+    public bool IsWithinSpace<T>(T p) where T : IVec<T, double>
     {
 #if DEBUG
         if (p.ElementCount != Rect.Min.ElementCount - 1)

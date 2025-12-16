@@ -6,7 +6,7 @@ namespace FlowExplainer;
 
 [Serializable]
 [StructLayout(LayoutKind.Sequential)]
-public struct Vec4 : IVec<Vec4>, IVecDownDimension<Vec3>, IVecIntegerEquivalent<Vec4i>, IEquatable<Vec4>
+public struct Vec4 : IVec<Vec4,double>, IVecDownDimension<Vec3>, IVecIntegerEquivalent<Vec4i>, IEquatable<Vec4>
 {
     public double X;
     public double Y;
@@ -40,6 +40,12 @@ public struct Vec4 : IVec<Vec4>, IVecDownDimension<Vec3>, IVecIntegerEquivalent<
 
     public static Vec4 One { get; } = new Vec4(1);
     public static Vec4 Zero => default;
+    
+    public double Last
+    {
+        get => W;
+        set => W = value;
+    }
 
     public static Vec4 operator -(Vec4 v1, Vec4 v2) => new(v1.X - v2.X, v1.Y - v2.Y, v1.Z - v2.Z, v1.W - v2.W);
 

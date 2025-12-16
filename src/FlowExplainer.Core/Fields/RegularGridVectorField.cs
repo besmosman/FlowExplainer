@@ -11,7 +11,7 @@ public enum BoundaryType
     ReflectiveNeumann,
 }
 
-class BoundingNone<Vec> : IBounding<Vec> where Vec : IVec<Vec>
+class BoundingNone<Vec> : IBounding<Vec> where Vec : IVec<Vec, double>
 {
     public Vec Bound(Vec x)
     {
@@ -43,7 +43,7 @@ class BoundingPeriodicXyPeriodicZ : IBounding<Vec3>
 /// Arbitrary dimension grid based vector field with mutlivariate interpolator
 /// </summary>
 public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
-    where Vec : IVec<Vec>, IVecIntegerEquivalent<Veci>
+    where Vec : IVec<Vec, double>, IVecIntegerEquivalent<Veci>
     where Veci : IVec<Veci, int>, IVecDoubleEquivalent<Vec>
     where TData : IMultiplyOperators<TData, double, TData>, IAdditionOperators<TData, TData, TData>
 {

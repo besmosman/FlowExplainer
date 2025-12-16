@@ -2,7 +2,7 @@ using System.Numerics;
 
 namespace FlowExplainer;
 
-public class Trajectory<T> where T : IVec<T>
+public class Trajectory<T> where T : IVec<T, double>
 {
     public T[] Entries;
 
@@ -35,7 +35,7 @@ public class Trajectory<T> where T : IVec<T>
         }
     }
 
-    public Trajectory<Z> Select<Z>(Func<T, Z> selector) where Z : IVec<Z>
+    public Trajectory<Z> Select<Z>(Func<T, Z> selector) where Z : IVec<Z, double>
     {
         var entries = new Z[Entries.Length];
         for (int i = 0; i < Entries.Length; i++)
@@ -46,7 +46,7 @@ public class Trajectory<T> where T : IVec<T>
     }
 
 
-    public Trajectory<Z> Select<Z>(Func<T, T, Z> selector) where Z : IVec<Z>
+    public Trajectory<Z> Select<Z>(Func<T, T, Z> selector) where Z : IVec<Z, double>
     {
         var entries = new Z[Entries.Length];
         var last = Entries[0];

@@ -218,8 +218,8 @@ public class ParticleLagrangianTest : WorldService
         Parallel.For(0, Entries.Length, i =>
         {
             var pos = Utils.Random(spatialbounds);
-            var traj = IFlowOperator<Vec2, Vec3>.Default.Compute(dat.SimulationTime, dat.SimulationTime + T, pos, datVectorField);
-            var trajBack = IFlowOperator<Vec2, Vec3>.Default.Compute(dat.SimulationTime, dat.SimulationTime + T, pos, datVectorFieldBack);
+            var traj = IFlowOperator<Vec2, Vec3>.Default.ComputeTrajectory(dat.SimulationTime, dat.SimulationTime + T, pos, datVectorField);
+            var trajBack = IFlowOperator<Vec2, Vec3>.Default.ComputeTrajectory(dat.SimulationTime, dat.SimulationTime + T, pos, datVectorFieldBack);
             var final = traj.Entries.Last();
             var rel = spatialbounds.FromRelative(final.Down());
             var rel2 = spatialbounds.FromRelative(trajBack.Entries.Last().Down());

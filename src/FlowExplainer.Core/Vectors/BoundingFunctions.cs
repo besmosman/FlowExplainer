@@ -6,12 +6,12 @@ public static class BoundingFunctions
     {
         return new BoundingPeriodicXyPeriodicZ(rect);
     }
-    public static IBounding<Vec> None<Vec>() where Vec : IVec<Vec>
+    public static IBounding<Vec> None<Vec>() where Vec : IVec<Vec, double>
     {
         return new BoundingNone<Vec>();
     }
 
-    public static IBounding<Vec> Build<Vec>(BoundaryType[] boundaries, Rect<Vec> rect) where Vec : IVec<Vec>
+    public static IBounding<Vec> Build<Vec>(BoundaryType[] boundaries, Rect<Vec> rect) where Vec : IVec<Vec, double>
     {
         return new GenBounding<Vec>(boundaries, rect);
     }

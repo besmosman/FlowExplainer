@@ -35,7 +35,7 @@ public class Poincare3DVisualizer : WorldService
 
         foreach (var pos in seeds)
         {
-            var traj = flowOperator.Compute(0, periods * period, pos, dat.VectorField);
+            var traj = flowOperator.ComputeTrajectory(0, periods * period, pos, dat.VectorField);
             var path = new Path
             {
                 Trajectory = traj,

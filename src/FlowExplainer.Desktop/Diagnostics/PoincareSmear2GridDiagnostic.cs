@@ -21,7 +21,7 @@ public class PoincareSmear2GridDiagnostic : IGridDiagnostic
                 (i, j) =>
                 {
                     var pos = gridVisualizer.RegularGrid.ToWorldPos(new Vec2(i + .5f, j + .5f));
-                    trajectories.AtCoords(new Vec2i(i, j)) = flowOperator.Compute(0, periods * period, pos, dat.VectorField);
+                    trajectories.AtCoords(new Vec2i(i, j)) = flowOperator.ComputeTrajectory(0, periods * period, pos, dat.VectorField);
                 });
         }
         
@@ -67,7 +67,7 @@ public class PoincareSmear2GridDiagnostic : IGridDiagnostic
                 for (int i = 0; i < stepsPerPeriod; i++)
                 {
                     double t = (p * stepsPerPeriod + i) * dt + startPhase;
-                    pos = Integrator.Integrate(dat.VectorField, pos.Up(t), dt);
+                    pos = Integrator.Integrate(dat.VectorField, pos.Up(t), dt).XY;
                     pos = dat.VectorField.Domain.Bounding.Bound(pos.Up(t)).XY;
                 }
                 densityGrid.AtPos(pos)++;

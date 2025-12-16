@@ -3,7 +3,7 @@ using MemoryPack;
 namespace FlowExplainer;
 
 [MemoryPackable]
-public partial class GenBounding<Vec> : IBounding<Vec> where Vec : IVec<Vec>
+public partial class GenBounding<Vec> : IBounding<Vec> where Vec : IVec<Vec, double>
 {
     [MemoryPackConstructor]
     public GenBounding()

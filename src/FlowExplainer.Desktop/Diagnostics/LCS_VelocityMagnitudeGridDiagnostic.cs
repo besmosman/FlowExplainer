@@ -24,7 +24,7 @@ public class LcsVelocityMagnitudeGridDiagnostic : IGridDiagnostic
             var j = c / renderGrid.GridSize.X;
             renderGrid.AtCoords(new Vec2i(i, j)).Value = 0;
             var pos = domain.RectBoundary.Reduce<Vec2>().FromRelative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());
-            var center = IFlowOperator<Vec2, Vec3>.Default.Compute(t, tau, pos, dat.VectorField);
+            var center = IFlowOperator<Vec2, Vec3>.Default.ComputeTrajectory(t, tau, pos, dat.VectorField);
             renderGrid.AtCoords(new Vec2i(i, j)).Value = center.AverageAlong((prev, cur) => ((prev.XY - cur.XY) / (cur.Z - prev.Z)).Length());
         });
     }

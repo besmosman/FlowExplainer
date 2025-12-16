@@ -6,7 +6,7 @@ namespace FlowExplainer;
 
 [Serializable]
 public struct Vec3 :
-    IVec<Vec3>,
+    IVec<Vec3, double>,
     IEquatable<Vec3>,
     IVecUpDimension<Vec4>,
     IVecDownDimension<Vec2>,
@@ -18,7 +18,11 @@ public struct Vec3 :
 
     public static int SizeInBytes { get; } = 12;
     public int ElementCount => 3;
-    public double Last => Z;
+    public double Last
+    {
+        get => Z;
+        set => Z = value;
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public double Sum() => X + Y+Z;

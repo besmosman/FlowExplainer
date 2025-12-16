@@ -2,30 +2,29 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace FlowExplainer;
 
-public interface IIntegrator<TInput, TOutput> where TInput : IVec<TInput>
+public interface IIntegrator<TPhase, TSpace> where TPhase : IVec<TPhase, double>
 {
-    TOutput Integrate(IVectorField<TInput, TOutput> f, TInput x, double dt);
-
+    TPhase Integrate(IVectorField<TPhase, TSpace> f, TPhase x, double dt);
 }
 
 public static class IIntegratorExtensions
 {
     extension<TInput, TOutput>(IIntegrator<TInput, TOutput>)
-        where TInput : IVec<TInput>, IVecDownDimension<TOutput>
-        where TOutput : IVec<TOutput>, IVecUpDimension<TInput>
+        where TInput : IVec<TInput,double>, IVecDownDimension<TOutput>
+        where TOutput : IVec<TOutput,double>, IVecUpDimension<TInput>
     {
-        public static IIntegrator<TInput, TOutput> Rk4 => new RungeKutta4IntegratorGen<TInput, TOutput>();
+        public static IIntegrator<TInput, TOutput> Rk4 => RungeKutta4IntegratorGen<TInput, TOutput>.Instance;
     }
 
     extension<TInput>(IIntegrator<TInput, TInput>)
-        where TInput : IVec<TInput>
+        where TInput : IVec<TInput, double>
     {
         public static IIntegrator<TInput, TInput> Rk4Steady => new RungeKutta4IntegratorBaseGen<TInput>();
     }
 }
 
 public class IncreasedDimensionVectorField<VecLowerIn, VecLowerOut, VecOut> : IVectorField<VecLowerIn, VecOut>
-    where VecLowerIn : IVec<VecLowerIn>
+    where VecLowerIn : IVec<VecLowerIn, double>
     where VecLowerOut : IVecUpDimension<VecOut>
 {
     private IVectorField<VecLowerIn, VecLowerOut> UnsteadyField;

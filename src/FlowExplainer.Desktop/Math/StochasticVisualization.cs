@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using ImGuiNET;
@@ -7,7 +8,7 @@ using OpenTK.Graphics.OpenGL4;
 namespace FlowExplainer;
 
 public class SpatialPartitioner<T, Vec, Veci> where Veci : IVec<Veci, int>
-    where Vec : IVec<Vec>, IVecIntegerEquivalent<Veci>
+    where Vec : IVec<Vec, double>, IVecIntegerEquivalent<Veci>
 {
     public RegularGrid<Veci, List<int>?> Partioner;
 
@@ -23,72 +24,6 @@ public class SpatialPartitioner<T, Vec, Veci> where Veci : IVec<Veci, int>
             p.Add(i);
         }
     }
-}
-
-public class PointSpatialPartitioner2D<Vec, Veci, T>
-    where Vec : IVec<Vec>, IVecIntegerEquivalent<Veci>
-    where Veci : IVec<Veci, int>
-{
-    public Dictionary<Veci, List<int>?> Partitioner = new();
-    public Rect<Vec> Bounds;
-    public double CellSize;
-
-    private T[] Entries;
-    private Func<T[], int, Vec> GetPos;
-
-    public PointSpatialPartitioner2D(double cellSize)
-    {
-        CellSize = cellSize;
-
-    }
-
-    public void Init(T[] entries, Func<T[], int, Vec> getPos)
-    {
-        Entries = entries;
-        GetPos = getPos;
-    }
-
-    public void UpdateEntries()
-    {
-        foreach (var l in Partitioner.Values)
-            l?.Clear();
-
-        for (int i = 0; i < Entries.Length; i++)
-        {
-            var pos = GetPos(Entries, i);
-            var cell = GetVoxelCoords(pos);
-            if (!Partitioner.TryGetValue(cell, out var list))
-            {
-                if (list == null)
-                {
-                    list = new();
-                    Partitioner.Add(cell, list);
-                }
-            }
-            list!.Add(i);
-        }
-    }
-
-    private Veci GetVoxelCoords(Vec pos)
-    {
-        return (pos / CellSize).FloorInt();
-    }
-
-    /*public IEnumerable<int> GetWithinRadius(Vec p, double radius)
-    {
-        var cellRadius = (int)double.Ceiling(radius * CellSize);
-        var center = GetVoxelCoords(p);
-        var r2 = radius * radius;
-        for (int x = -cellRadius; x < cellRadius; x++)
-        for (int y = -cellRadius; y < cellRadius; y++)
-        {
-            var coord = center + new Veci(x, y);
-            if (Partitioner.TryGetValue(coord, out var list))
-                foreach (int e in list!)
-                    if (Vec2.DistanceSquared(GetPos(Entries, e), p) < r2)
-                        yield return e;
-        }
-    }*/
 }
 
 public class StochasticVisualization : WorldService, IAxisTitle
@@ -196,7 +131,7 @@ public class StochasticVisualization : WorldService, IAxisTitle
                 var r = reverse;
 
 
-                p.Position = rk4.Integrate(advection, domainBounding.Bound(p.Position.Up(t)), dt);
+                p.Position = rk4.Integrate(advection, domainBounding.Bound(p.Position.Up(t)), dt).XY;
                 //p.Position += Vec2.Normalize(advectionR.Evaluate(p.Position.Up(t))) * dt;
                 //p.Position += sqrt * RandomWienerVector();
             }

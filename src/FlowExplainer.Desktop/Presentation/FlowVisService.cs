@@ -45,7 +45,7 @@ public class FlowVisService : WorldService
         double dt = 1/100f;
         foreach (ref var p in Particles.AsSpan())
         {
-            p.CurPos = IIntegrator<Vec3, Vec2>.Rk4.Integrate(velField, p.CurPos.Up(t), dt);
+            p.CurPos = IIntegrator<Vec3, Vec2>.Rk4.Integrate(velField, p.CurPos.Up(t), dt).XY;
             /*if (instantField.TryEvaluate(p.CurPos, out var dir))
             {
                 p.CurPos += Vec2.Normalize(dir) * dt;

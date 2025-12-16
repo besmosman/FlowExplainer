@@ -48,6 +48,9 @@ public class PresiContext
         public object ConnectedObject;
         public double TimeSinceLastFetch;
         public bool CapturesScroll;
+        public bool Dropdown;
+        public Vec2 RenderMin;
+        public Vec2 RenderMax;
     }
 
 
@@ -79,6 +82,68 @@ public class PresiContext
 
     }
 
+
+    public void DropdownEnum<T>(string name, ref T value, Vec2 relCenter,
+        [System.Runtime.CompilerServices.CallerFilePath]
+        string filePath = "",
+        [System.Runtime.CompilerServices.CallerLineNumber]
+        int lineNumber = 0) where T : struct, Enum
+    {
+        var widgetData = GetWidgetData(filePath, lineNumber);
+        widgetData.RelPosition = relCenter;
+        var lh = .05;
+        var th = lh * .55;
+
+        var entries = Enum.GetValues<T>();
+        widgetData.Size.X = .2;
+        widgetData.Size.Y = widgetData.Dropdown ? lh * entries.Length : lh;
+        if (widgetData.Dropdown)
+            relCenter += new Vec2(0, -lh * (entries.Length - 1) / 2.0);
+        var center = RelToSceen(relCenter);
+        var size = RelToSceen(widgetData.Size);
+        Gizmos2D.RectCenter(View.Camera2D, center, size + new Vec2(4, 4), Color.Grey(1f));
+        Gizmos2D.RectCenter(View.Camera2D, center, size, Color.Grey(.0f));
+        var rect = new Rect<Vec2>(center - size / 2, center + size / 2);
+
+        if (widgetData.Dropdown)
+        {
+            for (int i = 0; i < entries.Length; i++)
+            {
+                var entry = entries[i];
+                Gizmos2D.Text(View.Camera2D, RelToSceen(new Vec2(widgetData.RelPosition.X, widgetData.RelPosition.Y - lh * i)), RelToSceen(th), Color.White, Enum.GetName(entry), centered: true);
+            }
+        }
+        else
+        {
+            Gizmos2D.Text(View.Camera2D, center, RelToSceen(th), Color.White, Enum.GetName(value), centered: true);
+
+        }
+        if (View.IsMouseButtonPressedLeft)
+        {
+            if (rect.Contains(View.MousePosition))
+            {
+                if (!widgetData.Dropdown)
+                    widgetData.Dropdown = true;
+                else
+                {
+                    var index = entries.Length - 1 - (int)double.Floor(rect.ToRelative(View.MousePosition).Y * entries.Length);
+                    index = int.Clamp(index, 0, entries.Length);
+                    value = entries[index];
+
+                    widgetData.Dropdown = false;
+                }
+            }
+            else
+            {
+                widgetData.Dropdown = false;
+            }
+        }
+
+        if (widgetData.Dropdown)
+        {
+
+        }
+    }
     public void Checkbox(string name, ref bool value, Vec2 relCenter,
         [System.Runtime.CompilerServices.CallerFilePath]
         string filePath = "",
@@ -114,7 +179,7 @@ public class PresiContext
         var center = RelToSceen(relCenter);
         double height = RelToSceen(.04f);
         widgetData.Size = new Vec2(relWidth, height);
-        double width = RelToSceen(relWidth);
+        double width = RelToSceen(relWidth) + 20;
 
         var left = RelToSceen(new Vec2(widgetData.RelPosition.X - widgetData.Size.X / 2f, widgetData.RelPosition.Y));
         var right = RelToSceen(new Vec2(widgetData.RelPosition.X + widgetData.Size.X / 2f, widgetData.RelPosition.Y));
@@ -195,11 +260,11 @@ public class PresiContext
         [System.Runtime.CompilerServices.CallerLineNumber]
         int lineNumber = 0)
     {
-       
+
     }
 
-    public Color PanelBackgroundColor = new Color(1,0,0,1);
-  
+    public Color PanelBackgroundColor = new Color(1, 0, 0, 1);
+
     public View GetView(WidgetData widget, Action<World>? load)
     {
         if (!presiViews.ContainsKey(widget))
@@ -252,9 +317,43 @@ public class PresiContext
             w.TimeSinceLastFetch += presentationService.FlowExplainer.DeltaTime;
         }
 
-        foreach (var view in presiViews.Values)
+        foreach (var view in presiViews)
         {
-            view.IsActive = false;
+
+            var subRenderMin = view.Key.RenderMin;
+            var subRenderMax = view.Key.RenderMax;
+            var subRenderRect = new Rect<Vec2>(subRenderMin, subRenderMax);
+            var mainwindowSize = presentationService.PresiView.Size.ToVec2();
+            var mainwindowCoord = presentationService.PresiView.RelativeMousePosition;
+            var mouseRelInParent = mainwindowCoord / mainwindowSize;
+
+            /*var subwindowCenter = RelToSceen(view.Key.RelPosition);
+            var subwindowSize = RelToSceen(view.Key.Size);
+            subwindowSize.Y = subwindowSize.X * (view.Key.Size / view.Key.Size.X).Y;
+            var subwindowPos = subwindowCenter /*- subwindowSize / 2#1#;
+            var relSubPos = subwindowPos / subwindowSize;*/
+
+            var subSize = subRenderMax - subRenderMin;
+            var mouseRelInSub = (mouseRelInParent - subRenderMin) / subSize;
+            
+            var localPosPixels = mainwindowCoord - subRenderMin;
+            var localPosNormalized = mainwindowCoord - subRenderMin;
+            Logger.LogDebug((subRenderRect.ToRelative(mainwindowCoord) / view.Key.Size).ToString());
+            view.Value.RelativeMousePosition =subRenderRect.ToRelative(mainwindowCoord+ new Vec2(0,-100)) / new Vec2(.69f,.5f) * view.Value.Size.ToVec2();
+            
+           // Logger.LogDebug(view.Value.RelativeMousePosition.ToString());
+            /*var subRect = new Rect<Vec2>(RelToSceen(view.Key.RelPosition) - RelToSceen(view.Key.Size) / 2, RelToSceen(view.Key.Size));
+var localMousePos = mainwindowCoord - subwindowPos;
+            var localPixelPos = mainwindowCoord - subwindowPos;
+
+            var subrelpos = mouseRelInParent - subwindowSize / 2;
+            subrelpos /= CanvasSize;
+            var size = view.Value.Size.ToVec2();
+            view.Value.RelativeMousePosition = (mainwindowCoord) / mainwindowSize * size;
+            var relInSub = (mouseRelInParent) / view.Key.Size;
+            view.Value.RelativeMousePosition = subRect.FromRelative(relInSub);*/
+
+            view.Value.IsActive = false;
         }
         MouseLeftPressUsed = false;
     }

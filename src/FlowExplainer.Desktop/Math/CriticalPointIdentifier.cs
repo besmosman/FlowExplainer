@@ -260,8 +260,8 @@ public class CriticalPointIdentifier : WorldService
 
                 lastPos = pos;
                 //pos += v1 * .001f;
-                pos = rk4.Integrate(vectorField, pos.Up(t), .1);
-                    Gizmos2D.Line(view.Camera2D, lastPos, pos, new Color(1, 0, 0, 1), .001);
+                pos = rk4.Integrate(vectorField, pos.Up(t), .1).XY;
+                Gizmos2D.Line(view.Camera2D, lastPos, pos, new Color(1, 0, 0, 1), .001);
             }
         }
 
@@ -276,7 +276,7 @@ public class CriticalPointIdentifier : WorldService
                 for (int i = 0; i < 32; i++)
                 {
                     //if (vec2.Length() > 0.000000001)
-                    pos = rk4.Integrate(vectorField, pos.Up(t), .001);
+                    pos = rk4.Integrate(vectorField, pos.Up(t), .001).XY;
                 }
                 Gizmos2D.Line(view.Camera2D, lastPos, pos, new Color(1, 0, 0, 1), .001);
             }
@@ -319,7 +319,7 @@ public class CriticalPointIdentifier : WorldService
                     for (int i = 0; i < 32; i++)
                     {
                         //if (vec2.Length() > 0.000000001)
-                        pos = rk4.Integrate(vectorField, pos.Up(t), .001);
+                        pos = rk4.Integrate(vectorField, pos.Up(t), .001).XY;
                     }
                     Gizmos2D.Line(view.Camera2D, lastPos, pos, new Color(1, 0, 0, 1), .001);
                 }

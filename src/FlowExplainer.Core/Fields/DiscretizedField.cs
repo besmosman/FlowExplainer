@@ -3,7 +3,7 @@ using System.Numerics;
 namespace FlowExplainer;
 
 public class DiscretizedField<Vec, Veci, TData> : IVectorField<Vec, TData>
-    where Vec : IVec<Vec>, IVecIntegerEquivalent<Veci>
+    where Vec : IVec<Vec, double>, IVecIntegerEquivalent<Veci>
     where Veci : IVec<Veci, int>, IVecDoubleEquivalent<Vec>
     where TData : IMultiplyOperators<TData, double, TData>, IAdditionOperators<TData, TData, TData>
 {

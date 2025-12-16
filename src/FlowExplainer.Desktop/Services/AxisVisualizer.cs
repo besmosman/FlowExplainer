@@ -14,7 +14,6 @@ public class AxisVisualizer : WorldService
     public bool DrawTitle = true;
 
     public string? Title;
-    public IGradientScaler? scaler;
 
     private Mesh gradientMesh;
 
@@ -57,16 +56,16 @@ public class AxisVisualizer : WorldService
 
 
             var y = lt.Y - lh * 2;
-            if(DrawTitle)
-            for (int index = World.Services.Count - 1; index >= 0; index--)
-            {
-                var service = World.Services[index];
-                if (service is IAxisTitle titler && service.IsEnabled)
+            if (DrawTitle)
+                for (int index = World.Services.Count - 1; index >= 0; index--)
                 {
-                    Gizmos2D.Text(view.ScreenCamera, new Vec2((lb.X + rb.X) / 2, y), lh, color, titler.GetTitle(), centered: true);
-                    y -= lh;
+                    var service = World.Services[index];
+                    if (service is IAxisTitle titler && service.IsEnabled)
+                    {
+                        Gizmos2D.Text(view.ScreenCamera, new Vec2((lb.X + rb.X) / 2, y), lh, color, titler.GetTitle(), centered: true);
+                        y -= lh;
+                    }
                 }
-            }
             //if (titler != null)
 
             /*if (!GetGlobalService<PresentationService>().IsPresenting)
@@ -106,27 +105,32 @@ public class AxisVisualizer : WorldService
         }
 
 
-        if (DrawGradient && scaler != null)
-        {
-            var textr = dat.ColorGradient.Texture.Value;
-            //Gizmos2D.ImageCentered(view.ScreenCamera, textr, new Vec2(view.Width-50f, 50), 10000f, 1);
-            var texturedMat = Gizmos2D.texturedMat;
-            texturedMat.Use();
-            texturedMat.SetUniform("tint", new Vec4(1, 1, 1, 1));
-            texturedMat.SetUniform("view", view.ScreenCamera.GetViewMatrix());
-            texturedMat.SetUniform("projection", view.ScreenCamera.GetProjectionMatrix());
-            texturedMat.SetUniform("mainTex", textr);
-            var width = 40;
-            var height = 200;
-            var posX = view.Width - width - 50f;
-            var posY = view.Height / 2f - height / 2f;
-            texturedMat.SetUniform("model", Matrix4x4.CreateScale(width, height, .4f) * Matrix4x4.CreateTranslation(posX, posY, 0));
-            gradientMesh.Draw();
-            (double min, double max) = scaler.GetScale();
+        if (DrawGradient)
+            for (int index = World.Services.Count - 1; index >= 0; index--)
+            {
+                var service = World.Services[index];
+                if (service is IGradientScaler scaler && service.IsEnabled)
+                {
+                    var textr = dat.ColorGradient.Texture.Value;
+                    //Gizmos2D.ImageCentered(view.ScreenCamera, textr, new Vec2(view.Width-50f, 50), 10000f, 1);
+                    var texturedMat = Gizmos2D.texturedMat;
+                    texturedMat.Use();
+                    texturedMat.SetUniform("tint", new Vec4(1, 1, 1, 1));
+                    texturedMat.SetUniform("view", view.ScreenCamera.GetViewMatrix());
+                    texturedMat.SetUniform("projection", view.ScreenCamera.GetProjectionMatrix());
+                    texturedMat.SetUniform("mainTex", textr);
+                    var width = 40;
+                    var height = 200;
+                    var posX = view.Width - width - 50f;
+                    var posY = view.Height / 2f - height / 2f;
+                    texturedMat.SetUniform("model", Matrix4x4.CreateScale(width, height, .4f) * Matrix4x4.CreateTranslation(posX, posY, 0));
+                    gradientMesh.Draw();
+                    (double min, double max) = scaler.GetScale();
 
-            Gizmos2D.Text(view.ScreenCamera, new Vec2(posX + width / 2f, posY - lh - 5), lh, color, max.ToString("F2", CultureInfo.InvariantCulture), centered: true);
-            Gizmos2D.Text(view.ScreenCamera, new Vec2(posX + width / 2f, posY + height + 5), lh, color, min.ToString("F2", CultureInfo.InvariantCulture), centered: true);
-        }
+                    Gizmos2D.Text(view.ScreenCamera, new Vec2(posX + width / 2f, posY - lh - 5), lh, color, max.ToString("F2", CultureInfo.InvariantCulture), centered: true);
+                    Gizmos2D.Text(view.ScreenCamera, new Vec2(posX + width / 2f, posY + height + 5), lh, color, min.ToString("F2", CultureInfo.InvariantCulture), centered: true);
+                }
+            }
 
         if (DrawWalls)
         {

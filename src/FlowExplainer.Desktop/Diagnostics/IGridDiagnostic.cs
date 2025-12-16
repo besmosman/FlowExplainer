@@ -6,4 +6,5 @@ public interface IGridDiagnostic
     void OnImGuiEdit(GridVisualizer gridVisualizer);
     public string Name => this.GetType().Name.Replace("GridDiagnostic", "");
     public bool UseCustomColoring => false;
+    public bool RequireMainThread => false;
 }

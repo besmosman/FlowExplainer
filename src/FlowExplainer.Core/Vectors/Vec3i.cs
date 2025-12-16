@@ -134,7 +134,11 @@ namespace FlowExplainer
         public static Vec3i Zero { get; } = default;
         public static Vec3i One { get; } = new Vec3i(1,1,1);
 
-        public int Last => Z;
+        public int Last
+        {
+            get => Z;
+            set => Z = value;
+        }
 
         public int this[int n]
         {
