@@ -36,7 +36,7 @@ namespace FlowExplainer
     {
         static void Main(string[] _)
         {
-            CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+            /*CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
             if (File.Exists("config.json"))
                 Config.Load("config.json");
             else
@@ -44,22 +44,10 @@ namespace FlowExplainer
 
             ServicesInfo.Init();
 
-            var neuroTrace = new FlowExplainer();
-            neuroTrace.AddGlobalService(new AssetWatcherService());
-            neuroTrace.AddGlobalService(new PreferencesService());
-            neuroTrace.AddGlobalService(new WindowService());
-            neuroTrace.AddGlobalService(new NewImGUIRenderService());
-            neuroTrace.AddGlobalService(new ImGUIService());
-            neuroTrace.AddGlobalService(new DatasetsService());
-
-            var visualisations = new WorldManagerService();
-            neuroTrace.AddGlobalService(visualisations);
-            var mainworld =visualisations.NewWorld();
-            neuroTrace.AddGlobalService(new ViewsService());
-//            neuroTrace.AddGlobalService(new ImGUIRenderService());
-            neuroTrace.AddGlobalService(new PresentationService());
-            Scripting.Startup(mainworld);
-            neuroTrace.Run();
+            var app = new FlowExplainer();
+            app.AddDefaultGlobalServices();
+            Scripting.Startup(app.GetGlobalService<WorldManagerService>().Worlds[0]);
+            app.Run();*/
         }
     }
 }

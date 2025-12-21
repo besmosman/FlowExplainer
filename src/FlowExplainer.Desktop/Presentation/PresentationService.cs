@@ -177,6 +177,9 @@ public class PresentationService : GlobalService
     {
         var presiView = PresiView;
 
+        if(presiView == null)
+            return;
+        
         if (presiView?.IsFullScreen == true)
         {
             var window = FlowExplainer.GetGlobalService<WindowService>()!.Window;
@@ -195,6 +198,7 @@ public class PresentationService : GlobalService
             var dir = highlighted[i + 1] - vec2;
             Gizmos2D.Instanced.RegisterLine(highlighted[i] - dir / 10, highlighted[i + 1], new Color(1, 0, 0, 1), 10f);
         }
+    
         Gizmos2D.Instanced.RenderRects(presiView.Camera2D);
         base.AfterDraw();
     }

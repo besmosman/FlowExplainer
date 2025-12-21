@@ -4,12 +4,13 @@ public class UpdatePresentation2 : NewPresentation
 {
     private string periodicDataset = "(P) Double Gyre EPS=0.1, Pe=100";
     private string periodicDatasetHighPe = "(P) Double Gyre EPS=0.1, Pe=500";
-    private string stableDataset = "Double Gyre EPS=0, Pe=100";
+    private string stableDataset = "(P) Double Gyre EPS=0, Pe=100";
 
     private string nonperiodicDataset = "Double Gyre EPS=0.1, Pe=100";
     private double t0 = 0;
     public bool arrows;
     public bool map;
+    public bool map1;
 
     public ImageTexture fig4 = new ImageTexture("Assets/Images/Presi/fig4.png");
     public ImageTexture fig6 = new ImageTexture("Assets/Images/Presi/fig6.png");
@@ -25,8 +26,8 @@ public class UpdatePresentation2 : NewPresentation
         {
             if (BeginSlide(""))
             {
-                Presi.Text("Progress meeting 16/11/2025", new Vec2(0.5, 0.5), .05, true, Color.White);
-            }
+                Presi.Text("Progress meeting 16/12/2025", new Vec2(0.5, 0.5), .05, true, Color.White);
+            }   
 
             if (BeginSlide("Stochastic R"))
             {
@@ -111,8 +112,8 @@ public class UpdatePresentation2 : NewPresentation
             view.Camera2D.Position = Vec2.Zero;
             var gridDiagnostics = (StochasticConnectionVisualization.GridDiagnostics)view.World.GetWorldService<GridVisualizer>().diagnostic;
             Presi.DropdownEnum("Mode", ref gridDiagnostics.type, new Vec2(.8, .17));
-            Presi.Checkbox("Map", ref map, new Vec2(.62, .17));
-            if (map != view.World.GetWorldService<GridVisualizer>().IsEnabled)
+            Presi.Checkbox("Map", ref map1, new Vec2(.62, .17));
+            if (map1 != view.World.GetWorldService<GridVisualizer>().IsEnabled)
             {
                 if (view.World.GetWorldService<GridVisualizer>().IsEnabled)
                 {
@@ -166,20 +167,20 @@ public class UpdatePresentation2 : NewPresentation
                 var stoch = w.AddVisualisationService<StochasticConnectionVisualization>();
                 stoch.DrawParticles = false;
                 stoch.Alpha = .5f;
-                stoch.ReseedChance = 0.1;
+                stoch.ReseedChance = 0.08;
                 stoch.RenderRadius = .03;
-                stoch.kernelSizeM = .3;
-                stoch.Count = 64_000;
+                stoch.kernelSizeM = .45;
+                stoch.Count = 32_000;
                 stoch.HighlightMouse = false;
                 stoch.Initialize();
-                w.DataService.TimeMultiplier = 3f;
+                w.DataService.TimeMultiplier = 4f;
                 w.DataService.SimulationTime = 0;
                 ftle = true;
                 var grid = w.AddVisualisationService<GridVisualizer>();
                 grid.TargetCellCount = 128_000;
                 var gridDiagnostics = new StochasticConnectionVisualization.GridDiagnostics();
                 grid.SetGridDiagnostic(gridDiagnostics);
-                gridDiagnostics.interpolationFactor = .08;
+                gridDiagnostics.interpolationFactor = .066;
                 gridDiagnostics.type = StochasticConnectionVisualization.GridDiagnostics.Type.Repelling;
 
                 //  w.AddVisualisationService<ArrowVisualizer>().colorByGradient = false;
@@ -196,20 +197,20 @@ public class UpdatePresentation2 : NewPresentation
                 var stoch = w.AddVisualisationService<StochasticConnectionVisualization>();
                 stoch.DrawParticles = false;
                 stoch.Alpha = .5f;
-                stoch.ReseedChance = 0.8;
+                stoch.ReseedChance = 0.4;
                 stoch.RenderRadius = .03;
                 stoch.kernelSizeM = .3;
-                stoch.Count = 64_000;
+                stoch.Count = 32_000;
                 stoch.HighlightMouse = false;
                 stoch.Initialize();
-                w.DataService.TimeMultiplier = 3f;
+                w.DataService.TimeMultiplier = 1f;
                 w.DataService.SimulationTime = 0;
                 ftle = true;
                 var grid = w.AddVisualisationService<GridVisualizer>();
-                grid.TargetCellCount = 128_000;
+                grid.TargetCellCount = 200_000;
                 var gridDiagnostics = new StochasticConnectionVisualization.GridDiagnostics();
                 grid.SetGridDiagnostic(gridDiagnostics);
-                gridDiagnostics.interpolationFactor = .08;
+                gridDiagnostics.interpolationFactor = .05;
                 gridDiagnostics.type = StochasticConnectionVisualization.GridDiagnostics.Type.Repelling;
 
                 //  w.AddVisualisationService<ArrowVisualizer>().colorByGradient = false;

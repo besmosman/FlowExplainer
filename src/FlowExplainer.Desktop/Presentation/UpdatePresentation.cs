@@ -24,7 +24,7 @@ public class UpdatePresentation : NewPresentation
         {
             if (BeginSlide(""))
             {
-                Presi.Text("Progress meeting 02/11/2025", new Vec2(0.5, 0.5), .05, true, Color.White);
+                Presi.Text("Progress meeting 02/12/2025", new Vec2(0.5, 0.5), .05, true, Color.White);
             }
             if (BeginSlide("Stochastic"))
             {

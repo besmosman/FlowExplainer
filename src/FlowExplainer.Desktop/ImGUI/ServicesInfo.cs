@@ -10,17 +10,20 @@ public static class ServicesInfo
 
     static ServicesInfo()
     {
-
     }
 
     public static void Init()
     {
-        RegisterAssembly(typeof(Poincare3DVisualizer).Assembly);
+        ServicesByCategory.Add("General", new()); //force first pos
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        {
+            if (assembly.FullName?.StartsWith("System.") != true)
+                RegisterAssembly(assembly);
+        }
     }
 
     private static void RegisterAssembly(Assembly assembly)
     {
-        ServicesByCategory.Add("General", new());//force first pos
         foreach (var type in assembly.GetTypes().Where(t => t.IsAssignableTo(typeof(WorldService)) && !t.IsAbstract))
         {
             var instance = (WorldService)Activator.CreateInstance(type)!;
@@ -32,6 +35,7 @@ public static class ServicesInfo
                 ServicesOrderedByName.Add(instance);
             }
         }
+
         ServicesOrderedByName = ServicesOrderedByName.OrderBy(o => o.Name ?? "?").ToList();
         RegisteredAssemblies.Add(assembly);
     }

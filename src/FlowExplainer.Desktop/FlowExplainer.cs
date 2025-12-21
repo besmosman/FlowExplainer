@@ -18,6 +18,24 @@ namespace FlowExplainer
             service.Initialize();
         }
 
+        public void AddDefaultGlobalServices()
+        {
+            ServicesInfo.Init();
+            
+            AddGlobalService(new AssetWatcherService());
+            AddGlobalService(new PreferencesService());
+            AddGlobalService(new WindowService());
+            AddGlobalService(new NewImGUIRenderService());
+            AddGlobalService(new ImGUIService());
+            AddGlobalService(new DatasetsService());
+
+            var visualisations = new WorldManagerService();
+            AddGlobalService(visualisations);
+            var mainworld = visualisations.NewWorld();
+            AddGlobalService(new ViewsService());
+            AddGlobalService(new PresentationService());
+        }
+
         public T GetGlobalService<T>() where T : GlobalService
         {
             foreach (var s in Services)
@@ -52,7 +70,6 @@ namespace FlowExplainer
 
         public void Run()
         {
-            
             //try
             {
                 var total = Stopwatch.StartNew();
@@ -68,10 +85,10 @@ namespace FlowExplainer
 
                     foreach (var service in Services)
                         service.Draw();
-                    
+
                     foreach (var service in Services)
                         service.AfterDraw();
-                    
+
                     double endTime = total.Elapsed.TotalSeconds;
 
                     /*while (endTime - startTime < 1 / 144f)

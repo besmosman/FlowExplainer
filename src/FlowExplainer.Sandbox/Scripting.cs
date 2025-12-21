@@ -10,90 +10,15 @@ public static class Scripting
 {
     public static void Startup(World world)
     {
-
-        /*
-        var lines = File.ReadAllLines("C:\\Users\\20183493\\Downloads\\input.txt");
-        var points = new List<Vec2i>();
-        foreach (string l in lines)
-        {
-            string[] strings = l.Split(",");
-            points.Add(new Vec2i(int.Parse(strings[0]), int.Parse(strings[1])));
-        }
-        long max = 0;
-        foreach (var p0 in points)
-        foreach (var p1 in points)
-        {
-            var dx = p0.X - p1.X;
-            var dy = p0.Y - p1.Y;
-
-            max = long.Max(max, (long.Abs(dx)+1) * (long.Abs(dy)+1));
-        }
-
-        long r = max;
-
-        var minG = new Vec2i(points.Min(s => s.X), points.Min(s => s.Y));
-        var maxG = new Vec2i(points.Max(s => s.X), points.Max(s => s.Y));
-        var g = new RegularGrid<Vec2i, int>(maxG - minG);
-        for (int i = 0; i < points.Count; i++)
-        {
-            var cur = points[i];
-            var n = i + 1;
-            if (i == points.Count - 1)
-                n = 0;
-            var next = points[n];
-
-
-
-        }
-        */
-
-
-        string datasetPath = Config.GetValue<string>("spectral-data-path")!;
+        //string datasetPath = Config.GetValue<string>("spectral-data-path")!;
         // RebuildSpeetjensDatasets(datasetPath);
-
-
-
-
         LoadPeriodicCopies(world);
         SetGyreDataset(world);
         var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(3).Key;
         world.GetWorldService<DataService>().SetDataset(name);
         world.GetWorldService<DataService>().currentSelectedVectorField = "Diffusion Flux";
-
-       // var s = world.AddVisualisationService<StochasticConnectionVisualization>();
-       // world.AddVisualisationService<GridVisualizer>().SetGridDiagnostic(new StochasticConnectionVisualization.GridDiagnostics());
-        // new PerronFrobeniusOperatorUlamsMethod().Compute(world.GetWorldService<DataService>().VectorField);
-
-        /*var temp = world.DataService.LoadedDataset.ScalerFields.ElementAt(2).Value;
-
-        var tot = 0.0;
-        int it = 10000;
-        for (int i = 0; i < it; i++)
-        {
-            var p0 = new Vec3(Random.Shared.NextDouble(), Random.Shared.NextDouble() / 2, 5);
-            var diff = temp.Evaluate(p0) - temp.Evaluate(p0 + new Vec3(0, 0, 1));
-            tot += double.Abs(diff);
-        }
-        tot /= it;*/
-        // world.DataService.LoadedDataset.VectorFields.Add("s", new NonlinearSaddleFlow());
-
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
-        //world.AddVisualisationService(new ArrowVisualizer());
-        // world.AddVisualisationService(new StochasticConnectionVisualization());
-
-        //var flowGenerator = world.AddVisualisationService<StructuredFlowGenerator>();
-        //var vectorField = flowGenerator.Generate();
-        //world.DataService.LoadedDataset.VectorFields.Add("ss", vectorField);
-        //world.DataService.currentSelectedVectorField = "ss";
-        // var stochasticVisualization3D = new StochasticVisualization3D();
-        //  world.AddVisualisationService(stochasticVisualization3D);
-        // world.FlowExplainer.GetGlobalService<ViewsService>().Views.First().Is3DCamera = true;
-        // stochasticVisualization3D.VolumeRender = true;
-
-        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new UpdatePresentation2());
-        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
-        // world.AddVisualisationService(new StochasticConnectionVisualization());
     }
     private static void LoadPeriodicCopies(World world)
     {
