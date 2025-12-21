@@ -19,7 +19,10 @@ public static class Scripting
         world.GetWorldService<DataService>().currentSelectedVectorField = "Diffusion Flux";
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
+        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new DemoPresentation());
+        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
     }
+    
     private static void LoadPeriodicCopies(World world)
     {
 

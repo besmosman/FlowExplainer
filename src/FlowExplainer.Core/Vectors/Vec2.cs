@@ -18,7 +18,9 @@ public interface IVec<TVec, TNumber> :
     IMultiplyOperators<TVec, TNumber, TVec>,
     ISubtractionOperators<TVec, TVec, TVec>,
     IDivisionOperators<TVec, TNumber, TVec>,
-    IAdditionOperators<TVec, TVec, TVec>
+    IAdditionOperators<TVec, TVec, TVec>,
+    IEqualityOperators<TVec,TVec, bool>,
+    IEquatable<TVec>
     where TVec : IVec<TVec, TNumber>
     where TNumber : INumber<TNumber>
 {
@@ -41,7 +43,7 @@ public interface IVec<TVec, TNumber> :
     static abstract bool operator >(TVec left, TVec right);
     static abstract bool operator <(TVec left, TVec right);
 
-
+    
     public TNumber Volume()
     {
         TNumber n = TNumber.One;
@@ -233,5 +235,31 @@ public struct Vec2 : IVec<Vec2, double>, IVecUpDimension<Vec3>, IVecDownDimensio
     public Vec2 Normalized()
     {
         return Vec2.Normalize(this);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator ==(Vec2 left, Vec2 right)
+    {
+        return left.Equals(right);
+    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator !=(Vec2 left, Vec2 right)
+    {
+        return !left.Equals(right);
+    }
+
+    public bool Equals(Vec2 other)
+    {
+        return X.Equals(other.X) && Y.Equals(other.Y);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is Vec2 other && Equals(other);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(X, Y);
     }
 }

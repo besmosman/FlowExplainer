@@ -69,4 +69,21 @@ public struct Vec1 : IVec<Vec1, double>
 
     public static implicit operator double(Vec1 v) => v.X;
     public static implicit operator Vec1(double v) => new Vec1(v);
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator ==(Vec1 left, Vec1 right)
+    {
+        return left.Equals(right);
+    }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator !=(Vec1 left, Vec1 right)
+    {
+        return !left.Equals(right);
+    }
+
+    public bool Equals(Vec1 other)
+    {
+        return X == other.X;
+    }
 }

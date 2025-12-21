@@ -50,9 +50,9 @@ namespace FlowExplainer
                 System.Drawing.Color.White, System.Drawing.Color.FromArgb(36, 36, 36));
 
             Window.VSync = SetVsync(Config.GetValue<bool?>("vsync") ?? false);
+            Window.VSync = VSyncMode.On;
             Window.CenterWindow();
             Window.IsVisible = true;
-            Window.VSync = VSyncMode.On;
             Window.Closing += OnWindowClose;
             Window.Resize += OnWindowResize;
 
