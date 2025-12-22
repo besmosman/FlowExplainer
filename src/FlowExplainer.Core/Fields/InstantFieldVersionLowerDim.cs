@@ -43,6 +43,7 @@ public struct InstantFieldVersionLowerDim<VecOri, VecNew, Data> : IVectorField<V
         {
             return oriBounding.Bound(x.Up(Time)).Down();
         }
+        public double ShortestSpatialDistanceSqrt(VecNew a, VecNew b) => oriBounding.ShortestSpatialDistanceSqrt(a.Up(0), b.Up(0));
     }
 }
 

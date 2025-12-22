@@ -19,7 +19,9 @@ public abstract class WorldService : Service
     public virtual string? Name { get; }
     public virtual string? CategoryN { get; }
 
-  
+
+    public DataService DataService => GetRequiredWorldService<DataService>();
+    
     public virtual void OnEnable()
     {
     }

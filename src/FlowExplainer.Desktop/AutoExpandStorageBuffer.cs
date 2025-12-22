@@ -2,16 +2,16 @@ namespace FlowExplainer;
 
 public class AutoExpandStorageBuffer<TData> where TData : struct
 {
-    private StorageBuffer<TData> buffer = new(64);
+    public StorageBuffer<TData> buffer = new(64);
     private int cur = 0;
 
     public AutoExpandStorageBuffer()
     {
     }
 
-    public int GetCurrentIndex()
+    public ref int GetCurrentIndex()
     {
-        return cur;
+        return ref cur;
     }
 
     public void Use()

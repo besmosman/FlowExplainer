@@ -39,6 +39,7 @@ namespace FlowExplainer
         public int Id;
         public int Length;
         public T[] Data;
+        public int BufferIndex = 2; //2 is default for now...
 
         public StorageBuffer(int size)
         {
@@ -73,7 +74,7 @@ namespace FlowExplainer
 
         public void Use()
         {
-            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, 2, Id); //hard coded 2 for now because I am lazy :)
+            GL.BindBufferBase(BufferRangeTarget.ShaderStorageBuffer, BufferIndex, Id); 
         }
 
         public void Upload(int? maxlength = null)

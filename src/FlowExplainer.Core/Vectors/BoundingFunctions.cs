@@ -2,10 +2,10 @@ namespace FlowExplainer;
 
 public static class BoundingFunctions
 {
-    public static IBounding<Vec3> PeriodicXPeriodicZ(Rect<Vec3> rect)
+    /*public static IBounding<Vec3> PeriodicXPeriodicZ(Rect<Vec3> rect)
     {
         return new BoundingPeriodicXyPeriodicZ(rect);
-    }
+    }*/
     public static IBounding<Vec> None<Vec>() where Vec : IVec<Vec, double>
     {
         return new BoundingNone<Vec>();

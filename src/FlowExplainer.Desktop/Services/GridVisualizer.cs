@@ -192,7 +192,11 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         }
         min = double.Lerp(min, nextMin, .1);
         max = double.Lerp(max, nextMax, .1);
-        max = double.Max(max, min);
+        if (!double.IsRealNumber(min))
+            min = nextMin;
+        if (!double.IsRealNumber(max))
+            max = nextMax;
+            max = double.Max(max, min);
     }
 
     private void ResetGridUpdateTask()

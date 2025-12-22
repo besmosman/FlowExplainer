@@ -40,8 +40,7 @@ public interface IVec<TVec, TNumber> :
     static abstract TVec operator /(TVec left, TVec right);
     static abstract bool operator >(TVec left, TVec right);
     static abstract bool operator <(TVec left, TVec right);
-
-
+    
     public TNumber Volume()
     {
         TNumber n = TNumber.One;
@@ -109,6 +108,7 @@ public struct Vec2 : IVec<Vec2, double>, IVecUpDimension<Vec3>, IVecDownDimensio
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vec2 operator /(Vec2 v1, Vec2 v2) => new(v1.X / v2.X, v1.Y / v2.Y);
+    public static Vec2 operator /(Vec2 v1, Vec2i v2) => new(v1.X / v2.X, v1.Y / v2.Y);
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vec2 operator -(Vec2 v1) => new(-v1.X, -v1.Y);

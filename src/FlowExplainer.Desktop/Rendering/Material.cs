@@ -17,12 +17,12 @@ namespace FlowExplainer
             Shader.DefaultWorldSpaceVertex,
             Shader.DefaultLitFragment
         );*/
-        
+
         public static Material NewDefaultUnlit => new(
             Shader.DefaultWorldSpaceVertex,
             Shader.DefaultUnlitFragment
         );
-        
+
         public Material(params Shader[] shaders)
         {
             Shaders = shaders;
@@ -52,6 +52,9 @@ namespace FlowExplainer
                     shader.HasChanged = false;
                     GL.DetachShader(ProgramHandle, shader.ShaderHandle);
                     GL.AttachShader(ProgramHandle, shader.ShaderHandle);
+
+                    uniformLocations.Clear();
+                    texturesByUniform.Clear();
                     b = true;
                 }
             if (b)

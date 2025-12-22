@@ -5,6 +5,7 @@ namespace FlowExplainer;
 public interface IBounding<Vec> where Vec : IVec<Vec, double>
 {
     Vec Bound(Vec x);
+    double ShortestSpatialDistanceSqrt(Vec a, Vec b);
 }
 
 public class LastPeriodicBounding<Vec> : IBounding<Vec> where Vec : IVec<Vec, double>
@@ -28,6 +29,7 @@ public class LastPeriodicBounding<Vec> : IBounding<Vec> where Vec : IVec<Vec, do
         bounded[bounded.ElementCount - 1] = PeriodicBound(oriLast, min, size);
         return bounded;
     }
+    public double ShortestSpatialDistanceSqrt(Vec a, Vec b) => Original.ShortestSpatialDistanceSqrt(a, b);
     private static double PeriodicBound(double x, double min, double size)
     {
         var t = (x - min) % size;
@@ -45,6 +47,8 @@ public class LastSliceBounding<Vec> : IBounding<Vec> where Vec : IVec<Vec, doubl
     private double sliceEnd;
     private double new_t_start;
     private double new_t_end;
+
+    public double ShortestSpatialDistanceSqrt(Vec a, Vec b) => Original.ShortestSpatialDistanceSqrt(a, b);
 
     public LastSliceBounding(IBounding<Vec> original, double slice_start, double slice_end, double newTStart, double newTEnd)
     {

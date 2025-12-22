@@ -7,16 +7,11 @@ public static class FTLEComputer
     public static double Compute(Vec2 x, double t_start, double t_end, IVectorField<Vec3, Vec2> vectorfield, Vec2 d)
     {
         var flowOperator = IFlowOperator<Vec2, Vec3>.Default;
-
-        var trajLeft = flowOperator.ComputeTrajectory(t_start, t_end, x + new Vec2(d.X, 0), vectorfield);
-        var trajRight = flowOperator.ComputeTrajectory(t_start, t_end, x + new Vec2(-d.X, 0), vectorfield);
-        var trajUp = flowOperator.ComputeTrajectory(t_start, t_end, x + new Vec2(0, d.Y), vectorfield);
-        var trajDown = flowOperator.ComputeTrajectory(t_start, t_end, x + new Vec2(0, -d.Y), vectorfield);
-
-        var end_left = trajLeft.Entries[^1];
-        var end_right = trajRight.Entries[^1];
-        var end_up = trajUp.Entries[^1];
-        var end_down = trajDown.Entries[^1];
+        
+        var end_left =  flowOperator.ComputeEnd(t_start, t_end, x + new Vec2(d.X, 0), vectorfield);
+        var end_right = flowOperator.ComputeEnd(t_start, t_end, x + new Vec2(-d.X, 0), vectorfield);
+        var end_up = flowOperator.ComputeEnd(t_start, t_end, x + new Vec2(0, d.Y), vectorfield);
+        var end_down = flowOperator.ComputeEnd(t_start, t_end, x + new Vec2(0, -d.Y), vectorfield);
 
 
         Matrix2d gradient = new Matrix2d(

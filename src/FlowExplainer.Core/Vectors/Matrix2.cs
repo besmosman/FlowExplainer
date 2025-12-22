@@ -47,10 +47,16 @@ public struct Matrix2
 
     public static Matrix2 operator *(Matrix2 A, Matrix2 B)
     {
+        double m11 = A.Row1.X * B.Row1.X + A.Row1.Y * B.Row2.X; // Row1 * Col1
+        double m12 = A.Row1.X * B.Row1.Y + A.Row1.Y * B.Row2.Y; // Row1 * Col2
+    
+        double m21 = A.Row2.X * B.Row1.X + A.Row2.Y * B.Row2.X; // Row2 * Col1
+        double m22 = A.Row2.X * B.Row1.Y + A.Row2.Y * B.Row2.Y; // Row2 * Col2
+
         return new Matrix2
         {
-            Row1 = A.Row1 * B.Row1,
-            Row2 = A.Row2 * B.Row2,
+            Row1 = new Vec2(m11, m12),
+            Row2 = new Vec2(m21, m22)
         };
     }
 

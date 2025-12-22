@@ -56,10 +56,13 @@ public static class Scripting
 
         LoadPeriodicCopies(world);
         SetGyreDataset(world);
-        var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(3).Key;
+        var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(4).Key;
         world.GetWorldService<DataService>().SetDataset(name);
-        world.GetWorldService<DataService>().currentSelectedVectorField = "Diffusion Flux";
+        world.GetWorldService<DataService>().currentSelectedVectorField = "Convection Flux";
 
+        world.AddVisualisationService<TrajectoryVis>();
+        
+       //var s = world.AddVisualisationService<StochasticConnectionVisualizationTest>();
        // var s = world.AddVisualisationService<StochasticConnectionVisualization>();
        // world.AddVisualisationService<GridVisualizer>().SetGridDiagnostic(new StochasticConnectionVisualization.GridDiagnostics());
         // new PerronFrobeniusOperatorUlamsMethod().Compute(world.GetWorldService<DataService>().VectorField);
@@ -91,8 +94,8 @@ public static class Scripting
         // world.FlowExplainer.GetGlobalService<ViewsService>().Views.First().Is3DCamera = true;
         // stochasticVisualization3D.VolumeRender = true;
 
-        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new UpdatePresentation2());
-        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+       //world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new UpdatePresentation2());
+       //world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
         // world.AddVisualisationService(new StochasticConnectionVisualization());
     }
     private static void LoadPeriodicCopies(World world)

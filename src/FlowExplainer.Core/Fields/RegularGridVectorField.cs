@@ -17,9 +17,10 @@ class BoundingNone<Vec> : IBounding<Vec> where Vec : IVec<Vec, double>
     {
         return x;
     }
+    public double ShortestSpatialDistanceSqrt(Vec a, Vec b) => Utils.DistanceSquared(a, b);
 }
 
-class BoundingPeriodicXyPeriodicZ : IBounding<Vec3>
+/*class BoundingPeriodicXyPeriodicZ : IBounding<Vec3>
 {
     private readonly Rect<Vec3> Rect;
 
@@ -36,8 +37,7 @@ class BoundingPeriodicXyPeriodicZ : IBounding<Vec3>
         r.Z = (x.Z - Rect.Min.Z) % (Rect.Max.Z - Rect.Min.Z) + Rect.Min.Z;
         return r;
     }
-}
-
+}*/
 
 /// <summary>
 /// Arbitrary dimension grid based vector field with mutlivariate interpolator

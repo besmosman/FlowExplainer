@@ -42,7 +42,7 @@ public interface IFlowOperator<X, P>
             var dt = (t_end - t_start) / Steps;
             for (int i = 0; i < Steps; i++)
             {
-                phase = Integrator.Integrate(v, v.Domain.Bounding.Bound(phase), dt);
+                phase = Integrator.Integrate(v, phase, dt);
             }
             phase.Last = t_end; //floating points really do float
             return phase.Down();

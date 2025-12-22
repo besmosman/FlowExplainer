@@ -61,6 +61,7 @@ public struct Vec2i :
     {
         return left.X < right.X && left.Y < right.Y;
     }
+  
     public static Vec2i operator /(Vec2i v1, Vec2i v2) => new(v1.X / v2.X, v1.Y / v2.Y);
 
     public static Vec2i operator /(Vec2i v1, int i) => new(v1.X / i, v1.Y / i);

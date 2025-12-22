@@ -15,6 +15,8 @@ public class PointSpatialPartitioner2D<Vec, Veci, T>
     private Func<T[], int, Vec> GetPos;
 
     public bool IsUpdating;
+    public Func<Vec, Vec, double> DistanceSqrtFunc = Utils.DistanceSquared;
+
     public PointSpatialPartitioner2D(double cellSize)
     {
         CellSize = cellSize;
@@ -68,10 +70,28 @@ public class PointSpatialPartitioner2D<Vec, Veci, T>
         {
             if (Data.TryGetValue(coord, out var list))
                 foreach (int e in list!)
-                    if (Utils.DistanceSquared(GetPos(Entries, e), p) < r2)
+                {
+                    if (DistanceSqrtFunc(GetPos(Entries, e), p) < r2)
                         yield return e;
+                }
         }
     }
+    
+    public void AddWithinRadius(Vec p, double radius, List<int> toFill)
+    {
+        var r2 = radius * radius;
+        var minCell = GetVoxelCoords(p - (Vec.One * radius)) - Veci.One;
+        var maxCel = GetVoxelCoords(p + (Vec.One * radius)) + Veci.One;
+        
+        foreach (var coord in Iterate(minCell, maxCel))
+        {
+            if (Data.TryGetValue(coord, out var list))
+                foreach (int e in list!)
+                    if (DistanceSqrtFunc(GetPos(Entries, e), p) < r2)
+                        toFill.Add(e);
+        }
+    }
+
 
     private IEnumerable<Veci> Iterate(Veci start, Veci end)
     {

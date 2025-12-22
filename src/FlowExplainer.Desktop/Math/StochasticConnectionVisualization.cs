@@ -33,34 +33,14 @@ public class StochasticConnectionVisualization : WorldService
             var spatialBounds = domain.RectBoundary.Reduce<Vec2>();
             var stochasticConnectionVisualization = gridVisualizer.GetRequiredWorldService<StochasticConnectionVisualization>();
             int n = 0;
-            double min = -1;
-            double max = 1;
-            switch (type)
-            {
-
-                case Type.Attracting:
-                    min = 0;
-                    max = 1;
-                    break;
-                case Type.Repelling:
-                    min = 1;
-                    max = 0;
-                    break;
-                case Type.Difference:
-                    break;
-                case Type.Sum:
-                    min = 1;
-                    max = 1;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
             ParallelGrid.For(renderGrid.GridSize, token, (i, j) =>
             {
                 var pos = spatialBounds.FromRelative(new Vec2(i + .5, j + .5) / renderGrid.GridSize.ToVec2());
+//var density = stochasticConnectionVisualization.InterpolateDensity(pos, stochasticConnectionVisualization.kernelSize);
+                var density = stochasticConnectionVisualization.InterpolatePropertyCurrent(pos, stochasticConnectionVisualization.ConnectionDistance,
+                    (p, i1) => p[i1].Value);
 
-               
-                var density = stochasticConnectionVisualization.EstimateDensity(pos, stochasticConnectionVisualization.kernelSize, min, max);
+
                 ref var cell = ref renderGrid.AtCoords(new Vec2i(i, j)).Value;
                 var next = 0.0;
 
@@ -75,9 +55,11 @@ public class StochasticConnectionVisualization : WorldService
                     density = -d;
                     n++;
                 }
-                
                 next = density;
+                if (!double.IsRealNumber(next) || !double.IsFinite(next))
+                    next = 100;
                 cell = double.Lerp(cell, next, interpolationFactor);
+                //cell = next;
                 /*if (density > 0)
                     next = double.Pow(density, 1 / 1f);
                 else
@@ -128,31 +110,75 @@ public class StochasticConnectionVisualization : WorldService
         }
     }
 
-    struct Particle
+
+    public struct NeigborInfo
+    {
+        public int Index;
+        public int Version;
+        public Vec2 StartSeperation;
+    }
+
+    public struct Particle
     {
         public int Id;
+        public int Version;
+        public double Mass;
         public Vec2 StartPosition;
         public Vec2 Position;
         public double Timealive;
-        //public Matrix2 C;
-        public double CurrentDensity;
+        public Matrix2 C;
+        public List<NeigborInfo> Neighbors;
+        public double Value;
     }
 
-    public int Count = 10000;
+    public int Count = 1000;
     public double Alpha = .4f;
     private double gridSizeX;
-    public double kernelSizeM = 0.9f;
+    public double kernelSizeM = 0.499;
     public double kernelSize => gridSizeX * kernelSizeM;
-    public double ReseedChance = 4.9f;
+    public double ReseedChance = 0.4;
     public double LifeTime = 4;
     private Particle[] ParticlesForward = [];
-    public double RenderRadius = .008f;
-    private Particle[] ParticlesBackwords = [];
+    public double RenderRadius = .004;
     private PointSpatialPartitioner2D<Vec2, Vec2i, Particle> partitionerForward;
-    private PointSpatialPartitioner2D<Vec2, Vec2i, Particle> partitionerBackword;
-    public bool DrawParticles = false;
+    private PointSpatialPartitioner2D<Vec2, Vec2i, Particle> partitionerStartPosition;
+    public bool DrawParticles = true;
     public bool HighlightMouse;
 
+    public IMode Mode = new DensityMode();
+    public double ConnectionDistance => kernelSize * 4;
+
+    public class FTLEMode : IMode
+    {
+        public bool ComputeC => true;
+        public bool ComputeConnections => true;
+        public double GetScaler(StochasticConnectionVisualization v, ref Particle p)
+        {
+            var ftle = CalculateFTLEFromTensor2D(p.C, p.Timealive);
+            if (!double.IsFinite(ftle))
+            {
+                ftle = 0;
+            }
+            return ftle;
+        }
+    }
+
+    public class DensityMode : IMode
+    {
+        public bool ComputeC => false;
+        public bool ComputeConnections => false;
+        public double GetScaler(StochasticConnectionVisualization v, ref Particle p)
+        {
+            return v.InterpolateDensityCurrent(p.Position, v.kernelSize);
+        }
+    }
+
+    public interface IMode
+    {
+        public bool ComputeC { get; }
+        public bool ComputeConnections { get; }
+        public double GetScaler(StochasticConnectionVisualization v, ref Particle p);
+    }
 
     public override void Initialize()
     {
@@ -168,17 +194,24 @@ public class StochasticConnectionVisualization : WorldService
         var gridSize = (rect.Size.XY / gridSizeX).CeilInt();
 
         ParticlesForward = new Particle[Count];
-        ParticlesBackwords = new Particle[Count];
-        SetupGridParticles(ParticlesForward, gridSize, rect);
-        SetupGridParticles(ParticlesBackwords, gridSize, rect);
-
+        SetupGridParticles(ParticlesForward, rect);
         partitionerForward = new(gridSizeX);
-        partitionerBackword = new(gridSizeX);
+        partitionerStartPosition = new(gridSizeX);
+        partitionerForward.DistanceSqrtFunc = (a, b) => dat.VectorField.Domain.Bounding.ShortestSpatialDistanceSqrt(a.Up(0), b.Up(0));
+        partitionerStartPosition.DistanceSqrtFunc = (a, b) => dat.VectorField.Domain.Bounding.ShortestSpatialDistanceSqrt(a.Up(0), b.Up(0));
         partitionerForward.Init(ParticlesForward, static (particles, i) => particles[i].Position);
-        partitionerBackword.Init(ParticlesBackwords, static (particles, i) => particles[i].Position);
+        partitionerStartPosition.Init(ParticlesForward, static (particles, i) => particles[i].StartPosition);
         partitionerForward.UpdateEntries();
-        partitionerBackword.UpdateEntries();
-
+        partitionerStartPosition.UpdateEntries();
+        if (Mode.ComputeConnections)
+        {
+            for (int i = 0; i < ParticlesForward.Length; i++)
+            {
+                UpdateNeighbors(ParticlesForward, i);
+                //partitionerForward.AddWithinRadius(p.Position, p.Neighbors);
+            }
+        }
+        UpdateData(ParticlesForward);
         //var ps = Particles.AsSpan();
         /*for (int c = 0; c < ps.Length; c++)
         {
@@ -204,13 +237,34 @@ public class StochasticConnectionVisualization : WorldService
 
         //UpdateMatrix();
     }
-    private void SetupGridParticles(Particle[] Particles, Vec2i gridSize, Rect<Vec3> rect)
+    private void UpdateNeighbors(Particle[] ps, int i)
+    {
+        ref var p = ref ps[i];
+        p.Neighbors.Clear();
+        foreach (var n in partitionerForward.GetWithinRadius(p.Position, ConnectionDistance))
+        {
+            if (i == n)
+                continue;
+
+            p.Neighbors.Add(new NeigborInfo
+            {
+                Index = n,
+                Version = ParticlesForward[n].Version,
+                StartSeperation = ParticlesForward[n].Position - p.Position,
+            });
+        }
+    }
+
+    private void SetupGridParticles(Particle[] Particles, Rect<Vec3> rect)
     {
         int i = 0;
         foreach (ref var p in Particles.AsSpan())
         {
-            p.Timealive = Utils.Random(-LifeTime, LifeTime);
+            p.Timealive = 0;
             p.Position = Utils.Random(rect).XY;
+            p.StartPosition = p.Position;
+            p.Neighbors = new(6);
+            p.Mass = (rect.Size.X * rect.Size.Y) / Particles.Length;
         }
     }
 
@@ -229,86 +283,24 @@ public class StochasticConnectionVisualization : WorldService
             p.Position = bounding.Bound(rk.Integrate(vel, p.Position.Up(dat.SimulationTime), dt)).XY;
             p.Timealive += double.Abs(dt);
         });
-
-        Parallel.For(0, ParticlesBackwords.Length, i =>
-        {
-            ref var p = ref ParticlesBackwords[i];
-            p.Position = bounding.Bound(rk.Integrate(vel, p.Position.Up(dat.SimulationTime), -dt)).XY;
-            p.Timealive += double.Abs(dt);
-        });
-
+        partitionerForward.UpdateEntries();
         RespawnOld(ParticlesForward);
-        RespawnOld(ParticlesBackwords);
-
+        UpdateData(ParticlesForward);
 
         // UpdateMatrix();
     }
-    /*private void Respawn(Particle[] particles)
-    {
-        var dat = GetRequiredWorldService<DataService>();
-        var domainRectBoundary = dat.VectorField.Domain.RectBoundary;
-        Parallel.ForEach(Partitioner.Create(0, particles.Length), (range) =>
-        {
-            for (int i = range.Item1; i < range.Item2; i++)
-            {
-                ref var p = ref particles[i];
-                var relative = domainRectBoundary.ToRelative(p.Position.Up(0));
-                if (Random.Shared.NextSingle() < ReseedChance * dat.MultipliedDeltaTime || relative.X < -0.1 || relative.Y < -0.1 || relative.X > 1.1 || relative.Y > 1.1)
-                {
-                    Particles[i].Position = Utils.Random(domainRectBoundary).XY;
-                    Particles[i].Timealive = 0;
-                    /*var max = .24f;
-                    var min = -.24f;
-                    if (Random.Shared.NextSingle()< dat.ScalerField.Evaluate(Particles[i].Position.Up(.4f)))
-                    {
-                        break;
-                    }#1#
-                }
 
-            }
-        });
-    }    */
-
-    private void Respawn(Particle[] particles)
-    {
-        var dat = GetRequiredWorldService<DataService>();
-        var rect = dat.VectorField.Domain.RectBoundary;
-
-        //for (int i = 0; i < particles.Length; i++)
-        Parallel.For(0, particles.Length, i =>
-        {
-            ref var p = ref particles[i];
-            // ref var p2 = ref Particles[i + Particles.Length / 2];
-
-            //var relevantPartitioner = particles == ParticlesBackwords ? partitionerBackword : partitionerForward;
-            var relative = rect.ToRelative(p.Position.Up(0));
-            bool outofbounds = relative.X < -0.1 || relative.Y < -0.1 || relative.X > 1.1 || relative.Y > 1.1;
-            if (Random.Shared.NextSingle() < ReseedChance * dat.MultipliedDeltaTime || outofbounds)
-            {
-                var bestMatch = Utils.Random(rect).XY;
-                p.Position = bestMatch;
-                p.Timealive = 0;
-                p.StartPosition = p.Position;
-                //p2.Position = p.Position;
-                //p2.Timealive = p.Timealive;
-                //p2.StartPosition = p.Position;
-            }
-        });
-    }
     private void RespawnOld(Particle[] particles)
     {
         var dat = GetRequiredWorldService<DataService>();
         var rect = dat.VectorField.Domain.RectBoundary;
-
-        //for (int i = 0; i < particles.Length; i++)
         Parallel.For(0, particles.Length, i =>
         {
             ref var p = ref particles[i];
-            // ref var p2 = ref Particles[i + Particles.Length / 2];
-
-            var relevantPartitioner = particles == ParticlesBackwords ? partitionerBackword : partitionerForward;
+            var relevantPartitioner = partitionerForward;
             var relative = rect.ToRelative(p.Position.Up(0));
             bool outofbounds = relative.X < -0.1 || relative.Y < -0.1 || relative.X > 1.1 || relative.Y > 1.1;
+
             if (Random.Shared.NextSingle() < ReseedChance * dat.MultipliedDeltaTime /*|| p.Timealive > LifeTime*/ || outofbounds)
             {
                 var k = 0;
@@ -324,57 +316,51 @@ public class StochasticConnectionVisualization : WorldService
                         bestMatch = candidate;
                     }
                 }
+
                 bestMatch = Utils.Random(rect).XY;
                 p.Position = bestMatch;
-
-                p.Timealive = Utils.Random(-LifeTime / 2, LifeTime / 2);
+                p.Timealive = 0;
+                p.Version++;
+                UpdateNeighbors(particles, i);
                 p.StartPosition = p.Position;
-                //p2.Position = p.Position;
-                //p2.Timealive = p.Timealive;
-                //p2.StartPosition = p.Position;
             }
         });
     }
 
-    /*private void UpdateMatrix()
+    private void UpdateData(Particle[] Particles)
     {
-
         var ps = Particles;
-//for (int i = 0; i < ps.Length; i++)
-        Parallel.For(0, ps.Length, i =>
-        {
-            /*
-            ref var p = ref ps[i];
-            Matrix2 M = new Matrix2();
-            Matrix2 B = new Matrix2();
-            foreach (int ni in p.Neighbors)
+        if (Mode.ComputeC)
+            Parallel.For(0, ps.Length, i =>
             {
-                ref var n = ref Particles[ni];
-                Vec2 dX = n.StartPosition - p.StartPosition;
-                Vec2 dx = n.Phase.XY - p.Phase.XY;
+                ref var p = ref ps[i];
+                Matrix2 M = new Matrix2();
+                Matrix2 B = new Matrix2();
+                foreach (var neigh in p.Neighbors)
+                {
+                    ref var n = ref Particles[neigh.Index];
+                    if (neigh.Index == i || neigh.Version != ps[neigh.Index].Version)
+                        continue;
 
-                var w = 1;
-                M = M.AddOuterProduct(dX, dX * w);
-                B = B.AddOuterProduct(dx, dX * w);
-            }
-            var F = B * M.Inverse();
-            var FT = F.Transpose();
-            p.C = FT * F;
-            #1#
+                    Vec2 dX = neigh.StartSeperation;
+                    Vec2 dx = n.Position - p.Position;
 
-            ps[i].CurrentDensity = EstimateDensity(ps[i].Position);
-        });
-    }*/
+                    var w = 1;
+                    M = M.AddOuterProduct(dX, dX * w);
+                    B = B.AddOuterProduct(dx, dX * w);
+                }
 
-    private IEnumerable<(Particle[], int)> GetWithinRadius(Vec2 pos, double radius)
-    {
-        foreach (var j in partitionerForward.GetWithinRadius(pos, radius))
-            yield return (ParticlesForward, j);
+                //regularization
+                M.M11 += 1e-6f;
+                M.M22 += 1e-6f;
 
-        foreach (var j in partitionerBackword.GetWithinRadius(pos, radius))
-            yield return (ParticlesBackwords, j);
+                var F = B * M.Inverse();
+                var FT = F.Transpose();
+                p.C = FT * F;
+                //p.Value = CalculateFTLEFromTensor2D(p.C, p.Timealive);
+            });
+        Parallel.For(0, ps.Length, i => { ps[i].Value = Mode.GetScaler(this, ref ps[i]); });
     }
-
     public double SmoothingKernel(double radius, double dst)
     {
         var volume = double.Pi * double.Pow(radius, 8) / 4;
@@ -382,52 +368,70 @@ public class StochasticConnectionVisualization : WorldService
         return value * value * value / volume;
     }
 
-    public double EstimateDensity(Vec2 pos, double h, double backwordsMass = -1.0, double forwardMass = 1.0)
+    public double InterpolatePropertyCurrent(Vec2 pos, double h, Func<Particle[], int, double> selector)
     {
-        var density = 0.0;
-        var volume = 0.0;
-        int w = 0;
+        double weightSum = 0.0;
+        double valueSum = 0.0;
 
-
-        foreach (var pair in GetWithinRadius(pos, h))
+        foreach (var j in partitionerForward.GetWithinRadius(pos, h))
         {
-            var Particles = pair.Item1;
-            var j = pair.Item2;
+            ref var p = ref ParticlesForward[j];
+            double r = double.Sqrt(partitionerForward.DistanceSqrtFunc(p.Position, pos));
+            double w = SmoothingKernel(h, r);
+            double value = selector(ParticlesForward, j);
 
-            var dst = Vec2.Distance(Particles[j].Position, pos);
-            var lifetimeFactor = double.Max(0, Particles[j].Timealive / LifeTime);
-            lifetimeFactor = 1;
-            //lifetimeFactor *= lifetimeFactor;
-            var mass = Particles == ParticlesBackwords ? backwordsMass : forwardMass;
-            mass /= Particles.Length / lifetimeFactor;
-            var influence = SmoothingKernel(h, dst);
-            density += (mass) * influence;
-            volume += influence;
+
+            weightSum += p.Mass * w;
+            valueSum += p.Mass * value * w;
         }
-        return density;
 
-        /*
-        foreach (var j in partitioner2D.GetWithinRadius(pos, kernelSize))
+        if (weightSum < 1e-12)
+            return 0.0;
+
+        return valueSum / weightSum;
+    }
+
+
+    public double InterpolatePropertyStart(Vec2 pos, double h, Func<Particle[], int, double> selector)
+    {
+        double weightSum = 0.0;
+        double valueSum = 0.0;
+
+        foreach (var j in partitionerStartPosition.GetWithinRadius(pos, h))
         {
-            var position = Particles[j].Position;
-            var dis2 = Vec2.DistanceSquared(pos, position);
-            double minSize = float.Epsilon;
-            if (dis2 > minSize) //ignore overlapping.
+            ref var p = ref ParticlesForward[j];
+            double r = double.Sqrt(partitionerStartPosition.DistanceSqrtFunc(p.StartPosition, pos));
+            double w = SmoothingKernel(h, r);
+            double value = selector(ParticlesForward, j);
+            if (value != 0)
             {
-                var distanceFactor = Vec2.Distance(position, pos) / kernelSize;
-                var lifetimeFactor = Particles[j].Timealive / LifeTime;
-                //double weight = Kernel_Wendland2D(distanceFactor, kernelSize);
-
-                double sigma = 0.5f;
-                var weight = (double)Math.Exp(-(distanceFactor * distanceFactor) / (2 * sigma * sigma));
-
-                var mass = j < Particles.Length / 2 ? -1.0 : 1.0;
-                //mass /= Particles.Length;
-                density += mass * weight;
-                w++;
+                weightSum += p.Mass * w;
+                valueSum += p.Mass * value * w;
             }
         }
-        return density;*/
+
+        if (weightSum < 1e-12)
+            return 0.0;
+
+        return valueSum / weightSum;
+    }
+
+    public double InterpolateDensityCurrent(Vec2 pos, double h)
+    {
+        double weightSum = 0.0;
+
+        foreach (var j in partitionerForward.GetWithinRadius(pos, h))
+        {
+            ref var p = ref ParticlesForward[j];
+            double r = double.Sqrt(partitionerForward.DistanceSqrtFunc(p.Position, pos));
+            double w = SmoothingKernel(h, r);
+            weightSum += p.Mass * w;
+        }
+
+        if (weightSum < 1e-12)
+            return 0.0;
+
+        return weightSum;
     }
 
     double Kernel_Wendland2D(double q, double h)
@@ -443,10 +447,10 @@ public class StochasticConnectionVisualization : WorldService
     {
         var dat = GetRequiredWorldService<DataService>();
         SimStep(dat.MultipliedDeltaTime);
+        partitionerForward.UpdateEntries();
+        partitionerStartPosition.UpdateEntries();
         var colorGradient = dat.ColorGradient;
 
-        partitionerForward.UpdateEntries();
-        partitionerBackword.UpdateEntries();
         if (!DrawParticles)
             return;
         GL.BlendFuncSeparate(
@@ -456,19 +460,33 @@ public class StochasticConnectionVisualization : WorldService
 
         //Logger.LogDebug(EstimateDensity(view.MousePosition).ToString());
 
-        ;
-       ;
+        /*foreach (ref var p in ParticlesForward.AsSpan())
+        {
+            foreach (var neigh in p.Neighbors)
+            {
+                ref var n = ref ParticlesForward[neigh.Index];
+                if (n.Version != neigh.Version)
+                    continue;
+
+                var p0 = p.Position;
+                var p1 = n.Position;
+                if (Vec2.DistanceSquared(p0, p1) != dat.VectorField.Domain.Bounding.ShortestSpatialDistanceSqrt(p0.Up(0), p1.Up(0)))
+                {
+                    //continue;
+                }
+                //   Gizmos2D.Instanced.RegisterLine(p0, p1, Color.White, .001);
+
+            }
+        }*/
         foreach (ref var p in ParticlesForward.AsSpan())
         {
-            Gizmos2D.Instanced.RegisterCircle(p.Position, RenderRadius, new Color(.2, 1f, .2f, 1).WithAlpha(GetAlpha(p.Timealive)));
+            Gizmos2D.Instanced.RegisterCircle(p.StartPosition, RenderRadius, colorGradient.GetCached(double.Clamp(p.Value * 1f, 0, 1)));
         }
-
-        foreach (ref var p in ParticlesBackwords.AsSpan())
-            Gizmos2D.Instanced.RegisterCircle(p.Position, RenderRadius,  new Color(1, .2f, .2f, 1).WithAlpha(GetAlpha(p.Timealive)));
 
         Gizmos2D.Instanced.RenderCircles(view.Camera2D);
 
 
+        /*
         if (HighlightMouse)
         {
             var pos = view.MousePosition;
@@ -481,7 +499,7 @@ public class StochasticConnectionVisualization : WorldService
                 var lifetimeFactor = double.Max(0, Particles[j].Timealive / LifeTime);
                 lifetimeFactor = 1;
                 //lifetimeFactor *= lifetimeFactor;
-                var mass = Particles == ParticlesBackwords ? -1.0 : 1.0;
+                var mass = 1.0;
                 mass /= Particles.Length / lifetimeFactor;
                 var influence = SmoothingKernel(kernelSize, dst);
                 //density += (mass) * influence;
@@ -500,6 +518,7 @@ public class StochasticConnectionVisualization : WorldService
             Gizmos2D.Circle(view.Camera2D, view.MousePosition, col, kernelSize * 3);
             Gizmos2D.Circle(view.Camera2D, pos, Color.White, .002f);
         }
+        */
 
 
         /* for (int i = 0; i < .Length; i++)
@@ -554,7 +573,7 @@ public class StochasticConnectionVisualization : WorldService
     }
 
     //source gpt
-    private double CalculateFTLEFromTensor2D(Matrix2 C, double integrationTime)
+    private static double CalculateFTLEFromTensor2D(Matrix2 C, double integrationTime)
     {
         var delta = C;
 
@@ -582,6 +601,11 @@ public class StochasticConnectionVisualization : WorldService
         if (ImGui.Button("Reset"))
         {
             Init();
+            /*for (int i = 0; i < 100; i++)
+            {
+                SimStep(1 / 100f);
+
+            }*/
         }
         base.DrawImGuiSettings();
     }
