@@ -14,6 +14,7 @@ public static class AssetWatcher
     private static ManualResetEvent manualResetEvent = new ManualResetEvent(true);
     public static string DevAssetsPath = Path.GetFullPath(Path.Join(Directory.GetCurrentDirectory(), "/../../../Assets"));
 
+    private static List<FileSystemWatcher> watchers =new();
 
     static AssetWatcher()
     {
@@ -27,7 +28,7 @@ public static class AssetWatcher
     public static void RegisterDirectory(string assetsFolder)
     {
         var buildFolder = Directory.GetCurrentDirectory();
-        SetupWatcher(assetsFolder);
+        watchers.Add(SetupWatcher(assetsFolder));
     }
 
     private static FileSystemWatcher SetupWatcher(string directory)

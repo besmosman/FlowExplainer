@@ -13,7 +13,7 @@ public class TrajectoryVis : WorldService
     }
 
     private int ParticleCount = 10000;
-    private int HistoryLength = 8;
+    private int HistoryLength = 32;
     private Vec2[] ParticleHistories;
     private ParticleInfo[] ParticleInfos;
     public int CircularBufferIndex;
@@ -23,7 +23,7 @@ public class TrajectoryVis : WorldService
     private GpuLinePartitioner partitioner;
     public override string? Name => "TrajectoryVis";
     private Material material;
-    
+
     public override void Initialize()
     {
         material = new Material(new Shader("Assets/Shaders/trajvis.frag", ShaderType.FragmentShader), Shader.DefaultWorldSpaceVertex);
@@ -42,7 +42,7 @@ public class TrajectoryVis : WorldService
         }
 
         partitioner = new GpuLinePartitioner();
-        partitioner.GridSize = new Vec2i(32, 16) * 3;
+        partitioner.GridSize = new Vec2i(32, 16) * 10;
         partitioner.Cells.buffer.BufferIndex = 1;
         partitioner.LinesOrganized.buffer.BufferIndex = 2;
         partitioner.WorldViewRect = DataService.VectorField.Domain.RectBoundary.Reduce<Vec2>();
@@ -58,8 +58,10 @@ public class TrajectoryVis : WorldService
         n++;
         for (int p = 0; p < ParticleCount; p++)
         {
-            for (int j = 1; j < HistoryLength; j++)
+            for (int j = 0; j < HistoryLength-1; j++)
             {
+                // ParticleHistoryAt(p, 0); = 1
+                //ParticleHistoryAt(p, HistoryLength); = 0
                 var start = ParticleHistoryAt(p, j);
                 var end = ParticleHistoryAt(p, j + 1);
                 partitioner.RegisterLine(new GpuLinePartitioner.Line
@@ -68,11 +70,14 @@ public class TrajectoryVis : WorldService
                     StartY = (float)start.Y,
                     EndX = (float)end.X,
                     EndY = (float)end.Y,
-                    TimeAliveFactor = 1f - ((j - 1) / ((float)HistoryLength - 1)),
+                    ParticleId = p,
+                    StartTimeAliveFactor =1f - (float)j / (HistoryLength-1),
+                    EndTimeAliveFactor =1f-  (float)(j + 1) / (HistoryLength-1),
                 });
             }
         }
         partitioner.Organize();
+        DrawRectsDebug(view);
         {
             var size = partitioner.WorldViewRect.Size;
             var start = partitioner.WorldViewRect.Min;
@@ -92,8 +97,7 @@ public class TrajectoryVis : WorldService
             material.SetUniform("model", model);
             Gizmos2D.imageQuadInvertedY.Draw();
         }
-        //DrawLines(view);
-        //DrawRectsDebug(view);
+       // DrawLines(view);
         // DrawParticles(view);
     }
     private void DrawRectsDebug(View view)
@@ -108,11 +112,11 @@ public class TrajectoryVis : WorldService
             var worldToCell = partitioner.WorldToCell((float)center.X, (float)center.Y);
             var cell = partitioner.Cells.buffer.Data[partitioner.GetCellIndex(worldToCell.X, worldToCell.Y)];
             var color = new Vec4((i % 32) / 32.0, ((j * i * 3248424) % 64) / 64.0, 0, .4f);
-            Gizmos2D.Rect(view.Camera2D, worldStart, worldEnd, color);
+            Gizmos2D.Rect(view.Camera2D, worldStart, worldEnd, new Vec4(cell.LinesCount / 10f, 0, 0, 1));
             for (int l = 0; l < cell.LinesCount; l++)
             {
                 var line = partitioner.LinesOrganized.buffer.Data[l + cell.LinesStartIndex];
-                Gizmos2D.Instanced.RegisterLine(new Vec2(line.StartX, line.StartY), new Vec2(line.EndX, line.EndY), new Color(color.X, color.Y, color.Z, 1), .0001f);
+                //  Gizmos2D.Instanced.RegisterLine(new Vec2(line.StartX, line.StartY), new Vec2(line.EndX, line.EndY), new Color(color.X, color.Y, color.Z, 1), .0001f);
             }
         }
         Gizmos2D.Instanced.RenderRects(view.Camera2D);
@@ -120,8 +124,8 @@ public class TrajectoryVis : WorldService
 
     private ref Vec2 ParticleHistoryAt(int p, int h)
     {
-        var hI = (CircularBufferIndex + h) % HistoryLength;
-        return ref ParticleHistories[p * HistoryLength + hI];
+        var hI = (CircularBufferIndex - h + HistoryLength) % HistoryLength;
+        return ref ParticleHistories[p * HistoryLength + hI];;
     }
 
     private ref Vec2 ParticleCurrentPosition(int p)
@@ -137,12 +141,14 @@ public class TrajectoryVis : WorldService
         Parallel.For(0, ParticleCount, i =>
         {
             ref var currentPos = ref ParticleHistoryAt(i, 0);
-            ref var nextPos = ref ParticleHistoryAt(i, 1);
+            ref var nextPos = ref ParticleHistoryAt(i, -1);
             var aliveFactor = ParticleInfos[i].TimeAlive / ParticleInfos[i].LifeTime;
+            ParticleInfos[i].TimeAlive += dt;
             if (aliveFactor > 1)
             {
                 Array.Fill(ParticleHistories, Utils.Random(rect).XY, i * HistoryLength, HistoryLength);
-                //ParticleInfos[i].LifeTime = Utils.Random()
+                ParticleInfos[i].LifeTime = Utils.Random(1, 4) * 3;
+                ParticleInfos[i].TimeAlive = 0;
             }
             nextPos = integrator.Integrate(vectorfield, currentPos.Up(t), dt).XY;
         });
@@ -162,16 +168,21 @@ public class TrajectoryVis : WorldService
 
     private void DrawLines(View view)
     {
-        float radius = .0001f;
+        float radius = .0003f;
         for (int p = 0; p < ParticleCount; p++)
         {
-            for (int j = 1; j < HistoryLength; j++)
+            
+            for (int j = 0; j < HistoryLength-1; j++)
             {
                 var start = ParticleHistoryAt(p, j);
                 var end = ParticleHistoryAt(p, j + 1);
-                Gizmos2D.Instanced.RegisterLine(start, end, Color.White, radius);
+                var alpha = 1f - (j+1) / (HistoryLength - 1f);
+                Gizmos2D.Instanced.RegisterLine(start, end, new Color(0, 1, 0, alpha), radius);
+               Gizmos2D.Instanced.RegisterCircle( start, .0003f,  new Color(0, 1, 0, 1));
             }
+
         }
+        Gizmos2D.Instanced.RenderCircles(view.Camera2D);
         Gizmos2D.Instanced.RenderRects(view.Camera2D);
     }
 

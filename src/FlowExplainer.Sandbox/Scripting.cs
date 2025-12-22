@@ -10,8 +10,7 @@ public static class Scripting
 {
     public static void Startup(World world)
     {
-        //string datasetPath = Config.GetValue<string>("spectral-data-path")!;
-        // RebuildSpeetjensDatasets(datasetPath);
+        // RebuildSpeetjensDatasets();
         LoadPeriodicCopies(world);
         SetGyreDataset(world);
         var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(3).Key;
@@ -19,10 +18,12 @@ public static class Scripting
         world.GetWorldService<DataService>().currentSelectedVectorField = "Diffusion Flux";
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
-        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new DemoPresentation());
-        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+        world.AddVisualisationService(new TrajectoryVis());
+
+        //world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new DemoPresentation());
+        //world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
     }
-    
+
     private static void LoadPeriodicCopies(World world)
     {
 
@@ -50,8 +51,9 @@ public static class Scripting
     }*/
 
 
-    public static void RebuildSpeetjensDatasets(string folder)
+    public static void RebuildSpeetjensDatasets()
     {
+        string folder = Config.GetValue<string>("spectral-data-path")!;
         foreach (var datasetFolder in Directory.GetDirectories(folder))
         {
             string outputPath = Path.Combine("Datasets", $"Speetjens-{Path.GetFileName(datasetFolder)}");
