@@ -156,7 +156,7 @@ public class PresentationService : GlobalService
                 presiView.Controller.UpdateAndDraw(presiView);
             }
             Presi.LastCurrentSlide = Presi.CurrentSlide;
-
+            
             if (window.IsKeyPressed(Keys.Up))
                 PrevSlide();
 
@@ -169,7 +169,7 @@ public class PresentationService : GlobalService
                 ToggleFullScreen();
             }
 
-
+        
         }
     }
 
@@ -177,6 +177,9 @@ public class PresentationService : GlobalService
     {
         var presiView = PresiView;
 
+        if(presiView == null)
+            return;
+        
         if (presiView?.IsFullScreen == true)
         {
             var window = FlowExplainer.GetGlobalService<WindowService>()!.Window;
@@ -189,16 +192,14 @@ public class PresentationService : GlobalService
             Gizmos2D.ImageCentered(new ScreenCamera(size.RoundInt()), presiView.PostProcessingTarget, size / 2, size);
             GL.Enable(EnableCap.Blend);
         }
-        if (presiView != null)
+        for (int i = 0; i < highlighted.Count - 1; i++)
         {
-            for (int i = 0; i < highlighted.Count - 1; i++)
-            {
-                var vec2 = highlighted[i];
-                var dir = highlighted[i + 1] - vec2;
-                Gizmos2D.Instanced.RegisterLine(highlighted[i] - dir / 10, highlighted[i + 1], new Color(1, 0, 0, 1), 10f);
-            }
-            Gizmos2D.Instanced.RenderRects(presiView.Camera2D);
+            var vec2 = highlighted[i];
+            var dir = highlighted[i + 1] - vec2;
+            Gizmos2D.Instanced.RegisterLine(highlighted[i] - dir / 10, highlighted[i + 1], new Color(1, 0, 0, 1), 10f);
         }
+    
+        Gizmos2D.Instanced.RenderRects(presiView.Camera2D);
         base.AfterDraw();
     }
     private void ToggleFullScreen()

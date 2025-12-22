@@ -1,3 +1,4 @@
+using System.Numerics;
 using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
@@ -34,6 +35,7 @@ public class PresiContext
 
 
     public WalkInfo Walk = new();
+
     public PresiContext(FlowExplainer flowExplainer)
     {
         FlowExplainer = flowExplainer;
@@ -51,19 +53,38 @@ public class PresiContext
         public bool Dropdown;
         public Vec2 RenderMin;
         public Vec2 RenderMax;
+        public double TimeSinceLastMovement;
+
+
+        public Vec2 LastTargetPosition;
+        public Vec2 TargetPosition;
+        public double AnimSpeed = 2;
+        public double AnimT => Math.Min(TimeSinceLastMovement * 1, 1);
+
+        public void UpdateTransform(Vec2 position, Vec2 size)
+        {
+            if (TargetPosition != position)
+            {
+                LastTargetPosition = RelPosition;
+                TargetPosition = position;
+                TimeSinceLastMovement = 0;
+            }
+                Size = size;
+        }
     }
-
-
 
 
     public void Text(string title, Vec2 relPos, double lh, bool centered, Color color, [System.Runtime.CompilerServices.CallerFilePath] string filePath = "",
         [System.Runtime.CompilerServices.CallerLineNumber]
         int lineNumber = 0)
     {
+        
         var widgetData = GetWidgetData(filePath, lineNumber);
-        widgetData.RelPosition = relPos;
-        widgetData.Size = new Vec2(lh, lh);
-        Gizmos2D.AdvText(View.Camera2D, RelToSceen(relPos), CanvasRect.FromRelative(new Vec2(lh, lh)).X, color, title, 1, centered);
+        widgetData.UpdateTransform(relPos, new Vec2(lh, lh));
+        var p = widgetData.RelPosition;
+        p = new Vec2(double.Sin(FlowExplainer.Time.TotalSeconds*4)/4 + .4f, .4f);
+        Gizmos2D.Rect(View.Camera2D, RelToSceen(p),RelToSceen(p+widgetData.Size), new Vec4(1));
+       // Gizmos2D.AdvText(View.Camera2D, RelToSceen(widgetData.RelPosition), CanvasRect.FromRelative(new Vec2(lh, lh)).X, color, title, 1, centered);
     }
 
     public Vec2 RelToSceen(Vec2 rel)
@@ -79,7 +100,6 @@ public class PresiContext
         widgetData.RelPosition = relCenter;
         widgetData.Size.X = relWidth;
         Gizmos2D.ImageCentered(View.Camera2D, texture, RelToSceen(relCenter), RelToSceen(relWidth));
-
     }
 
 
@@ -116,8 +136,8 @@ public class PresiContext
         else
         {
             Gizmos2D.Text(View.Camera2D, center, RelToSceen(th), Color.White, Enum.GetName(value), centered: true);
-
         }
+
         if (View.IsMouseButtonPressedLeft)
         {
             if (rect.Contains(View.MousePosition))
@@ -141,9 +161,9 @@ public class PresiContext
 
         if (widgetData.Dropdown)
         {
-
         }
     }
+
     public void Checkbox(string name, ref bool value, Vec2 relCenter,
         [System.Runtime.CompilerServices.CallerFilePath]
         string filePath = "",
@@ -198,6 +218,7 @@ public class PresiContext
             MouseLeftPressUsed = true;
         }
     }
+
     private double RelToSceen(double width)
     {
         return RelToSceen(new Vec2(width, width)).X;
@@ -236,7 +257,6 @@ public class PresiContext
             value = double.Lerp(minValue, maxValue, newT);
             SelectWidget(widgetData);
             MouseLeftPressUsed = true;
-
         }
     }
 
@@ -253,6 +273,7 @@ public class PresiContext
         {
             title = title[2..];
         }
+
         Gizmos2D.AdvText(View.Camera2D, pos, lh, Color.White, title, 1);
     }
 
@@ -260,7 +281,6 @@ public class PresiContext
         [System.Runtime.CompilerServices.CallerLineNumber]
         int lineNumber = 0)
     {
-
     }
 
     public Color PanelBackgroundColor = new Color(1, 0, 0, 1);
@@ -301,6 +321,7 @@ public class PresiContext
             w = new WidgetData();
             widgetsById.Add(id, w);
         }
+
         w.TimeSinceLastFetch = 0;
         return w;
     }
@@ -315,11 +336,16 @@ public class PresiContext
         foreach (var w in widgetsById.Values)
         {
             w.TimeSinceLastFetch += presentationService.FlowExplainer.DeltaTime;
+            w.TimeSinceLastMovement += presentationService.FlowExplainer.DeltaTime;
+        }
+
+        foreach (var widget in widgetsById.Values)
+        {
+            widget.RelPosition = Utils.Lerp(widget.LastTargetPosition, widget.TargetPosition, widget.AnimT);
         }
 
         foreach (var view in presiViews)
         {
-
             var subRenderMin = view.Key.RenderMin;
             var subRenderMax = view.Key.RenderMax;
             var subRenderRect = new Rect<Vec2>(subRenderMin, subRenderMax);
@@ -335,13 +361,13 @@ public class PresiContext
 
             var subSize = subRenderMax - subRenderMin;
             var mouseRelInSub = (mouseRelInParent - subRenderMin) / subSize;
-            
+
             var localPosPixels = mainwindowCoord - subRenderMin;
             var localPosNormalized = mainwindowCoord - subRenderMin;
             Logger.LogDebug((subRenderRect.ToRelative(mainwindowCoord) / view.Key.Size).ToString());
-            view.Value.RelativeMousePosition =subRenderRect.ToRelative(mainwindowCoord+ new Vec2(0,-100)) / new Vec2(.69f,.5f) * view.Value.Size.ToVec2();
-            
-           // Logger.LogDebug(view.Value.RelativeMousePosition.ToString());
+            view.Value.RelativeMousePosition = subRenderRect.ToRelative(mainwindowCoord + new Vec2(0, -100)) / new Vec2(.69f, .5f) * view.Value.Size.ToVec2();
+
+            // Logger.LogDebug(view.Value.RelativeMousePosition.ToString());
             /*var subRect = new Rect<Vec2>(RelToSceen(view.Key.RelPosition) - RelToSceen(view.Key.Size) / 2, RelToSceen(view.Key.Size));
 var localMousePos = mainwindowCoord - subwindowPos;
             var localPixelPos = mainwindowCoord - subwindowPos;
@@ -355,6 +381,7 @@ var localMousePos = mainwindowCoord - subwindowPos;
 
             view.Value.IsActive = false;
         }
+
         MouseLeftPressUsed = false;
     }
 }

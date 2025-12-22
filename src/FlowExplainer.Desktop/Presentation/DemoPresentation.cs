@@ -2,14 +2,15 @@ namespace FlowExplainer;
 
 public class DemoPresentation : NewPresentation
 {
-    public double d;
+    public double sliderValue;
+
     public override void Draw()
     {
         CurrentLayout = null;
         if (BeginSlide("Title Slide"))
         {
             Title("Demo Presentation");
-            Presi.Slider("test", ref d, 0, 1, new Vec2(.5f, .4f), .5f);
+            Presi.Slider("test", ref sliderValue, 0, 1, new Vec2(.5f, .4f), .5f);
             // Presi.MainParagraph("Test");
         }
 
@@ -29,7 +30,7 @@ public class DemoPresentation : NewPresentation
                     grid.WaitForComputation();
                 });
 
-            Title("Temprature");
+            Title("Temperature");
 
             //   world.GetWorldService<DataService>().SimulationTime = .2f;
         }
@@ -38,14 +39,17 @@ public class DemoPresentation : NewPresentation
         if (BeginSlide("Slide 2"))
         {
             Title("Multiple steps per slide");
+            Presi.Text("Movement between steps", new Vec2(.2f+  Presi.CurrentStep / 3f, .5f), .03f, true, Color.White);
             if (IsFirstStep())
             {
                 Presi.MainParagraph("Step 0");
             }
+
             if (BeginStep())
             {
                 Presi.MainParagraph("Step 1");
             }
+
             if (BeginStep())
             {
                 Presi.MainParagraph("Step 2");

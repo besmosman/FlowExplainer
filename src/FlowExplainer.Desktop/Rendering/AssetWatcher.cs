@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Reflection;
 using System.Threading;
 
 namespace FlowExplainer;
@@ -9,16 +10,24 @@ public static class AssetWatcher
 
     private static readonly Queue<FileSystemEventArgs> events = new();
     private static readonly ConcurrentBag<string> queuedFilesChanged = new();
-    public static readonly FileSystemWatcher watcherBin;
-    public static readonly FileSystemWatcher watcherDevAssets;
 
     private static ManualResetEvent manualResetEvent = new ManualResetEvent(true);
     public static string DevAssetsPath = Path.GetFullPath(Path.Join(Directory.GetCurrentDirectory(), "/../../../Assets"));
 
+
     static AssetWatcher()
     {
-        watcherBin = SetupWatcher(Directory.GetCurrentDirectory());
-        watcherDevAssets = SetupWatcher(DevAssetsPath);
+        var expectedFlowExplainerDesktopPath = Path.GetFullPath(Path.Join(Directory.GetCurrentDirectory(), "/../../../../FlowExplainer.Desktop/Assets"));
+        if (Directory.Exists(expectedFlowExplainerDesktopPath))
+            RegisterDirectory(expectedFlowExplainerDesktopPath);
+        else
+            Logger.LogWarn("Failed to watch 'FlowExplainer.Desktop' Assets folder");
+    }
+
+    public static void RegisterDirectory(string assetsFolder)
+    {
+        var buildFolder = Directory.GetCurrentDirectory();
+        SetupWatcher(assetsFolder);
     }
 
     private static FileSystemWatcher SetupWatcher(string directory)
@@ -77,7 +86,7 @@ public static class AssetWatcher
             int c = 5;
         }
 
-        queuedFilesChanged.Add(e.FullPath); 
+        queuedFilesChanged.Add(e.FullPath);
         events.Enqueue(e);
         // manualResetEvent.Set();
     }

@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowExplainer.Trajectory", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowExplainer.Spectral", "FlowExplainer.Spectral\FlowExplainer.Spectral.csproj", "{5809E81E-9611-4CBA-ADAF-B0B5EC8678AB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlowExplainer.Sandbox", "FlowExplainer.Sandbox\FlowExplainer.Sandbox.csproj", "{CF426000-F285-43A9-8229-6DE2E9571EB0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{5809E81E-9611-4CBA-ADAF-B0B5EC8678AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5809E81E-9611-4CBA-ADAF-B0B5EC8678AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5809E81E-9611-4CBA-ADAF-B0B5EC8678AB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF426000-F285-43A9-8229-6DE2E9571EB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF426000-F285-43A9-8229-6DE2E9571EB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF426000-F285-43A9-8229-6DE2E9571EB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF426000-F285-43A9-8229-6DE2E9571EB0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

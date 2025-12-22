@@ -39,6 +39,11 @@ public struct Vec4i : IVec<Vec4i, int>, IVecDoubleEquivalent<Vec4>
         return new Vec4(X, Y, Z, W);
     }
 
+    public bool Equals(Vec4i other)
+    {
+        return X == other.X && Y == other.Y && Z == other.Z && W == other.W;
+    }
+
     public override string ToString()
     {
         return $"({X}, {Y}, {Z}, {W})";
@@ -84,6 +89,7 @@ public struct Vec4i : IVec<Vec4i, int>, IVecDoubleEquivalent<Vec4>
     {
         return new Vec4i(int.Max(X, b.X), int.Max(Y, b.Y), int.Max(Z, b.Z), int.Max(W, b.W));
     }
+
     public Vec4i Min(Vec4i b)
     {
         return new Vec4i(int.Min(X, b.X), int.Min(Y, b.Y), int.Min(Z, b.Z), int.Min(W, b.W));
@@ -93,14 +99,17 @@ public struct Vec4i : IVec<Vec4i, int>, IVecDoubleEquivalent<Vec4>
     {
         return new Vec4i(left.X * right.X, left.Y * right.Y, left.Z * right.Z, left.W * right.W);
     }
+
     public static Vec4i operator /(Vec4i left, Vec4i right)
     {
         return new Vec4i(left.X / right.X, left.Y / right.Y, left.Z / right.Z, left.W / right.W);
     }
+
     public static bool operator >(Vec4i left, Vec4i right)
     {
         return left.X > right.X && left.Y > right.Y && left.Z > right.Z && left.W > right.W;
     }
+
     public static bool operator <(Vec4i left, Vec4i right)
     {
         return left.X < right.X && left.Y < right.Y && left.Z < right.Z && left.W < right.W;
@@ -108,13 +117,13 @@ public struct Vec4i : IVec<Vec4i, int>, IVecDoubleEquivalent<Vec4>
 
 
     public int ElementCount => 4;
-    
+
     public int Last
     {
         get => W;
         set => W = value;
     }
-    
+
     public int this[int n]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -141,5 +150,16 @@ public struct Vec4i : IVec<Vec4i, int>, IVecDoubleEquivalent<Vec4>
     public static Vec4i operator *(int left, Vec4i right)
     {
         return right * left;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator ==(Vec4i left, Vec4i right)
+    {
+        return left.Equals(right);
+    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator !=(Vec4i left, Vec4i right)
+    {
+        return !left.Equals(right);
     }
 }

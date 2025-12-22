@@ -4,6 +4,10 @@ namespace FlowExplainer;
 
 public class Axis3D : WorldService
 {
+    public override string? Name => "Axis 3D";
+    public override string? Description => "Render 3D axis";
+    public override string? CategoryN => "General";
+    
     public override void Initialize()
     {
 
