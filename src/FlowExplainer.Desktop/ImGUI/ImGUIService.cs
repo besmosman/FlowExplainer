@@ -16,6 +16,7 @@ public class ImGuiRenderData
     public bool ShowVisualizationManagerWindow = true;
     public bool ShowVisualisationsWindow = false;
     public bool ShowToolWindow = true;
+    public bool ShowProfilerWindow = false;
     public int SelectedVisualiationIndex;
     public bool showTCKMetaDataPopup;
 
@@ -73,6 +74,7 @@ public class ImGUIService : GlobalService
                 ImGui.MenuItem("ImGUI Demo", "", ref RenderData.showDemoWindow);
                 ImGui.MenuItem("Visualisations", "", ref RenderData.ShowVisualisationsWindow);
                 ImGui.MenuItem($"Services Tool Window", "", ref RenderData.ShowToolWindow);
+                ImGui.MenuItem($"Profiler Window", "", ref RenderData.ShowProfilerWindow);
 
                 if (ImGui.MenuItem("New view"))
                     GetRequiredGlobalService<ViewsService>().NewView();
@@ -81,6 +83,7 @@ public class ImGUIService : GlobalService
                     var w = GetRequiredGlobalService<WorldManagerService>().NewWorld();
                     w.AddVisualisationService(new AxisVisualizer());
                 }
+
                 ImGui.EndMenu();
             }
 
@@ -91,12 +94,25 @@ public class ImGUIService : GlobalService
         if (RenderData.showDemoWindow)
             ImGui.ShowDemoWindow();
 
+        if (!Profiler.IsPaused != RenderData.ShowProfilerWindow)
+        {
+            if (RenderData.ShowProfilerWindow)
+                Profiler.Unpause();
+            else
+                Profiler.Pause();
+        }
+
+        if (RenderData.ShowProfilerWindow && ImGui.Begin("Profiler", ref RenderData.ShowProfilerWindow))
+        {
+            ProfilerWindow.ProfilerTab();
+            ImGui.End();
+        }
 
         ImGuiToolWindows.Draw(this);
 
-
         DrawLogger();
     }
+
 
     private static void SwapFullScreen(NativeWindow window)
     {
@@ -161,7 +177,6 @@ public class ImGUIService : GlobalService
 
     private void DrawLogger()
     {
-
         var window = GetRequiredGlobalService<WindowService>().Window;
         if (window.IsKeyPressed(Keys.GraveAccent))
         {

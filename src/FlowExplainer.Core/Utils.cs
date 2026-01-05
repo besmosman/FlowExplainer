@@ -3,7 +3,6 @@ using System.Runtime.CompilerServices;
 
 namespace FlowExplainer;
 
-
 public static class Utils
 {
     public static T Lerp<T, TC>(T a, T b, TC c) where T : IMultiplyOperators<T, TC, T>, IAdditionOperators<T, T, T>

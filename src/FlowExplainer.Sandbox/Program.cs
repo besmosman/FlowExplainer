@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using FlowExplainer;
 
+DedicatedGraphics.InitializeDedicatedGraphics();
 CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
 Config.Load("config.json");
 var app = new FlowExplainer.FlowExplainer();

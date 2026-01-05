@@ -24,6 +24,7 @@ namespace FlowExplainer
             AddVisualisationService(worldService);
             return worldService;
         }
+
         public void AddVisualisationService(WorldService service, int? index = null)
         {
             if (index == null)
@@ -46,6 +47,7 @@ namespace FlowExplainer
         }
 
         private List<WorldService> toRemove = new();
+
         public void RemoveWorldService(WorldService service)
         {
             toRemove.Add(service);
@@ -62,6 +64,7 @@ namespace FlowExplainer
                     return t;
                 }
             }
+
             //Auto add?
             throw new Exception();
             return null;
@@ -87,6 +90,7 @@ namespace FlowExplainer
                 service.Deinitialize();
                 Services.Remove(service);
             }
+
             toRemove.Clear();
 
             foreach (var service in Services)
@@ -97,6 +101,7 @@ namespace FlowExplainer
                         service.Initialize();
                         service.IsInitialzied = true;
                     }
+
                     service.Update();
                 }
         }
@@ -104,10 +109,11 @@ namespace FlowExplainer
 
         public void Draw(View view)
         {
+            Profiler.Begin($"Draw '{view.Name}'");
+
             IsViewed = true;
             //  if (!view.World.FlowExplainer.GetGlobalService<PresentationService>()?.IsPresenting == true)
             view.ResizeToTargetSize();
-
             view.RenderTarget.DrawTo(() =>
             {
                 var clearColor = view.AltClearColor ?? Style.Current.BackgroundColor;
@@ -115,6 +121,7 @@ namespace FlowExplainer
                 GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
                 foreach (var service in Services)
                 {
+                    Profiler.Begin(service?.Name ?? service!.GetType().Name);
                     if (service.IsEnabled)
                     {
                         if (!service.IsInitialzied)
@@ -122,8 +129,11 @@ namespace FlowExplainer
                             service.Initialize();
                             service.IsInitialzied = true;
                         }
+
                         service.Draw(view.RenderTarget, view);
                     }
+
+                    Profiler.End(service?.Name ?? service!.GetType().Name);
                 }
 
                 if (!string.IsNullOrEmpty(ImGuiHelpers.LastMessage))
@@ -135,8 +145,8 @@ namespace FlowExplainer
                     }
                 }
             });
-
             RenderTexture.Blit(view.RenderTarget, view.PostProcessingTarget);
+            Profiler.End($"Draw '{view.Name}'");
         }
     }
 }

@@ -15,6 +15,9 @@ namespace FlowExplainer
 
         public const int Samples = 8;
 
+        private static int CurrentBoundFrameBuffer = 0;
+        private static Rect<Vec2> LastViewPort = default;
+
         public RenderTexture(int width, int height, bool depth = true, bool multisample = false) : base(width, height, true)
         {
             IsMultisampled = multisample;
@@ -100,21 +103,34 @@ namespace FlowExplainer
 
         public void DrawTo(Action action)
         {
-            int[] oldViewport = new int[4];
-            GL.GetInteger(GetPName.Viewport, oldViewport);
-            GL.GetInteger(GetPName.FramebufferBinding, out int previouslyBound);
+            var oldId = CurrentBoundFrameBuffer;
+            var oldViewport = LastViewPort;
 
             Activate();
             action();
 
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, previouslyBound);
-            GL.Viewport(oldViewport[0], oldViewport[1], oldViewport[2], oldViewport[3]);
+            CurrentBoundFrameBuffer = oldId;
+            LastViewPort = oldViewport;
+            BindLastFrameBuffer();
         }
+
+        private static void BindLastFrameBuffer()
+        {
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, CurrentBoundFrameBuffer);
+            GL.Viewport((int)LastViewPort.Min.X, (int)LastViewPort.Min.Y, (int)LastViewPort.Size.X, (int)LastViewPort.Size.Y);
+        }
+
 
         public void Activate()
         {
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FramebufferHandle);
-            GL.Viewport(0, 0, Size.X, Size.Y);
+            Activate(FramebufferHandle, new Rect<Vec2>(Vec2.Zero, Size.ToVec2()));
+        }
+
+        public static void Activate(int FramebufferHandle, Rect<Vec2> viewport)
+        {
+            CurrentBoundFrameBuffer = FramebufferHandle;
+            LastViewPort = viewport;
+            BindLastFrameBuffer();
         }
 
         public void Resize(int width, int height)
@@ -149,22 +165,22 @@ namespace FlowExplainer
             GL.ReadPixels(0, 0, Size.X, Size.Y, PixelFormat.Bgra, PixelType.UnsignedByte, bytes);
             for (int i = 0; i < bytes.Length; i += 4)
             {
-                bytes[i+3] = 255;
+                bytes[i + 3] = 255;
             }
         }
-        
+
         public static void Blit(RenderTexture source, RenderTexture dest)
         {
-            GL.GetInteger(GetPName.FramebufferBinding, out int oldId);
+            int oldId = CurrentBoundFrameBuffer;
             GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, source.FramebufferHandle);
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, dest.FramebufferHandle);
             GL.BlitFramebuffer(0, 0, dest.Size.X, dest.Size.Y, 0, 0, dest.Size.X, dest.Size.Y, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, oldId);
         }
-        
+
         public static void SaveToFile(string path, Vec2i Size, int scaler = 1)
         {
-            GL.GetInteger(GetPName.FramebufferBinding, out int currentframebuffer);
+            int currentframebuffer = CurrentBoundFrameBuffer;
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
             var bytes = ArrayPool<byte>.Shared.Rent(Size.X * Size.Y * 4);
             ReadAllPixels(bytes, Size);
@@ -180,8 +196,10 @@ namespace FlowExplainer
             {
                 image.Mutate(x => x.Resize(Size.X * scaler, Size.Y * scaler, KnownResamplers.NearestNeighbor, false));
             }
+
             image.Save(path);
             image.Dispose();
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, currentframebuffer);
             //});
         }
     }

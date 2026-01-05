@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Reflection;
 
 namespace FlowExplainer
 {
@@ -21,7 +22,7 @@ namespace FlowExplainer
         public void AddDefaultGlobalServices()
         {
             ServicesInfo.Init();
-            
+
             AddGlobalService(new AssetWatcherService());
             AddGlobalService(new PreferencesService());
             AddGlobalService(new WindowService());
@@ -74,23 +75,29 @@ namespace FlowExplainer
             {
                 var total = Stopwatch.StartNew();
                 var w = Stopwatch.StartNew();
-
                 while (shouldRun)
                 {
+                    Profiler.Begin("Frame");
                     double startTime = total.Elapsed.TotalSeconds;
                     DeltaTime = (double)w.Elapsed.TotalSeconds;
                     Time += w.Elapsed;
                     w.Restart();
 
 
+                    Profiler.Begin("Draw");
                     foreach (var service in Services)
+                    {
                         service.Draw();
+                    }
 
+                    Profiler.End("Draw");
+
+                    Profiler.Begin("AfterDraw");
                     foreach (var service in Services)
                         service.AfterDraw();
-
+                    Profiler.End("AfterDraw");
                     double endTime = total.Elapsed.TotalSeconds;
-
+                    Profiler.End("Frame");
                     /*while (endTime - startTime < 1 / 144f)
                     {
                         endTime = total.Elapsed.TotalSeconds;

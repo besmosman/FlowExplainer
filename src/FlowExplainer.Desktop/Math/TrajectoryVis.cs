@@ -12,8 +12,8 @@ public class TrajectoryVis : WorldService
         public double LifeTime;
     }
 
-    private int ParticleCount = 10000;
-    private int HistoryLength = 32;
+    private int ParticleCount = 16000;
+    private int HistoryLength = 8;
     private Vec2[] ParticleHistories;
     private ParticleInfo[] ParticleInfos;
     public int CircularBufferIndex;
@@ -42,7 +42,7 @@ public class TrajectoryVis : WorldService
         }
 
         partitioner = new GpuLinePartitioner();
-        partitioner.GridSize = new Vec2i(32, 16) * 10;
+        partitioner.GridSize = new Vec2i(32, 16) * 3;
         partitioner.Cells.buffer.BufferIndex = 1;
         partitioner.LinesOrganized.buffer.BufferIndex = 2;
         partitioner.WorldViewRect = DataService.VectorField.Domain.RectBoundary.Reduce<Vec2>();
@@ -53,31 +53,34 @@ public class TrajectoryVis : WorldService
     {
         if (DataService.MultipliedDeltaTime > 0)
         {
-            SimulateStep(DataService.SimulationTime, DataService.MultipliedDeltaTime);
-        }
-        n++;
-        for (int p = 0; p < ParticleCount; p++)
-        {
-            for (int j = 0; j < HistoryLength-1; j++)
+            SimulateStep(-DataService.SimulationTime, -DataService.MultipliedDeltaTime);
+
+            n++;
+            for (int p = 0; p < ParticleCount; p++)
             {
-                // ParticleHistoryAt(p, 0); = 1
-                //ParticleHistoryAt(p, HistoryLength); = 0
-                var start = ParticleHistoryAt(p, j);
-                var end = ParticleHistoryAt(p, j + 1);
-                partitioner.RegisterLine(new GpuLinePartitioner.Line
+                for (int j = 0; j < HistoryLength - 1; j++)
                 {
-                    StartX = (float)start.X,
-                    StartY = (float)start.Y,
-                    EndX = (float)end.X,
-                    EndY = (float)end.Y,
-                    ParticleId = p,
-                    StartTimeAliveFactor =1f - (float)j / (HistoryLength-1),
-                    EndTimeAliveFactor =1f-  (float)(j + 1) / (HistoryLength-1),
-                });
+                    // ParticleHistoryAt(p, 0); = 1
+                    //ParticleHistoryAt(p, HistoryLength); = 0
+                    var start = ParticleHistoryAt(p, j);
+                    var end = ParticleHistoryAt(p, j + 1);
+                    partitioner.RegisterLine(new GpuLinePartitioner.Line
+                    {
+                        StartX = (float)start.X,
+                        StartY = (float)start.Y,
+                        EndX = (float)end.X,
+                        EndY = (float)end.Y,
+                        ParticleId = p,
+                        StartTimeAliveFactor = 1f - (float)j / (HistoryLength - 1),
+                        EndTimeAliveFactor = 1f - (float)(j + 1) / (HistoryLength - 1),
+                    });
+                }
             }
+
+            partitioner.Organize();
         }
-        partitioner.Organize();
-        DrawRectsDebug(view);
+
+        //DrawRectsDebug(view);
         {
             var size = partitioner.WorldViewRect.Size;
             var start = partitioner.WorldViewRect.Min;
@@ -97,6 +100,8 @@ public class TrajectoryVis : WorldService
             material.SetUniform("model", model);
             Gizmos2D.imageQuadInvertedY.Draw();
         }
+        
+        Gizmos2D.texturedMat.Use();
        // DrawLines(view);
         // DrawParticles(view);
     }
@@ -143,7 +148,7 @@ public class TrajectoryVis : WorldService
             ref var currentPos = ref ParticleHistoryAt(i, 0);
             ref var nextPos = ref ParticleHistoryAt(i, -1);
             var aliveFactor = ParticleInfos[i].TimeAlive / ParticleInfos[i].LifeTime;
-            ParticleInfos[i].TimeAlive += dt;
+            ParticleInfos[i].TimeAlive += double.Abs(dt);
             if (aliveFactor > 1)
             {
                 Array.Fill(ParticleHistories, Utils.Random(rect).XY, i * HistoryLength, HistoryLength);

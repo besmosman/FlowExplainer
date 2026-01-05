@@ -55,17 +55,16 @@ vec2 getDistSqAndT(vec2 P, vec2 A, vec2 B)
 
 const int MAX_SEEN = 64;
 
-float SmoothingKernel(float radius, float dst)
+float SmoothingKernel(float h, float r)
 {
-    // OLD (Physics): Preserves Total Mass, Peak changes with radius
-    // float volume = 3.14159 * pow(radius, 8) / 4; 
+    float q = r / h;
+    if (q >= 1.0f) return 0.0f;
 
-    // NEW (Visual): Preserves Peak Intensity (1.0 at center), Total Mass changes
-    // At dst=0, numerator is (r^2 - 0)^3 = r^6. So we divide by r^6.
-    float volume = pow(radius, 6);
+    float a = 1.0f - q;
+    float a2 = a * a;
+    float a4 = a2 * a2;
 
-    float value = max(0.0, radius * radius - dst * dst);
-    return value * value * value / volume;
+    return a4 * (1.0f + 4.0f * q);
 }
 
 
@@ -83,9 +82,9 @@ void main()
 
     float accum = 0.0;
 
-    float kernelRadius = .002f;
+    float kernelRadius = .00009f;
     float k2 = kernelRadius*kernelRadius;
-    int d = 3;
+    int d = 1;
     bool stop = false;
     for (int offsetX = -d;offsetX <=d; offsetX++)
     for (int offsetY = -d;offsetY <=d; offsetY++)
@@ -94,6 +93,7 @@ void main()
             break;
         vec2 cellCoords = centerCell + vec2(offsetX, offsetY);
         int index = int(cellCoords.y) * int(GridSize.x) + int(cellCoords.x);
+        
         index = max(0, index);
         index = min(index, int(round(GridSize.x*GridSize.y))-1);
         Cell cell = cells.Entries[index];
@@ -186,6 +186,9 @@ void main()
         else*/
 
     color = vec4( (accum)/(MAX_SEEN*.1), (accum*accum)/(MAX_SEEN*3), 0, 1);
+/**    if(accum > 7)
+            color = vec4(1,1,1,1);
+    else color = vec4(0,0,0,0);*/
     //color = vec4(lineCount/1000.0, 0, 0, 1);
     //color = vec4(cells.length()/10.0, 0, 0, 1);
     /*if(color.a == 0)

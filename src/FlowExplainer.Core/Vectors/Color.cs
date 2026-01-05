@@ -39,6 +39,9 @@ public struct Color :
     }
 
     public static readonly Color White = new Color(1, 1, 1);
+    public static readonly Color Red = new Color(1, 0, 0);
+    public static readonly Color Green = new Color(0, 1, 0);
+    public static readonly Color Blue = new Color(0, 0, 1);
     public static Color Black => new Color(0, 0, 0);
     public static Color Grey(float f) => new Color(f, f, f);
 
