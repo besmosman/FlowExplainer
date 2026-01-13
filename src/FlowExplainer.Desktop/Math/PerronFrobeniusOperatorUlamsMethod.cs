@@ -1,3 +1,4 @@
+using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace FlowExplainer;
@@ -13,16 +14,17 @@ public class PerronFrobeniusOperatorUlamsMethod
     }
 
     public SparseMatrix TransitionMatrix;
-    public PointSpatialPartitioner2D<Vec2, Vec2i, Particle> partitioner;
+    public PointSpatialPartitioner2D<Vec2, Vec2i, Particle>? partitionerStartPoint;
+    public PointSpatialPartitioner2D<Vec2, Vec2i, Particle>? partitionerEndPoints;
     private Dictionary<Vec2i, int> CellToMatrixIndex;
     public void Compute(IVectorField<Vec3, Vec2> vectorField)
     {
         var bounds = vectorField.Domain.RectBoundary;
         Particle[] particles = new Particle[600000];
         var t_start = 0;
-        var t_end = 1.0f;
+        var t_end = 1f;
 
-        var cellSize = bounds.Size.X / 64;
+        var cellSize = bounds.Size.X / 96;
 
         var flowOperator = IFlowOperator<Vec2, Vec3>.Default;
         Parallel.For(0, particles.Length, i =>
@@ -32,19 +34,20 @@ public class PerronFrobeniusOperatorUlamsMethod
             p.End = flowOperator.ComputeEnd(t_start, t_end, p.Start, vectorField);
         });
 
-        partitioner = new(cellSize);
-        partitioner.Init(particles, (ps, i) => ps[i].Start);
-        partitioner.UpdateEntries();
+        partitionerStartPoint = new(cellSize);
+        partitionerStartPoint.Init(particles, (ps, i) => ps[i].Start);
+        partitionerStartPoint.UpdateEntries();
         Dictionary<(Vec2i startCell, Vec2i endCell), int> transitions = new();
         CellToMatrixIndex = new Dictionary<Vec2i, int>();
-        foreach (var p in partitioner.Data)
+        foreach (var p in partitionerStartPoint.Data)
         {
             foreach (int i in p.Value!)
                 particles[i].startCell = p.Key;
         }
-        partitioner.Init(particles, (ps, i) => ps[i].End);
-        partitioner.UpdateEntries();
-        foreach (var p in partitioner.Data)
+        partitionerEndPoints = new(cellSize);
+        partitionerEndPoints.Init(particles, (ps, i) => ps[i].End);
+        partitionerEndPoints.UpdateEntries();
+        foreach (var p in partitionerEndPoints.Data)
         {
             foreach (int i in p.Value!)
                 particles[i].endCell = p.Key;
@@ -67,15 +70,19 @@ public class PerronFrobeniusOperatorUlamsMethod
             return value;
         }
 
-
-        foreach (var t in partitioner.Data.Keys)
+        foreach (var t in partitionerStartPoint.Data.Keys)
+            GetMatrixCellIndex(t);
+        foreach (var t in partitionerEndPoints.Data.Keys)
             GetMatrixCellIndex(t);
 
-        for (int x = partitioner.Data.Min(m => m.Key.X); x <= partitioner.Data.Max(m => m.Key.X); x++)
-        for (int y = partitioner.Data.Min(m => m.Key.Y); y <= partitioner.Data.Max(m => m.Key.Y); y++)
+        int minX = int.Min(partitionerStartPoint.Data.Min(m => m.Key.X), partitionerEndPoints.Data.Min(m => m.Key.X));
+        int minY = int.Min(partitionerStartPoint.Data.Min(m => m.Key.Y), partitionerEndPoints.Data.Min(m => m.Key.Y));
+        int maxX = int.Max(partitionerStartPoint.Data.Max(m => m.Key.X), partitionerEndPoints.Data.Max(m => m.Key.X));
+        int maxY = int.Max(partitionerStartPoint.Data.Max(m => m.Key.Y), partitionerEndPoints.Data.Max(m => m.Key.Y));
+        for (int x = minX; x <= maxX; x++)
+        for (int y = minY; y <= maxY; y++)
         {
-            GetMatrixCellIndex(new Vec2i(x,y));
-
+            //GetMatrixCellIndex(new Vec2i(x, y));
         }
         TransitionMatrix = SparseMatrix.Create(CellToMatrixIndex.Count + 1, CellToMatrixIndex.Count + 1, 0);
 
@@ -84,7 +91,7 @@ public class PerronFrobeniusOperatorUlamsMethod
             var row = GetMatrixCellIndex(t.Key.startCell);
             var column = GetMatrixCellIndex(t.Key.endCell);
             if (row < TransitionMatrix.RowCount && column < TransitionMatrix.ColumnCount)
-                TransitionMatrix[row, column] = t.Value;
+                TransitionMatrix[row, column] = t.Value / (double)partitionerStartPoint.Data[t.Key.startCell].Count;
         }
 
         int c = 4;
@@ -93,11 +100,17 @@ public class PerronFrobeniusOperatorUlamsMethod
     public Vec2 w;
     public double GetTransitionValueAt(Vec2 worldpos)
     {
-        if (partitioner == null)
+        if (partitionerStartPoint == null)
             return 0;
-        var partionerCell = partitioner.GetVoxelCoords(worldpos);
-        CellToMatrixIndex.TryGetValue(partionerCell, out int from);
-        CellToMatrixIndex.TryGetValue(partitioner.GetVoxelCoords(w), out int to);
+        int from = WorldToMatrixIndex(worldpos);
+        CellToMatrixIndex.TryGetValue(partitionerStartPoint.GetVoxelCoords(w), out int to);
         return TransitionMatrix[from, to];
+    }
+    public int WorldToMatrixIndex(Vec2 worldpos)
+    {
+
+        var partionerCell = partitionerStartPoint.GetVoxelCoords(worldpos);
+        CellToMatrixIndex.TryGetValue(partionerCell, out int from);
+        return from;
     }
 }

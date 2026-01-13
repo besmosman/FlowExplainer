@@ -19,7 +19,8 @@ public interface IFlowOperator<X, P>
             Steps = steps;
         }
         public static IIntegrator<P, X> Integrator = IIntegrator<P, X>.Rk4;
-
+        
+        
         public Trajectory<P> ComputeTrajectory(double t_start, double t_end, X x, IVectorField<P, X> v)
         {
             var duration = (t_end - t_start);

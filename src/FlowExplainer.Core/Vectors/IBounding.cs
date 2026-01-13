@@ -6,6 +6,7 @@ public interface IBounding<Vec> where Vec : IVec<Vec, double>
 {
     Vec Bound(Vec x);
     double ShortestSpatialDistanceSqrt(Vec a, Vec b);
+    double ShortestSpatialDistance(Vec a, Vec b) => double.Sqrt(ShortestSpatialDistanceSqrt(a, b));
 }
 
 public class LastPeriodicBounding<Vec> : IBounding<Vec> where Vec : IVec<Vec, double>

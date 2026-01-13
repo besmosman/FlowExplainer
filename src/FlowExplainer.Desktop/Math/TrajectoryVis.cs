@@ -4,6 +4,8 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
 
+
+
 public class TrajectoryVis : WorldService
 {
     struct ParticleInfo
@@ -77,8 +79,8 @@ public class TrajectoryVis : WorldService
                 }
             }
 
-            partitioner.Organize();
-        }
+        } 
+        partitioner.Organize();
 
         //DrawRectsDebug(view);
         {

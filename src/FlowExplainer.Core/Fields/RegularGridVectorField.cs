@@ -215,9 +215,7 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
         int dim = GridSize.ElementCount;
         var baseCoord = coords.FloorInt();
 
-        var weights = Vec.Zero;
-        for (int i = 0; i < dim; i++)
-            weights[i] = coords[i] - baseCoord[i];
+        var weights = coords - baseCoord.ToVecF();
 
         if (baseCoord.Last == GridSize.Last)
             baseCoord[coords.ElementCount - 1] -= 1;

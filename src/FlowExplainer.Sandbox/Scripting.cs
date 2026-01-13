@@ -13,12 +13,30 @@ public static class Scripting
         // RebuildSpeetjensDatasets();
         LoadPeriodicCopies(world);
         SetGyreDataset(world);
-        var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(3).Key;
+        var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(4).Key;
         world.GetWorldService<DataService>().SetDataset(name);
         world.GetWorldService<DataService>().currentSelectedVectorField = "Diffusion Flux";
+        //world.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
-        world.AddVisualisationService(new TrajectoryVis());
+        //world.AddVisualisationService(new StochasticConnectionVisualization());
+        //world.AddVisualisationService<GridVisualizer>().SetGridDiagnostic(new StochasticConnectionVisualization.GridDiagnostics());
+        //world.AddVisualisationService(new ArrowVisualizer());
+
+        world.GetWorldService<DataService>().TimeMultiplier = -5;
+        world.AddVisualisationService(new DensityPathStructures()
+        {
+            InfluenceRadius = .005f,
+            ParticleCount = 100,
+            AccumelationFactor = .035f,
+        });
+
+        /*var gridDiagnostic = new UlamsGrid();
+        var gridVisualizer = new GridVisualizer();
+        world.AddVisualisationService(gridVisualizer);
+        gridVisualizer.SetGridDiagnostic(gridDiagnostic);
+        gridDiagnostic.Recompute(gridVisualizer);
+        */
 
         //world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new DemoPresentation());
         //world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();

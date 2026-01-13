@@ -40,9 +40,9 @@ public class ArrowVisualizer : WorldService, IAxisTitle
 
     public override void Draw(RenderTexture rendertarget, View view)
     {
-        if(!view.Is2DCamera)
+        if (!view.Is2DCamera)
             return;
-        
+
         var dat = GetRequiredWorldService<DataService>();
         var vectorfield = AltVectorfield ?? dat.VectorField;
         var t = AltTime ?? dat.SimulationTime;

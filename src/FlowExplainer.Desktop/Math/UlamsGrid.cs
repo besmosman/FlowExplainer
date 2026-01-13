@@ -15,16 +15,13 @@ public class UlamsGrid : IGridDiagnostic
 
         ParallelGrid.For(renderGrid.GridSize, token, (i, j) =>
         {
-            var pos = spatialBounds.FromRelative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());
-            renderGrid.AtCoords(new Vec2i(i, j)).Value = method.GetTransitionValueAt(pos);
-            if (method.partitioner.GetVoxelCoords(pos) == method.partitioner.GetVoxelCoords(method.w))
-                renderGrid.AtCoords(new Vec2i(i, j)).Value = -100;
+            var pos = spatialBounds.FromRelative(new Vec2(i+.5f, j+.5f) / renderGrid.GridSize.ToVec2());
+            renderGrid.AtCoords(new Vec2i(i, j)).Value = method.TransitionMatrix.Column(method.WorldToMatrixIndex(pos)).Sum();
         });
     }
 
     public void OnImGuiEdit(GridVisualizer gridVisualizer)
     {
-
         if (ImGui.Button("Recompute"))
         {
             Recompute(gridVisualizer);

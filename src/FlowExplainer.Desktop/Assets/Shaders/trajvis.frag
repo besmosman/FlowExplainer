@@ -53,7 +53,7 @@ vec2 getDistSqAndT(vec2 P, vec2 A, vec2 B)
     return vec2(dot(d, d), t);
 }
 
-const int MAX_SEEN = 64;
+const int MAX_SEEN = 32;
 
 float SmoothingKernel(float h, float r)
 {
@@ -82,7 +82,7 @@ void main()
 
     float accum = 0.0;
 
-    float kernelRadius = .00009f;
+    float kernelRadius = .009f;
     float k2 = kernelRadius*kernelRadius;
     int d = 1;
     bool stop = false;
@@ -185,7 +185,7 @@ void main()
         color = vec4(accum, 0, 0, 1);
         else*/
 
-    color = vec4( (accum)/(MAX_SEEN*.1), (accum*accum)/(MAX_SEEN*3), 0, 1);
+    color = vec4( (accum*1)/(MAX_SEEN*.1), (accum*accum)/(MAX_SEEN*3), 0, 1);
 /**    if(accum > 7)
             color = vec4(1,1,1,1);
     else color = vec4(0,0,0,0);*/

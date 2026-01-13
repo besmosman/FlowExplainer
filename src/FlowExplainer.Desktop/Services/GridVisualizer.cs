@@ -69,6 +69,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         new StagnationGridDiagnostic(),
         new UlamsGrid(),
         new CriticalPointDiagnostic(),
+        new ArcLengthGridDiagnostic(),
         // new CustomGridDiagnostic(),
         //new FTLEvsCustomGridDiagnostic(),
     ];
