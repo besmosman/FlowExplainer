@@ -8,7 +8,7 @@ public static class BinarySerializer
     {
         if (File.Exists(path))
             File.Delete(path);
-
+        
         using var fileStream = new FileStream(path, FileMode.CreateNew);
         MemoryPackSerializer.SerializeAsync(fileStream, s).AsTask().Wait();
     }

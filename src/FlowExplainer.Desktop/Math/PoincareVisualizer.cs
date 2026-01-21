@@ -115,7 +115,7 @@ public class PoincareVisualizer : WorldService, IAxisTitle
             foreach (var p in t.Entries)
             {
                 var color = new Color(1, 1, 1, 1f);
-                Gizmos2D.Instanced.RegisterCircle(p, RenderRadius, new Color((t.GetHashCode() / 100f) % 1, 0, 1));
+                Gizmos2D.Instanced.RegisterCircle(p, RenderRadius, Color.White);
             }
         }
 

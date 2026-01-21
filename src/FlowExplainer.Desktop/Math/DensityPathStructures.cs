@@ -4,6 +4,8 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
 
+ 
+
 public class DensityPathStructures : WorldService, IAxisTitle
 {
     private Particle[] Particles;
@@ -17,18 +19,19 @@ public class DensityPathStructures : WorldService, IAxisTitle
         public Vec2 LastPosition;
         public Vec2 Position;
         public float TimeAlive;
+        public float Noise;
     }
 
     public struct Sample
     {
         public float Accumulation;
-        public float padding;
-        public float padding0;
+        public float LIC;
+        public float Count;
         public float padding1;
     }
 
 
-    
+
 
     public Vec2i SampleGridSize = new Vec2i(32, 16) * 24;
     public int ParticleCount = 1;
@@ -39,10 +42,11 @@ public class DensityPathStructures : WorldService, IAxisTitle
     public double AccumelationFactor = .1f;
     public double Decay = .04f;
     public double reseedRate = .005f;
+    public bool Normalize = true;
 
     public override string? Name => "Density Path Structures";
-    public override string? Description => "Visualization of attracting and replling structures in transport fields";
-    
+    public override string? Description => "Visualization of attracting and repelling structures in transport fields";
+
     public Vec2 WorldToGrid(Vec2 world)
     {
         return WorldRect.ToRelative(world) * SampleGridSize.ToVec2();
@@ -62,6 +66,8 @@ public class DensityPathStructures : WorldService, IAxisTitle
         material = new Material(new Shader("Assets/Shaders/sdf.frag", ShaderType.FragmentShader), Shader.DefaultWorldSpaceVertex);
         Reset();
     }
+    FastNoise noise = new FastNoise();
+
     private void Reset()
     {
         Particles = new Particle[ParticleCount];
@@ -70,36 +76,45 @@ public class DensityPathStructures : WorldService, IAxisTitle
         var rect = dat.VectorField.Domain.RectBoundary;
         for (int i = 0; i < ParticleCount; i++)
         {
-            Particles[i].Position = Utils.Random(rect).XY;
+            var pos = Utils.Random(rect).XY;
+            Particles[i].Position = pos;
             Particles[i].LastPosition = Particles[i].Position;
             Particles[i].TimeAlive = 0;
+            Particles[i].Noise = EvalNoise(pos);
         }
         WorldRect = rect.Reduce<Vec2>();
         Samples = new Sample[SampleGridSize.Volume()];
-   
+
         SampleBuffer = new StorageBuffer<Sample>(Samples);
         Particles[0].Position = rect.Center.XY;
         Particles[0].LastPosition = rect.Center.XY;
+
+    }
+    private float EvalNoise(Vec2 pos)
+    {
+        return (float)((noise.GetNoise((float)pos.X * 4000, (float)pos.Y * 4000)) + 1) * 0.5f;
     }
 
+    
     public override void Draw(RenderTexture rendertarget, View view)
     {
-        var vel = GetRequiredWorldService<DataService>().VectorField;
+        var transportField = GetRequiredWorldService<DataService>().VectorField;
+        
         var rk = IIntegrator<Vec3, Vec2>.Rk4;
         var dat = GetRequiredWorldService<DataService>();
-
-        var bounding = vel.Domain.Bounding;
+        var bounding = transportField.Domain.Bounding;
         var dt = dat.MultipliedDeltaTime;
         Parallel.For(0, Particles.Length, i =>
         {
             ref var p = ref Particles[i];
             p.LastPosition = p.Position;
-            p.Position = bounding.Bound(rk.Integrate(vel, p.Position.Up(dat.SimulationTime), dt)).XY;
+            p.Position = bounding.Bound(rk.Integrate(transportField, p.Position.Up(dat.SimulationTime), dt)).XY;
             if (dt != 0 && Utils.Random(0, 1) > 1f - reseedRate)
             {
                 var rect = dat.VectorField.Domain.RectBoundary;
                 p.Position = Utils.Random(rect).XY;
                 p.LastPosition = p.Position;
+                p.Noise = EvalNoise(p.Position);
                 p.TimeAlive = 0;
             }
             p.TimeAlive += float.Abs((float)dt);
@@ -108,6 +123,7 @@ public class DensityPathStructures : WorldService, IAxisTitle
         foreach (ref var s in Samples.AsSpan())
         {
             s.Accumulation /= (1f + (float)Decay);
+            // s.Count = 0;
             //s.Accumulation =0;
             //s.Accumulation +=0.0001f;
             //s.Accumulation *= 2.1f;
@@ -118,46 +134,49 @@ public class DensityPathStructures : WorldService, IAxisTitle
         int radX = (int)double.Ceiling(InfluenceRadius / (WorldRect.Size.X / SampleGridSize.X)) + 0;
         int radY = (int)double.Ceiling(InfluenceRadius / (WorldRect.Size.Y / SampleGridSize.Y)) + 0;
         float circleRadius = (float)InfluenceRadius;
+
+
         Parallel.For(0, Particles.Length, c =>
-        //for (int c = 0; c < Particles.Length; c++)
-        {
-            ref var p = ref Particles[c];
-            var centerA = WorldToGrid(p.LastPosition).RoundInt();
-            var centerB = WorldToGrid(p.Position).RoundInt();
-            
-            if (Vec2i.DistanceSquared(centerA, centerB) > SampleGridSize.X / 2)
+                //for (int c = 0; c < Particles.Length; c++)
             {
-                centerB = centerA;//bound issue
-            }
+                ref var p = ref Particles[c];
+                var centerA = WorldToGrid(p.LastPosition).RoundInt();
+                var centerB = WorldToGrid(p.Position).RoundInt();
 
-            var minCenter = new Vec2i(int.Min(centerA.X, centerB.X), int.Min(centerA.Y, centerB.Y));
-            var maxCenter = new Vec2i(int.Max(centerA.X, centerB.X), int.Max(centerA.Y, centerB.Y));
-          
-            for (int i = -radX + minCenter.X; i < radX + maxCenter.X; i++)
-            for (int j = -radY + minCenter.Y; j < radY + maxCenter.Y; j++)
-            {
-                var gridCoord = new Vec2i(i, j);
-                var samplePos = WorldRect.FromRelative((gridCoord.ToVec2() + new Vec2(.5f, .5f)) / SampleGridSize.ToVec2());
-                
-                //var disSqrt = (float)bounding.ShortestSpatialDistanceSqrt(p.Position.Up(0), samplePos.Up(0));
-                //var dis = float.Sqrt(disSqrt);
-                var disSqrt = DistancePointSegmentSq(samplePos, p.LastPosition, p.Position);
-                //var dis = double.Sqrt(disSqrt);
-                //if (dis < InfluenceRadius)
+                if (Vec2i.DistanceSquared(centerA, centerB) > SampleGridSize.X / 2)
                 {
-                    GetSampleInfoAt(gridCoord).Accumulation += Accum((float)disSqrt, p.TimeAlive);
-                    //float lifeTimeFactor = float.Min(1, p.TimeAlive);
-                    //float distanceToCircle = (dis - circleRadius);
-                    //sample.Accumulation = float.Min(sample.Accumulation, distanceToCircle);
-                    //sample.MinDistance = lifeTimeFactor;
+                    centerB = centerA; //bound issue
                 }
-                ;
-            }
-        })
-        ;
-        
-        def.Accumulation = 0;
 
+                var minCenter = new Vec2i(int.Min(centerA.X, centerB.X), int.Min(centerA.Y, centerB.Y));
+                var maxCenter = new Vec2i(int.Max(centerA.X, centerB.X), int.Max(centerA.Y, centerB.Y));
+
+                for (int i = -radX + minCenter.X; i < radX + maxCenter.X; i++)
+                for (int j = -radY + minCenter.Y; j < radY + maxCenter.Y; j++)
+                {
+                    var gridCoord = new Vec2i(i, j);
+                    var samplePos = WorldRect.FromRelative((gridCoord.ToVec2() + new Vec2(.5f, .5f)) / SampleGridSize.ToVec2());
+
+                    //var disSqrt = (float)bounding.ShortestSpatialDistanceSqrt(p.Position.Up(0), samplePos.Up(0));
+                    //var dis = float.Sqrt(disSqrt);
+                    var disSqrt = DistancePointSegmentSq(samplePos, p.LastPosition, p.Position);
+                    //var dis = double.Sqrt(disSqrt);
+                    //if (dis < InfluenceRadius)
+                    {
+                        GetSampleInfoAt(gridCoord).Accumulation += Accum((float)disSqrt, p.TimeAlive, (float)AccumelationFactor);
+                        GetSampleInfoAt(gridCoord).LIC += Accum((float)disSqrt, p.TimeAlive, p.Noise);
+                        GetSampleInfoAt(gridCoord).Count=1;
+                        //float lifeTimeFactor = float.Min(1, p.TimeAlive);
+                        //float distanceToCircle = (dis - circleRadius);
+                        //sample.Accumulation = float.Min(sample.Accumulation, distanceToCircle);
+                        //sample.MinDistance = lifeTimeFactor;
+                    }
+                    ;
+                }
+            })
+            ;
+
+        def.Accumulation = 0;
         material.Use();
         material.SetUniform("tint", new Color(1, 0, 1, 1));
 
@@ -173,14 +192,14 @@ public class DensityPathStructures : WorldService, IAxisTitle
         material.SetUniform("model", model);
         Gizmos2D.imageQuadInvertedY.Draw();
     }
-    
-    
-    private float Accum(float dis, float timeAlive)
+
+
+    private float Accum(float dis, float timeAlive, float accum)
     {
         var timeFactor = float.Clamp(timeAlive, 0, 1);
         float sigma = (float)InfluenceRadius / 3.3f * timeFactor;
         float spatialFactor = MathF.Exp(-(dis) / (2f * sigma * sigma));
-        return timeFactor * spatialFactor * (float)AccumelationFactor;
+        return timeFactor * spatialFactor * accum;
         /*if (spatialFactor > .5f)
             spatialFactor *= 5;*/
         //else spatialFactor = 0;
@@ -224,7 +243,7 @@ public class DensityPathStructures : WorldService, IAxisTitle
         return Vec2.Dot(d, d);
     }
 
-    
 
- 
+
+
 }

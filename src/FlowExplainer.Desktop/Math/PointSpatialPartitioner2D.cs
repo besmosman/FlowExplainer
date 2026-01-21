@@ -65,7 +65,7 @@ public class PointSpatialPartitioner2D<Vec, Veci, T>
         var r2 = radius * radius;
         var minCell = GetVoxelCoords(p - (Vec.One * radius)) - Veci.One;
         var maxCel = GetVoxelCoords(p + (Vec.One * radius)) + Veci.One;
-        
+
         foreach (var coord in Iterate(minCell, maxCel))
         {
             if (Data.TryGetValue(coord, out var list))
@@ -76,13 +76,42 @@ public class PointSpatialPartitioner2D<Vec, Veci, T>
                 }
         }
     }
-    
+
+
+    public IEnumerable<int> GetWithinRadiusPeriodicX(Vec p, double radius, double DomainSizeX)
+    {
+        var r2 = radius * radius;
+        var minCell = GetVoxelCoords(p - (Vec.One * radius)) - Veci.One;
+        var maxCel = GetVoxelCoords(p + (Vec.One * radius)) + Veci.One;
+
+        int gridSizeX = (int)(DomainSizeX / CellSize);
+        foreach (var coord in Iterate(minCell, maxCel))
+        {
+            if (coord[0] < 0)
+            {
+                coord[0] += gridSizeX;
+            }
+
+            if (coord[0] > gridSizeX)
+            {
+                coord[0] -= gridSizeX;
+            }
+
+            if (Data.TryGetValue(coord, out var list))
+                foreach (int e in list!)
+                {
+                    if (DistanceSqrtFunc(GetPos(Entries, e), p) < r2)
+                        yield return e;
+                }
+        }
+    }
+
     public void AddWithinRadius(Vec p, double radius, List<int> toFill)
     {
         var r2 = radius * radius;
         var minCell = GetVoxelCoords(p - (Vec.One * radius)) - Veci.One;
         var maxCel = GetVoxelCoords(p + (Vec.One * radius)) + Veci.One;
-        
+
         foreach (var coord in Iterate(minCell, maxCel))
         {
             if (Data.TryGetValue(coord, out var list))

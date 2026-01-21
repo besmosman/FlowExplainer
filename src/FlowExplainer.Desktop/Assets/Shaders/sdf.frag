@@ -10,9 +10,12 @@ uniform vec2 WorldViewMax;
 uniform vec2 GridSize;
 uniform sampler2D colorgradient;
 
+/*uniform float max;
+uniform float min;*/
+
 struct Sample {
 	float Accum;
-	float MinDis;
+	float LIC;
 	vec2 padding;
 };
 
@@ -43,16 +46,16 @@ void main()
 	
 	vec2 c = coord - ltCoord;
 	float accum = mix(mix(lt.Accum, rt.Accum, c.x),  mix(lb.Accum, rb.Accum, c.x), c.y);
-	float mindis = mix(mix(lt.MinDis, rt.MinDis, c.x),  mix(lb.MinDis, rb.MinDis, c.x), c.y);
+	//float lic = mix(mix(lt.LIC/lt.padding.x, rt.LIC/rt.padding.x, c.x),  mix(lb.LIC/lb.padding.x, rb.LIC/rb.padding.x, c.x), c.y);
 	//accum=lt.Accum;
-	color =  vec4(0,0,0,1);
-	color.r = accum/10;
+	//color =  vec4(0,0,0,1);
+	//color.r = accum/10;
 	//if(accum>.1)
 	//	color.g = 1;
-	if(mindis < .005)
-		color.g = 1;
+
 
 	color = ColorGradient(sqrt(accum)/4);
+	//color = ColorGradient(sqrt(lic)/4);
 	//color = vec4(0,0,0,1);
 	
 	

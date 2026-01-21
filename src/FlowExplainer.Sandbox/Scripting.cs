@@ -6,6 +6,10 @@ using Newtonsoft.Json;
 
 namespace FlowExplainer;
 
+
+
+
+
 public static class Scripting
 {
     public static void Startup(World world)
@@ -15,22 +19,46 @@ public static class Scripting
         SetGyreDataset(world);
         var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(4).Key;
         world.GetWorldService<DataService>().SetDataset(name);
-        world.GetWorldService<DataService>().currentSelectedVectorField = "Diffusion Flux";
-        //world.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
+        world.GetWorldService<DataService>().currentSelectedVectorField = "Convection Flux";
+        world.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
+
+        //world.GetWorldService<DataService>().TimeMultiplier = .04;
+        var Q_ =  world.GetWorldService<DataService>().LoadedDataset.VectorFields["Total Flux"];
+        var T_ =  world.GetWorldService<DataService>().LoadedDataset.ScalerFields["Convective Temperature"];
+        var transportField = new ArbitraryField<Vec3, Vec2>(Q_.Domain, (x) => Q_.Evaluate(x) / T_.Evaluate(x));
+
+        world.GetWorldService<DataService>().LoadedDataset.VectorFields["Q' / T'"] = transportField;
         //world.AddVisualisationService(new StochasticConnectionVisualization());
         //world.AddVisualisationService<GridVisualizer>().SetGridDiagnostic(new StochasticConnectionVisualization.GridDiagnostics());
         //world.AddVisualisationService(new ArrowVisualizer());
 
-        world.GetWorldService<DataService>().TimeMultiplier = -5;
+        //world.GetWorldService<DataService>().TimeMultiplier = .1;
+        world.AddVisualisationService(new HeatEnergySimulation());
+        
+        /*world.AddVisualisationService<GridVisualizer>().SetGridDiagnostic(new LcsVelocityMagnitudeGridDiagnostic()
+        {
+            
+        });
+        world.GetWorldService<GridVisualizer>().Continous = false;
+        world.AddVisualisationService(new SurfacesTest()
+        {
+
+        });*/
+        /*
         world.AddVisualisationService(new DensityPathStructures()
         {
             InfluenceRadius = .005f,
-            ParticleCount = 100,
+            ParticleCount = 10000,
             AccumelationFactor = .035f,
         });
+        */
 
+        /*world.AddVisualisationService(new HeatSimulationViewData());
+        world.AddVisualisationService(new HeatSimulationService());
+        world.AddVisualisationService(new HeatSimulationVisualizer());*/
+        
         /*var gridDiagnostic = new UlamsGrid();
         var gridVisualizer = new GridVisualizer();
         world.AddVisualisationService(gridVisualizer);

@@ -25,7 +25,7 @@ public class HeatStructureGridDiagnostic : IGridDiagnostic
         ParallelGrid.For(renderGrid.GridSize, token, (i, j) => { renderGrid.AtCoords(new Vec2i(i, j)).Value = 0; });
         ParallelGrid.For(renderGrid.GridSize, token, (i, j) =>
         {
-            //for (int k = 0; k < K; k++)
+            for (int k = 0; k < K; k++)
             {
                 var pos = (new Vec2(i, j) / renderGrid.GridSize.ToVec2()) * spaceBounds.Size + spaceBounds.Min;
                 // pos = Utils.Random(spaceBounds);
