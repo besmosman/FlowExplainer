@@ -60,7 +60,11 @@ namespace FlowExplainer
             Name = $"view {Id}";
             GL.GetInteger(GetPName.DrawFramebufferBinding, out int previouslyBound);
             RenderTarget = new RenderTexture(w, h, true, true);
-            PostProcessingTarget = new RenderTexture(w, h, true, false);
+            PostProcessingTarget = new RenderTexture(w, h, true, false)
+            {
+                TextureMagFilter = TextureMagFilter.Nearest,
+                TextureMinFilter = TextureMinFilter.Nearest,
+            };
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, previouslyBound);
             World = world;
         }

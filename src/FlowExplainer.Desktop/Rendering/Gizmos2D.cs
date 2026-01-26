@@ -208,6 +208,8 @@ public static class Gizmos2D
         double height = (texture.Size.Y / (double)texture.Size.X) * width;
         texturedMat.SetUniform("model", Matrix4x4.CreateScale((float)width, (float)height, .4f) * Matrix4x4.CreateTranslation((float)(center.X - width / 2), (float)center.Y - (float)height / 2, 0));
         imageQuad.Draw();
+        //imageQuad.Draw();
+        
     }
 
     public static void ImageCentered(ICamera camera, Texture texture, Vec2 center, Vec2 size, double alpha = 1)

@@ -77,7 +77,7 @@ public class HeatEnergySimulation : WorldService
         for (int i = 0; i < (WorldRect.Size.X*WorldRect.Size.Y * 2000) / HeatEnergyPerParticle; i++)
         {
             var sample = new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle() / 2);
-            Spawn(sample);
+            //Spawn(sample);
         }
         partitioner.UpdateEntries();
 
@@ -116,8 +116,8 @@ public class HeatEnergySimulation : WorldService
         foreach (var i in partitioner.GetWithinRadiusPeriodicX(pos, InfluenceRadius, 1))
         {
             var disSqrt = shortestSpatialFunc(pos, Particles[i].Position);
-            //temp += Gaussian(disSqrt) * HeatEnergyPerParticle * Particles[i].Influence;
-            temp += Particles[i].Influence * HeatEnergyPerParticle;
+            temp += Gaussian(disSqrt) * HeatEnergyPerParticle * Particles[i].Influence;
+            //temp += Particles[i].Influence * HeatEnergyPerParticle;
         }
         return temp;
     }
@@ -186,7 +186,7 @@ public class HeatEnergySimulation : WorldService
                 var delta = TempratureBotWall - EstimateTemperatureAt(samplePosBot);
                 for (int k = 0; k < (int)(delta / HeatEnergyPerParticle) / 1; k++)
                 {
-                    Spawn(new Vec2((Random.Shared.NextSingle()-.5f)/30 + samplePosBot.X, 0));
+                    Spawn(new Vec2((Random.Shared.NextSingle()-.5f)/30 + samplePosBot.X, (Random.Shared.NextSingle()/10f)));
                 }
                 if (i % 10 == 0)
                 {

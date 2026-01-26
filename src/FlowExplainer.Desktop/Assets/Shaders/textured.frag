@@ -13,6 +13,6 @@ void main()
 {
     color = tint * vertexColor * texture(mainTex, uv);
    // color = vec4(1,1,1,1);
-  /*  if(color.a < .0)
-            discard;*/
+    if(uv.x <= .001 || uv.y<.001|| uv.x > .999 || uv.y > .999)
+            discard;
 }

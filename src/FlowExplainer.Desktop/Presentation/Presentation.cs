@@ -23,7 +23,7 @@ public abstract class NewPresentation
 
     public Action<NewPresentation> CurrentLayout;
 
-    public bool BeginSlide(string title)
+    public bool BeginSlide(string? title = null)
     {
         Presi.Walk.RenderSlide++;
         bool isCur = Presi.Walk.RenderSlide == Presi.CurrentSlide;

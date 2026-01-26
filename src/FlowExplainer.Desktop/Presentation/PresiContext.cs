@@ -69,7 +69,7 @@ public class PresiContext
                 TargetPosition = position;
                 TimeSinceLastMovement = 0;
             }
-                Size = size;
+            Size = size;
         }
     }
 
@@ -83,8 +83,8 @@ public class PresiContext
         widgetData.UpdateTransform(relPos, new Vec2(lh, lh));
         var p = widgetData.RelPosition;
         p = new Vec2(double.Sin(FlowExplainer.Time.TotalSeconds*4)/4 + .4f, .4f);
-        Gizmos2D.Rect(View.Camera2D, RelToSceen(p),RelToSceen(p+widgetData.Size), new Vec4(1));
-       // Gizmos2D.AdvText(View.Camera2D, RelToSceen(widgetData.RelPosition), CanvasRect.FromRelative(new Vec2(lh, lh)).X, color, title, 1, centered);
+        //Gizmos2D.Rect(View.Camera2D, RelToSceen(p),RelToSceen(p+widgetData.Size), new Vec4(1));
+        Gizmos2D.AdvText(View.Camera2D, RelToSceen(widgetData.RelPosition), CanvasRect.FromRelative(new Vec2(lh, lh)).X, color, title, 1, centered);
     }
 
     public Vec2 RelToSceen(Vec2 rel)
@@ -177,10 +177,10 @@ public class PresiContext
         widgetData.Size = new Vec2(height, height);
         var size = RelToSceen(widgetData.Size);
         size.X = size.Y;
-        Gizmos2D.RectCenter(View.Camera2D, center, size, Color.White);
+        Gizmos2D.RectCenter(View.Camera2D, center, size, Color.Grey(.8f));
         if (value)
             Gizmos2D.RectCenter(View.Camera2D, center, size * .8f, Color.Grey(.4f));
-        Gizmos2D.Text(View.Camera2D, center + new Vec2(50, 0), 48, Color.White, name);
+        Gizmos2D.Text(View.Camera2D, center + new Vec2(50, 0), 48, Color.Black, name);
         var rect = new Rect<Vec2>(center - size / 2, center + size / 2);
         if (View.IsMouseButtonPressedLeft && rect.Contains(View.MousePosition))
         {
@@ -203,11 +203,11 @@ public class PresiContext
 
         var left = RelToSceen(new Vec2(widgetData.RelPosition.X - widgetData.Size.X / 2f, widgetData.RelPosition.Y));
         var right = RelToSceen(new Vec2(widgetData.RelPosition.X + widgetData.Size.X / 2f, widgetData.RelPosition.Y));
-        Gizmos2D.Line(View.Camera2D, left, right, Color.White, 10);
+        Gizmos2D.Line(View.Camera2D, left, right, Color.Black, 10);
         var t = (value - minValue) / (maxValue - minValue);
         t = double.Clamp(t, 0, 1);
-        Gizmos2D.Circle(View.Camera2D, Utils.Lerp(left, right, t), Color.White, 20);
-        Gizmos2D.AdvText(View.Camera2D, center + new Vec2(0, -40), 48, Color.White, name + " = " + value.ToString("N2"), centered: true);
+        Gizmos2D.Circle(View.Camera2D, Utils.Lerp(left, right, t), Color.Black, 20);
+        Gizmos2D.AdvText(View.Camera2D, center + new Vec2(0, -40), 48, Color.Black, name + " = " + value.ToString("N2"), centered: true);
         var rect = new Rect<Vec2>(center - new Vec2(width / 2, height / 2), center + new Vec2(width / 2, height / 2));
         if (View.IsMouseButtonDownLeft && rect.Contains(View.MousePosition))
         {
@@ -229,6 +229,8 @@ public class PresiContext
         SelectedWidget = widgetData;
     }
 
+
+    
 
     public void SliderCustomTitle(string title, ref double value, double minValue, double maxValue, Vec2 center, double width,
         [System.Runtime.CompilerServices.CallerFilePath]

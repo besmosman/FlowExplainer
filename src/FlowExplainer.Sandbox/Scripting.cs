@@ -6,59 +6,83 @@ using Newtonsoft.Json;
 
 namespace FlowExplainer;
 
-
-
-
-
 public static class Scripting
 {
     public static void Startup(World world)
     {
         // RebuildSpeetjensDatasets();
+        
+        foreach (var dataset in world.FlowExplainer.GetGlobalService<DatasetsService>().Datasets.Values)
+        {
+            if (!dataset.Loaded)
+            {
+                dataset.Load(dataset);
+                dataset.Loaded = true;
+            }
+            
+            var Q_ = dataset.VectorFields["Total Flux"];
+            var T_ = dataset.ScalerFields["Convective Temperature"];
+            var transportField = new ArbitraryField<Vec3, Vec2>(Q_.Domain, (x) =>
+            {
+                var q_ = Q_.Evaluate(x);
+                double t_ = T_.Evaluate(x);
+                if (double.Abs(t_) < 0.0001f)
+                    return Vec2.Zero;
+                return q_ / t_;
+            });
+            dataset.VectorFields["Q' / T'"] = transportField;
+            
+            
+            var y = new ArbitraryField<Vec3, Vec2>(Q_.Domain, (x) =>
+            {
+                var q_ = Q_.Evaluate(x);
+                double t_ = T_.Evaluate(x);
+                if (double.IsNaN(t_))
+                    return Vec2.Zero;
+                return q_ * -Math.Sign(t_);
+            });
+            dataset.VectorFields["Q' * (T'/|T'|)"] = y;
+        }
+
         LoadPeriodicCopies(world);
         SetGyreDataset(world);
         var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(4).Key;
         world.GetWorldService<DataService>().SetDataset(name);
-        world.GetWorldService<DataService>().currentSelectedVectorField = "Convection Flux";
         world.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
+        world.GetWorldService<DataService>().currentSelectedVectorField = "Convection Flux";
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
 
         //world.GetWorldService<DataService>().TimeMultiplier = .04;
-        var Q_ =  world.GetWorldService<DataService>().LoadedDataset.VectorFields["Total Flux"];
-        var T_ =  world.GetWorldService<DataService>().LoadedDataset.ScalerFields["Convective Temperature"];
-        var transportField = new ArbitraryField<Vec3, Vec2>(Q_.Domain, (x) => Q_.Evaluate(x) / T_.Evaluate(x));
 
-        world.GetWorldService<DataService>().LoadedDataset.VectorFields["Q' / T'"] = transportField;
+
         //world.AddVisualisationService(new StochasticConnectionVisualization());
         //world.AddVisualisationService<GridVisualizer>().SetGridDiagnostic(new StochasticConnectionVisualization.GridDiagnostics());
         //world.AddVisualisationService(new ArrowVisualizer());
 
         //world.GetWorldService<DataService>().TimeMultiplier = .1;
-        world.AddVisualisationService(new HeatEnergySimulation());
-        
+        //world.AddVisualisationService(new HeatEnergySimulation());
+
         /*world.AddVisualisationService<GridVisualizer>().SetGridDiagnostic(new LcsVelocityMagnitudeGridDiagnostic()
         {
-            
+
         });
         world.GetWorldService<GridVisualizer>().Continous = false;
         world.AddVisualisationService(new SurfacesTest()
         {
 
         });*/
-        /*
-        world.AddVisualisationService(new DensityPathStructures()
+        /*world.AddVisualisationService(new DensityPathStructures2()
         {
             InfluenceRadius = .005f,
             ParticleCount = 10000,
             AccumelationFactor = .035f,
-        });
-        */
+        });*/
 
         /*world.AddVisualisationService(new HeatSimulationViewData());
         world.AddVisualisationService(new HeatSimulationService());
         world.AddVisualisationService(new HeatSimulationVisualizer());*/
-        
+
         /*var gridDiagnostic = new UlamsGrid();
         var gridVisualizer = new GridVisualizer();
         world.AddVisualisationService(gridVisualizer);
@@ -66,8 +90,15 @@ public static class Scripting
         gridDiagnostic.Recompute(gridVisualizer);
         */
 
-        //world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new DemoPresentation());
-        //world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new Progress27FebPresentation());
+        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+        
+        /*world.AddVisualisationService(new DensityPathStructures2()
+        {
+            InfluenceRadius = .005f,
+            ParticleCount = 10000,
+            AccumelationFactor = .035f,
+        });*/
     }
 
     private static void LoadPeriodicCopies(World world)

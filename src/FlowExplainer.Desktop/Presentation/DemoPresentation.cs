@@ -7,6 +7,33 @@ public class DemoPresentation : NewPresentation
     public override void Draw()
     {
         CurrentLayout = null;
+        if (BeginSlide("Latex Test"))
+        {
+            Title("Latex Test");
+            Presi.MainParagraph(
+                @"Description text, bla bla latex formula:
+
+
+
+
+Next formula:
+");
+            Presi.LatexCentered(
+                @"$$A(\mathbf{x}) \approx \sum_{i} F(\|\mathbf{x} - \mathbf{x}_i\|, \tau_i)$$",
+                new Vec2(0.5, 0.63), .2);
+
+            Presi.LatexCentered(
+                @"$$\frac{d \mathbf{x}^{M}}{d t} = M_n\bigl(x(t), t\bigr)
+\;\Rightarrow\;
+x^{M}(t) = x_0 + \int_{0}^{t} M_n\bigl(x(\eta), \eta\bigr)\, d\eta
+\;\equiv\;
+\Phi_{t}^{M}(x_0).$$",
+                new Vec2(0.5, 0.36), .15);
+            /*Presi.Text("top", new Vec2(0.5, 0.1-.05), .01, true, Color.Red);
+            Presi.Text("bot", new Vec2(0.5, 0.0-.05), .01, true, Color.Red);*/
+            // Presi.MainParagraph("Test");
+        }
+
         if (BeginSlide("Title Slide"))
         {
             Title("Demo Presentation");
@@ -39,7 +66,7 @@ public class DemoPresentation : NewPresentation
         if (BeginSlide("Slide 2"))
         {
             Title("Multiple steps per slide");
-            Presi.Text("Movement between steps", new Vec2(.2f+  Presi.CurrentStep / 3f, .5f), .03f, true, Color.White);
+            Presi.Text("Movement between steps", new Vec2(.2f + Presi.CurrentStep / 3f, .5f), .03f, true, Color.White);
             if (IsFirstStep())
             {
                 Presi.MainParagraph("Step 0");

@@ -17,6 +17,7 @@ public class Dataset
         Load = load;
     }
 
+    
     public Dataset Clone()
     {
         return new Dataset(new Dictionary<string, string>(Properties), Load);
