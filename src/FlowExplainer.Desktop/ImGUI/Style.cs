@@ -6,7 +6,7 @@ public class Style
     public Color HighlightColor;
     public Color TextColor;
 
-    public static Style Current => Light;
+    public static Style Current => Dark;
 
     private static readonly Style Dark = new Style()
     {

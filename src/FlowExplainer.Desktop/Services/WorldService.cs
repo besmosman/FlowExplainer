@@ -21,7 +21,7 @@ public abstract class WorldService : Service
 
 
     public DataService DataService => GetRequiredWorldService<DataService>();
-    
+
     public virtual void OnEnable()
     {
     }
@@ -44,7 +44,21 @@ public abstract class WorldService : Service
     }
 
 
-
+    public virtual IEnumerable<ISelectableVectorField<Vec3, double>> GetSelectableVec3Vec1()
+    {
+        yield break;
+    }
+    
+    public virtual IEnumerable<ISelectableVectorField<Vec2, double>> GetSelectableVec2Vec1()
+    {
+        yield break;
+    }
+    
+    public virtual IEnumerable<ISelectableVectorField<Vec3, Vec2>> GetSelectableVec3Vec2()
+    {
+        yield break;
+    }
+    
     public virtual void OnDisable()
     {
 

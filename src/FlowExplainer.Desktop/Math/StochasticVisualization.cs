@@ -195,7 +195,7 @@ public class StochasticVisualization : WorldService, IAxisTitle
 
     public override void DrawImGuiDataSettings()
     {
-        ImGuiHelpers.OptonalVectorFieldSelector(GetRequiredWorldService<DataService>().LoadedDataset, ref AltVectorfield);
+        ImGuiHelpers.OptonalVectorFieldSelector(World, ref AltVectorfield);
         ImGuiHelpers.OptionalGradientSelector(ref AltGradient);
         base.DrawImGuiDataSettings();
     }

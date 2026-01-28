@@ -80,6 +80,14 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         material = new Material(Shader.DefaultWorldSpaceVertex, new Shader("Assets/Shaders/grid-reg.frag", ShaderType.FragmentShader));
     }
 
+    public override IEnumerable<ISelectableVectorField<Vec2, double>> GetSelectableVec2Vec1()
+    {
+        yield return new SelectableVectorField<Vec2, double>(Name + GetTitle(),
+            new ArbitraryField<Vec2, double>(
+                RegularGrid.Domain,
+                (x) => RegularGrid.Evaluate(x).Value));
+    }
+    
     public void SetGridDiagnostic(IGridDiagnostic visualizer)
     {
         if (visualizer.GetType() == typeof(LICGridDiagnostic))
@@ -174,7 +182,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
 
         gridbuffer.Use();
         gridbuffer.Upload();
-        
+
         var nextMin = double.MaxValue;
         var nextMax = double.MinValue;
         for (int i = 0; i < gridbuffer.Data.Length; i++)
@@ -197,7 +205,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             min = nextMin;
         if (!double.IsRealNumber(max))
             max = nextMax;
-            max = double.Max(max, min);
+        max = double.Max(max, min);
     }
 
     private void ResetGridUpdateTask()

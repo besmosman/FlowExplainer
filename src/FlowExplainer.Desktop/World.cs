@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Microsoft.VisualBasic;
 using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer
@@ -37,6 +38,23 @@ namespace FlowExplainer
 
             if (!service.IsEnabled)
                 service.Enable();
+        }
+
+        public IEnumerable<ISelectableVectorField<I, O>> GetSelectableVectorFields<I, O>() where I : IVec<I, double>
+        {
+            if (typeof(I) == typeof(Vec2) && typeof(O) == typeof(double))
+                foreach (var s in Services)
+                foreach (var f in s.GetSelectableVec2Vec1())
+                    yield return (ISelectableVectorField<I, O>)f;
+            else if (typeof(I) == typeof(Vec3) && typeof(O) == typeof(Vec2))
+                foreach (var s in Services)
+                foreach (var f in s.GetSelectableVec3Vec2())
+                    yield return (ISelectableVectorField<I, O>)f;
+            else if (typeof(I) == typeof(Vec3) && typeof(O) == typeof(double))
+                foreach (var s in Services)
+                foreach (var f in s.GetSelectableVec3Vec1())
+                    yield return (ISelectableVectorField<I, O>)f;
+            else throw new NotImplementedException();
         }
 
         public void ReplaceVisualizationService(WorldService old, WorldService service)

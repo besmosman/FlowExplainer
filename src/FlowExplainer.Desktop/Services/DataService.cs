@@ -28,6 +28,8 @@ public class DataService : WorldService
     public override string? CategoryN => "General";
     public override string? Description => "Global dataset settings";
 
+
+
     public override void Initialize()
     {
         /*
@@ -78,6 +80,18 @@ public class DataService : WorldService
             LoadedDataset.Load(LoadedDataset);
             LoadedDataset.Loaded = true;
         }
+    }
+
+    public override IEnumerable<ISelectableVectorField<Vec3, double>> GetSelectableVec3Vec1()
+    {
+        foreach (var f in LoadedDataset.ScalerFields)
+            yield return new SelectableVectorField<Vec3, double>(f.Key, f.Value);
+    }
+
+    public override IEnumerable<ISelectableVectorField<Vec3, Vec2>> GetSelectableVec3Vec2()
+    {
+        foreach (var f in LoadedDataset.VectorFields)
+            yield return new SelectableVectorField<Vec3, Vec2>(f.Key, f.Value);
     }
 
     public override void Draw(RenderTexture rendertarget, View view)

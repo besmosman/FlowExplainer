@@ -46,7 +46,7 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
         var field = AltVectorField ?? dat.VectorField;
         //ImGui.SameLine();
         ImGuiHelpers.OptionalDoubleSlider("Alt time", ref AltTime, field.Domain.RectBoundary.Min.Last, field.Domain.RectBoundary.Max.Last);
-        ImGuiHelpers.OptonalVectorFieldSelector(GetRequiredWorldService<DataService>().LoadedDataset, ref AltVectorField);
+        ImGuiHelpers.OptonalVectorFieldSelector(World, ref AltVectorField);
         base.DrawImGuiDataSettings();
     }
 

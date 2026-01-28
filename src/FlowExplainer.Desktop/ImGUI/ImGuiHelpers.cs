@@ -96,7 +96,7 @@ public class ImGuiHelpers
             v = t;
     }
 
-    public static void OptonalVectorFieldSelector(Dataset dataset, ref IVectorField<Vec3, Vec2>? vectorField)
+    public static void OptonalVectorFieldSelector(World world, ref IVectorField<Vec3, Vec2>? vectorField)
     {
         var f = vectorField != null;
         ImGui.Text("Alt vectorfield");
@@ -111,13 +111,14 @@ public class ImGuiHelpers
         if (!f)
             vectorField = null;
 
+        var vectorfields = world.GetSelectableVectorFields<Vec3, Vec2>().ToList();
         if (vectorField == null && f)
-            vectorField = dataset.VectorFields.First().Value;
-        foreach (var loadedDatasetVectorField in dataset.VectorFields)
+            vectorField =  vectorfields.First().VectorField;
+        foreach (var selectable in vectorfields)
         {
-            if (loadedDatasetVectorField.Value == vectorField)
+            if (selectable.VectorField == vectorField)
             {
-                name = loadedDatasetVectorField.Key;
+                name = selectable.DisplayName;
             }
         }
 
@@ -125,9 +126,9 @@ public class ImGuiHelpers
             ImGui.BeginDisabled();
         if (ImGui.BeginCombo("##a", name))
         {
-            foreach (var v in dataset.VectorFields)
-                if (ImGui.Selectable(v.Key))
-                    vectorField = v.Value;
+            foreach (var v in vectorfields)
+                if (ImGui.Selectable(v.DisplayName))
+                    vectorField = v.VectorField;
 
             ImGui.EndCombo();
         }
@@ -135,9 +136,7 @@ public class ImGuiHelpers
         if (!f)
             ImGui.EndDisabled();
     }
-
-
-
+    
     public static bool SliderInt(string name, ref int f, int min, int max)
     {
         if (ImGui.SliderInt(name, ref f, min, max))
@@ -193,7 +192,7 @@ public class ImGuiHelpers
         ImGui.SameLine();
         ImGui.Text("Color");
         ImGui.EndGroup();
-        if(ImGui.IsItemClicked())
+        if (ImGui.IsItemClicked())
             ImGui.OpenPopup(name + " picker popup");
         if (ImGui.BeginPopup(name + " picker popup"))
         {

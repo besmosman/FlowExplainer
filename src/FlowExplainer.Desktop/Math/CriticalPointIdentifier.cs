@@ -5,6 +5,24 @@ namespace FlowExplainer;
 
 public static class FD
 {
+
+    extension<Vec>(IVectorField<Vec, double> scalerfield) where Vec : IVec<Vec, double>
+    {
+        public Vec FiniteDifferenceGradient(Vec x, double h)
+        {
+            var d = Vec.Zero;
+            for (int i = 0; i < x.ElementCount; i++)
+            {
+                var leftCoords = x;
+                var rightCoords = x;
+                leftCoords[i] -= h;
+                rightCoords[i] += h;
+                d[i] = (scalerfield.Evaluate(rightCoords) - scalerfield.Evaluate(leftCoords)) / (2 * h);
+            }
+            return d;
+        }
+    }
+
     public struct Neighbors(Vec2 left, Vec2 right, Vec2 up, Vec2 down, Vec2 delta)
     {
         public double dFx_dx => FD.Derivative(left.X, right.X, delta.X);

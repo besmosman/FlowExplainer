@@ -79,7 +79,8 @@ namespace FlowExplainer
                 {
                     Profiler.Begin("Frame");
                     double startTime = total.Elapsed.TotalSeconds;
-                    DeltaTime = (double)w.Elapsed.TotalSeconds;
+                    DeltaTime = w.Elapsed.TotalSeconds;
+                    DeltaTime = double.Min(DeltaTime, 1 / 10f);//limits visual artifacts when moving/freezing the window.
                     Time += w.Elapsed;
                     w.Restart();
 

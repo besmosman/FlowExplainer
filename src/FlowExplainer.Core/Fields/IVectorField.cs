@@ -14,6 +14,24 @@ public interface IPeriodicVectorField<TInput, TOutput> : IVectorField<TInput, TO
 }
 */
 
+public struct SelectableVectorField<TInput, TOutput> : ISelectableVectorField<TInput, TOutput> where TInput : IVec<TInput, double>
+{
+    public SelectableVectorField(string displayName, IVectorField<TInput, TOutput> vectorField)
+    {
+        DisplayName = displayName;
+        VectorField = vectorField;
+    }
+    
+    public string DisplayName { get; init; }
+    public IVectorField<TInput, TOutput> VectorField { get; init; }
+}
+
+public interface ISelectableVectorField<TInput, TOutput> where TInput : IVec<TInput, double>
+{
+    public string DisplayName { get; }
+    public IVectorField<TInput, TOutput> VectorField { get; }
+}
+
 public interface IVectorField<TInput, TOutput> where TInput : IVec<TInput, double>
 {
 
@@ -42,7 +60,7 @@ public interface IVectorField<TInput, TOutput> where TInput : IVec<TInput, doubl
         public IDomain<TInput> Domain => domain;
         public IBounding<TInput> Bounding { get; } = BoundingFunctions.None<TInput>();
         public string DisplayName { get; } = "Constant";
-        
+
         public ConstantField(TOutput value, IDomain<TInput> domain)
         {
             Value = value;

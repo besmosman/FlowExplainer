@@ -145,7 +145,7 @@ public class ArrowVisualizer : WorldService, IAxisTitle
         var dat = GetRequiredWorldService<DataService>();
         var bounds = (AltVectorfield ?? dat.VectorField).Domain.RectBoundary;
         ImGuiHelpers.OptionalDoubleSlider("Alt time", ref AltTime, bounds.Min.Last, bounds.Max.Last);
-        ImGuiHelpers.OptonalVectorFieldSelector(dat.LoadedDataset, ref AltVectorfield);
+        ImGuiHelpers.OptonalVectorFieldSelector(World, ref AltVectorfield);
         ImGuiHelpers.OptionalGradientSelector(ref AltGradient);
         base.DrawImGuiDataSettings();
     }

@@ -8,10 +8,24 @@ namespace FlowExplainer;
 
 public static class Scripting
 {
+    public static void SurfaceExtractionSetup(World world)
+    {
+        var gridVisualizer = new GridVisualizer()
+        {
+
+        };
+        world.AddVisualisationService(gridVisualizer);
+        gridVisualizer.SetGridDiagnostic(new ScalerGridDiagnostic());
+        world.GetWorldService<DataService>().currentSelectedScaler = "Convective Temperature";
+        world.AddVisualisationService(new SpaceTimeSurfaceStructureExtractor
+        {
+        });
+    }
+
     public static void Startup(World world)
     {
         // RebuildSpeetjensDatasets();
-        
+
         foreach (var dataset in world.FlowExplainer.GetGlobalService<DatasetsService>().Datasets.Values)
         {
             if (!dataset.Loaded)
@@ -19,7 +33,7 @@ public static class Scripting
                 dataset.Load(dataset);
                 dataset.Loaded = true;
             }
-            
+
             var Q_ = dataset.VectorFields["Total Flux"];
             var T_ = dataset.ScalerFields["Convective Temperature"];
             var transportField = new ArbitraryField<Vec3, Vec2>(Q_.Domain, (x) =>
@@ -31,8 +45,8 @@ public static class Scripting
                 return q_ / t_;
             });
             dataset.VectorFields["Q' / T'"] = transportField;
-            
-            
+
+
             var y = new ArbitraryField<Vec3, Vec2>(Q_.Domain, (x) =>
             {
                 var q_ = Q_.Evaluate(x);
@@ -46,6 +60,8 @@ public static class Scripting
 
         LoadPeriodicCopies(world);
         SetGyreDataset(world);
+
+
         var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(4).Key;
         world.GetWorldService<DataService>().SetDataset(name);
         world.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
@@ -53,6 +69,7 @@ public static class Scripting
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
 
+        SurfaceExtractionSetup(world);
         //world.GetWorldService<DataService>().TimeMultiplier = .04;
 
 
@@ -90,9 +107,9 @@ public static class Scripting
         gridDiagnostic.Recompute(gridVisualizer);
         */
 
-        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new Progress27FebPresentation());
-        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
-        
+        //world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new Progress27FebPresentation());
+        //world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+
         /*world.AddVisualisationService(new DensityPathStructures2()
         {
             InfluenceRadius = .005f,

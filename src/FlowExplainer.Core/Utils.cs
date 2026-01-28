@@ -15,6 +15,18 @@ public static class Utils
     {
         return a.Max(b);
     }
+    
+    /*
+    Vector2 Rotate(Vec v, float angleRadians)
+    {
+        float cos = MathF.Cos(angleRadians);
+        float sin = MathF.Sin(angleRadians);
+        return new Vector2(
+            v.X * cos - v.Y * sin,
+            v.X * sin + v.Y * cos
+        );
+    }
+    */
 
     public static T Min<T>(T a, T b) where T : IVec<T, double>
     {
