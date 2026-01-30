@@ -12,9 +12,9 @@ public class ArrowVisualizer : WorldService, IAxisTitle
 
 
         ImGui.SliderInt("Grid Cells", ref GridCells, 0, 1500);
-        ImGuiHelpers.SliderFloat("Length", ref Length, 0, 1);
+        ImGuiHelpers.Slider("Length", ref Length, 0, 1);
         ImGui.Checkbox("Color by gradient", ref colorByGradient);
-        ImGuiHelpers.SliderFloat("Thickness", ref Thickness, 0, dat.VectorField.Domain.RectBoundary.Size.Length() / 10f);
+        ImGuiHelpers.Slider("Thickness", ref Thickness, 0, dat.VectorField.Domain.RectBoundary.Size.Length() / 10f);
         ImGui.Checkbox("Auto Resize", ref AutoResize);
         base.DrawImGuiSettings();
     }

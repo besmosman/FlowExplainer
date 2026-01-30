@@ -57,8 +57,8 @@ public class HeatStructureGridDiagnostic : IGridDiagnostic
     public void OnImGuiEdit(GridVisualizer gridVisualizer)
     {
         ImGui.Checkbox("Reverse", ref Reverse);
-        ImGuiHelpers.SliderFloat("T", ref T, 0, 1);
+        ImGuiHelpers.Slider("T", ref T, 0, 1);
         ImGuiHelpers.SliderInt("K", ref K, 1, 100);
-        ImGuiHelpers.SliderFloat("M", ref M, 1, 1000);
+        ImGuiHelpers.Slider("M", ref M, 1, 1000);
     }
 }

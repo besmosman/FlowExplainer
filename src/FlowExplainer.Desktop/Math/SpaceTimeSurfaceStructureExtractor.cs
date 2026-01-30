@@ -5,7 +5,7 @@ namespace FlowExplainer;
 public class SpaceTimeSurfaceStructureExtractor : WorldService
 {
     public IVectorField<Vec2, double> ScalerField;
-    public double TargetValue => 0.01;
+    public double TargetValue => -0.0;
     public override string? Name => "Spacetime Surface Extractor";
 
 
@@ -22,6 +22,7 @@ public class SpaceTimeSurfaceStructureExtractor : WorldService
     {
         public List<Node> InternalNodes = new List<Node>();
         public double TimeSinceLastExtention = 0;
+        public bool Expanding = true;
 
         public Ending SnakeStart;
         public Ending SnakeEnd;
@@ -50,15 +51,14 @@ public class SpaceTimeSurfaceStructureExtractor : WorldService
             // yield return (Nodes[^1], Nodes[0]);
         }
 
-        /*
         public IEnumerable<(Node, Node)> GetIndirectNeighbors()
         {
-            for (int i = 0; i < Nodes.Count - 2; i++)
+            for (int i = 0; i < InternalNodes.Count - 2; i++)
             {
-                yield return (Nodes[i], Nodes[i + 2]);
+                yield return (InternalNodes[i], InternalNodes[i + 2]);
             }
             // yield return (Nodes[^1], Nodes[0]);
-        }*/
+        }
     }
 
 
@@ -133,131 +133,152 @@ public class SpaceTimeSurfaceStructureExtractor : WorldService
         }*/
         var rect = new Rect<Vec2>(Vec2.Zero, new Vec2(1, .5f));
 
-        foreach (var s in Structures)
+        for (int i = 0; i < 1; i++)
         {
-            foreach (var n in s.GetAllNodes())
+            foreach (var s in Structures)
             {
-                n.Position += n.Velocity * dt;
-
-                var grad = ScalerField.FiniteDifferenceGradient(n.Position, .001f).Normalized();
-                var distanceToTarget = TargetValue - ScalerField.Evaluate(n.Position);
-                var C = distanceToTarget;
-                ApplyConstraint(n, 0.02f, -grad, C);
-            }
-
-            if (s.InternalNodes.Count > 3)
-            {
-                var f1 = -(s.InternalNodes[2].LastPosition - s.InternalNodes[0].LastPosition).Normalized() *  10.2f * dt * (MaxRestDistance-s.SnakeStart.RestDistance/2);
-                var f2 = (s.InternalNodes[^1].LastPosition - s.InternalNodes[^3].LastPosition).Normalized() * 10.2f * dt * (MaxRestDistance-s.SnakeEnd.RestDistance/2);
-                s.InternalNodes[0].Position += f1;
-               // s.InternalNodes[1].Position -= f2;
-               // s.InternalNodes[^2].Position -= f1;
-                s.InternalNodes[^1].Position += f2;
-            }
-
-            foreach (var ending in s.GetEndings())
-            {
-                var validDir = Vec2.Distance(ending.AttachedPriorNode.Position, ending.TemporaryNode.Position) > MaxRestDistance * 1.5f;
-
-                var snakingNode = ending.TemporaryNode;
-                if (ending.RestDistance < MaxRestDistance)
+                foreach (var n in s.GetAllNodes())
                 {
-                    ending.RestDistance += FlowExplainer.DeltaTime / 20f;
+                    n.Position += n.Velocity * dt;
+
+                    var grad = ScalerField.FiniteDifferenceGradient(n.Position, .0001f).NormalizedSafe();
+                    var distanceToTarget = TargetValue - ScalerField.Evaluate(n.Position);
+                    var C = distanceToTarget;
+                    ApplyConstraint(n, 0.04f, -grad, C);
                 }
-                else
-                {
-                    var validScaler = double.Abs(ScalerField.Evaluate(ending.TemporaryNode.Position) - TargetValue) < .01f;
-                    var validBounds = rect.Contains(ending.TemporaryNode.Position);
 
-                    if (validDir && validBounds && validScaler)
+                if (s.InternalNodes.Count > 3)
+                {
+                    var f1 = -(s.InternalNodes[2].LastPosition - s.InternalNodes[0].LastPosition).NormalizedSafe() * 0.2f * dt ;
+                    var f2 = (s.InternalNodes[^1].LastPosition - s.InternalNodes[^3].LastPosition).NormalizedSafe() * 0.2f * dt;
+                    // s.InternalNodes[1].Position -= f2;
+                    // s.InternalNodes[^2].Position -= f1;
+
+                    s.InternalNodes[0].Position += f1;
+                    s.InternalNodes[^1].Position += f2;
+                }
+
+                if (s.Expanding)
+                    foreach (var ending in s.GetEndings())
                     {
-                        ending.AttachedPriorNode = ending.AttachedNode;
-                        ending.AttachedNode = ending.TemporaryNode;
-                        if (ending.IsStart)
-                            s.InternalNodes.Insert(0, ending.TemporaryNode);
+                        var validDir = Vec2.Distance(ending.AttachedPriorNode.Position, ending.TemporaryNode.Position) > MaxRestDistance * 1.8f;
+
+                        var snakingNode = ending.TemporaryNode;
+                        if (ending.RestDistance < MaxRestDistance)
+                        {
+                            ending.RestDistance += FlowExplainer.DeltaTime / 20f;
+                        }
                         else
-                            s.InternalNodes.Add(ending.TemporaryNode);
-                        ending.TemporaryNode = new Node(ending.TemporaryNode.Position);
-                        ending.RestDistance = 0;
+                        {
+                            var validScaler = double.Abs(ScalerField.Evaluate(ending.TemporaryNode.Position) - TargetValue) < .1f;
+                            var validBounds = rect.Contains(ending.TemporaryNode.Position) && ending.TemporaryNode.Position.Y > 0.01f;
+
+                            if (validDir && validBounds && validScaler)
+                            {
+                                ending.AttachedPriorNode = ending.AttachedNode;
+                                ending.AttachedNode = ending.TemporaryNode;
+                                if (ending.IsStart)
+                                    s.InternalNodes.Insert(0, ending.TemporaryNode);
+                                else
+                                    s.InternalNodes.Add(ending.TemporaryNode);
+                                ending.TemporaryNode = new Node(ending.TemporaryNode.Position);
+                                ending.RestDistance = 0;
+                            }
+                        }
+                        ending.RestDistance = double.Min(ending.RestDistance, MaxRestDistance);
+                        var pushDirection = (ending.AttachedNode.Position - ending.AttachedPriorNode.Position).NormalizedSafe();
+                        // ending.TemporaryNode.Position = ending.AttachedNode.Position - new Vec2(double.Cos(FlowExplainer.Time.TotalSeconds * 40), double.Sin(FlowExplainer.Time.TotalSeconds * 40)) * ending.RestDistance;
+                        var grad = ScalerField.FiniteDifferenceGradient(ending.TemporaryNode.Position, .0001f).NormalizedSafe();
+
+                        var dir = new Vec2(-grad.Y, grad.X);
+                        if (Vec2.Dot(dir.NormalizedSafe(), pushDirection) < 0)
+                            dir *= -1;
+
+                        ending.TemporaryNode.Position = ending.AttachedNode.Position + dir * ending.RestDistance;
+                        ending.TemporaryNode.Position = ending.AttachedNode.Position - new Vec2(double.Cos(FlowExplainer.Time.TotalSeconds * 40), double.Sin(FlowExplainer.Time.TotalSeconds * 40)) * ending.RestDistance;
+                        // if (validDir)
+                        //     Gizmos2D.Instanced.RegisterCircle(ending.TemporaryNode.Position, .01f, Color.White);
+
+
+                        /*var dis = Vec2.Distance(ending.AttachedPriorNode.Position, ending.TemporaryNode.Position);
+                        if (dis < MaxRestDistance)
+                            ending.TemporaryNode.Position += pushDirection * .1f * dt;*/
+
+
                     }
-                }
-                ending.RestDistance = double.Min(ending.RestDistance, MaxRestDistance);
-                var pushDirection = (ending.AttachedNode.Position - ending.AttachedPriorNode.Position).Normalized();
-                ending.TemporaryNode.Position = ending.AttachedNode.Position - new Vec2(double.Cos(FlowExplainer.Time.TotalSeconds * 40), double.Sin(FlowExplainer.Time.TotalSeconds * 40)) * ending.RestDistance;
-                if (validDir)
-                    Gizmos2D.Instanced.RegisterCircle(ending.TemporaryNode.Position, .01f, Color.White);
-
-
-                /*var dis = Vec2.Distance(ending.AttachedPriorNode.Position, ending.TemporaryNode.Position);
-                if (dis < MaxRestDistance)
-                    ending.TemporaryNode.Position += pushDirection * .1f * dt;*/
-
-
             }
-        }
 
 
-        foreach (var s in Structures)
-        {
-            /*for (int i = 1; i < s.Nodes.Count - 1; i++)
+            foreach (var s in Structures)
             {
-                var cur = s.Nodes[i];
-                var prev = s.Nodes[i + 1];
-                var next = s.Nodes[i - 1];
+                /*for (int i = 1; i < s.Nodes.Count - 1; i++)
+                {
+                    var cur = s.Nodes[i];
+                    var prev = s.Nodes[i + 1];
+                    var next = s.Nodes[i - 1];
 
-                PointToSegment2D(cur.Position, prev.Position, next.Position, out var direction, out var closestPoint);
+                    PointToSegment2D(cur.Position, prev.Position, next.Position, out var direction, out var closestPoint);
 
-                var gradient = direction;
-                var compliance = 2.1;
+                    var gradient = direction;
+                    var compliance = 2.1;
+                    var a_ = compliance / (dt * dt);
+                    var C = Vec2.Distance(closestPoint, direction);
+                    var w = 1;
+                    var deltaLambda = -C / (w + a_);
+                    cur.Position += gradient * deltaLambda;
+                }*/
+            }
+
+            void ApplyConstraint(Node node, double compliance, Vec2 grad, double C)
+            {
                 var a_ = compliance / (dt * dt);
-                var C = Vec2.Distance(closestPoint, direction);
-                var w = 1;
-                var deltaLambda = -C / (w + a_);
-                cur.Position += gradient * deltaLambda;
-            }*/
-        }
-
-        void ApplyConstraint(Node node, double compliance, Vec2 grad, double C)
-        {
-            var a_ = compliance / (dt * dt);
-            var deltaLambda = -C / (1 + a_);
-            node.Position += grad * deltaLambda;
-        }
-
-        foreach (var s in Structures)
-        {
-            foreach (var con in s.GetNoneEndingNeighbors())
-            {
-                var a = con.Item1;
-                var b = con.Item2;
-                var gradient = (a.Position - b.Position).Normalized();
-                var C = Vec2.Distance(a.Position, b.Position) - MaxRestDistance;
-                ApplyConstraint(a, 0.001, gradient, C);
-                ApplyConstraint(b, 0.001, -gradient, C);
+                var deltaLambda = -C / (1 + a_);
+                node.Position += grad * deltaLambda;
             }
 
-            foreach (var ending in s.GetEndings())
+            foreach (var s in Structures)
             {
-                var a = ending.TemporaryNode;
-                var b = ending.AttachedNode;
-                var gradient = (a.Position - b.Position).Normalized();
-                var C = Vec2.Distance(a.Position, b.Position) - ending.RestDistance;
-                //ApplyConstraint(a, 0.01, gradient, C);
-                //ApplyConstraint(b, 0.1, -gradient, C);
+                foreach (var con in s.GetNoneEndingNeighbors())
+                {
+                    var a = con.Item1;
+                    var b = con.Item2;
+                    var gradient = (a.Position - b.Position).NormalizedSafe();
+                    var C = Vec2.Distance(a.Position, b.Position) - MaxRestDistance;
+                    ApplyConstraint(a, 0.01, gradient, C);
+                    ApplyConstraint(b, 0.01, -gradient, C);
+                }
 
+                foreach (var con in s.GetIndirectNeighbors())
+                {
+                    var a = con.Item1;
+                    var b = con.Item2;
+                    var gradient = (a.Position - b.Position).NormalizedSafe();
+                    var C = Vec2.Distance(a.Position, b.Position) - MaxRestDistance * 2;
+                    // ApplyConstraint(a, 0.01, gradient, C);
+                    // ApplyConstraint(b, 0.01, -gradient, C);
+                }
+                foreach (var ending in s.GetEndings())
+                {
+                    var a = ending.TemporaryNode;
+                    var b = ending.AttachedNode;
+                    var gradient = (a.Position - b.Position).NormalizedSafe();
+                    var C = Vec2.Distance(a.Position, b.Position) - ending.RestDistance;
+                    //ApplyConstraint(a, 0.01, gradient, C);
+                    //ApplyConstraint(b, 0.1, -gradient, C);
+
+                }
+            }
+            foreach (var s in Structures)
+            {
+                foreach (var n in s.InternalNodes)
+                {
+                    //n.Velocity = (n.Position - n.LastPosition) / (dt);
+                    //n.Velocity /= 2f;
+                    n.Position = rect.Clamp(n.Position);
+                    n.LastPosition = n.Position;
+                }
             }
         }
-        foreach (var s in Structures)
-        {
-            foreach (var n in s.InternalNodes)
-            {
-                //n.Velocity = (n.Position - n.LastPosition) / (dt);
-                //n.Velocity /= 2f;
-                n.Position = rect.Clamp(n.Position);
-                n.LastPosition = n.Position;
-            }
-        }
-
         foreach (var s in Structures)
         {
             foreach (var con in s.GetNoneEndingNeighbors())
@@ -268,13 +289,13 @@ public class SpaceTimeSurfaceStructureExtractor : WorldService
 
         foreach (var s in Structures)
         {
-
-
-            foreach (var n in s.GetEndings())
-            {
-                Gizmos2D.Instanced.RegisterCircle(n.TemporaryNode.Position, .005f, Color.Red);
-                Gizmos2D.Instanced.RegisterLine(n.TemporaryNode.Position, n.AttachedNode.Position, Color.Red, .001f);
-            }
+            
+            if (s.Expanding)
+                foreach (var n in s.GetEndings())
+                {
+                    Gizmos2D.Instanced.RegisterCircle(n.TemporaryNode.Position, .005f, Color.Red);
+                    Gizmos2D.Instanced.RegisterLine(n.TemporaryNode.Position, n.AttachedNode.Position, Color.Red, .001f);
+                }
             foreach (var n in s.InternalNodes)
             {
                 Gizmos2D.Instanced.RegisterCircle(n.Position, .005f, Color.Blue);
@@ -292,6 +313,14 @@ public class SpaceTimeSurfaceStructureExtractor : WorldService
         if (ImGui.Button("Reset"))
         {
             Initialize();
+        }
+        
+        if (ImGui.Button("Stop Expanding"))
+        {
+            foreach (var s in Structures)
+            {
+                s.Expanding = false;
+            }
         }
         base.DrawImGuiSettings();
     }

@@ -21,6 +21,15 @@ public static class Scripting
         {
         });
     }
+    
+    public static void SurfaceExtractionSetup2(World world)
+    {
+        world.FlowExplainer.GetGlobalService<ViewsService>().Views[0].Is3DCamera = true;
+        world.AddVisualisationService(new Axis3D());
+        world.AddVisualisationService(new SpaceTimeSurfaceStructureExtractor2
+        {
+        });
+    }
 
     public static void Startup(World world)
     {
@@ -69,7 +78,7 @@ public static class Scripting
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
 
-        SurfaceExtractionSetup(world);
+        //SurfaceExtractionSetup2(world);
         //world.GetWorldService<DataService>().TimeMultiplier = .04;
 
 
@@ -107,8 +116,8 @@ public static class Scripting
         gridDiagnostic.Recompute(gridVisualizer);
         */
 
-        //world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new Progress27FebPresentation());
-        //world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new DemoPresentation());
+        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
 
         /*world.AddVisualisationService(new DensityPathStructures2()
         {

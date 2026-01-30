@@ -31,7 +31,7 @@ public class StochasticStructureGridDiagnostic : IGridDiagnostic
     }
 }
 
-public class ScalerGridDiagnostic : IGridDiagnostic
+public class    ScalerGridDiagnostic : IGridDiagnostic
 {
     public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {

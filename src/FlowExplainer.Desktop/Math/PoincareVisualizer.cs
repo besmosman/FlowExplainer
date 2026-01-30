@@ -36,8 +36,8 @@ public class PoincareVisualizer : WorldService, IAxisTitle
         ImGui.SliderInt("Periods", ref Periods, 0, 5000);
         ImGui.SliderInt("Integrations per period", ref StepsPerPeriod, 0, 2000);
         ImGui.SliderInt("Start points", ref StartPoints, 0, 2000);
-        ImGuiHelpers.SliderFloat("Render radius", ref RenderRadius, 0, .1f);
-        ImGuiHelpers.SliderFloat("Offset", ref Offset, 0, dat.VectorField.Domain.RectBoundary.Size.Last);
+        ImGuiHelpers.Slider("Render radius", ref RenderRadius, 0, .1f);
+        ImGuiHelpers.Slider("Offset", ref Offset, 0, dat.VectorField.Domain.RectBoundary.Size.Last);
         if (ImGui.Button("Generate"))
         {
             var integrator = IIntegrator<Vec3, Vec2>.Rk4;

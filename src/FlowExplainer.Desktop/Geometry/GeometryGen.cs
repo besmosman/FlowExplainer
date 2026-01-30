@@ -276,8 +276,12 @@ namespace FlowExplainer
                     indices.Add(i3);
                 }
             }
-
-            return new Geometry(vertices.ToArray(), indices.ToArray());
+            var array = vertices.ToArray();
+            foreach (ref var v in array.AsSpan())
+            {
+                v.Normal = -v.Position / v.Position.Length();
+            }
+            return new Geometry(array, indices.ToArray());
         }
     }
 }

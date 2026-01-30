@@ -91,10 +91,10 @@ public abstract class NewPresentation
             view.TargetSize = size;
         }
 
-        GL.Disable(EnableCap.Blend);
+        GL.Enable(EnableCap.Blend);
         widgetData.RenderMin = center - size / 2;
         widgetData.RenderMax = center + size / 2;
-        Gizmos2D.ImageCenteredInvertedY(Presi.View.Camera2D, view.PostProcessingTarget, center, size);
+        Gizmos2D.ImageCenteredInvertedY(Presi.View.Camera2D, view.PostProcessingTarget, center, size, double.Min(1,widgetData.TimeSinceLastMovement*4));
         GL.Enable(EnableCap.Blend);
         return view;
     }

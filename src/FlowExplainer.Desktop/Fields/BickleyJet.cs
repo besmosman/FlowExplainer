@@ -37,6 +37,6 @@ public class BickleyJet : IVectorField<Vec3, Vec2>
 
     public void OnImGuiEdit()
     {
-        ImGuiHelpers.SliderFloat("M", ref M, 0, .1f);
+        ImGuiHelpers.Slider("M", ref M, 0, .1f);
     }
 }

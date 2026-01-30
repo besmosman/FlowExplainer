@@ -222,11 +222,11 @@ public class HeatSimulation3DVisualizer : WorldService
     {
         if (loaded.HasValue)
         {
-            ImGuiHelpers.SliderFloat("Heat Filter Min", ref heatfilterMin, 0, 1);
-            ImGuiHelpers.SliderFloat("Heat Filter Max", ref heatfilterMax, heatfilterMin, 1);
+            ImGuiHelpers.Slider("Heat Filter Min", ref heatfilterMin, 0, 1);
+            ImGuiHelpers.Slider("Heat Filter Max", ref heatfilterMax, heatfilterMin, 1);
             var min = loaded.Value.States[0].Time;
             var max = loaded.Value.States.Last().Time;
-            ImGuiHelpers.SliderFloat("Time Filter", ref timeFilter, min, max);
+            ImGuiHelpers.Slider("Time Filter", ref timeFilter, min, max);
         }
 
         if (ImGui.Button("Load heat.sim"))

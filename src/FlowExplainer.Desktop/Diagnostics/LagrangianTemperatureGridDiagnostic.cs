@@ -33,7 +33,7 @@ public class LagrangianTemperatureGridDiagnostic : IGridDiagnostic
     {
         var dat = gridVisualizer.GetRequiredWorldService<DataService>()!;
         double period = dat.VectorField.Domain.RectBoundary.Size.Last;
-        ImGuiHelpers.SliderFloat("T", ref T, -period, period);
+        ImGuiHelpers.Slider("T", ref T, -period, period);
     }
 
 }

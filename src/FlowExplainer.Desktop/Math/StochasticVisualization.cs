@@ -208,8 +208,8 @@ public class StochasticVisualization : WorldService, IAxisTitle
         }
 
         ImGuiHelpers.SliderInt("Particle Count", ref Count, 1, 100000);
-        ImGuiHelpers.SliderFloat("Reseed Rate", ref ReseedChance, 0, .1f);
-        ImGuiHelpers.SliderFloat("Render Radius", ref RenderRadius, 0, .1f);
+        ImGuiHelpers.Slider("Reseed Rate", ref ReseedChance, 0, .1f);
+        ImGuiHelpers.Slider("Render Radius", ref RenderRadius, 0, .1f);
         ImGui.NewLine();
         ImGui.Checkbox("Color by gradient", ref ColorByGradient);
         if (ColorByGradient)
@@ -217,7 +217,7 @@ public class StochasticVisualization : WorldService, IAxisTitle
         ImGuiHelpers.ColorPicker("Particle Color", ref Color);
         if (ColorByGradient)
             ImGui.EndDisabled();
-        ImGuiHelpers.SliderFloat("Max alpha", ref alpha, 0, .5f);
+        ImGuiHelpers.Slider("Max alpha", ref alpha, 0, .5f);
 
         if (ImGui.BeginCombo("Integration Mode", Enum.GetName(mode)))
         {
@@ -231,7 +231,7 @@ public class StochasticVisualization : WorldService, IAxisTitle
         bool dtUsed = mode == Mode.Instantaneous || mode == Mode.InstantaneousMerged;
         if (!dtUsed)
             ImGui.BeginDisabled();
-        ImGuiHelpers.SliderFloat("dt", ref dt, 0, .1f);
+        ImGuiHelpers.Slider("dt", ref dt, 0, .1f);
         if (!dtUsed)
             ImGui.EndDisabled();
         ImGui.Checkbox("Reverse", ref reverse);

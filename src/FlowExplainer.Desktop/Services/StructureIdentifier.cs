@@ -143,7 +143,7 @@ public class StructureIdentifier : WorldService
     private double radius = .1f;
     public override void DrawImGuiSettings()
     {
-        ImGuiHelpers.SliderFloat("Identify radius", ref radius, 0, .3f);
+        ImGuiHelpers.Slider("Identify radius", ref radius, 0, .3f);
         base.DrawImGuiSettings();
     }
 }

@@ -336,8 +336,8 @@ public class PointSimulation : WorldService
     
     public override void DrawImGuiSettings()
     {
-        ImGuiHelpers.SliderFloat("Advection Factor", ref advectionFactor, 0, 1);
-        ImGuiHelpers.SliderFloat("Diffusion Factor", ref diffusionFactor, 0, .1f);
+        ImGuiHelpers.Slider("Advection Factor", ref advectionFactor, 0, 1);
+        ImGuiHelpers.Slider("Diffusion Factor", ref diffusionFactor, 0, .1f);
         base.DrawImGuiSettings();
     }
 }

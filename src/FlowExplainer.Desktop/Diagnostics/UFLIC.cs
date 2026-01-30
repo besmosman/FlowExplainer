@@ -165,8 +165,8 @@ public class UFLIC : IGridDiagnostic
     {
         int max_steps = (int)double.Ceiling(expected_lifetime / dt) + 1;
 
-        ImGuiHelpers.SliderFloat("dt", ref dt, 0, .1f);
-        ImGuiHelpers.SliderFloat("expected_lifetime", ref expected_lifetime, 0, .4f);
+        ImGuiHelpers.Slider("dt", ref dt, 0, .1f);
+        ImGuiHelpers.Slider("expected_lifetime", ref expected_lifetime, 0, .4f);
 
         if (ImGui.Button("Step"))
         {

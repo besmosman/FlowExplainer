@@ -30,6 +30,6 @@ public class ArcLengthGridDiagnostic : IGridDiagnostic
 
     public void OnImGuiEdit(GridVisualizer gridVisualizer)
     {
-        ImGuiHelpers.SliderFloat("T", ref T, 0, 1);
+        ImGuiHelpers.Slider("T", ref T, 0, 1);
     }
 }

@@ -110,7 +110,7 @@ public class FTLEGridDiagnostic : IGridDiagnostic
     {
         var dat = vis.GetRequiredWorldService<DataService>()!;
         double period = dat.VectorField.Domain.RectBoundary.Size.Last;
-        if (ImGuiHelpers.SliderFloat("T", ref T, -period * 1, period * 1))
+        if (ImGuiHelpers.Slider("T", ref T, -period * 1, period * 1))
             vis.MarkDirty = true;
     }
 }

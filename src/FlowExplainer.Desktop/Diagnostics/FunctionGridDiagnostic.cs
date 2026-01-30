@@ -167,7 +167,7 @@ public class FunctionGridDiagnostic : IGridDiagnostic
 
     public void OnImGuiEdit(GridVisualizer gridVisualizer)
     {
-        ImGuiHelpers.SliderFloat("T", ref T, 0, 1000);
+        ImGuiHelpers.Slider("T", ref T, 0, 1000);
         ImGui.Checkbox("use gradient", ref UseGradient);
         ImGui.Checkbox("LCS", ref StandardLCS);
     }

@@ -34,9 +34,9 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
     public override void DrawImGuiSettings()
     {
         ImGui.SliderInt("Amount", ref amount, 100, 10_000);
-        ImGuiHelpers.SliderFloat("Thickness", ref thickness, 0, .01f);
-        ImGuiHelpers.SliderFloat("Speed", ref speed, 0, 10);
-        ImGuiHelpers.SliderFloat("Opacity", ref opacity, 0, 1);
+        ImGuiHelpers.Slider("Thickness", ref thickness, 0, .01f);
+        ImGuiHelpers.Slider("Speed", ref speed, 0, 10);
+        ImGuiHelpers.Slider("Opacity", ref opacity, 0, 1);
         base.DrawImGuiSettings();
     }
 

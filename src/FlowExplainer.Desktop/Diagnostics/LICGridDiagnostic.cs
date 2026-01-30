@@ -103,7 +103,7 @@ public class LICGridDiagnostic : IGridDiagnostic
     {
         var dat = vis.GetRequiredWorldService<DataService>()!;
         double period = dat.VectorField.Domain.RectBoundary.Size.Last;
-        ImGuiHelpers.SliderFloat("arc length", ref arcLength, 0, dat.VectorField.Domain.RectBoundary.Size.X / 5);
+        ImGuiHelpers.Slider("arc length", ref arcLength, 0, dat.VectorField.Domain.RectBoundary.Size.X / 5);
         ImGui.Checkbox("modulate by temp", ref modulateByTemp);
     }
 }

@@ -78,19 +78,19 @@ public class StochasticVisualization3D : WorldService
     {
         ImGui.Checkbox("Use Random 3D Field", ref UseRandomizedField);
         ImGuiHelpers.SliderInt("Particle Count", ref Count, 1, 100000);
-        ImGuiHelpers.SliderFloat("Radius", ref Radius, .001f, .1f);
+        ImGuiHelpers.Slider("Radius", ref Radius, .001f, .1f);
         //ImGui.Checkbox("Reverse", ref reverse);
-        ImGuiHelpers.SliderFloat("FadeIn Factor", ref FadeInFactor, 0, 1f);
-        ImGuiHelpers.SliderFloat("Reseed Chance", ref ReseedChance, 0, 1f);
-        ImGuiHelpers.SliderFloat("Max Alpha", ref maxAlpha, 0, 1f);
-        ImGuiHelpers.SliderFloat("dt", ref dt, .001f, .1f);
+        ImGuiHelpers.Slider("FadeIn Factor", ref FadeInFactor, 0, 1f);
+        ImGuiHelpers.Slider("Reseed Chance", ref ReseedChance, 0, 1f);
+        ImGuiHelpers.Slider("Max Alpha", ref maxAlpha, 0, 1f);
+        ImGuiHelpers.Slider("dt", ref dt, .001f, .1f);
 
-        ImGuiHelpers.SliderFloat("Threshold", ref threshold, 0, 1);
+        ImGuiHelpers.Slider("Threshold", ref threshold, 0, 1);
         ImGui.Checkbox("Volume Render", ref VolumeRender);
-        ImGuiHelpers.SliderFloat("Lerp factor", ref lerpFactor, 0, 1);
-        ImGuiHelpers.SliderFloat("Smooth Factor", ref SmoothFactor, 0, 1);
+        ImGuiHelpers.Slider("Lerp factor", ref lerpFactor, 0, 1);
+        ImGuiHelpers.Slider("Smooth Factor", ref SmoothFactor, 0, 1);
         ImGuiHelpers.SliderInt("Smooth Steps", ref SmoothSteps, 0, 32);
-        ImGuiHelpers.SliderFloat("Depth Scaling", ref depthScaling, 1, 10_0);
+        ImGuiHelpers.Slider("Depth Scaling", ref depthScaling, 1, 10_0);
         ImGuiHelpers.Combo("Mode", ref mode);
 
         base.DrawImGuiSettings();

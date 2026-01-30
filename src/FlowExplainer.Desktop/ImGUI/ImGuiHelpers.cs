@@ -9,7 +9,7 @@ public class ImGuiHelpers
     public static string LastMessage;
     public static DateTime MessageTime;
 
-    public static bool SliderFloat(string name, ref double f, double min, double max)
+    public static bool Slider(string name, ref double f, double min, double max)
     {
         float ff = (float)f;
         if (ImGui.SliderFloat(name, ref ff, (float)min, (float)max))
@@ -87,7 +87,7 @@ public class ImGuiHelpers
         {
             ImGui.BeginDisabled();
         }
-        ImGuiHelpers.SliderFloat($"##{name}", ref t, min, max);
+        ImGuiHelpers.Slider($"##{name}", ref t, min, max);
         if (v == null)
         {
             ImGui.EndDisabled();

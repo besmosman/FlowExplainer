@@ -44,7 +44,7 @@ public class LICS : IGridDiagnostic
     }
     public void OnImGuiEdit(GridVisualizer gridVisualizer)
     {
-        ImGuiHelpers.SliderFloat("T", ref T, 0, 2);
-        ImGuiHelpers.SliderFloat("Mutli", ref Multi, 0, 10);
+        ImGuiHelpers.Slider("T", ref T, 0, 2);
+        ImGuiHelpers.Slider("Mutli", ref Multi, 0, 10);
     }
 }

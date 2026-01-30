@@ -27,7 +27,7 @@ namespace FlowExplainer
             return ProjectionMode switch
             {
                 CameraProjectionMode.Orthographic => Matrix4x4.CreateOrthographic((float)RenderTargetSize.X / 90, (float)RenderTargetSize.Y / 90, (float)NearPlane, (float)FarPlane),
-                CameraProjectionMode.Perspective => Matrix4x4.CreatePerspectiveFieldOfView((float)(10 / 360f * double.Tau), (float)RenderTargetSize.X / (float)RenderTargetSize.Y, (float)NearPlane, (float)FarPlane),
+                CameraProjectionMode.Perspective => Matrix4x4.CreatePerspectiveFieldOfView((float)(20 / 360f * double.Tau), (float)RenderTargetSize.X / (float)RenderTargetSize.Y, (float)NearPlane, (float)FarPlane),
                 _ => throw new Exception($"{nameof(ProjectionMode)} is invalid")
             };
         }

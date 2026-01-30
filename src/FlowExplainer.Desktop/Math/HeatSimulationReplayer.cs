@@ -19,7 +19,7 @@ public class HeatSimulationReplayer : WorldService
 
         if (loaded.HasValue)
         {
-            ImGuiHelpers.SliderFloat("time", ref time, loaded.Value.States.First().Time, loaded.Value.States.Last().Time);
+            ImGuiHelpers.Slider("time", ref time, loaded.Value.States.First().Time, loaded.Value.States.Last().Time);
         }
 
         base.DrawImGuiSettings();

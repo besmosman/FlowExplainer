@@ -106,7 +106,7 @@ public class StochasticConnectionVisualization : WorldService
         public void OnImGuiEdit(GridVisualizer gridVisualizer)
         {
             ImGuiHelpers.Combo("Mode", ref type);
-            ImGuiHelpers.SliderFloat("Interpolation", ref interpolationFactor, 0, 1);
+            ImGuiHelpers.Slider("Interpolation", ref interpolationFactor, 0, 1);
         }
     }
 
@@ -594,10 +594,10 @@ public class StochasticConnectionVisualization : WorldService
     {
         ImGui.Checkbox("Draw particles", ref DrawParticles);
         ImGuiHelpers.SliderInt("Count", ref Count, 1, 100000);
-        ImGuiHelpers.SliderFloat("Reseed Rate", ref ReseedChance, 0, 3f);
-        ImGuiHelpers.SliderFloat("Kernel Radius", ref kernelSizeM, 0, 3f);
-        ImGuiHelpers.SliderFloat("Render Radius", ref RenderRadius, 0, .1f);
-        ImGuiHelpers.SliderFloat("T", ref LifeTime, 0, 4f);
+        ImGuiHelpers.Slider("Reseed Rate", ref ReseedChance, 0, 3f);
+        ImGuiHelpers.Slider("Kernel Radius", ref kernelSizeM, 0, 3f);
+        ImGuiHelpers.Slider("Render Radius", ref RenderRadius, 0, .1f);
+        ImGuiHelpers.Slider("T", ref LifeTime, 0, 4f);
         if (ImGui.Button("Reset"))
         {
             Init();

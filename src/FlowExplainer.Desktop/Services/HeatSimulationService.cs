@@ -37,10 +37,10 @@ public class HeatSimulationService : WorldService
     public override void DrawImGuiSettings()
     {
         var dat = GetRequiredWorldService<DataService>();
-        ImGuiHelpers.SliderFloat("Particle Spacing", ref particleSpacing, 0, dat.VectorField.Domain.RectBoundary.Size.X / 4f);
-        ImGuiHelpers.SliderFloat("Radiation Factor", ref basicLagrangianHeatSim.RadiationFactor, 0, .05f);
-        ImGuiHelpers.SliderFloat("Conduction Factor", ref basicLagrangianHeatSim.HeatDiffusionFactor, 0, .1f);
-        ImGuiHelpers.SliderFloat("Kernel Radius", ref basicLagrangianHeatSim.KernelRadius, 0, .5f);
+        ImGuiHelpers.Slider("Particle Spacing", ref particleSpacing, 0, dat.VectorField.Domain.RectBoundary.Size.X / 4f);
+        ImGuiHelpers.Slider("Radiation Factor", ref basicLagrangianHeatSim.RadiationFactor, 0, .05f);
+        ImGuiHelpers.Slider("Conduction Factor", ref basicLagrangianHeatSim.HeatDiffusionFactor, 0, .1f);
+        ImGuiHelpers.Slider("Kernel Radius", ref basicLagrangianHeatSim.KernelRadius, 0, .5f);
 
         if (ImGui.Button("Reset"))
         {

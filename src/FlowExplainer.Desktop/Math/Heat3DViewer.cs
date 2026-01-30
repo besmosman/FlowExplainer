@@ -85,10 +85,10 @@ public class Heat3DViewer : WorldService
     private double heatfilterTemp = 1;
     public override void DrawImGuiSettings()
     {
-        ImGuiHelpers.SliderFloat("Filter Radius", ref heatfilterSize, 0, 2);
-        ImGuiHelpers.SliderFloat("Filter Temperature", ref heatfilterTemp, 0, 2);
-        ImGuiHelpers.SliderFloat("z Scale", ref zScale, 1, 10);
-        ImGuiHelpers.SliderFloat("Depth Scaling", ref depthScaling, 1, 10_0);
+        ImGuiHelpers.Slider("Filter Radius", ref heatfilterSize, 0, 2);
+        ImGuiHelpers.Slider("Filter Temperature", ref heatfilterTemp, 0, 2);
+        ImGuiHelpers.Slider("z Scale", ref zScale, 1, 10);
+        ImGuiHelpers.Slider("Depth Scaling", ref depthScaling, 1, 10_0);
         base.DrawImGuiSettings();
     }
     /*private void Update()

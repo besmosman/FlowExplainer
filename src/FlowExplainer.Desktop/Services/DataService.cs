@@ -113,8 +113,8 @@ public class DataService : WorldService
 
     public override void DrawImGuiSettings()
     {
-        ImGuiHelpers.SliderFloat("Time Multiplier", ref TimeMultiplier, 0, 10);
-        ImGuiHelpers.SliderFloat("Time", ref SimulationTime, 0, LoadedDataset.VectorFields[currentSelectedVectorField].Domain.RectBoundary.Size.Z);
+        ImGuiHelpers.Slider("Time Multiplier", ref TimeMultiplier, 0, 10);
+        ImGuiHelpers.Slider("Time", ref SimulationTime, 0, LoadedDataset.VectorFields[currentSelectedVectorField].Domain.RectBoundary.Size.Z);
 
         VectorField.OnImGuiEdit();
 

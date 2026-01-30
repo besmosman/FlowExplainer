@@ -55,9 +55,9 @@ public class AnalyticalEvolvingVelocityField : IVectorField<Vec3, Vec2>
 
     public void OnImGuiEdit()
     {
-        ImGuiHelpers.SliderFloat("A", ref A, 0, 10);
-        ImGuiHelpers.SliderFloat("Epsilon", ref epsilon, 0, 2);
-        ImGuiHelpers.SliderFloat("w", ref w, 0, 2);
+        ImGuiHelpers.Slider("A", ref A, 0, 10);
+        ImGuiHelpers.Slider("Epsilon", ref epsilon, 0, 2);
+        ImGuiHelpers.Slider("w", ref w, 0, 2);
     }
 
     double streamFunction(Vec3 phase)

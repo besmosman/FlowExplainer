@@ -177,9 +177,9 @@ public class Poincare3DVisualizer : WorldService
 
     public override void DrawImGuiSettings()
     {
-        ImGuiHelpers.SliderFloat("slice t", ref sliceT, 0, 1);
-        ImGuiHelpers.SliderFloat("offset", ref offset, 0, 1);
-        ImGuiHelpers.SliderFloat("t", ref t, 0,30);
+        ImGuiHelpers.Slider("slice t", ref sliceT, 0, 1);
+        ImGuiHelpers.Slider("offset", ref offset, 0, 1);
+        ImGuiHelpers.Slider("t", ref t, 0,30);
         base.DrawImGuiSettings();
     }
 }

@@ -12,7 +12,7 @@ public static class Gizmos
 
     static Gizmos()
     {
-        sphereMesh = new Mesh(GeometryGen.UVSphere(3, 3));
+        sphereMesh = new Mesh(GeometryGen.UVSphere(5, 5));
         UnitCube = new Mesh(GeometryGen.TriangleCube(Vec3.Zero, Vec3.One, Vec4.One));
         UnitCube.PrimitiveType = PrimitiveType.Triangles;
     }
@@ -64,7 +64,8 @@ public static class Gizmos
         private AutoExpandStorageBuffer<SphereRenderInfo> sphereStorage = new();
         private Material sphereMat = new Material(new Shader("Assets/Shaders/sphere-instanced.vert",
             ShaderType.VertexShader), Shader.DefaultUnlitFragment);
-
+        private Material sphereMatLit = new Material(new Shader("Assets/Shaders/sphere-instanced.vert",
+            ShaderType.VertexShader), Shader.DefaultLitFragment);
         public void RegisterSphere(Vec3 center, double radius, Color color)
         {
             sphereStorage.Register(new SphereRenderInfo
@@ -83,6 +84,20 @@ public static class Gizmos
             sphereMat.SetUniform("view", camera.GetViewMatrix());
             sphereMat.SetUniform("tint", new Color(1, 1, 1));
             sphereMat.SetUniform("projection", camera.GetProjectionMatrix());
+
+            sphereStorage.Use();
+            sphereStorage.Upload();
+
+            sphereMesh.DrawInstanced(sphereStorage.GetCurrentIndex());
+            sphereStorage.Reset();
+        }
+        
+        public void DrawSpheresLit(ICamera camera)
+        {
+            sphereMatLit.Use();
+            sphereMatLit.SetUniform("view", camera.GetViewMatrix());
+            sphereMatLit.SetUniform("tint", new Color(1, 1, 1));
+            sphereMatLit.SetUniform("projection", camera.GetProjectionMatrix());
 
             sphereStorage.Use();
             sphereStorage.Upload();

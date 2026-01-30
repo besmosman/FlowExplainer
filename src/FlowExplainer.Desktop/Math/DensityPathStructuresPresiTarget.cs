@@ -268,11 +268,11 @@ public class DensityPathStructuresPresiTarget : WorldService, IAxisTitle
     }
     public override void DrawImGuiSettings()
     {
-        ImGuiHelpers.SliderFloat("T slice", ref sliceTime, 0, 1f);
-        ImGuiHelpers.SliderFloat("InfluenceRadius", ref InfluenceRadius, 0, .01f);
-        ImGuiHelpers.SliderFloat("AccumulationFactor", ref AccumelationFactor, 0, 1f);
-        ImGuiHelpers.SliderFloat("Reseed Rate", ref reseedRate, 0, .1f);
-        ImGuiHelpers.SliderFloat("Decay", ref Decay, 0, 1f);
+        ImGuiHelpers.Slider("T slice", ref sliceTime, 0, 1f);
+        ImGuiHelpers.Slider("InfluenceRadius", ref InfluenceRadius, 0, .01f);
+        ImGuiHelpers.Slider("AccumulationFactor", ref AccumelationFactor, 0, 1f);
+        ImGuiHelpers.Slider("Reseed Rate", ref reseedRate, 0, .1f);
+        ImGuiHelpers.Slider("Decay", ref Decay, 0, 1f);
         ImGuiHelpers.SliderInt("Particles", ref ParticleCount, 1, 10000);
         if (ImGui.Button("Reset"))
         {

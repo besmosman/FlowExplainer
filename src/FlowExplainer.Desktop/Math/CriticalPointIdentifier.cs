@@ -21,6 +21,21 @@ public static class FD
             }
             return d;
         }
+
+        public VecR FiniteDifferenceGradientIgnoreLast<VecR>(Vec x, double h) where VecR : IVec<VecR, double>, IVecUpDimension<Vec>
+        {
+            var d = VecR.Zero;
+            for (int i = 0; i < x.ElementCount - 1; i++)
+            {
+                var leftCoords = x;
+                var rightCoords = x;
+                leftCoords[i] -= h;
+                rightCoords[i] += h;
+                d[i] = (scalerfield.Evaluate(rightCoords) - scalerfield.Evaluate(leftCoords)) / (2 * h);
+            }
+            return d;
+        }
+        
     }
 
     public struct Neighbors(Vec2 left, Vec2 right, Vec2 up, Vec2 down, Vec2 delta)

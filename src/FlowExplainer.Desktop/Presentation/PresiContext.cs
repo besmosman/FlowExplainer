@@ -59,13 +59,20 @@ public class PresiContext
         public Vec2 LastTargetPosition;
         public Vec2 TargetPosition;
         public double AnimSpeed = 2;
-        public double AnimT => Math.Min(TimeSinceLastMovement * 1, 1);
+        public double AnimT => Math.Min(TimeSinceLastMovement * 3, 1);
 
         public void UpdateTransform(Vec2 position, Vec2 size)
         {
             if (TargetPosition != position)
             {
                 LastTargetPosition = RelPosition;
+
+                if (TargetPosition == default)
+                {
+                    LastTargetPosition = position;
+                    RelPosition = position;
+                }
+                
                 TargetPosition = position;
                 TimeSinceLastMovement = 0;
             }
@@ -84,7 +91,7 @@ public class PresiContext
         var p = widgetData.RelPosition;
         p = new Vec2(double.Sin(FlowExplainer.Time.TotalSeconds*4)/4 + .4f, .4f);
         //Gizmos2D.Rect(View.Camera2D, RelToSceen(p),RelToSceen(p+widgetData.Size), new Vec4(1));
-        Gizmos2D.AdvText(View.Camera2D, RelToSceen(widgetData.RelPosition), CanvasRect.FromRelative(new Vec2(lh, lh)).X, color, title, 1, centered);
+        Gizmos2D.AdvText(View.Camera2D, RelToSceen(widgetData.RelPosition), CanvasRect.FromRelative(new Vec2(lh, lh)).X, color, title, widgetData.AnimT, centered);
     }
 
     public Vec2 RelToSceen(Vec2 rel)
@@ -203,11 +210,11 @@ public class PresiContext
 
         var left = RelToSceen(new Vec2(widgetData.RelPosition.X - widgetData.Size.X / 2f, widgetData.RelPosition.Y));
         var right = RelToSceen(new Vec2(widgetData.RelPosition.X + widgetData.Size.X / 2f, widgetData.RelPosition.Y));
-        Gizmos2D.Line(View.Camera2D, left, right, Color.Black, 10);
+        Gizmos2D.Line(View.Camera2D, left, right, Color.White, 10);
         var t = (value - minValue) / (maxValue - minValue);
         t = double.Clamp(t, 0, 1);
-        Gizmos2D.Circle(View.Camera2D, Utils.Lerp(left, right, t), Color.Black, 20);
-        Gizmos2D.AdvText(View.Camera2D, center + new Vec2(0, -40), 48, Color.Black, name + " = " + value.ToString("N2"), centered: true);
+        Gizmos2D.Circle(View.Camera2D, Utils.Lerp(left, right, t), Color.White, 20);
+        Gizmos2D.AdvText(View.Camera2D, center + new Vec2(0, -40), 48, Color.White, name + " = " + value.ToString("N2"), centered: true);
         var rect = new Rect<Vec2>(center - new Vec2(width / 2, height / 2), center + new Vec2(width / 2, height / 2));
         if (View.IsMouseButtonDownLeft && rect.Contains(View.MousePosition))
         {
@@ -276,7 +283,7 @@ public class PresiContext
             title = title[2..];
         }
 
-        Gizmos2D.AdvText(View.Camera2D, pos, lh, Color.White, title, 1);
+        Gizmos2D.AdvText(View.Camera2D, pos, lh, Color.White, title, widgetData.AnimT);
     }
 
     public void ViewPanel(string viewname, Vec2 center, Vec2 size, double zoom = 1f, [System.Runtime.CompilerServices.CallerFilePath] string filePath = "",
@@ -335,15 +342,30 @@ public class PresiContext
         if (View.IsMouseButtonDownLeft && !MouseLeftPressUsed)
             SelectedWidget = null;
 
+        var keys = widgetsById.Keys.ToList();
+        for (int i = keys.Count - 1; i >= 0; i--)
+        {
+            if (widgetsById[keys[i]].TimeSinceLastFetch > 0)
+            {
+                widgetsById.Remove(keys[i]);
+            }
+            
+        }
+        
         foreach (var w in widgetsById.Values)
         {
             w.TimeSinceLastFetch += presentationService.FlowExplainer.DeltaTime;
             w.TimeSinceLastMovement += presentationService.FlowExplainer.DeltaTime;
         }
 
+      
+        double easeInOutCubic(double x) {
+            return x < 0.5 ? 4 * x * x * x : 1 - double.Pow(-2 * x + 2, 3) / 2;
+        }
+        
         foreach (var widget in widgetsById.Values)
         {
-            widget.RelPosition = Utils.Lerp(widget.LastTargetPosition, widget.TargetPosition, widget.AnimT);
+            widget.RelPosition = Utils.Lerp(widget.LastTargetPosition, widget.TargetPosition,easeInOutCubic(widget.AnimT));
         }
 
         foreach (var view in presiViews)

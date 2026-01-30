@@ -24,7 +24,7 @@ public class HeatSimulationVisualizer : WorldService, IAxisTitle
 
     public override void DrawImGuiSettings()
     {
-        ImGuiHelpers.SliderFloat("Render Radius", ref RenderRadius, 0, .06f);
+        ImGuiHelpers.Slider("Render Radius", ref RenderRadius, 0, .06f);
         int selected = (int)Coloring;
         var names = Enum.GetNames<Colorings>();
         if (ImGui.Combo("Color by", ref selected, names, names.Length))

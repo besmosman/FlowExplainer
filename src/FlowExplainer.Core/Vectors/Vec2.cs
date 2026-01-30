@@ -169,6 +169,8 @@ public struct Vec2 : IVec<Vec2, double>, IVecUpDimension<Vec3>, IVecDownDimensio
     public static Vec2 Normalize(Vec2 p)
     {
         double length = p.Length();
+        if (length == 0)
+            throw new Exception();
         return p / length;
     }
 
@@ -236,6 +238,14 @@ public struct Vec2 : IVec<Vec2, double>, IVecUpDimension<Vec3>, IVecDownDimensio
     public Vec2 Normalized()
     {
         return Vec2.Normalize(this);
+    }
+    
+    public Vec2 NormalizedSafe()
+    {
+        double length = Length();
+        if (length == 0)
+            return default;
+        return this / length;
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

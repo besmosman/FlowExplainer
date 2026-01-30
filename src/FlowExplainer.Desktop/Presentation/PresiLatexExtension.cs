@@ -46,7 +46,7 @@ public static class PresiLatexExtension
 ");
 
         Run("latex", "formula.tex");
-        Run("dvipng", "-D 260 -T tight -bg Transparent -fg Black formula.dvi -o " + outPng);
+        Run("dvipng", "-D 260 -T tight -bg Transparent -fg White formula.dvi -o " + outPng);
     }
 
     static void Run(string exe, string args)
