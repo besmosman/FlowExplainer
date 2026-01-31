@@ -262,7 +262,7 @@ public static class Gizmos2D
         List<(Action<int, int>, int, int)> tasks = new();
         var splitted = text.Split("\n");
         var globalT = t;
-
+        
         var sum = (double)text.Length;
         var cur =0.0;
         for (int l = 0; l < splitted.Length; l++)
@@ -336,7 +336,7 @@ public static class Gizmos2D
             MsdfRenderer.Material.SetUniform("line", (double)l);
             MsdfRenderer.Material.SetUniform("lines", (double)splitted.Length);
             MsdfRenderer.Material.SetUniform("tint", new Vec4(1, 1, 1, 1));
-            MsdfRenderer.Material.SetUniform("screenPxRange", 2.5f);
+            MsdfRenderer.Material.SetUniform("screenPxRange", 2.08f);
             MsdfRenderer.Material.SetUniform("mainTex", font.Texture);
             MsdfRenderer.Material.SetUniform("view", camera.GetViewMatrix());
             MsdfRenderer.Material.SetUniform("projection", camera.GetProjectionMatrix());

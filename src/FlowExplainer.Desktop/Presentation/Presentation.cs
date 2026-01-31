@@ -2,11 +2,15 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
 
+using LineNumber = System.Runtime.CompilerServices.CallerLineNumberAttribute;
+using FilePath = System.Runtime.CompilerServices.CallerFilePathAttribute;
+
 public abstract class Presentation
 {
     public PresiContext Presi { get; set; }
     public abstract Slide[] GetSlides();
     public abstract void Setup(FlowExplainer flowExplainer);
+
     public virtual void Prepare(FlowExplainer flowExplainer)
     {
         foreach (var slide in GetSlides())
@@ -31,6 +35,7 @@ public abstract class NewPresentation
             CurrentLayout(this);
         return isCur;
     }
+
     public bool SlideEnter()
     {
         return Presi.LastCurrentSlide != Presi.CurrentSlide && Presi.CurrentSlide == Presi.Walk.RenderSlide;
@@ -48,17 +53,15 @@ public abstract class NewPresentation
         return isCur;
     }
 
-    public void Title(string text)
+    public void Title(string text, [FilePath] string filePath = "", [LineNumber] int lineNumber = 0)
     {
-        Presi.Text(text, new Vec2(.5f, .94f), .05, true, Color.White);
+        Presi.Text(text, new Vec2(.5f, .94f), .05, true, Color.White, filePath, lineNumber);
     }
 
 
     public View DrawWorldPanel(Vec2 relCenterPos, Vec2 relSize, double zoom = 1, Action<World>? load = null,
-        [System.Runtime.CompilerServices.CallerFilePath]
-        string filePath = "",
-        [System.Runtime.CompilerServices.CallerLineNumber]
-        int lineNumber = 0)
+        [FilePath] string filePath = "",
+        [LineNumber] int lineNumber = 0)
     {
         var widgetData = Presi.GetWidgetData(filePath, lineNumber);
         var view = Presi.GetView(widgetData, load);
@@ -79,6 +82,7 @@ public abstract class NewPresentation
             Presi.SelectWidget(widgetData);
             Presi.MouseLeftPressUsed = true;
         }
+
         if (view.IsSelected)
         {
             var s = size + new Vec2(5, 5);
@@ -94,7 +98,7 @@ public abstract class NewPresentation
         GL.Enable(EnableCap.Blend);
         widgetData.RenderMin = center - size / 2;
         widgetData.RenderMax = center + size / 2;
-        Gizmos2D.ImageCenteredInvertedY(Presi.View.Camera2D, view.PostProcessingTarget, center, size, double.Min(1,widgetData.TimeSinceLastMovement*4));
+        Gizmos2D.ImageCenteredInvertedY(Presi.View.Camera2D, view.PostProcessingTarget, center, size, double.Min(1, widgetData.TimeSinceLastMovement * 4));
         GL.Enable(EnableCap.Blend);
         return view;
     }

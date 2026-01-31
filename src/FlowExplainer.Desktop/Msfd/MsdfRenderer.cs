@@ -33,7 +33,7 @@ public static class MsdfRenderer
 
         return minFont!;
     }
-
+    static string folderPath = "Assets/Fonts/ComputerModern";
     public static void Init()
     {
         Material = new Material(
@@ -41,7 +41,7 @@ public static class MsdfRenderer
             Shader.DefaultWorldSpaceVertex);
 
         int size = 96;
-        string folderPath = "Assets/Fonts/OpenSans-Medium";
+       
         string genFolderPath = $"{folderPath}/generated";
         if (Directory.Exists(genFolderPath))
         {
@@ -50,15 +50,15 @@ public static class MsdfRenderer
             File.Copy(charsetFilePath, genCharsetFilePath);
             Directory.Delete(genFolderPath, true);
         }
-        GenererateFont(32);
+        GenererateFont(48);
     }
 
     private static void GenererateFont(int size)
     {
-        string folderPath = "Assets/Fonts/OpenSans-Medium";
         string fontName = new DirectoryInfo(Path.GetDirectoryName(folderPath + "/")).Name;
         string genFolderPath = $"{folderPath}/generated";
-        string ttfFilePath = $"{folderPath}/{fontName}.ttf";
+       
+        string ttfFilePath =  Directory.GetFiles(folderPath).Where(p => p.EndsWith(".ttf")).First();
         string genImagePath = $"{genFolderPath}/texture-{size}.png";
         string genInfoPath = $"{genFolderPath}/info-{size}.json";
         string md5Path = $"{genFolderPath}-{size}/.md5";

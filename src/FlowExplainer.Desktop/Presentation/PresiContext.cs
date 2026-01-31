@@ -49,6 +49,7 @@ public class PresiContext
         public Vec2 Size;
         public object ConnectedObject;
         public double TimeSinceLastFetch;
+        public double TimeAlive;
         public bool CapturesScroll;
         public bool Dropdown;
         public Vec2 RenderMin;
@@ -59,7 +60,8 @@ public class PresiContext
         public Vec2 LastTargetPosition;
         public Vec2 TargetPosition;
         public double AnimSpeed = 2;
-        public double AnimT => Math.Min(TimeSinceLastMovement * 3, 1);
+        public double AnimMovement => easeInOutCubic(Math.Min(TimeSinceLastMovement * 3, 1));
+        public double AnimAppearing => easeInOutCubic(Math.Min(TimeAlive * 3, 1));
 
         public void UpdateTransform(Vec2 position, Vec2 size)
         {
@@ -72,11 +74,17 @@ public class PresiContext
                     LastTargetPosition = position;
                     RelPosition = position;
                 }
-                
+
                 TargetPosition = position;
                 TimeSinceLastMovement = 0;
             }
+
             Size = size;
+        }
+
+        double easeInOutCubic(double x)
+        {
+            return x < 0.5 ? 4 * x * x * x : 1 - double.Pow(-2 * x + 2, 3) / 2;
         }
     }
 
@@ -85,13 +93,12 @@ public class PresiContext
         [System.Runtime.CompilerServices.CallerLineNumber]
         int lineNumber = 0)
     {
-        
         var widgetData = GetWidgetData(filePath, lineNumber);
         widgetData.UpdateTransform(relPos, new Vec2(lh, lh));
         var p = widgetData.RelPosition;
-        p = new Vec2(double.Sin(FlowExplainer.Time.TotalSeconds*4)/4 + .4f, .4f);
+        p = new Vec2(double.Sin(FlowExplainer.Time.TotalSeconds * 4) / 4 + .4f, .4f);
         //Gizmos2D.Rect(View.Camera2D, RelToSceen(p),RelToSceen(p+widgetData.Size), new Vec4(1));
-        Gizmos2D.AdvText(View.Camera2D, RelToSceen(widgetData.RelPosition), CanvasRect.FromRelative(new Vec2(lh, lh)).X, color, title, widgetData.AnimT, centered);
+        Gizmos2D.AdvText(View.Camera2D, RelToSceen(widgetData.RelPosition), CanvasRect.FromRelative(new Vec2(lh, lh)).X, color, title, widgetData.AnimAppearing, centered);
     }
 
     public Vec2 RelToSceen(Vec2 rel)
@@ -237,8 +244,6 @@ public class PresiContext
     }
 
 
-    
-
     public void SliderCustomTitle(string title, ref double value, double minValue, double maxValue, Vec2 center, double width,
         [System.Runtime.CompilerServices.CallerFilePath]
         string filePath = "",
@@ -283,7 +288,7 @@ public class PresiContext
             title = title[2..];
         }
 
-        Gizmos2D.AdvText(View.Camera2D, pos, lh, Color.White, title, widgetData.AnimT);
+        Gizmos2D.AdvText(View.Camera2D, pos, lh, Color.White, title, widgetData.AnimAppearing);
     }
 
     public void ViewPanel(string viewname, Vec2 center, Vec2 size, double zoom = 1f, [System.Runtime.CompilerServices.CallerFilePath] string filePath = "",
@@ -349,23 +354,20 @@ public class PresiContext
             {
                 widgetsById.Remove(keys[i]);
             }
-            
-        }
-        
-        foreach (var w in widgetsById.Values)
-        {
-            w.TimeSinceLastFetch += presentationService.FlowExplainer.DeltaTime;
-            w.TimeSinceLastMovement += presentationService.FlowExplainer.DeltaTime;
         }
 
-      
-        double easeInOutCubic(double x) {
-            return x < 0.5 ? 4 * x * x * x : 1 - double.Pow(-2 * x + 2, 3) / 2;
+        double dt = presentationService.FlowExplainer.DeltaTime;
+        foreach (var w in widgetsById.Values)
+        {
+            w.TimeSinceLastFetch += dt;
+            w.TimeSinceLastMovement += dt;
+            w.TimeAlive += dt;
         }
-        
+
+
         foreach (var widget in widgetsById.Values)
         {
-            widget.RelPosition = Utils.Lerp(widget.LastTargetPosition, widget.TargetPosition,easeInOutCubic(widget.AnimT));
+            widget.RelPosition = Utils.Lerp(widget.LastTargetPosition, widget.TargetPosition, widget.AnimMovement);
         }
 
         foreach (var view in presiViews)
