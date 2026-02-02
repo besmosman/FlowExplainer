@@ -25,7 +25,7 @@ public abstract class NewPresentation
     public PresiContext Presi { get; set; }
 
 
-    public Action<NewPresentation> CurrentLayout;
+    public Action<NewPresentation>? CurrentLayout;
 
     public bool BeginSlide(string? title = null)
     {
@@ -52,12 +52,26 @@ public abstract class NewPresentation
         bool isCur = Presi.Walk.FinalRenderStep == Presi.CurrentStep;
         return isCur;
     }
+    
+    public bool AfterCurrentStep()
+    {
+        return Presi.CurrentStep > Presi.Walk.FinalRenderStep;
+    }
 
     public void Title(string text, [FilePath] string filePath = "", [LineNumber] int lineNumber = 0)
     {
         Presi.Text(text, new Vec2(.5f, .94f), .05, true, Color.White, filePath, lineNumber);
     }
 
+
+    public Vec2 WorldToScreenRel(PresiContext.WidgetData worldpanelWidget, Vec2 pos)
+    {
+        var view = Presi.GetView(worldpanelWidget, (v) => throw new Exception("Should be loaded"));
+        var viewCoords = CoordinatesConverter2D.WorldToView(view, pos) / view.Size;
+        viewCoords.Y = 1f - viewCoords.Y;
+        var rect = new Rect<Vec2>(worldpanelWidget.RenderMin, worldpanelWidget.RenderMax);
+        return rect.FromRelative(viewCoords);
+    }
 
     public View DrawWorldPanel(Vec2 relCenterPos, Vec2 relSize, double zoom = 1, Action<World>? load = null,
         [FilePath] string filePath = "",
@@ -66,16 +80,17 @@ public abstract class NewPresentation
         var widgetData = Presi.GetWidgetData(filePath, lineNumber);
         var view = Presi.GetView(widgetData, load);
         view.IsActive = true;
-        widgetData.RelPosition = relCenterPos;
-        widgetData.Size = relSize;
+        widgetData.UpdateTransform(relCenterPos, relSize);
+        //widgetData.RelPosition = relCenterPos;
+        //widgetData.Size = relSize;
         widgetData.ConnectedObject = view;
         widgetData.CapturesScroll = true;
 
         //Gizmos2D.ImageCenteredInvertedY(View.Camera2D, Texture.White1x1, center, size);
 
-        var center = Presi.RelToSceen(relCenterPos);
-        var size = Presi.RelToSceen(relSize);
-        size.Y = size.X * (relSize / relSize.X).Y;
+        var center = Presi.RelToSceen(widgetData.RelPosition);
+        var size = Presi.RelToSceen(widgetData.RelSize);
+        size.Y = size.X * (widgetData.RelSize / widgetData.RelSize.X).Y;
         var rect = new Rect<Vec2>(center - size / 2, center + size / 2);
         if (Presi.View.IsMouseButtonDownLeft && rect.Contains(Presi.View.MousePosition))
         {
@@ -86,7 +101,7 @@ public abstract class NewPresentation
         if (view.IsSelected)
         {
             var s = size + new Vec2(5, 5);
-            Gizmos2D.Rect(Presi.View.Camera2D, center - s / 2, center + s / 2, new Vec4(0, 1, 0, 1f));
+         //   Gizmos2D.Rect(Presi.View.Camera2D, center - s / 2, center + s / 2, new Color(.1, .1,.1, 1f));
         }
         else
         {
@@ -95,10 +110,10 @@ public abstract class NewPresentation
             view.TargetSize = size;
         }
 
-        GL.Enable(EnableCap.Blend);
+        GL.Disable(EnableCap.Blend);
         widgetData.RenderMin = center - size / 2;
         widgetData.RenderMax = center + size / 2;
-        Gizmos2D.ImageCenteredInvertedY(Presi.View.Camera2D, view.PostProcessingTarget, center, size, double.Min(1, widgetData.TimeSinceLastMovement * 4));
+        Gizmos2D.ImageCenteredInvertedY(Presi.View.Camera2D, view.PostProcessingTarget, center, size, double.Min(1, widgetData.AnimAppearing));
         GL.Enable(EnableCap.Blend);
         return view;
     }

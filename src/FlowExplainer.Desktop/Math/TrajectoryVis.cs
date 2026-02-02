@@ -119,7 +119,7 @@ public class TrajectoryVis : WorldService
             var worldToCell = partitioner.WorldToCell((float)center.X, (float)center.Y);
             var cell = partitioner.Cells.buffer.Data[partitioner.GetCellIndex(worldToCell.X, worldToCell.Y)];
             var color = new Vec4((i % 32) / 32.0, ((j * i * 3248424) % 64) / 64.0, 0, .4f);
-            Gizmos2D.Rect(view.Camera2D, worldStart, worldEnd, new Vec4(cell.LinesCount / 10f, 0, 0, 1));
+            Gizmos2D.Rect(view.Camera2D, worldStart, worldEnd, new Color(cell.LinesCount / 10f, 0, 0, 1));
             for (int l = 0; l < cell.LinesCount; l++)
             {
                 var line = partitioner.LinesOrganized.buffer.Data[l + cell.LinesStartIndex];

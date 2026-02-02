@@ -103,7 +103,12 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
         double time = AltTime ?? dat.SimulationTime;
         var instantField = new InstantFieldVersionLowerDim<Vec3, Vec2, Vec2>(velField, time);
         var velMag = 0.0;
-        if (time != lastSimTime)
+
+        if (amount != PerData.Length)
+            Init();
+
+
+        if (time != lastSimTime )
         {
             for (int i = 0; i < amount; i++)
             {
@@ -116,11 +121,9 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
         lastSimTime = time;
         int c = 0;
 
-        if (amount != PerData.Length)
-            Init();
 
 
-        for (int i = 0; i < amount; i++)
+        Parallel.For(0, amount, i =>
         {
             var span = centers.AsSpan(i * posPer, posPer);
             if (PerData[i].TimeAlive > end + 2f + ((i * 17 + i * 1535 + i) % 1000) / 1000f)
@@ -148,7 +151,7 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
                 c++;
             }
             PerData[i].TimeAlive += FlowExplainer.DeltaTime;
-        }
+        });
         avgSpeed = velMag / c;
         base.Update();
     }
@@ -156,9 +159,14 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
     public override void Draw(RenderTexture rendertarget, View view)
     {
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
+
         if (amount != PerData.Length)
             Init();
-
+        var v = view.Camera2D.GetViewMatrix();
+        var project = view.Camera2D.GetProjectionMatrix();
+        material.Use();
+        material.SetUniform("view", v);
+        material.SetUniform("projection", project);
         for (int i = 0; i < amount; i++)
         {
             var span = centers.AsSpan(i * posPer, posPer);
@@ -186,7 +194,6 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
                     //    color.A *= (float)distanceSquared / .00005f;
                 }
                 StreamTube(view.Camera2D, span, color, thickness);
-
                 /*else
                     Gizmos2D.Circle(view.Camera2D, span[^1],color, .003f/2);*/
             }
@@ -210,12 +217,8 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
         if (centers.Length != streamtube.Vertices.Length / 2)
             throw new NotImplementedException();
 
-        material.Use();
         material.SetUniform("tint", color);
-        var view = camera.GetViewMatrix();
-        var project = camera.GetProjectionMatrix();
-        material.SetUniform("view", view);
-        material.SetUniform("projection", project);
+      
         /*
         0 => 0
         c => 1
@@ -232,7 +235,7 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
         {
             var dir = Vec2.Zero;
             if (i != 0)
-                dir = Vec2.Normalize(centers[i] - centers[i - 1]);
+                dir = (centers[i] - centers[i - 1]).NormalizedSafe();
             var normal = new Vec2(dir.Y, -dir.X);
 
             double c = (i / (double)centers.Length);

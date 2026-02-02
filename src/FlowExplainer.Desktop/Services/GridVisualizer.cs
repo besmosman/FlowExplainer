@@ -147,8 +147,8 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             material.SetUniform("projection", camera.GetProjectionMatrix());
             material.SetUniform("useCustomColor", diagnostic.UseCustomColoring);
             material.SetUniform("colorgradient", dat.ColorGradient.Texture.Value);
-            material.SetUniform("minGrad", AutoScale ? min : 0.0);
-            material.SetUniform("maxGrad", AutoScale ? max : 1f);
+            material.SetUniform("minGrad", min);
+            material.SetUniform("maxGrad", max);
             var size = RegularGrid.Domain.RectBoundary.Size;
             var start = RegularGrid.Domain.RectBoundary.Min;
             material.SetUniform("model", Matrix4x4.CreateScale((float)size.X, (float)size.Y, .4f) * Matrix4x4.CreateTranslation((float)start.X, (float)start.Y, 0));
@@ -168,8 +168,8 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         }
     }
 
-    private double min;
-    private double max;
+    public double min=0;
+    public double max=1;
     private Stopwatch currentUpdateGridTime = new();
 
     private CancellationTokenSource cancellationTokenSource = new();
@@ -183,29 +183,32 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         gridbuffer.Use();
         gridbuffer.Upload();
 
-        var nextMin = double.MaxValue;
-        var nextMax = double.MinValue;
-        for (int i = 0; i < gridbuffer.Data.Length; i++)
+        if (AutoScale)
         {
-            var v = gridbuffer.Data[i].Value;
-            if (double.IsRealNumber(v))
+            var nextMin = double.MaxValue;
+            var nextMax = double.MinValue;
+            for (int i = 0; i < gridbuffer.Data.Length; i++)
             {
-                nextMin = double.Min(nextMin, v);
-                nextMax = double.Max(nextMax, v);
+                var v = gridbuffer.Data[i].Value;
+                if (double.IsRealNumber(v))
+                {
+                    nextMin = double.Min(nextMin, v);
+                    nextMax = double.Max(nextMax, v);
+                }
             }
+            if (double.Abs(min - nextMin) > .01)
+            {
+                min = double.Lerp(min, nextMin, 1);
+                max = double.Lerp(max, nextMax, 1);
+            }
+            min = double.Lerp(min, nextMin, .1);
+            max = double.Lerp(max, nextMax, .1);
+            if (!double.IsRealNumber(min))
+                min = nextMin;
+            if (!double.IsRealNumber(max))
+                max = nextMax;
+            max = double.Max(max, min);
         }
-        if (double.Abs(min - nextMin) > .01)
-        {
-            min = double.Lerp(min, nextMin, 1);
-            max = double.Lerp(max, nextMax, 1);
-        }
-        min = double.Lerp(min, nextMin, .1);
-        max = double.Lerp(max, nextMax, .1);
-        if (!double.IsRealNumber(min))
-            min = nextMin;
-        if (!double.IsRealNumber(max))
-            max = nextMax;
-        max = double.Max(max, min);
     }
 
     private void ResetGridUpdateTask()
@@ -291,16 +294,16 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
 
     public (double min, double max) GetScale()
     {
-        if (AutoScale)
+        //if (AutoScale)
             return (min, max);
-        return (0, 1);
+        //return (0, 1);
     }
 
     public double ScaleScaler(double value)
     {
-        if (AutoScale)
+        //if (AutoScale)
             return (value - min) / (max - min);
-        return value;
+        //return value;
     }
 
     public void Save(string path, double t_start, double t_end, int timeSteps)
@@ -334,5 +337,6 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         {
 
         }
+        UpdateRenderData();
     }
 }

@@ -10,7 +10,7 @@ public class Style
 
     private static readonly Style Dark = new Style()
     {
-        BackgroundColor = Color.Grey(0.05f),
+        BackgroundColor = Color.Grey(0.0f),
         HighlightColor = new Color(.0f, .5f, 1f),
         TextColor = Color.White,
     };

@@ -19,6 +19,7 @@ public class PresiContext
 
     public int CurrentSlide = 0;
     public int LastCurrentSlide = 0;
+    public int LastCurrentStep = 0;
     public int CurrentStep = 0;
 
     public class WalkInfo
@@ -46,7 +47,7 @@ public class PresiContext
     public class WidgetData
     {
         public Vec2 RelPosition;
-        public Vec2 Size;
+        public Vec2 RelSize;
         public object ConnectedObject;
         public double TimeSinceLastFetch;
         public double TimeAlive;
@@ -59,6 +60,9 @@ public class PresiContext
 
         public Vec2 LastTargetPosition;
         public Vec2 TargetPosition;
+        
+        public Vec2 LastTargetSize;
+        public Vec2 TargetSize;
         public double AnimSpeed = 2;
         public double AnimMovement => easeInOutCubic(Math.Min(TimeSinceLastMovement * 3, 1));
         public double AnimAppearing => easeInOutCubic(Math.Min(TimeAlive * 3, 1));
@@ -78,8 +82,21 @@ public class PresiContext
                 TargetPosition = position;
                 TimeSinceLastMovement = 0;
             }
+            
+            if (TargetSize != size)
+            {
+                LastTargetSize = RelSize;
 
-            Size = size;
+                if (TargetSize == default)
+                {
+                    LastTargetSize = size;
+                    RelSize = size;
+                }
+
+                TargetSize = size;
+                TimeSinceLastMovement = 0;
+            }
+
         }
 
         double easeInOutCubic(double x)
@@ -112,8 +129,8 @@ public class PresiContext
     {
         var widgetData = GetWidgetData(filePath, lineNumber);
         widgetData.RelPosition = relCenter;
-        widgetData.Size.X = relWidth;
-        Gizmos2D.ImageCentered(View.Camera2D, texture, RelToSceen(relCenter), RelToSceen(relWidth));
+        widgetData.RelSize.X = relWidth;
+        Gizmos2D.ImageCentered(View.Camera2D, texture, RelToSceen(relCenter), RelToSceen(relWidth), alpha:widgetData.AnimAppearing);
     }
 
 
@@ -129,12 +146,12 @@ public class PresiContext
         var th = lh * .55;
 
         var entries = Enum.GetValues<T>();
-        widgetData.Size.X = .2;
-        widgetData.Size.Y = widgetData.Dropdown ? lh * entries.Length : lh;
+        widgetData.RelSize.X = .2;
+        widgetData.RelSize.Y = widgetData.Dropdown ? lh * entries.Length : lh;
         if (widgetData.Dropdown)
             relCenter += new Vec2(0, -lh * (entries.Length - 1) / 2.0);
         var center = RelToSceen(relCenter);
-        var size = RelToSceen(widgetData.Size);
+        var size = RelToSceen(widgetData.RelSize);
         Gizmos2D.RectCenter(View.Camera2D, center, size + new Vec2(4, 4), Color.Grey(1f));
         Gizmos2D.RectCenter(View.Camera2D, center, size, Color.Grey(.0f));
         var rect = new Rect<Vec2>(center - size / 2, center + size / 2);
@@ -188,8 +205,8 @@ public class PresiContext
         var widgetData = GetWidgetData(filePath, lineNumber);
         widgetData.RelPosition = relCenter;
         var center = RelToSceen(relCenter);
-        widgetData.Size = new Vec2(height, height);
-        var size = RelToSceen(widgetData.Size);
+        widgetData.RelSize = new Vec2(height, height);
+        var size = RelToSceen(widgetData.RelSize);
         size.X = size.Y;
         Gizmos2D.RectCenter(View.Camera2D, center, size, Color.Grey(.8f));
         if (value)
@@ -212,11 +229,11 @@ public class PresiContext
         widgetData.RelPosition = relCenter;
         var center = RelToSceen(relCenter);
         double height = RelToSceen(.04f);
-        widgetData.Size = new Vec2(relWidth, height);
+        widgetData.RelSize = new Vec2(relWidth, height);
         double width = RelToSceen(relWidth) + 20;
 
-        var left = RelToSceen(new Vec2(widgetData.RelPosition.X - widgetData.Size.X / 2f, widgetData.RelPosition.Y));
-        var right = RelToSceen(new Vec2(widgetData.RelPosition.X + widgetData.Size.X / 2f, widgetData.RelPosition.Y));
+        var left = RelToSceen(new Vec2(widgetData.RelPosition.X - widgetData.RelSize.X / 2f, widgetData.RelPosition.Y));
+        var right = RelToSceen(new Vec2(widgetData.RelPosition.X + widgetData.RelSize.X / 2f, widgetData.RelPosition.Y));
         Gizmos2D.Line(View.Camera2D, left, right, Color.White, 10);
         var t = (value - minValue) / (maxValue - minValue);
         t = double.Clamp(t, 0, 1);
@@ -253,10 +270,10 @@ public class PresiContext
         double height = 100;
         var widgetData = GetWidgetData(filePath, lineNumber);
         widgetData.RelPosition = center;
-        widgetData.Size = new Vec2(width, height);
+        widgetData.RelSize = new Vec2(width, height);
 
-        var left = new Vec2(widgetData.RelPosition.X - widgetData.Size.X / 2f, widgetData.RelPosition.Y);
-        var right = new Vec2(widgetData.RelPosition.X + widgetData.Size.X / 2f, widgetData.RelPosition.Y);
+        var left = new Vec2(widgetData.RelPosition.X - widgetData.RelSize.X / 2f, widgetData.RelPosition.Y);
+        var right = new Vec2(widgetData.RelPosition.X + widgetData.RelSize.X / 2f, widgetData.RelPosition.Y);
         Gizmos2D.Line(View.Camera2D, left, right, Color.White, 10);
         var t = (value - minValue) / (maxValue - minValue);
         t = double.Clamp(t, 0, 1);
@@ -282,7 +299,7 @@ public class PresiContext
         var pos = new Vec2(50, CanvasSize.Y - 250);
         var lh = 64;
         widgetData.RelPosition = pos;
-        widgetData.Size = new Vec2(lh, lh);
+        widgetData.RelSize = new Vec2(lh, lh);
         if (title.StartsWith("\r\n"))
         {
             title = title[2..];
@@ -368,6 +385,7 @@ public class PresiContext
         foreach (var widget in widgetsById.Values)
         {
             widget.RelPosition = Utils.Lerp(widget.LastTargetPosition, widget.TargetPosition, widget.AnimMovement);
+            widget.RelSize = Utils.Lerp(widget.LastTargetSize, widget.TargetSize, widget.AnimMovement);
         }
 
         foreach (var view in presiViews)
@@ -390,7 +408,7 @@ public class PresiContext
 
             var localPosPixels = mainwindowCoord - subRenderMin;
             var localPosNormalized = mainwindowCoord - subRenderMin;
-            Logger.LogDebug((subRenderRect.ToRelative(mainwindowCoord) / view.Key.Size).ToString());
+            Logger.LogDebug((subRenderRect.ToRelative(mainwindowCoord) / view.Key.RelSize).ToString());
             view.Value.RelativeMousePosition = subRenderRect.ToRelative(mainwindowCoord + new Vec2(0, -100)) / new Vec2(.69f, .5f) * view.Value.Size.ToVec2();
 
             // Logger.LogDebug(view.Value.RelativeMousePosition.ToString());

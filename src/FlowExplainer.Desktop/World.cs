@@ -84,7 +84,7 @@ namespace FlowExplainer
             }
 
             //Auto add?
-            throw new Exception();
+           // throw new Exception();
             return null;
         }
 

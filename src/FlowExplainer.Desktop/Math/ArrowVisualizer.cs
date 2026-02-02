@@ -87,7 +87,7 @@ public class ArrowVisualizer : WorldService, IAxisTitle
                     color = gradient.Get(dir.Length() * 1);
 
                 if (!colorByGradient)
-                    color = Color.Grey(.5f).WithAlpha(1f);
+                    color = Color.Grey(1f).WithAlpha(1f);
                 //color = new Color((dir + new Vec2(.1f,.1f)).Up(0).Up(1));
                 /*var traj = IFlowOperator<Vec2, Vec3>.Default.Compute(dat.SimulationTime, dat.SimulationTime + .05f, pos, dat.VelocityField);
                 var sum =0.0;

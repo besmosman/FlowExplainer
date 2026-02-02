@@ -315,8 +315,8 @@ public class UpdatePresentation2 : NewPresentation
                 {
                     stochastic.ReseedChance /= 10;
                     stochastic2.ReseedChance /= 10;
-
                 }
+                
             }, filePath: title).World;
             var rec = world.DataService.VectorField.Domain.RectBoundary;
             var t = world.DataService.SimulationTime % 1 + 5;

@@ -50,6 +50,7 @@ public class PresentationViewController : IViewController
             GL.ClearColor((float)clearColor.R, (float)clearColor.G, (float)clearColor.B, (float)clearColor.A);
             GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
             pre.Presi.Refresh(presentationService);
+            pre.Presi.LastCurrentStep = pre.Presi.Walk.RenderSlide;
             pre.Presi.Walk.Reset();
             pre.Presentation.Draw();
         });

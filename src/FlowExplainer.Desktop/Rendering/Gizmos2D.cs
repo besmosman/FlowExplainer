@@ -399,7 +399,7 @@ public static class Gizmos2D
         debugTria.Draw();
     }
 
-    public static void Rect(ICamera cam, Vec2 start, Vec2 end, Vec4 color)
+    public static void Rect(ICamera cam, Vec2 start, Vec2 end, Color color)
     {
         view = cam.GetViewMatrix();
         projection = cam.GetProjectionMatrix();

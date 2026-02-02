@@ -80,7 +80,7 @@ x^{M}(t) = x_0 + \int_{0}^{t} M_n\bigl(x(\eta), \eta\bigr)\, d\eta
             {
                 Presi.MainParagraph("Step 2");
             }
-            
+
             Presi.Text("Movement between steps", new Vec2(.2f + Presi.CurrentStep / 3f, .5f), .03f, true, Color.White);
         }
 

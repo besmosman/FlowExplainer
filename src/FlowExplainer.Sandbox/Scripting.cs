@@ -77,8 +77,11 @@ public static class Scripting
         world.GetWorldService<DataService>().currentSelectedVectorField = "Convection Flux";
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
+        
 
-        //SurfaceExtractionSetup2(world);
+        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new VisualComputingPresentation());
+        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+       // SurfaceExtractionSetup2(world);
         //world.GetWorldService<DataService>().TimeMultiplier = .04;
 
 
@@ -98,7 +101,7 @@ public static class Scripting
         {
 
         });*/
-        /*world.AddVisualisationService(new DensityPathStructures2()
+        /*world.AddVisualisationService(new DensityPathStructures()
         {
             InfluenceRadius = .005f,
             ParticleCount = 10000,
@@ -116,8 +119,7 @@ public static class Scripting
         gridDiagnostic.Recompute(gridVisualizer);
         */
 
-        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new DemoPresentation());
-        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+     
 
         /*world.AddVisualisationService(new DensityPathStructures2()
         {
