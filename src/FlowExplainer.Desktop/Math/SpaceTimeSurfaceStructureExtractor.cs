@@ -2,6 +2,57 @@ using ImGuiNET;
 
 namespace FlowExplainer;
 
+
+public class TrajectoryComparison : WorldService
+{
+
+
+
+    public override void Initialize()
+    {
+
+    }
+
+    public Trajectory<Vec3> True;
+    public Trajectory<Vec3> Ficticious;
+
+    public override void Draw(View view)
+    {
+        var TotalFlux = DataService.LoadedDataset.VectorFields["Total Flux"];
+        var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
+        var u = new ArbitraryField<Vec3, Vec2>(TotalFlux.Domain, p => TotalFlux.Evaluate(p) / ConvectiveTemp.Evaluate(p));
+
+        var t_start = 1.0;
+        var t_end = 1.3;
+
+        True = IFlowOperator<Vec2, Vec3>.Default.ComputeTrajectory(t_start, t_end, view.MousePosition, u);
+        // Ficticious = IFlowOperator<Vec2, Vec3>.Default.ComputeTrajectory(t_start, t_end, new Vec2(.5, .3f), u);
+
+
+
+        foreach (ref var p in True.Entries.AsSpan())
+        {
+            Gizmos2D.Instanced.RegisterCircle(p.XY, 0.001f, Color.Red);
+        }
+
+        int steps = 0;
+        var t = t_start;
+        var fakeTime = 0;
+        var pos = view.MousePosition;
+        while (steps < 1000 && t < t_end)
+        {
+            var Q = TotalFlux.Evaluate(pos.Up(t));
+            double T = ConvectiveTemp.Evaluate(pos.Up(t));
+            var dt = double.Sign(T) * .1f;
+            pos += Q * dt;
+            t += T * dt;
+            steps++;
+        }
+        Gizmos2D.Instanced.RegisterCircle(pos, 0.001f, t >= t_end ? Color.Green : Color.Blue);
+        Gizmos2D.Instanced.RenderCircles(view.Camera2D);
+    }
+}
+
 public class SpaceTimeSurfaceStructureExtractor : WorldService
 {
     public IVectorField<Vec2, double> ScalerField;
@@ -113,7 +164,7 @@ public class SpaceTimeSurfaceStructureExtractor : WorldService
 
     public float MaxRestDistance => .02f;
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         ScalerField = World.GetSelectableVectorFields<Vec2, double>().First().VectorField;
         var domain = ScalerField.Domain;
@@ -149,7 +200,7 @@ public class SpaceTimeSurfaceStructureExtractor : WorldService
 
                 if (s.InternalNodes.Count > 3)
                 {
-                    var f1 = -(s.InternalNodes[2].LastPosition - s.InternalNodes[0].LastPosition).NormalizedSafe() * 0.2f * dt ;
+                    var f1 = -(s.InternalNodes[2].LastPosition - s.InternalNodes[0].LastPosition).NormalizedSafe() * 0.2f * dt;
                     var f2 = (s.InternalNodes[^1].LastPosition - s.InternalNodes[^3].LastPosition).NormalizedSafe() * 0.2f * dt;
                     // s.InternalNodes[1].Position -= f2;
                     // s.InternalNodes[^2].Position -= f1;
@@ -289,7 +340,7 @@ public class SpaceTimeSurfaceStructureExtractor : WorldService
 
         foreach (var s in Structures)
         {
-            
+
             if (s.Expanding)
                 foreach (var n in s.GetEndings())
                 {
@@ -314,7 +365,7 @@ public class SpaceTimeSurfaceStructureExtractor : WorldService
         {
             Initialize();
         }
-        
+
         if (ImGui.Button("Stop Expanding"))
         {
             foreach (var s in Structures)

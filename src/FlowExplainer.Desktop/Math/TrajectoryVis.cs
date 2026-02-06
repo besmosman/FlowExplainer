@@ -51,7 +51,7 @@ public class TrajectoryVis : WorldService
     }
 
     public int n = 0;
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         if (DataService.MultipliedDeltaTime > 0)
         {

@@ -38,7 +38,7 @@ public class ArrowVisualizer : WorldService, IAxisTitle
     {
     }
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         if (!view.Is2DCamera)
             return;

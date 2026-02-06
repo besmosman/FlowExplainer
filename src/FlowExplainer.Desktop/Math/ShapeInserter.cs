@@ -125,7 +125,7 @@ public class ShapeInserter : WorldService
         });
     }
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         var dat = GetRequiredWorldService<DataService>()!;
         var vectorfield = dat.VectorField;

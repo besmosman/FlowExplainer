@@ -156,8 +156,11 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
         base.Update();
     }
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
+        if(view.Is3DCamera)
+            return;
+        
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
 
         if (amount != PerData.Length)

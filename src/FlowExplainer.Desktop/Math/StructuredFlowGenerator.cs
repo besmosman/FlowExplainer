@@ -276,7 +276,7 @@ public class StructuredFlowGenerator : WorldService
         base.DrawImGuiSettings();
     }
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
 
     }

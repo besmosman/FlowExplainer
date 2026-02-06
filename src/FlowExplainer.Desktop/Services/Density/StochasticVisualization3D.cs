@@ -5,6 +5,18 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
 
+public class DensityVisualization3D : WorldService
+{
+    public override void Initialize()
+    {
+
+    }
+    public override void Draw(View view)
+    {
+        
+    }
+}
+
 public class StochasticVisualization3D : WorldService
 {
     struct Particle
@@ -12,7 +24,6 @@ public class StochasticVisualization3D : WorldService
         public Vec3 Phase;
         public double TimeAlive;
     }
-
 
 
     public int Count = 1000;
@@ -96,7 +107,7 @@ public class StochasticVisualization3D : WorldService
         base.DrawImGuiSettings();
     }
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         if (!view.Is3DCamera)
             return;
@@ -110,7 +121,7 @@ public class StochasticVisualization3D : WorldService
         var datVectorField = dat.VectorField;
         var dom = ((RectDomain<Vec3>)datVectorField.Domain);
         dom.MakeFinalAxisPeriodic();
-        IVectorField<Vec3, Vec3> vectorfield = new IncreasedDimensionVectorField<Vec3, Vec2, Vec3>(datVectorField, IVectorField<Vec3, Vec1>.Constant(1))
+        IVectorField<Vec3, Vec3> vectorfield = new IncreasedDimensionVectorField<Vec3, Vec2, Vec3>(datVectorField, IVectorField<Vec3, double>.Constant(1))
         {
             Domain = dom
         };

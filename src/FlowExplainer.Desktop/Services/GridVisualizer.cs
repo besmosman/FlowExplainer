@@ -48,7 +48,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
 
     public bool AutoScale = true;
 
-    public override string? Name => "Grid";
+    public override string? Name => "Grid Scaler";
     public override string? CategoryN => "General";
     public override string? Description => "Compute and render diagnostics on a interpolated grid.";
 
@@ -56,7 +56,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
     [
         //new VelocityMagnitudeGridDiagnostic(),
         new LICGridDiagnostic(),
-        new LICS(),
+        //new LICS(),
         new LagrangianTemperatureGridDiagnostic(),
         new ScalerGridDiagnostic(),
         new FTLEGridDiagnostic(),
@@ -67,6 +67,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         new PoincareSmearGridDiagnostic(),
         new DivergenceGridDiagnostic(),
         new StagnationGridDiagnostic(),
+        new MagnitudeGridDiagnostic(),
         new UlamsGrid(),
         new CriticalPointDiagnostic(),
         new ArcLengthGridDiagnostic(),
@@ -106,7 +107,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
 
     private object lastVelField;
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         if (!view.Is2DCamera)
             return;

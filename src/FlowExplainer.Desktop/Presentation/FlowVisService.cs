@@ -56,7 +56,7 @@ public class FlowVisService : WorldService
     }
 
     public double t = 0;
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         var dat = GetRequiredWorldService<DataService>();
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);

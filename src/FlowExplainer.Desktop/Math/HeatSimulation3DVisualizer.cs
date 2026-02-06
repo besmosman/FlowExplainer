@@ -171,7 +171,7 @@ public class FDTest : WorldService
 
     private RegularGrid<Vec2i, double> Temprature;
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         var dat = GetRequiredWorldService<DataService>();
         var vel = dat.VectorField;
@@ -237,7 +237,7 @@ public class HeatSimulation3DVisualizer : WorldService
         base.DrawImGuiSettings();
     }
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         if (!view.Is3DCamera)
             return;

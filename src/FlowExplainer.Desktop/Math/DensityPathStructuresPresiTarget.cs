@@ -106,7 +106,7 @@ public class DensityPathStructuresPresiTarget : WorldService, IAxisTitle
 
 
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         var flux = GetRequiredWorldService<DataService>().VectorField;
         var Tconv = GetRequiredWorldService<DataService>().LoadedDataset.ScalerFields["Convective Temperature"];

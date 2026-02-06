@@ -100,7 +100,7 @@ public class Poincare3DVisualizer : WorldService
 
     public double speed;
     private Material material;
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         if (!view.Is3DCamera)
             return;

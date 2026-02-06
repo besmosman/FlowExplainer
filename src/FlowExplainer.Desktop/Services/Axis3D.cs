@@ -12,7 +12,7 @@ public class Axis3D : WorldService
     {
 
     }
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         if (!view.Is2DCamera)
         {
@@ -22,8 +22,8 @@ public class Axis3D : WorldService
             var th = 0.02f;
             GL.Enable(EnableCap.DepthTest);
             Gizmos.DrawLine(view, domain.Min, new Vec3(domain.Max.X, domain.Min.Y, domain.Min.Z), th, new Color(1, 0, 0, 1));
-            Gizmos.DrawLine(view, new Vec3(domain.Max.X, domain.Min.Y, domain.Min.Z), new Vec3(domain.Max.X, domain.Max.Y, domain.Min.Z), th, new Color(0, 1, 0, 1));
-            Gizmos.DrawLine(view,  new Vec3(domain.Max.X, domain.Min.Y, domain.Min.Z), new Vec3(domain.Max.X, domain.Min.Y, domain.Max.Z), th, new Color(0, 0, 1, 1));
+            Gizmos.DrawLine(view, new Vec3(domain.Min.X, domain.Min.Y, domain.Min.Z), new Vec3(domain.Min.X, domain.Max.Y, domain.Min.Z), th, new Color(0, 1, 0, 1));
+            Gizmos.DrawLine(view,  new Vec3(domain.Min.X, domain.Min.Y, domain.Min.Z), new Vec3(domain.Min.X, domain.Min.Y, domain.Max.Z), th, new Color(0, 0, 1, 1));
             GL.Disable(EnableCap.DepthTest);
         }
 

@@ -443,7 +443,7 @@ public class StochasticConnectionVisualization : WorldService
         return sigma * term * term * term * (4.0 * q + 1.0);
     }
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         var dat = GetRequiredWorldService<DataService>();
         SimStep(dat.MultipliedDeltaTime);

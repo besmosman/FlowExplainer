@@ -22,7 +22,7 @@ public class SurfacesTest : WorldService
             structure.points.Add(new Vec2(.2, .25 + i / 50f));
         }
     }
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         var transportField = GetRequiredWorldService<DataService>().VectorField;
 

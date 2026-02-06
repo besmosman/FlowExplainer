@@ -7,7 +7,6 @@ namespace FlowExplainer;
 public class AxisVisualizer : WorldService
 {
     public bool DrawAxis = true;
-    public bool DrawWalls = false;
     public int StepsX = 5;
     public int StepsY = 5;
     public bool DrawGradient = true;
@@ -33,7 +32,7 @@ public class AxisVisualizer : WorldService
 
     }
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         if (!view.Is2DCamera)
             return;
@@ -131,20 +130,11 @@ public class AxisVisualizer : WorldService
                     Gizmos2D.Text(view.ScreenCamera, new Vec2(posX + width / 2f, posY + height + 5), lh, color, min.ToString("F2", CultureInfo.InvariantCulture), centered: true);
                 }
             }
-
-        if (DrawWalls)
-        {
-            var thick = .012f;
-            var off = -thick / 2;
-            Gizmos2D.Line(view.Camera2D, new Vec2(domain.Min.X, domain.Max.Y + off + thick / 2), new Vec2(domain.Max.X, domain.Max.Y + off + thick / 2), dat.ColorGradient.Get(.00f), thick);
-            Gizmos2D.Line(view.Camera2D, new Vec2(domain.Min.X, domain.Min.Y - off - thick / 2), new Vec2(domain.Max.X, domain.Min.Y - off - thick / 2), dat.ColorGradient.Get(1f), thick);
-        }
     }
 
     public override void DrawImGuiSettings()
     {
         ImGui.Checkbox("Draw Axis", ref DrawAxis);
-        ImGui.Checkbox("Draw Walls", ref DrawWalls);
         ImGui.Checkbox("Draw Gradient", ref DrawGradient);
         base.DrawImGuiSettings();
     }

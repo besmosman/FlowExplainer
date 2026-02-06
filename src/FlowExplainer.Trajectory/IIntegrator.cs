@@ -28,10 +28,10 @@ public class IncreasedDimensionVectorField<VecLowerIn, VecLowerOut, VecOut> : IV
     where VecLowerOut : IVecUpDimension<VecOut>
 {
     private IVectorField<VecLowerIn, VecLowerOut> UnsteadyField;
-    private readonly IVectorField<VecLowerIn, Vec1> final;
+    private readonly IVectorField<VecLowerIn, double> final;
     public IDomain<VecLowerIn> Domain { get; set; }
 
-    public IncreasedDimensionVectorField(IVectorField<VecLowerIn, VecLowerOut> unsteadyField, IVectorField<VecLowerIn, Vec1> final)
+    public IncreasedDimensionVectorField(IVectorField<VecLowerIn, VecLowerOut> unsteadyField, IVectorField<VecLowerIn, double> final)
     {
         UnsteadyField = unsteadyField;
         Domain = UnsteadyField.Domain;

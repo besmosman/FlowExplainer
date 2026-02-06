@@ -7,6 +7,9 @@
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <LangVersion>default</LangVersion>
         <RootNamespace>FlowExplainer</RootNamespace>
+        <OutputType>WinExe</OutputType>
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+        <ApplicationIcon>Assets\logo.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>

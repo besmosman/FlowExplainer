@@ -48,7 +48,7 @@ public class ParticleLagrangianTest : WorldService
         Reset();
     }
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         // GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
         var grad = GetRequiredWorldService<DataService>().ColorGradient;

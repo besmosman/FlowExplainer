@@ -183,7 +183,7 @@ public class StochasticConnectionVisualizationTest : WorldService
         base.DrawImGuiDataSettings();
     }
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         SimStep(GetRequiredWorldService<DataService>().MultipliedDeltaTime);
 

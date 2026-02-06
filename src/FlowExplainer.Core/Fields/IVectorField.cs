@@ -1,6 +1,9 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 
 namespace FlowExplainer;
+
+
 
 /*
 public interface IEditabalePeriodicVectorField<TInput, TOutput> : IPeriodicVectorField<TInput, TOutput>
@@ -49,7 +52,8 @@ public interface IVectorField<TInput, TOutput> where TInput : IVec<TInput, doubl
     }
 
     public IDomain<TInput> Domain { get; }
-
+    
+    
     public static IVectorField<TInput, TOutput> Constant(TOutput value) => new ConstantField<TInput, TOutput>(value, IDomain<TInput>.Infinite);
     public static IVectorField<TInput, TOutput> Constant(TOutput value, IDomain<TInput> domain) => new ConstantField<TInput, TOutput>(value, domain);
 

@@ -26,7 +26,7 @@ public class Heat3DViewer : WorldService
     }
     private object lastVelField;
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         if (!view.Is3DCamera)
             return;

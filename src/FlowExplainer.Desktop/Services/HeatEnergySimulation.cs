@@ -122,7 +122,7 @@ public class HeatEnergySimulation : WorldService
         return temp;
     }
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         var rk4 = IIntegrator<Vec3, Vec2>.Rk4;
         var dat = GetRequiredWorldService<DataService>();

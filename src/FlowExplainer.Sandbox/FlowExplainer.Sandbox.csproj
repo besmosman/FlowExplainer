@@ -6,6 +6,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>FlowExplainer.Desktop.Sandbox</RootNamespace>
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+        <ApplicationIcon>..\FlowExplainer.Desktop\Assets\logo.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>
@@ -17,6 +19,9 @@
     <ItemGroup>
         <None Update="msdf-atlas-gen.exe">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Include="..\FlowExplainer.Desktop\Assets\logo.ico">
+          <Link>logo.ico</Link>
         </None>
     </ItemGroup>
     <ItemGroup>

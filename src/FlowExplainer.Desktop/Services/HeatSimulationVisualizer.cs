@@ -41,7 +41,7 @@ public class HeatSimulationVisualizer : WorldService, IAxisTitle
     private double lastMin;
     private double lastMax;
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         if (!view.Is2DCamera)
             return;

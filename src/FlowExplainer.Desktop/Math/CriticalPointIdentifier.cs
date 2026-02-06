@@ -240,7 +240,7 @@ public class CriticalPointIdentifier : WorldService
 
         return (signChangeX && signChangeY);
     }
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
 
         var rk4 = IIntegrator<Vec3, Vec2>.Rk4;

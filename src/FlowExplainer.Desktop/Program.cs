@@ -1,53 +1,45 @@
 ﻿using System.Globalization;
-using Newtonsoft.Json.Linq;
+using FlowExplainer;
 
-namespace FlowExplainer
+DedicatedGraphics.InitializeDedicatedGraphics();
+CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+Config.Load("config.json");
+var app = new FlowExplainer.FlowExplainer();
+app.AddDefaultGlobalServices();
+var world = app.GetGlobalService<WorldManagerService>().Worlds.First();
+
+var datasets = app.GetGlobalService<DatasetsService>().Datasets;
+if (datasets.Count == 0)
+    AddExampleDataset(app);
+else
+    world.DataService.SetDataset(datasets.First().Key);
+
+world.AddVisualisationService<AxisVisualizer>();
+app.Run();
+
+
+void AddExampleDataset(FlowExplainer.FlowExplainer flowExplainer)
 {
-    /*
-    public struct FragmentInput
-    {
-        public Vec2 Uv;
-        public Vec3 Normal;
-        public Vec4 VertexColor;
-    }
 
-    public class NShader
-    {
-        public Vec4 Main(FragmentInput input)
+    var dataset = new Dataset(new()
         {
-            return new Vec4(input.Normal, 1);
-        }
-    }
-    */
-
-    public class AssetWatcherService : GlobalService
-    {
-        public override void Initialize()
+            {
+                "Name", "Test Data"
+            },
+        },
+        (d) =>
         {
-        }
+            d.VectorFields.Add("Double Gyre", new SpeetjensVelocityField()
+            {
+                epsilon = 0.1
+            });
+            d.ScalerFields.Add("Scaler Field", new ArbitraryField<Vec3, double>(new RectDomain<Vec3>(Vec3.Zero, new Vec3(1, .5, 1)),
+                (x) => Vec2.Distance(x.XY, new Vec2(.5f + x.Z, .25))));
+        });
 
-        public override void Draw()
-        {
-            AssetWatcher.Execute();
-        }
-    }
-
-    internal class Program
-    {
-        static void Main(string[] _)
-        {
-            /*CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
-            if (File.Exists("config.json"))
-                Config.Load("config.json");
-            else
-                Config.Load(new Dictionary<string, JValue>());
-
-            ServicesInfo.Init();
-
-            var app = new FlowExplainer();
-            app.AddDefaultGlobalServices();
-            Scripting.Startup(app.GetGlobalService<WorldManagerService>().Worlds[0]);
-            app.Run();*/
-        }
-    }
+    flowExplainer.GetGlobalService<DatasetsService>().Datasets.Add(dataset.Name, dataset);
+    var world = flowExplainer.GetGlobalService<WorldManagerService>().Worlds[0];
+    world.DataService.SetDataset(dataset.Name);
+    world.DataService.currentSelectedVectorField = "Double Gyre";
+    world.DataService.currentSelectedScaler = "Scaler Field";
 }

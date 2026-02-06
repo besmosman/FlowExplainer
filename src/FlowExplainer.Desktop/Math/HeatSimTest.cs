@@ -70,7 +70,7 @@ public class HeatSimTest : WorldService
         }
     }
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         foreach (var cell in Cells)
         {

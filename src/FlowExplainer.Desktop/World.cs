@@ -148,7 +148,7 @@ namespace FlowExplainer
                             service.IsInitialzied = true;
                         }
 
-                        service.Draw(view.RenderTarget, view);
+                        service.Draw(view);
                     }
 
                     Profiler.End(service?.Name ?? service!.GetType().Name);

@@ -33,7 +33,7 @@ public class SpaceTimeSurfaceStructureExtractor2 : WorldService
         }
     }
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         if(lastTarget != TargetValue)
         {

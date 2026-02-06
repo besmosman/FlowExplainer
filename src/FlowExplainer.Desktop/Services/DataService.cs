@@ -94,7 +94,7 @@ public class DataService : WorldService
             yield return new SelectableVectorField<Vec3, Vec2>(f.Key, f.Value);
     }
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         if (firstDraw)
         {

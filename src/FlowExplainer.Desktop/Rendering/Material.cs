@@ -64,7 +64,7 @@ namespace FlowExplainer
             foreach (var item in texturesByUniform.Values) //TODO not ideal performance
             {
                 GL.ActiveTexture(item.TextureUnit);
-                GL.BindTexture(TextureTarget.Texture2D, item.Texture.TextureHandle);
+                GL.BindTexture(TextureTarget.Texture2D, item.TextureIndex);
             }
         }
 
@@ -104,11 +104,28 @@ namespace FlowExplainer
                         if (texturesByUniform.ContainsKey(name))
                         {
                             materialTexture = texturesByUniform[name];
-                            materialTexture.Texture = v;
+                            materialTexture.TextureIndex = v.TextureHandle;
                         }
                         else
                         {
-                            materialTexture = new(v, (TextureUnit)(texturesByUniform.Count + (int)TextureUnit.Texture0));
+                            materialTexture = new(v.TextureHandle, (TextureUnit)(texturesByUniform.Count + (int)TextureUnit.Texture0));
+                            texturesByUniform.Add(name, materialTexture);
+                        }
+                        SetTextureUniformDirectly(loc, v.TextureHandle, materialTexture.TextureUnit, v.TextureTarget);
+                    }
+                    break;
+                case Texture3D v:
+                    {
+                        // if the uniform was already set, replace the old association
+                        MaterialTexture? materialTexture;
+                        if (texturesByUniform.ContainsKey(name))
+                        {
+                            materialTexture = texturesByUniform[name];
+                            materialTexture.TextureIndex = v.TextureHandle;
+                        }
+                        else
+                        {
+                            materialTexture = new(v.TextureHandle, (TextureUnit)(texturesByUniform.Count + (int)TextureUnit.Texture0));
                             texturesByUniform.Add(name, materialTexture);
                         }
                         SetTextureUniformDirectly(loc, v.TextureHandle, materialTexture.TextureUnit, v.TextureTarget);

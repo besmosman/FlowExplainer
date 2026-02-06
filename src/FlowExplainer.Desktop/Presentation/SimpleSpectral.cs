@@ -120,7 +120,7 @@ public class SimpleSpectral : WorldService
         }
     }
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
     }
 }

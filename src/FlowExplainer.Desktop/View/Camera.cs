@@ -20,7 +20,10 @@ namespace FlowExplainer
 
 
         public Matrix4x4 GetViewMatrix()
-            => Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(Position);
+        {
+            var flipZ = Matrix4x4.CreateScale(1, 1, -1); 
+            return flipZ * Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(Position);
+        }
 
         public Matrix4x4 GetProjectionMatrix()
         {

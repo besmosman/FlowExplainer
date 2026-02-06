@@ -67,7 +67,7 @@ public abstract class WorldService : Service
     /// <summary>
     /// Can be called multiple times each frame (multiple views with same world).
     /// </summary>
-    public abstract void Draw(RenderTexture rendertarget, View view);
+    public abstract void Draw(View view);
 
 
     /// <summary>

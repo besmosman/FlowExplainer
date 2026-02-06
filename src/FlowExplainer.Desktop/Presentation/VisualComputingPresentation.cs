@@ -345,7 +345,7 @@ public class VisualComputingPresentation : NewPresentation
                 p = Utils.Random(new Rect<Vec2>(Vec2.Zero, new Vec2(1, .5f)));
             }
         }
-        public override void Draw(RenderTexture rendertarget, View view)
+        public override void Draw(View view)
         {
             if (move)
             {

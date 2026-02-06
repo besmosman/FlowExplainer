@@ -166,7 +166,6 @@ void main()
 
     for (int i = 0; i < numSteps && accumulatedColor.a < 1; i++) {
         float density = sampleVolume(rayPos);
-
         if(density > heatFilterMin && density < heatFilterMax && rayPos.z > volumeMin.z+0.05){
             vec4 sampleColor = transferFunction(density);
             // Calculate gradient for lighting

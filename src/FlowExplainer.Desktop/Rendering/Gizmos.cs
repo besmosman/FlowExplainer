@@ -7,14 +7,20 @@ namespace FlowExplainer;
 public static class Gizmos
 {
     public static Material debugMat = Material.NewDefaultUnlit;
+    public static Material texturedMat = new Material(
+        Shader.DefaultWorldSpaceVertex,
+        new Shader("Assets/Shaders/textured.frag", ShaderType.FragmentShader));
+
     public static Mesh sphereMesh;
     public static Mesh UnitCube;
+    public static Mesh Quad;
 
     static Gizmos()
     {
         sphereMesh = new Mesh(GeometryGen.UVSphere(5, 5));
         UnitCube = new Mesh(GeometryGen.TriangleCube(Vec3.Zero, Vec3.One, Vec4.One));
         UnitCube.PrimitiveType = PrimitiveType.Triangles;
+        Quad = new Mesh(GeometryGen.Quad(Vec3.Zero, Vec2.One, Vec4.One));
     }
 
     public static void DrawSphere(View view, Vector3 pos, Vector3 size, Color color)
@@ -26,6 +32,19 @@ public static class Gizmos
         debugMat.SetUniform("model", Matrix4x4.CreateScale(size) * Matrix4x4.CreateTranslation(pos + size / 2));
         debugMat.SetUniform("tint", color);
         sphereMesh.Draw();
+    }
+
+
+    public static void DrawTexturedQuadXY(ICamera camera, Texture texture, Vec3 pos, Vec2 size)
+    {
+        texturedMat.Use();
+        texturedMat.SetUniform("view", camera.GetViewMatrix());
+        texturedMat.SetUniform("projection", camera.GetProjectionMatrix());
+        texturedMat.SetUniform("model", Matrix4x4.CreateScale((float)size.X, (float)size.Y, 1) *
+                                        Matrix4x4.CreateTranslation(pos.ToNumerics()));
+        texturedMat.SetUniform("tint", Color.White);
+        texturedMat.SetUniform("mainTex", texture);
+        Quad.Draw();
     }
 
     public static void DrawLine(View view, Vec3 p1, Vec3 p2, double thickness, Color color)
@@ -91,7 +110,7 @@ public static class Gizmos
             sphereMesh.DrawInstanced(sphereStorage.GetCurrentIndex());
             sphereStorage.Reset();
         }
-        
+
         public void DrawSpheresLit(ICamera camera)
         {
             sphereMatLit.Use();

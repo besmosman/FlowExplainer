@@ -134,23 +134,23 @@ public struct Vec3 :
 
     public double this[int n]
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        get
+        get => n switch
         {
-#if DEBUG
-            if (n < 0 || n >= ElementCount)
-                throw new IndexOutOfRangeException();
-#endif
-            return Unsafe.Add(ref X, n);
-        }
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            0 => X,
+            1 => Y,
+            2 => Z,
+            _ => throw new IndexOutOfRangeException(),
+        };
         set
         {
-#if DEBUG
-            if (n < 0 || n >= ElementCount)
-                throw new IndexOutOfRangeException();
-#endif
-            Unsafe.Add(ref X, n) = value;
+            switch (n)
+            {
+                case 0: X = value; break;
+                case 1: Y = value; break;
+                case 2: Z = value; break;
+                default:
+                    throw new IndexOutOfRangeException();
+            }
         }
     }
     

@@ -50,7 +50,7 @@ public class HeatSimulationReplayer : WorldService
         return curStep;
     }
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         if (loaded.HasValue)
         {

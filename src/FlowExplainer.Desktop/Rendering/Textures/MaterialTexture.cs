@@ -4,12 +4,12 @@ namespace FlowExplainer
 {
     public class MaterialTexture
     {
-        public Texture Texture;
+        public int TextureIndex;
         public readonly TextureUnit TextureUnit;
 
-        public MaterialTexture(Texture texture, TextureUnit textureUnit)
+        public MaterialTexture(int textureIndex, TextureUnit textureUnit)
         {
-            Texture = texture;
+            TextureIndex = textureIndex;
             TextureUnit = textureUnit;
         }
     }

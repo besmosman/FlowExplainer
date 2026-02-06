@@ -140,8 +140,9 @@ public class StochasticVisualization : WorldService, IAxisTitle
 
     private bool lastReverse = false;
 
-    public override void Draw(RenderTexture rendertarget, View view)
-    {
+    public override void Draw(View view)
+    {if (!view.Is2DCamera)
+            return;
         if (lastReverse != reverse)
         {
             lastReverse = reverse;
@@ -163,8 +164,7 @@ public class StochasticVisualization : WorldService, IAxisTitle
             default:
                 throw new ArgumentOutOfRangeException();
         }
-        if (!view.Is2DCamera)
-            return;
+        
 
         //if (additiveBlending)
         GL.BlendFuncSeparate(

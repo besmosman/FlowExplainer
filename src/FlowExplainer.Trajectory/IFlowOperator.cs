@@ -24,11 +24,12 @@ public interface IFlowOperator<X, P>
         public Trajectory<P> ComputeTrajectory(double t_start, double t_end, X x, IVectorField<P, X> v)
         {
             var duration = (t_end - t_start);
-            double dt = duration / Steps;
+            int steps = Steps;
+            double dt = duration / steps;
             var phase = x.Up(t_start);
-            var points = new List<P>(Steps);
+            var points = new List<P>(steps);
             points.Add(phase);
-            for (int i = 0; i < Steps; i++)
+            for (int i = 0; i < steps; i++)
             {
                 phase = Integrator.Integrate(v, v.Domain.Bounding.Bound(phase), dt);
                 points.Add(phase);

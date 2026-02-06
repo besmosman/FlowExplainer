@@ -16,14 +16,9 @@ public class MagnitudeGridDiagnostic : IGridDiagnostic
         var domain = dat.VectorField.Domain;
 
         var t = dat.SimulationTime;
-        var tau = dat.SimulationTime + T;
-
         var rectBound = domain.RectBoundary.Reduce<Vec2>();
-        Parallel.For(0, renderGrid.GridSize.X * renderGrid.GridSize.Y, c =>
+        ParallelGrid.For(renderGrid.GridSize, token,  (i,j) =>
         {
-            var i = c % renderGrid.GridSize.X;
-            var j = c / renderGrid.GridSize.X;
-            renderGrid.AtCoords(new Vec2i(i, j)).Value = 0;
             var pos = rectBound.FromRelative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());
             renderGrid.AtCoords(new Vec2i(i, j)).Value = dat.VectorField.Evaluate(pos.Up(t)).Length();
         });

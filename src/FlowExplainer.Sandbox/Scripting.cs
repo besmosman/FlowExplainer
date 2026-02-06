@@ -21,7 +21,7 @@ public static class Scripting
         {
         });
     }
-    
+
     public static void SurfaceExtractionSetup2(World world)
     {
         world.FlowExplainer.GetGlobalService<ViewsService>().Views[0].Is3DCamera = true;
@@ -71,17 +71,30 @@ public static class Scripting
         SetGyreDataset(world);
 
 
-        var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(4).Key;
+        var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(1).Key;
         world.GetWorldService<DataService>().SetDataset(name);
         world.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
         world.GetWorldService<DataService>().currentSelectedVectorField = "Convection Flux";
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
-        
 
-        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new VisualComputingPresentation());
-        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
-       // SurfaceExtractionSetup2(world);
+        if (!Directory.Exists("PlainText"))
+        {
+            Directory.CreateDirectory("PlainText");
+        }
+
+        /*
+        VectorFieldWriterPlaintext.Write(
+            world.DataService.LoadedDataset.ScalerFields["No Flow Temperature"] as RegularGridVectorField<Vec3, Vec3i, double>,
+            "PlainText/NoFlowTemperature.txt");
+
+        world.DataService.LoadedDataset.ScalerFields.Add("Test", VectorFieldWriterPlaintext.Load("PlainText/NoFlowTemperature.txt"));
+        */
+     
+        DensityParticlesScene(world);
+        // world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new VisualComputingPresentation());
+        // world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+        // SurfaceExtractionSetup2(world);
         //world.GetWorldService<DataService>().TimeMultiplier = .04;
 
 
@@ -119,7 +132,7 @@ public static class Scripting
         gridDiagnostic.Recompute(gridVisualizer);
         */
 
-     
+
 
         /*world.AddVisualisationService(new DensityPathStructures2()
         {
@@ -127,6 +140,17 @@ public static class Scripting
             ParticleCount = 10000,
             AccumelationFactor = .035f,
         });*/
+    }
+
+    private static void DensityParticlesScene(World world)
+    {
+        world.FlowExplainer.GetGlobalService<ViewsService>().Views[0].Is3DCamera = true;
+        world.AddVisualisationService(new DensityParticlesData());
+        world.AddVisualisationService(new DensityParticles3DVisualizer());
+        world.AddVisualisationService(new Slice3DVisualizer());
+
+        //world.AddVisualisationService(new DensityParticlesSliceVisualizer());
+        // world.AddVisualisationService(new DensityParticlesDistanceFieldVisualizer());
     }
 
     private static void LoadPeriodicCopies(World world)

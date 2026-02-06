@@ -100,7 +100,7 @@ public class NathanKutz : WorldService
     }
 
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         /*for (int i = 0; i < DensityGrid.Data.Length; i++)
         {
@@ -313,7 +313,7 @@ public class PointSimulation : WorldService
         }
     }
 
-    public override void Draw(RenderTexture rendertarget, View view)
+    public override void Draw(View view)
     {
         Step(GetRequiredWorldService<DataService>().MultipliedDeltaTime);
 
