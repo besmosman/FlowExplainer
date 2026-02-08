@@ -25,7 +25,7 @@ public class DataService : WorldService
     public double MultipliedDeltaTime { get; private set; }
 
     public override string? Name => "Dataset";
-    public override string? CategoryN => "General";
+    public override string? CategoryName => "General";
     public override string? Description => "Global dataset settings";
 
 

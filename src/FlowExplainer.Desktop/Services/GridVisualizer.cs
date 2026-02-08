@@ -49,7 +49,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
     public bool AutoScale = true;
 
     public override string? Name => "Grid Scaler";
-    public override string? CategoryN => "General";
+    public override string? CategoryName => "General";
     public override string? Description => "Compute and render diagnostics on a interpolated grid.";
 
     public List<IGridDiagnostic> Diagnostics =

@@ -3,7 +3,7 @@ using System.Text;
 
 namespace FlowExplainer;
 
-public class VectorFieldWriterPlaintext
+public class ScalerFieldWriterPlaintext
 {
     public static RegularGridVectorField<Vec3, Vec3i, double> Load(string path)
     {

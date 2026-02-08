@@ -63,7 +63,7 @@ public class StochasticVisualization : WorldService, IAxisTitle
     public Mode mode;
 
     public override string? Name => "Stochastic Structures";
-    public override string? CategoryN => "Structure";
+    public override string? CategoryName => "Structure";
     public override string? Description => "Visualize attracting/repelling regions using particle advection transparent rendering";
 
     public override void Initialize()

@@ -12,7 +12,6 @@ public static class Scripting
     {
         var gridVisualizer = new GridVisualizer()
         {
-
         };
         world.AddVisualisationService(gridVisualizer);
         gridVisualizer.SetGridDiagnostic(new ScalerGridDiagnostic());
@@ -71,26 +70,17 @@ public static class Scripting
         SetGyreDataset(world);
 
 
-        var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(1).Key;
+        var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(0).Key;
         world.GetWorldService<DataService>().SetDataset(name);
         world.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
         world.GetWorldService<DataService>().currentSelectedVectorField = "Convection Flux";
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
 
-        if (!Directory.Exists("PlainText"))
-        {
-            Directory.CreateDirectory("PlainText");
-        }
 
-        /*
-        VectorFieldWriterPlaintext.Write(
-            world.DataService.LoadedDataset.ScalerFields["No Flow Temperature"] as RegularGridVectorField<Vec3, Vec3i, double>,
-            "PlainText/NoFlowTemperature.txt");
+        WriteDatasetToPlaintext(world.DataService.LoadedDataset);
 
-        world.DataService.LoadedDataset.ScalerFields.Add("Test", VectorFieldWriterPlaintext.Load("PlainText/NoFlowTemperature.txt"));
-        */
-     
+
         DensityParticlesScene(world);
         // world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new VisualComputingPresentation());
         // world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
@@ -133,13 +123,41 @@ public static class Scripting
         */
 
 
-
         /*world.AddVisualisationService(new DensityPathStructures2()
         {
             InfluenceRadius = .005f,
             ParticleCount = 10000,
             AccumelationFactor = .035f,
         });*/
+    }
+
+    private static void WriteDatasetToPlaintext(Dataset dataset)
+    {
+        if (Directory.Exists("PlainText"))
+            Directory.Delete("PlainText", true);
+
+        Directory.CreateDirectory("PlainText");
+
+
+        foreach (var s in dataset.ScalerFields)
+        {
+            var regularGridVectorField = s.Value as RegularGridVectorField<Vec3, Vec3i, double>;
+            if (regularGridVectorField != null)
+            {
+                ScalerFieldWriterPlaintext.Write(regularGridVectorField, $"PlainText/{s.Key.Replace(" ", "_")}.txt");
+            }
+        }
+
+        foreach (var s in dataset.VectorFields)
+        {
+            var regularGridVectorField = s.Value as RegularGridVectorField<Vec3, Vec3i, Vec2>;
+
+            if (regularGridVectorField != null)
+            {
+                ScalerFieldWriterPlaintext.Write(regularGridVectorField.Select(s => regularGridVectorField.AtCoords(s).X), $"PlainText/{s.Key.Replace(" ", "_")}_X.txt");
+                ScalerFieldWriterPlaintext.Write(regularGridVectorField.Select(s => regularGridVectorField.AtCoords(s).Y), $"PlainText/{s.Key.Replace(" ", "_")}_Y.txt");
+            }
+        }
     }
 
     private static void DensityParticlesScene(World world)
@@ -155,7 +173,6 @@ public static class Scripting
 
     private static void LoadPeriodicCopies(World world)
     {
-
         var datasetsService = world.FlowExplainer.GetGlobalService<DatasetsService>();
         foreach (var d in datasetsService.Datasets.ToList())
         {

@@ -5,6 +5,12 @@ namespace FlowExplainer;
 public class Slice3DVisualizer : WorldService
 {
     public View SliceView;
+
+    public override string? Name => "Slice";
+    public override string? Description => "View 2D visualizations in 3D as a quad in spacetime space";
+    public override string? CategoryName => "General";
+    public override bool Category3D => true;
+
     public override void Initialize()
     {
         SliceView = new View(1, 1, World);
@@ -12,6 +18,7 @@ public class Slice3DVisualizer : WorldService
         SliceView.Camera2D.Position = default;
         SliceView.Camera2D.Scale = 10;
     }
+    
     public override void Draw(View view)
     {
         if (!view.Is3DCamera)

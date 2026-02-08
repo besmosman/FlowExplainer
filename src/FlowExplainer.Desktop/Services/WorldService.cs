@@ -15,9 +15,10 @@ public abstract class WorldService : Service
 
     public bool ui_needs_open;
 
+    public virtual bool Category3D { get; }
     public virtual string? Description { get; }
     public virtual string? Name { get; }
-    public virtual string? CategoryN { get; }
+    public virtual string? CategoryName { get; }
 
 
     public DataService DataService => GetRequiredWorldService<DataService>();

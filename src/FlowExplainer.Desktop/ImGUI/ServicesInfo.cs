@@ -27,11 +27,11 @@ public static class ServicesInfo
         foreach (var type in assembly.GetTypes().Where(t => t.IsAssignableTo(typeof(WorldService)) && !t.IsAbstract))
         {
             var instance = (WorldService)Activator.CreateInstance(type)!;
-            if (instance.CategoryN != null)
+            if (instance.CategoryName != null)
             {
                 var name = instance.Name ?? "?";
-                ServicesByCategory.TryAdd(instance.CategoryN, new());
-                ServicesByCategory[instance.CategoryN].Add(instance);
+                ServicesByCategory.TryAdd(instance.CategoryName, new());
+                ServicesByCategory[instance.CategoryName].Add(instance);
                 ServicesOrderedByName.Add(instance);
             }
         }

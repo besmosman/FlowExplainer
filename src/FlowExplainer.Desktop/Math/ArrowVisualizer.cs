@@ -27,7 +27,7 @@ public class ArrowVisualizer : WorldService, IAxisTitle
 
 
     public override string? Name => "Arrow Glyphs";
-    public override string? CategoryN => "Vectorfield";
+    public override string? CategoryName => "Vectorfield";
     public override string? Description => "Visualize a vectorfield using arrow glyphs";
 
     public IVectorField<Vec3, Vec2>? AltVectorfield;

@@ -18,7 +18,7 @@ public class AxisVisualizer : WorldService
 
     public override string? Name => "Axis";
     public override string? Description => "Render axis";
-    public override string? CategoryN => "General";
+    public override string? CategoryName => "General";
 
     public override void Initialize()
     {

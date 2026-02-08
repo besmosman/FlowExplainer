@@ -32,7 +32,7 @@ public class StochasticVisualization3D : WorldService
     public double dt = .01f;
     public double maxAlpha = 1;
     public override string? Name { get; } = "Stochastic 3D";
-    public override string? CategoryN { get; } = "Structure";
+    public override string? CategoryName { get; } = "Structure";
     public override string? Description { get; } = "Stochastic structures 3D version";
     public double ReseedChance = .01;
     public double FadeInFactor = 1.0 / 8.0;

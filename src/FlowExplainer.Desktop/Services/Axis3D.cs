@@ -6,8 +6,9 @@ public class Axis3D : WorldService
 {
     public override string? Name => "Axis 3D";
     public override string? Description => "Render 3D axis";
-    public override string? CategoryN => "General";
-    
+    public override string? CategoryName => "General";
+    public override bool Category3D => true;
+
     public override void Initialize()
     {
 

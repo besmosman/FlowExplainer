@@ -28,7 +28,7 @@ public class PoincareVisualizer : WorldService, IAxisTitle
     public string GetTitle() => "Poincaré Section";
     public override string? Description { get; } = "Computes and visualizes 2D Poincaré sections of a time-dependent flow.";
     public override string? Name { get; } = "Poincaré Visualizer";
-    public override string? CategoryN { get; } = "Structure";
+    public override string? CategoryName { get; } = "Structure";
 
     public override void DrawImGuiSettings()
     {

@@ -23,7 +23,7 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
     public double? AltTime;
 
     public override string? Name => "Animated Glyph Flow Visualizer";
-    public override string? CategoryN => "Vectorfield";
+    public override string? CategoryName => "Vectorfield";
     public override string? Description => "Visualize flow with glyphs that move along the instantaneous vectorfield.";
 
     struct Data
