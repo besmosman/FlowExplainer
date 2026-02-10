@@ -5,6 +5,12 @@ namespace FlowExplainer;
 public interface IBounding<Vec> where Vec : IVec<Vec, double>
 {
     Vec Bound(Vec x);
+    double BoundLastAxis(double t)
+    {
+        Vec def = default;
+        def.Last = t;
+        return Bound(def).Last;
+    }
     double ShortestSpatialDistanceSqrt(Vec a, Vec b);
     double ShortestSpatialDistance(Vec a, Vec b) => double.Sqrt(ShortestSpatialDistanceSqrt(a, b));
 }

@@ -270,7 +270,7 @@ public class VisualComputingPresentation : NewPresentation
                 w.DataService.currentSelectedVectorField = "Diffusion Flux";
                 w.DataService.currentSelectedScaler = "Convective Temperature";
                 var axisVisualizer = w.AddVisualisationService<Axis3D>();
-                var s = w.AddVisualisationService<SpaceTimeSurfaceStructureExtractor2>();
+                var s = w.AddVisualisationService<SpaceTimeScalerGradientService>();
                 s.ParticleCount = 200000;
                 s.Initialize();
                 s.Radius = 0.004f;
@@ -282,7 +282,7 @@ public class VisualComputingPresentation : NewPresentation
                 view.CameraZoom = 26;
                 view.CameraOffset = -new Vec3(0.5f, 0.25, .5f);
             }
-            ref var t = ref view.World.GetWorldService<SpaceTimeSurfaceStructureExtractor2>().TargetValue;
+            ref var t = ref view.World.GetWorldService<SpaceTimeScalerGradientService>().TargetValue;
             GL.Disable(EnableCap.DepthTest);
             Presi.Slider("target", ref t, -1, 1, new Vec2(0.5, 0.1), .5);
 
@@ -291,7 +291,7 @@ public class VisualComputingPresentation : NewPresentation
                 if (view.World.DataService.LoadedDataset.Name != "(P) Double Gyre EPS=0.1, Pe=500")
                 {
                     view.World.DataService.SetDataset("(P) Double Gyre EPS=0.1, Pe=500");
-                    view.World.GetWorldService<SpaceTimeSurfaceStructureExtractor2>().Initialize();
+                    view.World.GetWorldService<SpaceTimeScalerGradientService>().Initialize();
                 }
             }
         }

@@ -4,22 +4,11 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
 
-public class DensityPathStructures : WorldService, IAxisTitle
+public class DensityPathStructuresSpaceTimeData : WorldService, IAxisTitle
 {
-    private Particle[] Particles;
     private Sample[] Samples;
 
-    private StorageBuffer<Particle> ParticlesBuffer;
     private StorageBuffer<Sample> SampleBuffer;
-
-    public struct Particle
-    {
-        public Vec2 LastPosition;
-        public Vec2 Position;
-        public float VisualTimeAlive;
-        public float IntegrationTime;
-        public float Noise;
-    }
 
     public struct Sample
     {
@@ -32,8 +21,7 @@ public class DensityPathStructures : WorldService, IAxisTitle
 
 
 
-    public Vec2i SampleGridSize = new Vec2i(32, 16) * 24;
-    public int ParticleCount = 1;
+    public Vec2i SampleGridSize = new Vec2i(32, 16) * 16;
 
     private Rect<Vec2> WorldRect;
 
@@ -42,6 +30,7 @@ public class DensityPathStructures : WorldService, IAxisTitle
     public double Decay = .04f;
     public double reseedRate = .005f;
     public bool Normalize = true;
+    public double TimeRange;
 
     public override string? Name => "Density Path Structures";
     public override string? Description => "Visualization of attracting and repelling structures in transport fields";
@@ -69,67 +58,45 @@ public class DensityPathStructures : WorldService, IAxisTitle
 
     private void Reset()
     {
-        Particles = new Particle[ParticleCount];
-        ParticlesBuffer = new StorageBuffer<Particle>(Particles);
-        var dat = GetRequiredWorldService<DataService>();
-        var rect = dat.VectorField.Domain.RectBoundary;
-        for (int i = 0; i < ParticleCount; i++)
-        {
-            var pos = Utils.Random(rect).XY;
-            Particles[i].Position = pos;
-            Particles[i].LastPosition = Particles[i].Position;
-            Particles[i].VisualTimeAlive = 0;
-            Particles[i].Noise = EvalNoise(pos);
-        }
+        var rect = DataService.VectorField.Domain.RectBoundary;
         WorldRect = rect.Reduce<Vec2>();
         Samples = new Sample[SampleGridSize.Volume()];
 
         SampleBuffer = new StorageBuffer<Sample>(Samples);
-        Particles[0].Position = rect.Center.XY;
-        Particles[0].LastPosition = rect.Center.XY;
-
+        ref var Particles = ref GetRequiredWorldService<DensityParticlesData>().Particles;
+        GetRequiredWorldService<DensityParticlesData>().Initialize();
     }
     private float EvalNoise(Vec2 pos)
     {
         return (float)((noise.GetNoise((float)pos.X * 4000, (float)pos.Y * 4000)) + 1) * 0.5f;
     }
 
- 
-    
+
+
     public override void Draw(View view)
-    {
-        if(!view.Is2DCamera)
-           return;
-        
-        var flux = GetRequiredWorldService<DataService>().VectorField;
-        var T = GetRequiredWorldService<DataService>().LoadedDataset.ScalerFields["Convective Temperature"];
-        
-        var rk = IIntegrator<Vec3, Vec2>.Rk4;
+    {  
         var dat = GetRequiredWorldService<DataService>();
+        var flux = GetRequiredWorldService<DataService>().VectorField;
         var bounding = flux.Domain.Bounding;
-        var dt = dat.MultipliedDeltaTime;
+        double f = TimeRange/2;
+
+        if (!view.Is2DCamera)
+        {
+            double t = bounding.BoundLastAxis(dat.SimulationTime);
+            Gizmos.DrawLine(view, new Vec3(.0,.0, t-f), new Vec3(.0,.0,t+f), .03, new Color(1,1,0));
+            return;
+        }
         
+        var Particles = GetRequiredWorldService<DensityParticlesData>().Particles;
+
+        var T = GetRequiredWorldService<DataService>().LoadedDataset.ScalerFields["Convective Temperature"];
+
+        var rk = IIntegrator<Vec3, Vec2>.Rk4;
+      
+        var dt = dat.MultipliedDeltaTime;
+
         var seedRect = dat.VectorField.Domain.RectBoundary.Reduce<Vec2>();
 
-        //seedRect = new Rect<Vec2>(Vec2.Zero, new Vec2(1, 0));
-        //seedRect = new Rect<Vec2>(new Vec2(.3, .1), new Vec2(.7, .4));
-        Parallel.For(0, Particles.Length, i =>
-        {
-            ref var p = ref Particles[i];
-            p.LastPosition = p.Position;
-            float temp = (float)T.Evaluate(p.Position.Up(p.IntegrationTime));
-            p.Position = bounding.Bound(rk.Integrate(flux, p.Position.Up(dat.SimulationTime), dt)).XY;
-            if (dt != 0 && Utils.Random(0, 1) > 1f - reseedRate)
-            {
-                p.Position = Utils.Random(seedRect);
-                p.LastPosition = p.Position;
-                p.Noise = EvalNoise(p.Position);
-                p.VisualTimeAlive = 0;
-            }
-            p.VisualTimeAlive += float.Abs((float)dt);
-            p.IntegrationTime += temp;
-
-        });
         foreach (ref var s in Samples.AsSpan())
         {
             s.Accumulation /= (1f + (float)Decay);
@@ -145,13 +112,23 @@ public class DensityPathStructures : WorldService, IAxisTitle
         int radY = (int)double.Ceiling(InfluenceRadius / (WorldRect.Size.Y / SampleGridSize.Y)) + 0;
         float circleRadius = (float)InfluenceRadius;
 
-        
+
+        double maxTime = bounding.BoundLastAxis(dat.SimulationTime + f);
+        double minTime =  bounding.BoundLastAxis(dat.SimulationTime - f);
         Parallel.For(0, Particles.Length, c =>
                 //for (int c = 0; c < Particles.Length; c++)
             {
                 ref var p = ref Particles[c];
-                var centerA = WorldToGrid(p.LastPosition).RoundInt();
-                var centerB = WorldToGrid(p.Position).RoundInt();
+                double particleTime = p.Phase.Z;
+                double particleInfluence = 0;
+                if (particleTime < minTime && particleTime > maxTime)
+                {
+                    return;
+                }
+                particleInfluence = 1f - double.Abs(particleTime - (maxTime + minTime) / 2) / ((maxTime - minTime)/2);
+                particleInfluence = double.Clamp(particleInfluence, 0, 1);
+                var centerA = WorldToGrid(p.LastPhase.XY).RoundInt();
+                var centerB = WorldToGrid(p.Phase.XY).RoundInt();
 
                 if (Vec2i.DistanceSquared(centerA, centerB) > SampleGridSize.X / 2)
                 {
@@ -169,13 +146,13 @@ public class DensityPathStructures : WorldService, IAxisTitle
 
                     //var disSqrt = (float)bounding.ShortestSpatialDistanceSqrt(p.Position.Up(0), samplePos.Up(0));
                     //var dis = float.Sqrt(disSqrt);
-                    var disSqrt = DistancePointSegmentSq(samplePos, p.LastPosition, p.Position);
+                    var disSqrt = DistancePointSegmentSq(samplePos, p.LastPhase.XY, p.Phase.XY);
                     //var dis = double.Sqrt(disSqrt);
                     //if (dis < InfluenceRadius)
                     {
-                        GetSampleInfoAt(gridCoord).Accumulation += Accum((float)disSqrt, p.VisualTimeAlive, (float)AccumelationFactor);
-                        GetSampleInfoAt(gridCoord).LIC += Accum((float)disSqrt, p.VisualTimeAlive, p.Noise);
-                        GetSampleInfoAt(gridCoord).Count=1;
+                        GetSampleInfoAt(gridCoord).Accumulation += Accum((float)disSqrt, (float)p.TimeAlive, (float)(AccumelationFactor * particleInfluence));
+                        //GetSampleInfoAt(gridCoord).LIC += Accum((float)disSqrt,  (float)p.TimeAlive, p.Noise);
+                        GetSampleInfoAt(gridCoord).Count = 1;
                         //float lifeTimeFactor = float.Min(1, p.TimeAlive);
                         //float distanceToCircle = (dis - circleRadius);
                         //sample.Accumulation = float.Min(sample.Accumulation, distanceToCircle);
@@ -220,8 +197,8 @@ public class DensityPathStructures : WorldService, IAxisTitle
         ImGuiHelpers.Slider("InfluenceRadius", ref InfluenceRadius, 0, .01f);
         ImGuiHelpers.Slider("AccumulationFactor", ref AccumelationFactor, 0, 1f);
         ImGuiHelpers.Slider("Reseed Rate", ref reseedRate, 0, .1f);
+        ImGuiHelpers.Slider("TimeRange", ref TimeRange, 0, .3f);
         ImGuiHelpers.Slider("Decay", ref Decay, 0, 1f);
-        ImGuiHelpers.SliderInt("Particles", ref ParticleCount, 1, 10000);
         if (ImGui.Button("Reset"))
         {
             Reset();

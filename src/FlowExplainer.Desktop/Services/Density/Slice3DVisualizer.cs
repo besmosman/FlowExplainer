@@ -42,7 +42,8 @@ public class Slice3DVisualizer : WorldService
         double t = DataService.SimulationTime;
         GL.Enable(EnableCap.DepthTest);
         RenderTexture.Blit(SliceView.RenderTarget, SliceView.PostProcessingTarget);
-        Gizmos.DrawTexturedQuadXY(view.Camera, SliceView.PostProcessingTarget, new Vec3(0, 0, t), new Vec2(1, .5f));
+        var p = DataService.VectorField.Domain.Bounding.Bound(new Vec3(0, 0, t));
+        Gizmos.DrawTexturedQuadXY(view.Camera, SliceView.PostProcessingTarget, p, new Vec2(1, .5f));
         //Gizmos2D.ImageCenteredInvertedY(view.Camera2D, SliceView.PostProcessingTarget, new Vec2(1.5, .5), new Vec2(1, .5f));
     }
 }

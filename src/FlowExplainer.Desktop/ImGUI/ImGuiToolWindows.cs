@@ -165,7 +165,7 @@ public static class ImGuiToolWindows
                                 {
                                     ImGui.BeginTooltip();
                                     ImGui.PushTextWrapPos(ImGui.GetFontSize() * 20.0f);
-                                    ImGui.TextWrapped(service.Description);
+                                    ImGui.TextWrapped(service?.Description ?? "?");
                                     ImGui.PopTextWrapPos();
                                     ImGui.EndTooltip();
                                 }

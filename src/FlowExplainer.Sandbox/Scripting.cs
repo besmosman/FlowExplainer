@@ -25,7 +25,7 @@ public static class Scripting
     {
         world.FlowExplainer.GetGlobalService<ViewsService>().Views[0].Is3DCamera = true;
         world.AddVisualisationService(new Axis3D());
-        world.AddVisualisationService(new SpaceTimeSurfaceStructureExtractor2
+        world.AddVisualisationService(new SpaceTimeScalerGradientService
         {
         });
     }
@@ -70,7 +70,7 @@ public static class Scripting
         SetGyreDataset(world);
 
 
-        var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(0).Key;
+        var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(3).Key;
         world.GetWorldService<DataService>().SetDataset(name);
         world.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
         world.GetWorldService<DataService>().currentSelectedVectorField = "Convection Flux";
@@ -78,9 +78,7 @@ public static class Scripting
         world.AddVisualisationService(new Axis3D());
 
 
-        WriteDatasetToPlaintext(world.DataService.LoadedDataset);
-
-
+        //WriteDatasetToPlaintext(world.DataService.LoadedDataset);
         DensityParticlesScene(world);
         // world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new VisualComputingPresentation());
         // world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
@@ -162,10 +160,13 @@ public static class Scripting
 
     private static void DensityParticlesScene(World world)
     {
+        world.DataService.SimulationTime = .5f;
         world.FlowExplainer.GetGlobalService<ViewsService>().Views[0].Is3DCamera = true;
         world.AddVisualisationService(new DensityParticlesData());
         world.AddVisualisationService(new DensityParticles3DVisualizer());
         world.AddVisualisationService(new Slice3DVisualizer());
+        world.AddVisualisationService(new DensityPathStructuresSpaceTimeData());
+        //world.AddVisualisationService(new SpaceTimeScalerGradientService());
 
         //world.AddVisualisationService(new DensityParticlesSliceVisualizer());
         // world.AddVisualisationService(new DensityParticlesDistanceFieldVisualizer());

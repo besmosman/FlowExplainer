@@ -5,9 +5,10 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace FlowExplainer;
 
-public class SpaceTimeSurfaceStructureExtractor2 : WorldService
+public class SpaceTimeScalerGradientService : WorldService
 {
-
+    public override string? Name => "Spacetime Scaler Gradient";
+    public override string? CategoryName => "Structure";
     public struct Particle
     {
         public Vec3 Position;
@@ -24,7 +25,7 @@ public class SpaceTimeSurfaceStructureExtractor2 : WorldService
         Particles = new Particle[ParticleCount];
         var vectorField = World.GetSelectableVectorFields<Vec3, double>().First().VectorField;
         ScalerField = vectorField;
-        
+
 
         var domainRectBoundary = ScalerField.Domain.RectBoundary;
         foreach (ref var p in Particles.AsSpan())
@@ -35,7 +36,15 @@ public class SpaceTimeSurfaceStructureExtractor2 : WorldService
 
     public override void Draw(View view)
     {
-        if(lastTarget != TargetValue)
+        if(!view.Is3DCamera)
+            return;
+        
+        var TotalFlux = DataService.LoadedDataset.VectorFields["Total Flux"];
+        var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
+      //  var ScalerField = new ArbitraryField<Vec3, double>(TotalFlux.Domain, x => (TotalFlux.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)).Length()));
+      //  var ScalerField = new ArbitraryField<Vec3, double>(TotalFlux.Domain, x => (TotalFlux.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)).Length()));
+
+        if (lastTarget != TargetValue)
         {
             var domainRectBoundary = ScalerField.Domain.RectBoundary;
             var ps = Particles.AsSpan();
@@ -52,19 +61,21 @@ public class SpaceTimeSurfaceStructureExtractor2 : WorldService
             /*var v= Vector3.Transform(new Vector3(0, 0, 1), view.Camera.Rotation);
             view.CameraOffset += new Vec3(v.X, v.Y,v.Z)*.1f;*/
         }
-        
+
         GL.Enable(EnableCap.DepthTest);
         var colormap = DataService.ColorGradient;
+            var domainBounding = ScalerField.Domain.Bounding;
         Parallel.For(0, Particles.Length, i =>
         {
             ref var p = ref Particles[i];
             var grad = ScalerField.FiniteDifferenceGradientIgnoreLast<Vec3, Vec2>(p.Position, .0001f).NormalizedSafe();
             var distanceToTarget = TargetValue - ScalerField.Evaluate(p.Position);
             p.Position += grad.Up(0) * distanceToTarget * MoveSpeed;
+            p.Position = domainBounding.Bound(p.Position);
         });
         foreach (var p in Particles)
         {
-            if (p.Position.Y > .001f)
+            if (p.Position.Y > 0.01f )
                 Gizmos.Instanced.RegisterSphere(p.Position, Radius, colormap.Get(p.Position.Y));
         }
         Gizmos.Instanced.DrawSpheresLit(view.Camera);
@@ -80,7 +91,7 @@ public class SpaceTimeSurfaceStructureExtractor2 : WorldService
         ImGuiHelpers.Slider("Radius", ref Radius, 0, .2);
         ImGuiHelpers.Slider("MoveSpeed", ref MoveSpeed, 0, .5);
         ImGuiHelpers.Slider("TargetValue", ref TargetValue, -1, 1);
-      
+
         ImGuiHelpers.SliderInt("ParticleCount", ref ParticleCount, 0, 10000);
 
         base.DrawImGuiSettings();

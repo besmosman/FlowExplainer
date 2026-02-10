@@ -7,36 +7,41 @@ public class DensityParticlesData : WorldService
     public struct Particle
     {
         public Vec3 StartPhase;
+        public Vec3 LastPhase;
         public Vec3 Phase;
+        public double TrueTime;
         public double TimeAlive;
     }
 
     public Particle[] Particles;
     public int ParticleCount = 1000;
 
+    
     public override string? Name => "Density Particles";
 
     public IVectorField<Vec3, Vec3> VelocityField;
     public double dt;
-
     public override void Initialize()
     {
         var TotalFlux = DataService.LoadedDataset.VectorFields["Total Flux"];
         var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
-        VelocityField = new ArbitraryField<Vec3, Vec3>(TotalFlux.Domain, x => TotalFlux.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)));
-        //VelocityField = new ArbitraryField<Vec3, Vec3>(TotalFlux.Domain, x => TotalFlux.Evaluate(x).Up(.1));
+        VelocityField = new ArbitraryField<Vec3, Vec3>(TotalFlux.Domain, x => -TotalFlux.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)));
+        //VelocityField = new ArbitraryField<Vec3, Vec3>(TotalFlux.Domain, x => TotalFlux.Evaluate(x).Up(.01f));
         Particles = new Particle[ParticleCount];
         var rect = VelocityField.Domain.RectBoundary;
         foreach (ref var p in Particles.AsSpan())
         {
             p.Phase = Utils.Random(rect);
+            p.TrueTime = p.Phase.Last;
         }
     }
 
     public override void Draw(View view)
     {
 
-        var dt = -.01f;
+        view.CameraOffset = new Vec3(-0.5, -0.25, .5);
+        var dt = .01f;
+        var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
 
         var rk4Steady = IIntegrator<Vec3, Vec3>.Rk4Steady;
         var rect = VelocityField.Domain.RectBoundary;
@@ -44,14 +49,18 @@ public class DensityParticlesData : WorldService
         Parallel.For(0, Particles.Length, i =>
         {
             ref var p = ref Particles[i];
+            p.LastPhase = p.Phase;
             //p.Phase = domainBounding.Bound(rk4Steady.Integrate(VelocityField, p.Phase, dt));
-            if (Random.Shared.NextSingle() > .999)
+            if (Random.Shared.NextSingle() > .9991)
             {
                 p.Phase = Utils.Random(rect);
                 p.StartPhase = p.Phase;
                 p.TimeAlive = 0;
             }
-            p.Phase = domainBounding.Bound(rk4Steady.Integrate(VelocityField, p.Phase, dt));
+            p.Phase =rk4Steady.Integrate(VelocityField, p.Phase, dt);
+            //p.TrueTime += ConvectiveTemp.Evaluate(p.Phase.XY.Up(p.TrueTime))*dt;
+            //p.Phase.Z = p.TrueTime;
+            p.Phase = domainBounding.Bound(p.Phase);
             p.TimeAlive += float.Abs(dt);
             //p.Phase = domainBounding.Bound(p.Phase + VelocityField.Evaluate(p.Phase).XY.Up(0)*dt/5);
         });
