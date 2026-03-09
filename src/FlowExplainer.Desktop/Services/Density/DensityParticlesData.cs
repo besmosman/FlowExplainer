@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using ImGuiNET;
 
 namespace FlowExplainer;
@@ -6,79 +7,106 @@ public class DensityParticlesData : WorldService
 {
     public struct Particle
     {
-        public Vec3 StartPhase;
-        public Vec3 LastPhase;
-        public Vec3 Phase;
-        public double TrueTime;
         public double TimeAlive;
+        public Vec3 Phase;
+        public Vec3 LastPhase;
+        public double HeatingCoolingAccumelation;
     }
 
     public Particle[] Particles;
     public int ParticleCount = 1000;
-
-    
+    public double ReseedRate = 0.01;
     public override string? Name => "Density Particles";
+    public double SeedTimeRange = .2f;
 
-    public IVectorField<Vec3, Vec3> VelocityField;
+    //public IVectorField<Vec3, Vec3> VelocityField;
+    public IVectorField<Vec3, double> SourceField;
     public double dt;
     public override void Initialize()
     {
-        var TotalFlux = DataService.LoadedDataset.VectorFields["Total Flux"];
         var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
-        VelocityField = new ArbitraryField<Vec3, Vec3>(TotalFlux.Domain, x => -TotalFlux.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)));
-        //VelocityField = new ArbitraryField<Vec3, Vec3>(TotalFlux.Domain, x => TotalFlux.Evaluate(x).Up(.01f));
+        SourceField = DataService.LoadedDataset.ScalerFields["Physical Source"];
         Particles = new Particle[ParticleCount];
-        var rect = VelocityField.Domain.RectBoundary;
+        var rect = ConvectiveTemp.Domain.RectBoundary;
+
         foreach (ref var p in Particles.AsSpan())
         {
-            p.Phase = Utils.Random(rect);
-            p.TrueTime = p.Phase.Last;
+            Reseed(ref p, SourceField, rect);
         }
     }
 
     public override void Draw(View view)
     {
-
-        view.CameraOffset = new Vec3(-0.5, -0.25, .5);
-        var dt = .01f;
         var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
+        var vec = DataService.VectorField;
+        var FluxField = new ArbitraryField<Vec3, Vec3>(vec.Domain, x => vec.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)));
+        var boundsZ = ConvectiveTemp.Domain.RectBoundary.Size.Z > 1 ? BoundaryType.Fixed : BoundaryType.Periodic;
+        var bounds = BoundingFunctions.Build([BoundaryType.Periodic, BoundaryType.Fixed, boundsZ], ConvectiveTemp.Domain.RectBoundary);
+        view.CameraOffset = new Vec3(-0.5, -0.25, DataService.SimulationTime);
 
-        var rk4Steady = IIntegrator<Vec3, Vec3>.Rk4Steady;
-        var rect = VelocityField.Domain.RectBoundary;
-        var domainBounding = VelocityField.Domain.Bounding;
-        Parallel.For(0, Particles.Length, i =>
+        var rk4 = IIntegrator<Vec3, Vec3>.Rk4Steady;
+        var rect = ConvectiveTemp.Domain.RectBoundary;
+        var domainBounding = bounds;
+
+        var targetDt = dt;
+        var eps = 0.000000001;
+        var sliceT = DataService.SimulationTime;
+        rect = new Rect<Vec3>(rect.Min.XY.Up(sliceT - SeedTimeRange), rect.Max.XY.Up(sliceT + SeedTimeRange));
+
+        Parallel.ForEach(Partitioner.Create(0, Particles.Length), range =>
         {
-            ref var p = ref Particles[i];
-            p.LastPhase = p.Phase;
-            //p.Phase = domainBounding.Bound(rk4Steady.Integrate(VelocityField, p.Phase, dt));
-            if (Random.Shared.NextSingle() > .9991)
+            for (int i = range.Item1; i < range.Item2; i++)
             {
-                p.Phase = Utils.Random(rect);
-                p.StartPhase = p.Phase;
-                p.TimeAlive = 0;
+                ref var p = ref Particles[i];
+                //var dtFicticious = targetDt / double.Max(double.Abs(ConvectiveTemp.Evaluate(p.Phase)), eps);
+                var dtFicticious = dt;
+                p.LastPhase = p.Phase;
+                p.Phase = rk4.Integrate(FluxField, p.Phase, dtFicticious);
+                p.HeatingCoolingAccumelation += (p.Phase.Z - p.LastPhase.Z);
+                p.Phase = domainBounding.Bound(p.Phase);
+                p.TimeAlive += double.Abs(dtFicticious);
             }
-            p.Phase =rk4Steady.Integrate(VelocityField, p.Phase, dt);
-            //p.TrueTime += ConvectiveTemp.Evaluate(p.Phase.XY.Up(p.TrueTime))*dt;
-            //p.Phase.Z = p.TrueTime;
-            p.Phase = domainBounding.Bound(p.Phase);
-            p.TimeAlive += float.Abs(dt);
-            //p.Phase = domainBounding.Bound(p.Phase + VelocityField.Evaluate(p.Phase).XY.Up(0)*dt/5);
+            
+            for (int i = range.Item1; i < range.Item2; i++)
+            {
+                ref var p = ref Particles[i];
+                
+                if (Random.Shared.NextSingle() < ReseedRate || p.Phase.Z > sliceT + SeedTimeRange || p.Phase.Z < sliceT - SeedTimeRange)
+                    Reseed(ref p, SourceField, rect);
+            }
         });
+    }
+    private IVectorField<Vec3, T> PerodicExtend<T>(IVectorField<Vec3, T> vec)
+    {
+        var rect = vec.Domain.RectBoundary;
+        rect.Min.X -= .5f;
+        rect.Max.X += .5f;
+        return new ArbitraryField<Vec3, T>(new RectDomain<Vec3>(rect), x =>
+        {
+            if (x.X < 0)
+                x.X = 1 - x.X;
+            if (x.X > 1)
+                x.X -= 1;
+            return vec.Evaluate(x);
+        });
+    }
 
-        //if (!view.Is3DCamera)
-        return;
-        /*GL.BlendFuncSeparate(
-            BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha,
-            BlendingFactorSrc.One, BlendingFactorDest.One
-        );*/
+    private void Reseed(ref Particle p, IVectorField<Vec3, double> sourceField, Rect<Vec3> rect)
+    {
+        var spacetime = Utils.Random(rect);
 
-
-
+        var sourceTerm = sourceField.Evaluate(spacetime);
+        p.Phase = spacetime;
+        p.LastPhase = p.Phase;
+        p.TimeAlive = 0;
     }
 
     public override void DrawImGuiSettings()
     {
         ImGuiHelpers.SliderInt("Particle Count", ref ParticleCount, 0, 10000);
+        ImGuiHelpers.Slider("Fictitious Integration Time", ref dt, 0, .1);
+        ImGuiHelpers.Slider("Seed Rate", ref ReseedRate, 0, .01);
+        ImGuiHelpers.Slider("Seed Time Range", ref SeedTimeRange, 0, .4);
         if (ImGui.Button("Reset"))
         {
             Initialize();

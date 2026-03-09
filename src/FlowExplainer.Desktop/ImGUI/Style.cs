@@ -17,7 +17,7 @@ public class Style
     
     private static readonly Style Light = new Style()
     {
-        BackgroundColor = Color.Grey(1f).WithAlpha(0),
+        BackgroundColor = Color.Grey(1f).WithAlpha(1),
         HighlightColor = new Color(.0f, .5f, 1f),
         TextColor = Color.Black,
     };

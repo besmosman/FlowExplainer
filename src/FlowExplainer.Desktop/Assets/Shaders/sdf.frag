@@ -9,14 +9,15 @@ uniform vec2 WorldViewMin;
 uniform vec2 WorldViewMax;
 uniform vec2 GridSize;
 uniform sampler2D colorgradient;
-
+uniform float Power;
 /*uniform float max;
 uniform float min;*/
 
 struct Sample {
 	float Accum;
-	float LIC;
-	vec2 padding;
+	float HeatingCooling;
+	float Count;
+	float Padding;
 };
 
 layout(std430, binding = 2) buffer cellBuffer {
@@ -46,6 +47,8 @@ void main()
 	
 	vec2 c = coord - ltCoord;
 	float accum = mix(mix(lt.Accum, rt.Accum, c.x),  mix(lb.Accum, rb.Accum, c.x), c.y);
+	float heatingCoolingFactor = mix(mix(lt.HeatingCooling, rt.HeatingCooling, c.x),  mix(lb.HeatingCooling, rb.HeatingCooling, c.x), c.y);
+	float count = mix(mix(lt.Count, rt.Count, c.x),  mix(lb.Count, rb.Count, c.x), c.y);
 	//float lic = mix(mix(lt.LIC/lt.padding.x, rt.LIC/rt.padding.x, c.x),  mix(lb.LIC/lb.padding.x, rb.LIC/rb.padding.x, c.x), c.y);
 	//accum=lt.Accum;
 	//color =  vec4(0,0,0,1);
@@ -53,8 +56,10 @@ void main()
 	//if(accum>.1)
 	//	color.g = 1;
 
+	color = ColorGradient(pow(accum,Power));
+	//color = ColorGradient(0.5 + heatingCoolingFactor/count * 60);
+	//color = ColorGradient((signedDistanceZ+ 1) /2);
 
-	color = ColorGradient(sqrt(accum)/4);
 	//color = ColorGradient(sqrt(lic)/4);
 	//color = vec4(0,0,0,1);
 	

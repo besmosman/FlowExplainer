@@ -3,6 +3,7 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
 
+/*
 public class DensityParticlesDistanceFieldVisualizer : WorldService
 {
 
@@ -40,7 +41,7 @@ public class DensityParticlesDistanceFieldVisualizer : WorldService
             for (int k = -r; k <= r; k++)
             {
                 var disSqrt = Vec3.DistanceSquared(p.Phase, domain.RectBoundary.FromRelative((voxelCenter.ToVec3() + new Vec3(i + .5f, j + .5f, k + .5f)) / DataTexture.Size.ToVec3()));
-                var accum = Accum((float)disSqrt, 1, float.Min(1,(float)p.TimeAlive)/10);
+                var accum = Accum((float)disSqrt, 1, float.Min(1,1));
                 //if(disSqrt < .0003f)
                 DataTexture.GetPixelAt(voxelCenter + new Vec3i(i, j, k)).R += accum;
             }
@@ -74,8 +75,8 @@ public class DensityParticlesDistanceFieldVisualizer : WorldService
         float spatialFactor = MathF.Exp(-(dis) / (2f * sigma * sigma));
         return timeFactor * spatialFactor * accum;
         /*if (spatialFactor > .5f)
-            spatialFactor *= 5;*/
+            spatialFactor *= 5;#1#
         //else spatialFactor = 0;
 
     }
-}
+}*/

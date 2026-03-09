@@ -28,5 +28,6 @@ public class ArbitraryField<Vec, Data> : IVectorField<Vec, Data> where Vec : IVe
         value = eval(x);
         return true;
     }
-    
+
+  
 }

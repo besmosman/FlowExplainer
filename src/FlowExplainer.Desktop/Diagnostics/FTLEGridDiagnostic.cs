@@ -47,7 +47,7 @@ public class FTLEGridDiagnostic : IGridDiagnostic
             };
         });
 
-        ParallelGrid.For(renderGrid.GridSize , token, (i, j) =>
+        ParallelGrid.For(renderGrid.GridSize, token, (i, j) =>
         {
             ref var center = ref renderGrid.AtCoords(new Vec2i(i, j));
             if (i > 0 && j > 0 && i < renderGrid.GridSize.X - 1 && j < renderGrid.GridSize.Y - 1)
@@ -63,14 +63,14 @@ public class FTLEGridDiagnostic : IGridDiagnostic
                 var start_up = Data[renderGrid.GetCoordsIndex(new Vec2i(i, j - 1))].StartPosition;
                 double dX = start_left.X - start_right.X;
                 double dY = (start_down.Y - start_up.Y);
-                
+
                 Matrix2d gradient = new Matrix2d(
                     (end_left.X - end_right.X) / dX,
                     (end_down.X - end_up.X) / dY,
                     (end_left.Y - end_right.Y) / dX,
                     (end_down.Y - end_up.Y) / dY
                 );
-                
+
 
                 var delta = gradient * gradient.Transposed();
 

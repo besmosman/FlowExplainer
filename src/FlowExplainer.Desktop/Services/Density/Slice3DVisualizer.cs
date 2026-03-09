@@ -29,7 +29,7 @@ public class Slice3DVisualizer : WorldService
         SliceView.ResizeToTargetSize();
         SliceView.RenderTarget.DrawTo(() =>
         {
-            GL.ClearColor(.0f, .0f, 0, 0);
+            //GL.ClearColor(.0f, .0f, 0, 0);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             foreach (var service in World.Services)
             {
@@ -43,7 +43,7 @@ public class Slice3DVisualizer : WorldService
         GL.Enable(EnableCap.DepthTest);
         RenderTexture.Blit(SliceView.RenderTarget, SliceView.PostProcessingTarget);
         var p = DataService.VectorField.Domain.Bounding.Bound(new Vec3(0, 0, t));
-        Gizmos.DrawTexturedQuadXY(view.Camera, SliceView.PostProcessingTarget, p, new Vec2(1, .5f));
+        Gizmos.DrawTexturedQuadXY(view.Camera, SliceView.PostProcessingTarget, p, DataService.VectorField.Domain.RectBoundary.Size.XY);
         //Gizmos2D.ImageCenteredInvertedY(view.Camera2D, SliceView.PostProcessingTarget, new Vec2(1.5, .5), new Vec2(1, .5f));
     }
 }

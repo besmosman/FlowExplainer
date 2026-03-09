@@ -78,8 +78,7 @@ public class SpectralField : IVectorField<Vec3, double>
             var usp = Lerp(Usps[new Vec3i(n, M / 2, t0)], Usps[new Vec3i(n, M / 2, t1)], c);
             u += usp * Complex.Pow(exp, (M / 2f)) * double.Cos(n * acosy);
         }
-
-
+        
         return (double)u.Real;
     }
     

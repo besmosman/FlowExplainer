@@ -32,7 +32,7 @@ public static class Scripting
 
     public static void Startup(World world)
     {
-        // RebuildSpeetjensDatasets();
+        //RebuildSpeetjensDatasets();
 
         foreach (var dataset in world.FlowExplainer.GetGlobalService<DatasetsService>().Datasets.Values)
         {
@@ -44,6 +44,9 @@ public static class Scripting
 
             var Q_ = dataset.VectorFields["Total Flux"];
             var T_ = dataset.ScalerFields["Convective Temperature"];
+            var Ttilde = dataset.ScalerFields["No Flow Temperature"];
+
+            
             var transportField = new ArbitraryField<Vec3, Vec2>(Q_.Domain, (x) =>
             {
                 var q_ = Q_.Evaluate(x);
@@ -77,56 +80,58 @@ public static class Scripting
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
 
-
-        //WriteDatasetToPlaintext(world.DataService.LoadedDataset);
         DensityParticlesScene(world);
-        // world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new VisualComputingPresentation());
-        // world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
-        // SurfaceExtractionSetup2(world);
-        //world.GetWorldService<DataService>().TimeMultiplier = .04;
+        //var gridVisualizer = new GridVisualizer();
+        //world.AddVisualisationService(gridVisualizer);
+        //gridVisualizer.SetGridDiagnostic(new DivergenceAlongTrajectoryGridDiagnostic());
+//WriteDatasetToPlaintext(world.DataService.LoadedDataset);
+// world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new VisualComputingPresentation());
+// world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+// SurfaceExtractionSetup2(world);
+//world.GetWorldService<DataService>().TimeMultiplier = .04;
 
 
-        //world.AddVisualisationService(new StochasticConnectionVisualization());
-        //world.AddVisualisationService<GridVisualizer>().SetGridDiagnostic(new StochasticConnectionVisualization.GridDiagnostics());
-        //world.AddVisualisationService(new ArrowVisualizer());
+//world.AddVisualisationService(new StochasticConnectionVisualization());
+//world.AddVisualisationService<GridVisualizer>().SetGridDiagnostic(new StochasticConnectionVisualization.GridDiagnostics());
+//world.AddVisualisationService(new ArrowVisualizer());
 
-        //world.GetWorldService<DataService>().TimeMultiplier = .1;
-        //world.AddVisualisationService(new HeatEnergySimulation());
+//world.GetWorldService<DataService>().TimeMultiplier = .1;
+//world.AddVisualisationService(new HeatEnergySimulation());
 
-        /*world.AddVisualisationService<GridVisualizer>().SetGridDiagnostic(new LcsVelocityMagnitudeGridDiagnostic()
-        {
+/*world.AddVisualisationService<GridVisualizer>().SetGridDiagnostic(new LcsVelocityMagnitudeGridDiagnostic()
+{
 
-        });
-        world.GetWorldService<GridVisualizer>().Continous = false;
-        world.AddVisualisationService(new SurfacesTest()
-        {
+});
+world.GetWorldService<GridVisualizer>().Continous = false;
+world.AddVisualisationService(new SurfacesTest()
+{
 
-        });*/
-        /*world.AddVisualisationService(new DensityPathStructures()
-        {
-            InfluenceRadius = .005f,
-            ParticleCount = 10000,
-            AccumelationFactor = .035f,
-        });*/
+});*/
+/*world.AddVisualisationService(new DensityPathStructures()
+{
+    InfluenceRadius = .005f,
+    ParticleCount = 10000,
+    AccumelationFactor = .035f,
+});*/
 
-        /*world.AddVisualisationService(new HeatSimulationViewData());
-        world.AddVisualisationService(new HeatSimulationService());
-        world.AddVisualisationService(new HeatSimulationVisualizer());*/
+/*world.AddVisualisationService(new HeatSimulationViewData());
+world.AddVisualisationService(new HeatSimulationService());
+world.AddVisualisationService(new HeatSimulationVisualizer());*/
 
-        /*var gridDiagnostic = new UlamsGrid();
-        var gridVisualizer = new GridVisualizer();
-        world.AddVisualisationService(gridVisualizer);
-        gridVisualizer.SetGridDiagnostic(gridDiagnostic);
-        gridDiagnostic.Recompute(gridVisualizer);
-        */
+/*var gridDiagnostic = new UlamsGrid();
+var gridVisualizer = new GridVisualizer();
+world.AddVisualisationService(gridVisualizer);
+gridVisualizer.SetGridDiagnostic(gridDiagnostic);
+gridDiagnostic.Recompute(gridVisualizer);
+*/
 
 
-        /*world.AddVisualisationService(new DensityPathStructures2()
-        {
-            InfluenceRadius = .005f,
-            ParticleCount = 10000,
-            AccumelationFactor = .035f,
-        });*/
+/*world.AddVisualisationService(new DensityPathStructures2()
+{
+    InfluenceRadius = .005f,
+    ParticleCount = 10000,
+    AccumelationFactor = .035f,
+});*/
     }
 
     private static void WriteDatasetToPlaintext(Dataset dataset)
@@ -165,7 +170,9 @@ public static class Scripting
         world.AddVisualisationService(new DensityParticlesData());
         world.AddVisualisationService(new DensityParticles3DVisualizer());
         world.AddVisualisationService(new Slice3DVisualizer());
-        world.AddVisualisationService(new DensityPathStructuresSpaceTimeData());
+        world.AddVisualisationService(new DensityPathStructuresSpaceTime());
+        world.AddVisualisationService(new DensityPathStructuresExamples());
+        //world.AddVisualisationService(new DensityPathStructures());
         //world.AddVisualisationService(new SpaceTimeScalerGradientService());
 
         //world.AddVisualisationService(new DensityParticlesSliceVisualizer());
@@ -282,18 +289,32 @@ public static class Scripting
 
         var diffFlux = new ArbitraryField<Vec3, Vec2>(tempTot.Domain, (p) => new Vec2(diffFluxX.Evaluate(p), diffFluxY.Evaluate(p)));
         var convectiveHeatFlux = new ArbitraryField<Vec3, Vec2>(tempTot.Domain, (p) => tempConvection.Evaluate(p) * velocityField.Evaluate(p));
+        var totalFlux = new ArbitraryField<Vec3, Vec2>(tempTot.Domain, (p) => diffFlux.Evaluate(p) + convectiveHeatFlux.Evaluate(p));
 
-        var gridSize = new Vec3i(64, 32, diffFluxX.Usps.GridSize.Z);
+        var gridSize = new Vec3i(100, 50, diffFluxX.Usps.GridSize.Z);
         // var gridSize = new Vec3i(64, 32, 5);
         //var gridSize = new Vec3i(32, 16, diffFluxX.Usps.GridSize.Z / 8);  
+        
+        var physicalSource = new ArbitraryField<Vec3, double>(tempTot.Domain, 
+            x =>
+            {
+                var grad = tempNoFlow.FiniteDifferenceGradientIgnoreLast<Vec3, Vec2>(x, .0001f);
+                if (double.IsNaN(grad.Y))
+                    grad.Y = 0;
+                return Vec2.Dot(-velocityField.Evaluate(x), grad);
+            });
+        
+        
         if (!Directory.Exists(outputFieldsFolder))
             Directory.CreateDirectory(outputFieldsFolder);
 
+        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "totalFlux"), "Total Flux", gridSize, totalFlux);
         DiscretizeAndSave(Path.Combine(outputFieldsFolder, "diffFlux"), "Diffusion Flux", gridSize, diffFlux);
         DiscretizeAndSave(Path.Combine(outputFieldsFolder, "convectiveHeatFlux"), "Convection Flux", gridSize, convectiveHeatFlux);
         DiscretizeAndSave(Path.Combine(outputFieldsFolder, "tempConvection"), "Convective Temperature", gridSize, tempConvection);
         DiscretizeAndSave(Path.Combine(outputFieldsFolder, "tempTot"), "Total Temperature", gridSize, tempTot);
         DiscretizeAndSave(Path.Combine(outputFieldsFolder, "tempNoFlow"), "No Flow Temperature", gridSize, tempNoFlow);
+        DiscretizeAndSave(Path.Combine(outputFieldsFolder, "physicalSource"), "Physical Source", gridSize, physicalSource);
 
         Dictionary<string, string> props = new Dictionary<string, string>();
         props.Add("Pe", Pe.ToString(CultureInfo.InvariantCulture));

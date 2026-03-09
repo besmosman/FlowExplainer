@@ -32,22 +32,12 @@ namespace FlowExplainer
                                     dataset.ScalerFields.Add(field.DisplayName, field);
                                 }
                             }
-
-                            var DiffFluxField = dataset.VectorFields["Diffusion Flux"];
-                            var ConvFluxField = dataset.VectorFields["Convection Flux"];
-                            var totalFlux = new ArbitraryField<Vec3, Vec2>(DiffFluxField.Domain, p =>
-                            {
-                                return DiffFluxField.Evaluate(p) + ConvFluxField.Evaluate(p);
-                            })
-                            {
-                                DisplayName = "Total Flux",
-                            };
+                            
                             var velocityField = new SpeetjensVelocityField()
                             {
                                 DisplayName = "Velocity",
                                 epsilon = double.Parse(props!["EPS"]),
                             };
-                            dataset.VectorFields.Add(totalFlux.DisplayName, totalFlux);
                             dataset.VectorFields.Add(velocityField.DisplayName, velocityField);
 
                             /*var DiffFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "diffFlux.field"));

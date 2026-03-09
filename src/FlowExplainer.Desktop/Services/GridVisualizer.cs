@@ -68,6 +68,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         new DivergenceGridDiagnostic(),
         new StagnationGridDiagnostic(),
         new MagnitudeGridDiagnostic(),
+        new DivergenceAlongTrajectoryGridDiagnostic(),
         new UlamsGrid(),
         new CriticalPointDiagnostic(),
         new ArcLengthGridDiagnostic(),
