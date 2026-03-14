@@ -40,7 +40,6 @@ public static class MsdfRenderer
             new Shader("Assets/Shaders/msdf.frag", ShaderType.FragmentShader),
             Shader.DefaultWorldSpaceVertex);
 
-        int size = 96;
        
         string genFolderPath = $"{folderPath}/generated";
         if (Directory.Exists(genFolderPath))
@@ -50,10 +49,10 @@ public static class MsdfRenderer
             File.Copy(charsetFilePath, genCharsetFilePath);
             Directory.Delete(genFolderPath, true);
         }
-        GenererateFont(48);
+        CheckGenererateFont(64);
     }
 
-    private static void GenererateFont(int size)
+    private static void CheckGenererateFont(int size)
     {
         string fontName = new DirectoryInfo(Path.GetDirectoryName(folderPath + "/")).Name;
         string genFolderPath = $"{folderPath}/generated";

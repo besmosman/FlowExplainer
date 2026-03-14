@@ -90,7 +90,7 @@ public class AxisVisualizer : WorldService
                 var value = Utils.Lerp(domain.Min.X, domain.Max.X, c);
                 var pos = Utils.Lerp(lb, rb, c);
                 Gizmos2D.Line(view.ScreenCamera, pos + new Vec2(0, 15), pos + new Vec2(0, -thickness / 2f), color, thickness);
-                Gizmos2D.Text(view.ScreenCamera, pos + new Vec2(0, 10), lh, color, value.ToString("N1"), centered: true);
+                Gizmos2D.AdvText(view.ScreenCamera, pos + new Vec2(0, 10), lh, color, value.ToString("N1"), centered: true);
             }
 
             for (int i = 0; i <= StepsY; i++)

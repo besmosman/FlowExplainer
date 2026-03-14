@@ -80,7 +80,9 @@ public static class Scripting
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
 
-        DensityParticlesScene(world);
+        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new DemoPresentation());
+        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+        //DensityParticlesScene(world);
         //var gridVisualizer = new GridVisualizer();
         //world.AddVisualisationService(gridVisualizer);
         //gridVisualizer.SetGridDiagnostic(new DivergenceAlongTrajectoryGridDiagnostic());

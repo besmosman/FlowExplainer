@@ -249,7 +249,7 @@ public static class Gizmos2D
 
     public static double lineSpacing = 3;
 
-    public static void AdvText(Camera2D camera, Vec2 pos, double lh, Color color, string text, double t = 1, bool centered = false)
+    public static void AdvText(ICamera camera, Vec2 pos, double lh, Color color, string text, double t = 1, bool centered = false)
     {
         void SetCharColor(int i, Color col)
         {
@@ -336,7 +336,10 @@ public static class Gizmos2D
             MsdfRenderer.Material.SetUniform("line", (double)l);
             MsdfRenderer.Material.SetUniform("lines", (double)splitted.Length);
             MsdfRenderer.Material.SetUniform("tint", new Vec4(1, 1, 1, 1));
-            MsdfRenderer.Material.SetUniform("screenPxRange", 2.08f);
+            var oriSize = 64;
+            lh = 64;
+            var curSize = lh;
+            MsdfRenderer.Material.SetUniform("screenPxRange",curSize / oriSize);
             MsdfRenderer.Material.SetUniform("mainTex", font.Texture);
             MsdfRenderer.Material.SetUniform("view", camera.GetViewMatrix());
             MsdfRenderer.Material.SetUniform("projection", camera.GetProjectionMatrix());
