@@ -26,11 +26,11 @@ public class DensityPathStructuresExamples : WorldService
                 Dataset = "Double Gyre EPS=0.1, Pe=100",
                 VectorField = "Total Flux",
                 ParticleCount = 16_000,
-                FictitiousDeltaTime = .02f,
+                FictitiousDeltaTime = .01f,
                 Time = 3,
                 SeedRange = .3,
                 VisualizationRange = .10f,
-                Decay = 0.05f,
+                Decay = 0.12f,
             },
             new Entry
             {
@@ -84,7 +84,7 @@ public class DensityPathStructuresExamples : WorldService
                 var particles = GetRequiredWorldService<DensityParticlesData>();
                 var structures = GetRequiredWorldService<DensityPathStructuresSpaceTime>();
                 particles.dt = entry.FictitiousDeltaTime;
-                particles.ParticleCount = entry.ParticleCount;
+                particles.Particles.ResizeIfNeeded(entry.ParticleCount);
                 particles.SeedTimeRange = entry.SeedRange;
                 structures.Tau = entry.VisualizationRange;
                 structures.Decay = entry.Decay;

@@ -115,7 +115,9 @@ public class PresiContext
         var p = widgetData.RelPosition;
         p = new Vec2(double.Sin(FlowExplainer.Time.TotalSeconds * 4) / 4 + .4f, .4f);
         //Gizmos2D.Rect(View.Camera2D, RelToSceen(p),RelToSceen(p+widgetData.Size), new Vec4(1));
-        Gizmos2D.AdvText(View.Camera2D, RelToSceen(widgetData.RelPosition), CanvasRect.FromRelative(new Vec2(lh, lh)).X, color, title, widgetData.AnimAppearing, centered);
+        var relToSceen = RelToSceen(widgetData.RelPosition);
+        double d = CanvasRect.FromRelative(new Vec2(lh, lh)).X;
+        Gizmos2D.AdvText(View.Camera2D, relToSceen, d, color, title, widgetData.AnimAppearing, centered);
     }
 
     public Vec2 RelToSceen(Vec2 rel)
@@ -238,7 +240,7 @@ public class PresiContext
         var t = (value - minValue) / (maxValue - minValue);
         t = double.Clamp(t, 0, 1);
         Gizmos2D.Circle(View.Camera2D, Utils.Lerp(left, right, t), Color.White, 20);
-        Gizmos2D.AdvText(View.Camera2D, center + new Vec2(0, -40), 48, Color.White, name + " = " + value.ToString("N2"), centered: true);
+        Gizmos2D.AdvText(View.Camera2D, center + new Vec2(0, -48 - 36), 48, Color.White, name + " = " + value.ToString("N2"), centered: true);
         var rect = new Rect<Vec2>(center - new Vec2(width / 2, height / 2), center + new Vec2(width / 2, height / 2));
         if (View.IsMouseButtonDownLeft && rect.Contains(View.MousePosition))
         {
@@ -297,7 +299,7 @@ public class PresiContext
     {
         var widgetData = GetWidgetData(filePath, lineNumber);
         var pos = new Vec2(50, CanvasSize.Y - 250);
-        var lh = 64;
+        var lh = 48;
         widgetData.RelPosition = pos;
         widgetData.RelSize = new Vec2(lh, lh);
         if (title.StartsWith("\r\n"))

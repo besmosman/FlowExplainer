@@ -22,6 +22,11 @@ public struct DirectCamera : ICamera
     {
         return View;
     }
+
+    public double LineHeightToPixelSize(double lh)
+    {
+        throw new Exception();
+    }
 }
 
 public class Camera2D : ICamera
@@ -52,5 +57,10 @@ public class Camera2D : ICamera
     {
         return Matrix4x4.CreateTranslation((float)Position.X, (float)Position.Y, 0) *
                Matrix4x4.CreateScale((float)Scale);
+    }
+
+    public double LineHeightToPixelSize(double lh)
+    {
+        return lh * Scale;
     }
 }

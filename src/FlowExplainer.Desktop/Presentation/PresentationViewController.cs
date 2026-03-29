@@ -1,3 +1,4 @@
+using FlowExplainer.Msdf;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
@@ -19,6 +20,8 @@ public class PresentationViewController : IViewController
         {
             presiView.TargetSize = size;
             presiView.RelativeMousePosition = new Vec2(window.MousePosition.X, window.MousePosition.Y);
+            var canvasSize = presi.CanvasSize*presiView.Camera2D.Scale;
+            //presiView.Camera2D.Scale = 1;
         }
         else
         {
@@ -43,7 +46,6 @@ public class PresentationViewController : IViewController
         presiView.ResizeToTargetSize();
 
         var pre = presentationService!;
-
         presiView.RenderTarget.DrawTo(() =>
         {
             var clearColor = presiView.AltClearColor ?? Style.Current.BackgroundColor;

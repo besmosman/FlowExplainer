@@ -251,6 +251,13 @@ public static class Gizmos2D
 
     public static void AdvText(ICamera camera, Vec2 pos, double lh, Color color, string text, double t = 1, bool centered = false)
     {
+
+        //pos = new Vec2(1920, 1200)/2;
+        double effectiveLH = camera.LineHeightToPixelSize(lh);
+        var font = MsdfRenderer.GetClosestFont(camera, 120);
+        //text = MsdfRenderer.EffectiveWindowRenderSize.Y.ToString();
+        //pos = new Vec2(0, 0);
+       // text =MsdfRenderer.EffectiveWindowRenderSize.RoundInt().ToString();
         void SetCharColor(int i, Color col)
         {
             for (int j = 0; j < 6; j++)
@@ -320,7 +327,6 @@ public static class Gizmos2D
                 }
             }
 
-            var font = MsdfRenderer.GetClosestFont(camera, lh);
             MsdfRenderer.UpdateMesh(line, camera, font, centered);
             for (int i = 0; i < MsdfRenderer.textMesh.Vertices.Length; i++)
             {
@@ -336,10 +342,11 @@ public static class Gizmos2D
             MsdfRenderer.Material.SetUniform("line", (double)l);
             MsdfRenderer.Material.SetUniform("lines", (double)splitted.Length);
             MsdfRenderer.Material.SetUniform("tint", new Vec4(1, 1, 1, 1));
-            var oriSize = 64;
-            lh = 64;
-            var curSize = lh;
-            MsdfRenderer.Material.SetUniform("screenPxRange",curSize / oriSize);
+            double pxRange = 4;
+            double screenPxRange =
+                (effectiveLH / font.MsdfFontInfo.Atlas.size) * pxRange;
+            //screenPxRange = 4;
+            MsdfRenderer.Material.SetUniform("screenPxRange",screenPxRange);
             MsdfRenderer.Material.SetUniform("mainTex", font.Texture);
             MsdfRenderer.Material.SetUniform("view", camera.GetViewMatrix());
             MsdfRenderer.Material.SetUniform("projection", camera.GetProjectionMatrix());
@@ -378,7 +385,12 @@ public static class Gizmos2D
             MsdfRenderer.Material.SetUniform("line", (double)l);
             MsdfRenderer.Material.SetUniform("lines", (double)splitted.Length);
             MsdfRenderer.Material.SetUniform("tint", color);
-            MsdfRenderer.Material.SetUniform("screenPxRange",2.5f);
+            double pxRange = 4;
+            double effectiveLH = camera.LineHeightToPixelSize(lh);
+
+            double screenPxRange =
+                (effectiveLH / font.MsdfFontInfo.Atlas.size) * pxRange;
+            MsdfRenderer.Material.SetUniform("screenPxRange",screenPxRange);
             MsdfRenderer.Material.SetUniform("mainTex", font.Texture);
             MsdfRenderer.Material.SetUniform("view", camera.GetViewMatrix());
             MsdfRenderer.Material.SetUniform("projection", camera.GetProjectionMatrix());
@@ -500,6 +512,9 @@ public static class Gizmos2D
 
     public static void Line(ICamera cam, Vec2 start, Vec2 end, Color color, double thickness)
     {
+        if (end - start == default)
+            return;
+        
         Vec2 dir = Vec2.Normalize(end - start);
         double length = Vec2.Distance(start, end);
         material.Use();

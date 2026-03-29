@@ -11,7 +11,7 @@ public static class MsdfRenderer
     public static Mesh textMesh = new Mesh(new Geometry(Rental<Vertex>.Rent(0), []), true, true);
     public static Dictionary<int, MsdfFont> fonts = new();
     private static bool forceRegenerate = false;
-
+    
     static MsdfRenderer()
     {
         Init();
@@ -19,7 +19,7 @@ public static class MsdfRenderer
 
     public static MsdfFont GetClosestFont(ICamera cam, double lh)
     {
-        var target = lh * 0;
+        var target = lh;
         var minDis = double.MaxValue;
         MsdfFont minFont = null;
         foreach (var p in fonts)
@@ -49,7 +49,7 @@ public static class MsdfRenderer
             File.Copy(charsetFilePath, genCharsetFilePath);
             Directory.Delete(genFolderPath, true);
         }
-        CheckGenererateFont(64);
+        CheckGenererateFont(48);
     }
 
     private static void CheckGenererateFont(int size)
@@ -63,7 +63,7 @@ public static class MsdfRenderer
         string md5Path = $"{genFolderPath}-{size}/.md5";
 
 
-        if (!forceRegenerate && Directory.Exists(genFolderPath))
+        if (!forceRegenerate && File.Exists(genInfoPath))
         {
             fonts.Add(size, new MsdfFont(JsonConvert.DeserializeObject<MsdfFontInfo>(File.ReadAllText(genInfoPath)))
             {
@@ -83,7 +83,8 @@ public static class MsdfRenderer
         call.Append(genImagePath + "\"");
         call.Append(" -json \"" + genInfoPath + "\"");
         call.Append($" -size {size}");
-        Directory.CreateDirectory(Path.GetRelativePath(Directory.GetCurrentDirectory(), genFolderPath));
+        call.Append($" -pxrange 4");
+            Directory.CreateDirectory(Path.GetRelativePath(Directory.GetCurrentDirectory(), genFolderPath));
         ProcessStartInfo psi = new()
         {
             WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
@@ -142,7 +143,7 @@ public static class MsdfRenderer
             if (fontChar.atlasBounds != null)
             {
                 double lh = font.MsdfFontInfo.Metrics.lineHeight;
-                double baseHeight = font.MsdfFontInfo.Metrics.descender;
+                double baseHeight = 0;//font.MsdfFontInfo.Metrics.underlineY;
 
                 Vec2 uvSize = new(1f / font.Texture.Size.X, 1f / font.Texture.Size.Y);
 
@@ -192,7 +193,7 @@ public static class MsdfRenderer
             vertices[i].Normal.Y = vertices[i].Position.Y / vertices[vertices.Length - 1].Position.Y;
         }
 
-        double m = 1f / font.MsdfFontInfo.Metrics.lineHeight;
+        double m =font.MsdfFontInfo.Metrics.lineHeight;
         for (int i = 0; i < vertices.Length; i++)
         {
             vertices[i].Position = new Vec3(vertices[i].Position.X * m, vertices[i].Position.Y * m, 0);

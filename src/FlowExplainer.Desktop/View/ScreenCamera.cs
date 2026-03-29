@@ -26,4 +26,9 @@ public struct ScreenCamera : ICamera
     {
         return Matrix4x4.Identity;
     }
+
+    public double LineHeightToPixelSize(double lh)
+    {
+        return lh;
+    }
 }

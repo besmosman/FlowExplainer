@@ -25,6 +25,11 @@ namespace FlowExplainer
             return flipZ * Matrix4x4.CreateFromQuaternion(Rotation) * Matrix4x4.CreateTranslation(Position);
         }
 
+        public double LineHeightToPixelSize(double lh)
+        {
+            throw new Exception();
+        }
+
         public Matrix4x4 GetProjectionMatrix()
         {
             return ProjectionMode switch

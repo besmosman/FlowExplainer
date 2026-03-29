@@ -57,7 +57,7 @@ void main()
 	//	color.g = 1;
 
 	color = ColorGradient(pow(accum,Power));
-	//color = ColorGradient(0.5 + heatingCoolingFactor/count * 60);
+	//color = ColorGradient(0.5 + heatingCoolingFactor/count * 160);
 	//color = ColorGradient((signedDistanceZ+ 1) /2);
 
 	//color = ColorGradient(sqrt(lic)/4);

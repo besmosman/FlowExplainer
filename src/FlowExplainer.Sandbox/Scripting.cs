@@ -32,8 +32,8 @@ public static class Scripting
 
     public static void Startup(World world)
     {
-        //RebuildSpeetjensDatasets();
-
+       // RebuildSpeetjensDatasets();
+        
         foreach (var dataset in world.FlowExplainer.GetGlobalService<DatasetsService>().Datasets.Values)
         {
             if (!dataset.Loaded)
@@ -79,10 +79,11 @@ public static class Scripting
         world.GetWorldService<DataService>().currentSelectedVectorField = "Convection Flux";
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
+        //world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new DemoPresentation());
+        //world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
 
-        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new DemoPresentation());
-        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
-        //DensityParticlesScene(world);
+        DensityParticlesScene(world);
+
         //var gridVisualizer = new GridVisualizer();
         //world.AddVisualisationService(gridVisualizer);
         //gridVisualizer.SetGridDiagnostic(new DivergenceAlongTrajectoryGridDiagnostic());

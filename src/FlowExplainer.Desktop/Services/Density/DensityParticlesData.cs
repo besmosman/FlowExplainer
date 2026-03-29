@@ -13,8 +13,7 @@ public class DensityParticlesData : WorldService
         public double HeatingCoolingAccumelation;
     }
 
-    public Particle[] Particles;
-    public int ParticleCount = 1000;
+    public ResizableArray<Particle> Particles;
     public double ReseedRate = 0.01;
     public override string? Name => "Density Particles";
     public double SeedTimeRange = .2f;
@@ -26,7 +25,7 @@ public class DensityParticlesData : WorldService
     {
         var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
         SourceField = DataService.LoadedDataset.ScalerFields["Physical Source"];
-        Particles = new Particle[ParticleCount];
+        Particles = new(1000);
         var rect = ConvectiveTemp.Domain.RectBoundary;
 
         foreach (ref var p in Particles.AsSpan())
@@ -103,10 +102,12 @@ public class DensityParticlesData : WorldService
 
     public override void DrawImGuiSettings()
     {
-        ImGuiHelpers.SliderInt("Particle Count", ref ParticleCount, 0, 10000);
+        int t = Particles.Length;
+        ImGuiHelpers.SliderInt("Particle Count", ref t, 0, 10000);
+        Particles.ResizeIfNeeded(t);
         ImGuiHelpers.Slider("Fictitious Integration Time", ref dt, 0, .1);
         ImGuiHelpers.Slider("Seed Rate", ref ReseedRate, 0, .01);
-        ImGuiHelpers.Slider("Seed Time Range", ref SeedTimeRange, 0, .4);
+        ImGuiHelpers.Slider("Seed Time Range", ref SeedTimeRange, 0, 2);
         if (ImGui.Button("Reset"))
         {
             Initialize();
