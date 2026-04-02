@@ -207,7 +207,7 @@ public class StochasticVisualization : WorldService, IAxisTitle
             Reset();
         }
 
-        ImGuiHelpers.SliderInt("Particle Count", ref Count, 1, 100000);
+        ImGuiHelpers.Slider("Particle Count", ref Count, 1, 100000);
         ImGuiHelpers.Slider("Reseed Rate", ref ReseedChance, 0, .1f);
         ImGuiHelpers.Slider("Render Radius", ref RenderRadius, 0, .1f);
         ImGui.NewLine();

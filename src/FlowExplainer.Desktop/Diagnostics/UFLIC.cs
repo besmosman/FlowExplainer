@@ -178,7 +178,7 @@ public class UFLIC : IGridDiagnostic
             warm(gridVisualizer, max_steps);
         }
 
-        ImGuiHelpers.SliderInt("view_offset", ref view_offset, 0, max_steps - 1);
+        ImGuiHelpers.Slider("view_offset", ref view_offset, 0, max_steps - 1);
     }
 
     private void warm(GridVisualizer gridVisualizer, int max_steps)

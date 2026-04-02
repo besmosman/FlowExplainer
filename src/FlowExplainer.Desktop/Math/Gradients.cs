@@ -20,6 +20,7 @@ public static class Gradients
 
     public static ColorGradient Grayscale => GetGradient("grayscale");
     public static ColorGradient Parula => GetGradient("matlab_parula");
+    public static ColorGradient BlueGrayRed => GetGradient("BlueGrayRed");
     public static ColorGradient GetGradient(string name) => grads[name].Value;
 
     private static ColorGradient LoadGradient(string path)

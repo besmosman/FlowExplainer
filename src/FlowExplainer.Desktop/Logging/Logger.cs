@@ -13,28 +13,28 @@ namespace FlowExplainer
                 logs.RemoveRange(0, logs.Count - maxLogs);
         }
 
-        private static void Log(LogLevel level, string message)
+        private static void Log(LogLevel level, object message)
         {
             logs.Add(new LogEntry
             {
                 LogLevel = level,
-                Message = message,
+                Message = message?.ToString() ?? "?",
                 Time = DateTime.Now.TimeOfDay,
             });
             LastEntryID++;
         }
 
-        public static void LogDebug(string message)
+        public static void LogDebug(object message)
         {
             Log(LogLevel.Debug, message);
         }
 
-        public static void LogWarn(string message)
+        public static void LogWarn(object message)
         {
             Log(LogLevel.Warning, message);
         }
 
-        public static void LogMessage(string message)
+        public static void LogMessage(object message)
         {
             Log(LogLevel.Message, message);
         }

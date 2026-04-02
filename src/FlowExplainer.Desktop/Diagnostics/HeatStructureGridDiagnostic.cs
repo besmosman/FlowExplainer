@@ -5,7 +5,7 @@ namespace FlowExplainer;
 public class HeatStructureGridDiagnostic : IGridDiagnostic
 {
 
-    public string Name => "Heat Structures";
+    public string Name() => "Heat Structures";
     public bool Reverse;
     public double T;
     public double M;
@@ -58,7 +58,7 @@ public class HeatStructureGridDiagnostic : IGridDiagnostic
     {
         ImGui.Checkbox("Reverse", ref Reverse);
         ImGuiHelpers.Slider("T", ref T, 0, 1);
-        ImGuiHelpers.SliderInt("K", ref K, 1, 100);
+        ImGuiHelpers.Slider("K", ref K, 1, 100);
         ImGuiHelpers.Slider("M", ref M, 1, 1000);
     }
 }

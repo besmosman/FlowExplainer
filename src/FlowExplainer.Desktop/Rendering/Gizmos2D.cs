@@ -247,14 +247,14 @@ public static class Gizmos2D
     }
 
 
-    public static double lineSpacing = 3;
 
     public static void AdvText(ICamera camera, Vec2 pos, double lh, Color color, string text, double t = 1, bool centered = false)
     {
 
         //pos = new Vec2(1920, 1200)/2;
-        double effectiveLH = camera.LineHeightToPixelSize(lh);
         var font = MsdfRenderer.GetClosestFont(camera, 120);
+        double effectiveLH = camera.LineHeightToPixelSize(lh);
+        double lineSpacing = font.MsdfFontInfo.Metrics.lineHeight*lh*.7;
         //text = MsdfRenderer.EffectiveWindowRenderSize.Y.ToString();
         //pos = new Vec2(0, 0);
        // text =MsdfRenderer.EffectiveWindowRenderSize.RoundInt().ToString();
@@ -310,11 +310,25 @@ public static class Gizmos2D
                         action = (s, e) => colored(new Color(1f, .2f, .1f, 1), s, e);
 
                     if (tag == "green")
-                        action = (s, e) => colored(new Color(.0f, .65f, .0f, 1), s, e);
+                        action = (s, e) => colored(new Color(.0f, 1f, .0f, 1), s, e);
 
                     if (tag == "blue")
                         action = (s, e) => colored(new Color(.1f, .5f, 1f, 1), s, e);
 
+                    /*
+                    if (tag == "underline")
+                        action = (s, e) =>
+                        {
+                            var start = MsdfRenderer.textMesh.Vertices[i * 6 + s].Position.X;
+                            var end = MsdfRenderer.textMesh.Vertices[i * 6 + s].Position.X;
+
+                            MsdfRenderer.Material.SetUniform("view", camera.GetViewMatrix());
+                            MsdfRenderer.Material.SetUniform("projection", camera.GetProjectionMatrix());
+                            MsdfRenderer.Material.SetUniform("model", Matrix4x4.CreateScale((float)lh, (float)lh, 1) * Matrix4x4.CreateTranslation((float)pos.X, (float)pos.Y - l * (float)(lh + lineSpacing), 0));
+
+                        };
+                        */
+                    
                     if (tag.StartsWith("#"))
                     {
                         var col = Color.FromHexString(tag[1..]);
@@ -342,10 +356,9 @@ public static class Gizmos2D
             MsdfRenderer.Material.SetUniform("line", (double)l);
             MsdfRenderer.Material.SetUniform("lines", (double)splitted.Length);
             MsdfRenderer.Material.SetUniform("tint", new Vec4(1, 1, 1, 1));
-            double pxRange = 4;
-            double screenPxRange =
-                (effectiveLH / font.MsdfFontInfo.Atlas.size) * pxRange;
             //screenPxRange = 4;
+            double pxRange = 4;
+            var screenPxRange = ((effectiveLH) / font.MsdfFontInfo.Atlas.size) * pxRange;
             MsdfRenderer.Material.SetUniform("screenPxRange",screenPxRange);
             MsdfRenderer.Material.SetUniform("mainTex", font.Texture);
             MsdfRenderer.Material.SetUniform("view", camera.GetViewMatrix());

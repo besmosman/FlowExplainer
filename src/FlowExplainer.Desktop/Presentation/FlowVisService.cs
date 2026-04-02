@@ -37,7 +37,7 @@ public class FlowVisService : WorldService
         });
     }
 
-    public override void Update()
+    public override void PreDraw()
     {
         var dat = GetRequiredWorldService<DataService>();
         var velField = new ArbitraryField<Vec3, Vec2>(dat.VectorField.Domain, (p)=> dat.VectorField.Evaluate(p)*100);
@@ -52,7 +52,7 @@ public class FlowVisService : WorldService
             }*/
         }
 
-        base.Update();
+        base.PreDraw();
     }
 
     public double t = 0;

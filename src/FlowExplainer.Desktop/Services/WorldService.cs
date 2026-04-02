@@ -72,9 +72,9 @@ public abstract class WorldService : Service
 
 
     /// <summary>
-    /// Gets called once per frame.
+    /// Gets called once per frame, prior to view draw calls.
     /// </summary>
-    public virtual void Update() { }
+    public virtual void PreDraw() { }
 
     public T? GetWorldService<T>() where T : WorldService =>
         World.GetWorldService<T>();

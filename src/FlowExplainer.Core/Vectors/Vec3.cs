@@ -259,6 +259,11 @@ public struct Vec3 :
     {
         return new Vec3i((int)Math.Round(X), (int)Math.Round(Y), (int)Math.Round(Z));
     }
+    
+    public Vec3i CeilInt()
+    {
+        return new Vec3i((int)Math.Ceiling(X), (int)Math.Ceiling(Y), (int)Math.Ceiling(Z));
+    }
     public Vector3 ToNumerics()
     {
         return new Vector3((float)X, (float)Y, (float)Z);

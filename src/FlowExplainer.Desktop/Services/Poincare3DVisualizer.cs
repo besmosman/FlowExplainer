@@ -31,7 +31,7 @@ public class Poincare3DVisualizer : WorldService
         var dat = GetRequiredWorldService<DataService>();
         var rect = dat.VectorField.Domain.RectBoundary;
         double period = rect.Size.Z;
-        var flowOperator = new IFlowOperator<Vec2, Vec3>.DefaultFlowOperator(stepsPerPeriod * periods);
+        var flowOperator = new IFlowOperator<Vec2, Vec3>.DefaultFlowOperatorUnsteady(stepsPerPeriod * periods);
 
         foreach (var pos in seeds)
         {

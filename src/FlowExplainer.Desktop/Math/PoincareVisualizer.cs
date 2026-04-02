@@ -12,6 +12,7 @@ public interface IAxisTitle
 public interface IGradientScaler
 {
     public (double min, double max) GetScale();
+    public ColorGradient? AltGradient { get; set; }
 }
 
 public class PoincareVisualizer : WorldService, IAxisTitle

@@ -17,6 +17,8 @@ float median(float r, float g, float b)
 }
 
 
+vec2 sqr(vec2 x) { return x*x; } // squares vector components
+
 void main()
 {
     vec3 msd = texture(mainTex, uv).rgb;
@@ -38,4 +40,6 @@ void main()
 
     if (color.a < .01)
     discard;
+
+    
 }

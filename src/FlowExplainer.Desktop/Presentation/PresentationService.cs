@@ -156,6 +156,7 @@ public class PresentationService : GlobalService
                 presiView.Controller.UpdateAndDraw(presiView);
             }
             Presi.LastCurrentSlide = Presi.CurrentSlide;
+            Presi.LastCurrentStep = Presi.CurrentStep;
             
             if (window.IsKeyPressed(Keys.Up))
                 PrevSlide();

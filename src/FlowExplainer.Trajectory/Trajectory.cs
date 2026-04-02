@@ -11,6 +11,12 @@ public class Trajectory<T> where T : IVec<T, double>
         Entries = entries;
     }
 
+    public IEnumerable<(T start, T end)> EnumerateSegments()
+    {
+        for (int i = 0; i < Entries.Length - 1; i++)
+            yield return (Entries[i], Entries[i + 1]);
+    }
+
     public Z AverageAlong<Z>(Func<T, T, Z> selector) where Z : IMultiplyOperators<Z, double, Z>, IAdditionOperators<Z, Z, Z>
     {
         Z sum = default!;
@@ -73,7 +79,7 @@ public class Trajectory<T> where T : IVec<T, double>
     {
         return AtTime(c * (Entries[^1].Last - Entries[0].Last) + Entries[0].Last);
     }
-    
+
     public T AtTimeBilinear(double t)
     {
         int L = 0;

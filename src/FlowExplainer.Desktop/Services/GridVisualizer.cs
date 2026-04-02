@@ -45,6 +45,8 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
     public RegularGridVectorField<Vec2, Vec2i, CellData> RegularGrid;
     public StorageBuffer<CellData> gridbuffer;
     private Material material;
+    
+    public ColorGradient? AltGradient { get; set; }
 
     public bool AutoScale = true;
 
@@ -89,7 +91,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
                 RegularGrid.Domain,
                 (x) => RegularGrid.Evaluate(x).Value));
     }
-    
+
     public void SetGridDiagnostic(IGridDiagnostic visualizer)
     {
         if (visualizer.GetType() == typeof(LICGridDiagnostic))
@@ -148,7 +150,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             material.SetUniform("view", camera.GetViewMatrix());
             material.SetUniform("projection", camera.GetProjectionMatrix());
             material.SetUniform("useCustomColor", diagnostic.UseCustomColoring);
-            material.SetUniform("colorgradient", dat.ColorGradient.Texture.Value);
+            material.SetUniform("colorgradient", (AltGradient ?? dat.ColorGradient).Texture.Value);
             material.SetUniform("minGrad", min);
             material.SetUniform("maxGrad", max);
             var size = RegularGrid.Domain.RectBoundary.Size;
@@ -170,8 +172,8 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         }
     }
 
-    public double min=0;
-    public double max=1;
+    public double min = 0;
+    public double max = 1;
     private Stopwatch currentUpdateGridTime = new();
 
     private CancellationTokenSource cancellationTokenSource = new();
@@ -247,12 +249,12 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             UpdateRenderData();
         }
 
-        if (ImGui.BeginCombo("Diagnostic", diagnostic!.Name))
+        if (ImGui.BeginCombo("Diagnostic", diagnostic!.Name(this)))
         {
             foreach (var dia in Diagnostics)
             {
                 bool selected = dia == diagnostic;
-                if (ImGui.Selectable(dia.Name, ref selected))
+                if (ImGui.Selectable(dia.Name(this), ref selected))
                 {
                     SetGridDiagnostic(dia);
                 }
@@ -291,20 +293,20 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
     {
         if (diagnostic.GetType() == typeof(LICGridDiagnostic))
             return $"LIC {GetRequiredWorldService<DataService>().currentSelectedVectorField}";
-        return diagnostic?.Name ?? "";
+        return diagnostic?.Name(this) ?? "";
     }
 
     public (double min, double max) GetScale()
     {
         //if (AutoScale)
-            return (min, max);
+        return (min, max);
         //return (0, 1);
     }
 
     public double ScaleScaler(double value)
     {
         //if (AutoScale)
-            return (value - min) / (max - min);
+        return (value - min) / (max - min);
         //return value;
     }
 

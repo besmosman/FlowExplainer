@@ -49,7 +49,7 @@ public class DataService : WorldService
 
     private double timeAbove = 0.0;
 
-    public override void Update()
+    public override void PreDraw()
     {
         /*
         if (SimulationTime > VectorField.Domain.RectBoundary.Max.Z)
@@ -67,7 +67,7 @@ public class DataService : WorldService
         }
         */
 
-        base.Update();
+        base.PreDraw();
     }
 
     private bool firstDraw = true;

@@ -32,8 +32,8 @@ public static class Scripting
 
     public static void Startup(World world)
     {
-       // RebuildSpeetjensDatasets();
-        
+        // RebuildSpeetjensDatasets();
+
         foreach (var dataset in world.FlowExplainer.GetGlobalService<DatasetsService>().Datasets.Values)
         {
             if (!dataset.Loaded)
@@ -46,7 +46,7 @@ public static class Scripting
             var T_ = dataset.ScalerFields["Convective Temperature"];
             var Ttilde = dataset.ScalerFields["No Flow Temperature"];
 
-            
+
             var transportField = new ArbitraryField<Vec3, Vec2>(Q_.Domain, (x) =>
             {
                 var q_ = Q_.Evaluate(x);
@@ -79,8 +79,15 @@ public static class Scripting
         world.GetWorldService<DataService>().currentSelectedVectorField = "Convection Flux";
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
-        //world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new DemoPresentation());
-        //world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+
+        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new ClusterPresentation());
+        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+
+
+        //var g = world.AddVisualisationService<GridVisualizer>();
+        //world.GetWorldService<DataService>().currentSelectedVectorField = "Total Flux";
+        //world.GetWorldService<DataService>().currentSelectedScaler = "Convective Temperature";
+        //g.SetGridDiagnostic(new StagnationCompareGridDiagnostic());
 
         DensityParticlesScene(world);
 
@@ -172,6 +179,7 @@ gridDiagnostic.Recompute(gridVisualizer);
         world.FlowExplainer.GetGlobalService<ViewsService>().Views[0].Is3DCamera = true;
         world.AddVisualisationService(new DensityParticlesData());
         world.AddVisualisationService(new DensityParticles3DVisualizer());
+        world.AddVisualisationService(new DensityPathVisualizer());
         world.AddVisualisationService(new Slice3DVisualizer());
         world.AddVisualisationService(new DensityPathStructuresSpaceTime());
         world.AddVisualisationService(new DensityPathStructuresExamples());
@@ -297,8 +305,8 @@ gridDiagnostic.Recompute(gridVisualizer);
         var gridSize = new Vec3i(100, 50, diffFluxX.Usps.GridSize.Z);
         // var gridSize = new Vec3i(64, 32, 5);
         //var gridSize = new Vec3i(32, 16, diffFluxX.Usps.GridSize.Z / 8);  
-        
-        var physicalSource = new ArbitraryField<Vec3, double>(tempTot.Domain, 
+
+        var physicalSource = new ArbitraryField<Vec3, double>(tempTot.Domain,
             x =>
             {
                 var grad = tempNoFlow.FiniteDifferenceGradientIgnoreLast<Vec3, Vec2>(x, .0001f);
@@ -306,8 +314,8 @@ gridDiagnostic.Recompute(gridVisualizer);
                     grad.Y = 0;
                 return Vec2.Dot(-velocityField.Evaluate(x), grad);
             });
-        
-        
+
+
         if (!Directory.Exists(outputFieldsFolder))
             Directory.CreateDirectory(outputFieldsFolder);
 

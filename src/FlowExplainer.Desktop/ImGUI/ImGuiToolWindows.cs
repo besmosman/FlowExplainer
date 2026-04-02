@@ -119,7 +119,6 @@ public static class ImGuiToolWindows
             {
                 ImGui.GetForegroundDrawList().AddLine(new Vector2(ImGui.GetWindowPos().X, draggingY), new Vector2(ImGui.GetWindowPos().X + ImGui.GetWindowWidth(), draggingY), ImGui.GetColorU32(new Vector4(1, 1, 0, 1)), 4);
 
-                Logger.LogDebug(draggingOffsetY.ToString());
                 ImGui.SetNextWindowPos(new Vector2(ImGui.GetWindowPos().X, ImGui.GetMousePos().Y - draggingOffsetY));
                 ImGui.SetNextWindowSize(new Vector2(ImGui.GetWindowWidth(), dragginHeight));
                 ImGui.PushStyleVarY(ImGuiStyleVar.WindowPadding, 0);

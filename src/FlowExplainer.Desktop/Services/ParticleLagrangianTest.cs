@@ -174,7 +174,7 @@ public class ParticleLagrangianTest : WorldService
 
     public override void DrawImGuiSettings()
     {
-        ImGuiHelpers.SliderInt("Amount", ref amount, 1, 100000);
+        ImGuiHelpers.Slider("Amount", ref amount, 1, 100000);
         ImGuiHelpers.Slider("T", ref T, 0, 10);
         ImGuiHelpers.Slider("Radius", ref radius, 0, 1f);
         ImGuiHelpers.Slider("t", ref DisplayT, 0, 1);

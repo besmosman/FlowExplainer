@@ -78,7 +78,7 @@ public class ArrowVisualizer : WorldService, IAxisTitle
                 if (double.IsNaN(dir.X) || double.IsNaN(dir.Y))
                     continue;
 
-                dir = double.Clamp(((dir.Length()) / (double.Sqrt(maxDirLenght2))), .2f, .9f) * Vec2.Normalize(dir);
+                dir = double.Clamp(((dir.Length()) / (double.Sqrt(maxDirLenght2))), .0f, 1f) * Vec2.NormalizeSafe(dir);
                 if (double.IsNaN(dir.X) || double.IsNaN(dir.Y))
                     continue;
 
@@ -124,13 +124,13 @@ public class ArrowVisualizer : WorldService, IAxisTitle
 
             }
         }
-        GL.BlendFuncSeparate(
+        /*GL.BlendFuncSeparate(
             BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha,
             BlendingFactorSrc.One, BlendingFactorDest.One
-        );
+        );*/
         Gizmos2D.Instanced.RenderCircles(view.Camera2D);
         Gizmos2D.Instanced.RenderRects(view.Camera2D);
-        GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+     //   GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
         if (AutoResize)
         {

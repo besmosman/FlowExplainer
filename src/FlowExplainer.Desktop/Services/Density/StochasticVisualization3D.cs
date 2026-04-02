@@ -88,7 +88,7 @@ public class StochasticVisualization3D : WorldService
     public override void DrawImGuiSettings()
     {
         ImGui.Checkbox("Use Random 3D Field", ref UseRandomizedField);
-        ImGuiHelpers.SliderInt("Particle Count", ref Count, 1, 100000);
+        ImGuiHelpers.Slider("Particle Count", ref Count, 1, 100000);
         ImGuiHelpers.Slider("Radius", ref Radius, .001f, .1f);
         //ImGui.Checkbox("Reverse", ref reverse);
         ImGuiHelpers.Slider("FadeIn Factor", ref FadeInFactor, 0, 1f);
@@ -100,7 +100,7 @@ public class StochasticVisualization3D : WorldService
         ImGui.Checkbox("Volume Render", ref VolumeRender);
         ImGuiHelpers.Slider("Lerp factor", ref lerpFactor, 0, 1);
         ImGuiHelpers.Slider("Smooth Factor", ref SmoothFactor, 0, 1);
-        ImGuiHelpers.SliderInt("Smooth Steps", ref SmoothSteps, 0, 32);
+        ImGuiHelpers.Slider("Smooth Steps", ref SmoothSteps, 0, 32);
         ImGuiHelpers.Slider("Depth Scaling", ref depthScaling, 1, 10_0);
         ImGuiHelpers.Combo("Mode", ref mode);
 

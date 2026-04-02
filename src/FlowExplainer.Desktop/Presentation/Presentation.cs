@@ -35,10 +35,16 @@ public abstract class NewPresentation
             CurrentLayout(this);
         return isCur;
     }
-
+    
+    
     public bool SlideEnter()
     {
         return Presi.LastCurrentSlide != Presi.CurrentSlide && Presi.CurrentSlide == Presi.Walk.RenderSlide;
+    }
+
+    public bool StepEnter()
+    {
+        return Presi.LastCurrentStep != Presi.CurrentStep && Presi.CurrentSlide == Presi.Walk.RenderSlide; 
     }
 
     public bool IsFirstStep()
@@ -52,7 +58,7 @@ public abstract class NewPresentation
         bool isCur = Presi.Walk.FinalRenderStep == Presi.CurrentStep;
         return isCur;
     }
-    
+
     public bool AfterCurrentStep()
     {
         return Presi.CurrentStep > Presi.Walk.FinalRenderStep;
@@ -60,7 +66,7 @@ public abstract class NewPresentation
 
     public void Title(string text, [FilePath] string filePath = "", [LineNumber] int lineNumber = 0)
     {
-        Presi.Text(text, new Vec2(.5f, .94f), .05, true, Color.White, filePath, lineNumber);
+        Presi.Text(text, new Vec2(.5f, .94f), .03, true, Color.White, filePath, lineNumber);
     }
 
 
@@ -71,6 +77,16 @@ public abstract class NewPresentation
         viewCoords.Y = 1f - viewCoords.Y;
         var rect = new Rect<Vec2>(worldpanelWidget.RenderMin, worldpanelWidget.RenderMax);
         return rect.FromRelative(viewCoords);
+    }
+
+    public Vec2 ScreenRelToWorld(PresiContext.WidgetData worldpanelWidget, Vec2 screenPos)
+    {
+        var view = Presi.GetView(worldpanelWidget, (v) => throw new Exception("Should be loaded"));
+        var rect = new Rect<Vec2>(worldpanelWidget.RenderMin, worldpanelWidget.RenderMax);
+        var viewCoords = rect.ToRelative(screenPos);
+        viewCoords.Y = 1f - viewCoords.Y;
+        var viewPos = viewCoords * view.Size.ToVec2();
+        return CoordinatesConverter2D.ViewToWorld(view, viewPos);
     }
 
     public View DrawWorldPanel(Vec2 relCenterPos, Vec2 relSize, double zoom = 1, Action<World>? load = null,
@@ -101,7 +117,7 @@ public abstract class NewPresentation
         if (view.IsSelected)
         {
             var s = size + new Vec2(5, 5);
-         //   Gizmos2D.Rect(Presi.View.Camera2D, center - s / 2, center + s / 2, new Color(.1, .1,.1, 1f));
+            //   Gizmos2D.Rect(Presi.View.Camera2D, center - s / 2, center + s / 2, new Color(.1, .1,.1, 1f));
         }
         else
         {

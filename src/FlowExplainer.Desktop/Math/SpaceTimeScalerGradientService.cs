@@ -92,7 +92,7 @@ public class SpaceTimeScalerGradientService : WorldService
         ImGuiHelpers.Slider("MoveSpeed", ref MoveSpeed, 0, .5);
         ImGuiHelpers.Slider("TargetValue", ref TargetValue, -1, 1);
 
-        ImGuiHelpers.SliderInt("ParticleCount", ref ParticleCount, 0, 10000);
+        ImGuiHelpers.Slider("ParticleCount", ref ParticleCount, 0, 10000);
 
         base.DrawImGuiSettings();
     }

@@ -593,7 +593,7 @@ public class StochasticConnectionVisualization : WorldService
     public override void DrawImGuiSettings()
     {
         ImGui.Checkbox("Draw particles", ref DrawParticles);
-        ImGuiHelpers.SliderInt("Count", ref Count, 1, 100000);
+        ImGuiHelpers.Slider("Count", ref Count, 1, 100000);
         ImGuiHelpers.Slider("Reseed Rate", ref ReseedChance, 0, 3f);
         ImGuiHelpers.Slider("Kernel Radius", ref kernelSizeM, 0, 3f);
         ImGuiHelpers.Slider("Render Radius", ref RenderRadius, 0, .1f);

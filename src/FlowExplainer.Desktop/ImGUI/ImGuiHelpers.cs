@@ -137,7 +137,7 @@ public class ImGuiHelpers
             ImGui.EndDisabled();
     }
     
-    public static bool SliderInt(string name, ref int f, int min, int max)
+    public static bool Slider(string name, ref int f, int min, int max)
     {
         if (ImGui.SliderInt(name, ref f, min, max))
         {

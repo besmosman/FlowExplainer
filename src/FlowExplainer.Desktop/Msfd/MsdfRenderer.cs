@@ -33,7 +33,7 @@ public static class MsdfRenderer
 
         return minFont!;
     }
-    static string folderPath = "Assets/Fonts/ComputerModern";
+    static string folderPath = "Assets/Fonts/OpenSans-Medium";
     public static void Init()
     {
         Material = new Material(
@@ -49,7 +49,7 @@ public static class MsdfRenderer
             File.Copy(charsetFilePath, genCharsetFilePath);
             Directory.Delete(genFolderPath, true);
         }
-        CheckGenererateFont(48);
+        CheckGenererateFont(24);
     }
 
     private static void CheckGenererateFont(int size)
@@ -67,7 +67,11 @@ public static class MsdfRenderer
         {
             fonts.Add(size, new MsdfFont(JsonConvert.DeserializeObject<MsdfFontInfo>(File.ReadAllText(genInfoPath)))
             {
-                Texture = new ImageTexture(genImagePath),
+                Texture = new ImageTexture(genImagePath)
+                {
+                    TextureMinFilter = TextureMinFilter.Linear,
+                    TextureMagFilter = TextureMagFilter.Linear,
+                },
             });
             return;
         }
@@ -97,7 +101,11 @@ public static class MsdfRenderer
 
         fonts.Add(size, new MsdfFont(JsonConvert.DeserializeObject<MsdfFontInfo>(File.ReadAllText(genInfoPath)))
         {
-            Texture = new ImageTexture(genImagePath),
+            Texture = new ImageTexture(genImagePath)
+            {
+                TextureMinFilter = TextureMinFilter.Linear,
+                TextureMagFilter = TextureMagFilter.Linear,
+            },
         });
     }
 

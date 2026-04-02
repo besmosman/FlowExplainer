@@ -96,7 +96,7 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
     }
 
 
-    public override void Update()
+    public override void PreDraw()
     {
         var dat = GetRequiredWorldService<DataService>();
         var velField = AltVectorField ?? dat.VectorField;
@@ -153,7 +153,7 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
             PerData[i].TimeAlive += FlowExplainer.DeltaTime;
         });
         avgSpeed = velMag / c;
-        base.Update();
+        base.PreDraw();
     }
 
     public override void Draw(View view)

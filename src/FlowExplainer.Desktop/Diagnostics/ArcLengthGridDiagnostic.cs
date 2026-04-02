@@ -2,7 +2,7 @@ namespace FlowExplainer;
 
 public class ArcLengthGridDiagnostic : IGridDiagnostic
 {
-    public string Name => "Trajectory Arc Length";
+    public string Name() => "Trajectory Arc Length";
     public double T = 1;
     public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {

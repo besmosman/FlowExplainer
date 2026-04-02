@@ -18,6 +18,12 @@ public class PresiChildViewController : IViewController
         view.IsSelected = presi.SelectedWidget?.ConnectedObject == view;
         ViewController2D.Update(view, window);
         DefaultViewController.Update3DCamera(view, window);
+
+        var mousePosPresi = presi.View.MousePosition;
+        
+        view.MousePosition = view.RelativeMousePosition;
+        ///var relMouseInPresi = presi.CanvasRect.ToRelative(mousePosPresi);
+        Logger.LogDebug( view.MousePosition.ToString());
         view.ResizeToTargetSize();
         view.World.Draw(view);
     }

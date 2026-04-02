@@ -44,7 +44,7 @@ public class AxisVisualizer : WorldService
         var thickness = 4f;
         var margin = 0.0;
 
-        var lh = view.Width / 36f;
+        var lh = view.Width / 48f;
         if (DrawAxis)
         {
             var lb = CoordinatesConverter2D.WorldToView(view, new Vec2(domain.Min.X, domain.Min.Y));
@@ -55,15 +55,16 @@ public class AxisVisualizer : WorldService
             Gizmos2D.Line(view.ScreenCamera, lb + new Vec2(-margin, 0), lt + new Vec2(-margin, 0), color, thickness);
 
 
-            var y = lt.Y - lh * 2;
+            var y = lt.Y - lh * 3.5;
             if (DrawTitle)
                 for (int index = World.Services.Count - 1; index >= 0; index--)
                 {
                     var service = World.Services[index];
                     if (service is IAxisTitle titler && service.IsEnabled)
                     {
-                        Gizmos2D.Text(view.ScreenCamera, new Vec2((lb.X + rb.X) / 2, y), lh, color, titler.GetTitle(), centered: true);
-                        y -= lh;
+                        string title = Title ?? titler.GetTitle();
+                        Gizmos2D.Text(view.ScreenCamera, new Vec2((lb.X + rb.X) / 2, y), lh, color, title, centered: true);
+                        y -= lh*1.8;
                     }
                 }
             //if (titler != null)
@@ -100,7 +101,7 @@ public class AxisVisualizer : WorldService
                 var value = Utils.Lerp(domain.Min.Y, domain.Max.Y, c);
                 var pos = Utils.Lerp(lb, lt, c);
                 Gizmos2D.Line(view.ScreenCamera, pos + new Vec2(-25, 0), pos + new Vec2(thickness / 2f, 0), color, thickness);
-                Gizmos2D.AdvText(view.ScreenCamera, pos + new Vec2(-80,-lh*1.3), lh, color, value.ToString("N1"), centered: true);
+                Gizmos2D.AdvText(view.ScreenCamera, pos + new Vec2(-lh*3,-lh*1.3), lh, color, value.ToString("N1"), centered: true);
             }
         }
 
@@ -111,7 +112,7 @@ public class AxisVisualizer : WorldService
                 var service = World.Services[index];
                 if (service is IGradientScaler scaler && service.IsEnabled)
                 {
-                    var textr = dat.ColorGradient.Texture.Value;
+                    var textr = (scaler.AltGradient ?? dat.ColorGradient).Texture.Value;
                     //Gizmos2D.ImageCentered(view.ScreenCamera, textr, new Vec2(view.Width-50f, 50), 10000f, 1);
                     var texturedMat = Gizmos2D.texturedMat;
                     texturedMat.Use();

@@ -13,7 +13,7 @@ public class PoincareSmear2GridDiagnostic : IGridDiagnostic
         double period = rect.Size.Z;
         int periods = 300;
         int stepsPerPeriod = 100;
-        var flowOperator = new IFlowOperator<Vec2, Vec3>.DefaultFlowOperator(stepsPerPeriod * periods);
+        var flowOperator = new IFlowOperator<Vec2, Vec3>.DefaultFlowOperatorUnsteady(stepsPerPeriod * periods);
         if (gridVisualizer.RegularGrid.GridSize != trajectories.GridSize)
         {
             trajectories.Resize(gridVisualizer.RegularGrid.GridSize);

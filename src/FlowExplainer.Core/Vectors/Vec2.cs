@@ -19,14 +19,14 @@ public interface IVec<TVec, TNumber> :
     ISubtractionOperators<TVec, TVec, TVec>,
     IDivisionOperators<TVec, TNumber, TVec>,
     IAdditionOperators<TVec, TVec, TVec>,
-    IEqualityOperators<TVec,TVec, bool>,
+    IEqualityOperators<TVec, TVec, bool>,
     IEquatable<TVec>
     where TVec : IVec<TVec, TNumber>
     where TNumber : INumber<TNumber>
 {
     public TVec Max(TVec b);
     public TVec Min(TVec b);
-    
+
     public int ElementCount { get; }
 
     public TNumber Sum();
@@ -35,7 +35,7 @@ public interface IVec<TVec, TNumber> :
 
     public TNumber Last { get; set; }
     public TNumber this[int n] { get; set; }
-    
+
 
     static abstract TVec operator *(TNumber left, TVec right);
     static abstract TVec operator *(TVec left, TVec right);
@@ -43,7 +43,7 @@ public interface IVec<TVec, TNumber> :
     static abstract bool operator >(TVec left, TVec right);
     static abstract bool operator <(TVec left, TVec right);
 
-    
+
     public TNumber Volume()
     {
         TNumber n = TNumber.One;
@@ -166,6 +166,14 @@ public struct Vec2 : IVec<Vec2, double>, IVecUpDimension<Vec3>, IVecDownDimensio
 
     public static double Distance(Vec2 a, Vec2 b) => double.Sqrt(DistanceSquared(a, b));
 
+    public static Vec2 NormalizeSafe(Vec2 p)
+    {
+        double length = p.Length();
+        if (length == 0) 
+            return default;
+        return p / length;
+    }
+
     public static Vec2 Normalize(Vec2 p)
     {
         double length = p.Length();
@@ -239,7 +247,7 @@ public struct Vec2 : IVec<Vec2, double>, IVecUpDimension<Vec3>, IVecDownDimensio
     {
         return Vec2.Normalize(this);
     }
-    
+
     public Vec2 NormalizedSafe()
     {
         double length = Length();
@@ -247,7 +255,7 @@ public struct Vec2 : IVec<Vec2, double>, IVecUpDimension<Vec3>, IVecDownDimensio
             return default;
         return this / length;
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(Vec2 left, Vec2 right)
     {

@@ -1,77 +1,7 @@
 using FlowExplainer.Msdf;
+using Microsoft.VisualBasic;
 
 namespace FlowExplainer;
-
-public class ResizableArray<T> where T : struct
-{
-    private T[] Entries;
-
-    public ResizableArray(int c)
-    {
-        Entries = new T[c];
-    }
-
-    public ref T this[int index] => ref Entries[index];
-
-    public int Length
-    {
-        get => Entries.Length;
-    }
-    
-    public bool ResizeIfNeeded(int c, bool reset = false)
-    {
-        if (Entries.Length != c)
-        {
-            if (reset)
-                Entries = new T[c];
-            else
-                Array.Resize(ref Entries, c);
-            return true;
-        }
-
-        return false;
-    }
-
-    public Span<T> AsSpan()
-    {
-        return Entries.AsSpan();
-    }
-}
-
-public class ClusterPresentation : NewPresentation
-{
-    public class StructureAccentuatingService : WorldService
-    {
-        
-        public override void Initialize()
-        {
-        }
-
-        public override void Draw(View view)
-        {
-        }
-    }
-
-    public override void Draw()
-    {
-        if (BeginSlide())
-        {
-            var tempRelSize = new Vec2(1, .5) / 1.6;
-            var tempRelPos = new Vec2(.25, .75);
-            var temp = DrawWorldPanel(tempRelPos, tempRelSize, zoom: .76,
-                load: (world) =>
-                {
-                    var data = world.GetWorldService<DataService>();
-                    data.SetDataset("Double Gyre EPS=0.1, Pe=100");
-                    data.TimeMultiplier = .5f;
-                    data.currentSelectedVectorField = "Total Flux";
-                    var axis = world.AddVisualisationService<AxisVisualizer>();
-                    var grid = world.AddVisualisationService<StructureAccentuatingService>();
-                    axis.DrawTitle = false;
-                });
-        }
-    }
-}
 
 public class DemoPresentation : NewPresentation
 {

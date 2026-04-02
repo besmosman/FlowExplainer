@@ -273,7 +273,7 @@ public class DensityPathStructuresPresiTarget : WorldService, IAxisTitle
         ImGuiHelpers.Slider("AccumulationFactor", ref AccumelationFactor, 0, 1f);
         ImGuiHelpers.Slider("Reseed Rate", ref reseedRate, 0, .1f);
         ImGuiHelpers.Slider("Decay", ref Decay, 0, 1f);
-        ImGuiHelpers.SliderInt("Particles", ref ParticleCount, 1, 10000);
+        ImGuiHelpers.Slider("Particles", ref ParticleCount, 1, 10000);
         if (ImGui.Button("Reset"))
         {
             Reset();

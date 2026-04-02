@@ -55,8 +55,8 @@ public class VisualComputingPresentation : NewPresentation
                 //  Gizmos2D.Rect(Presi.View.Camera2D, lb, rt, grad.Get(0.2f));
                 Gizmos2D.Line(Presi.View.Camera2D, lb, rb, grad.Get(1), 15f);
                 Gizmos2D.Line(Presi.View.Camera2D, lt, rt, grad.Get(0.1f), 15f);
-                Gizmos2D.AdvText(Presi.View.Camera2D, rb + new Vec2(50,0), 100f, grad.Get(1), "Hot");
-                Gizmos2D.AdvText(Presi.View.Camera2D, rt + new Vec2(50,0), 100f, grad.Get(0.1f), "Cold");
+                Gizmos2D.AdvText(Presi.View.Camera2D, rb + new Vec2(50,0), 50f, grad.Get(1), "Hot");
+                Gizmos2D.AdvText(Presi.View.Camera2D, rt + new Vec2(50,0), 50f, grad.Get(0.1f), "Cold");
             }
 
             if (BeginStep())
@@ -85,7 +85,7 @@ public class VisualComputingPresentation : NewPresentation
                     view.World.RemoveWorldService(view.World.GetWorldService<GridVisualizer>());
                     view.World.AddVisualisationService<ArrowVisualizer>();
                 }
-                Presi.Text("u =  sin(πx)cos(πy) v = -cos(π(x)sin(πy)", new Vec2(0.5, 0.05), .05f, true, Color.White);
+                Presi.Text("u =  sin(πx)cos(πy) v = -cos(π(x)sin(πy)", new Vec2(0.5, 0.05), .025f, true, Color.White);
             }
 
             if (BeginStep())

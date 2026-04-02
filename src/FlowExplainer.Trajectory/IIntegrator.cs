@@ -7,6 +7,7 @@ public interface IIntegrator<TPhase, TSpace> where TPhase : IVec<TPhase, double>
     TPhase Integrate(IVectorField<TPhase, TSpace> f, TPhase x, double dt);
 }
 
+
 public static class IIntegratorExtensions
 {
     extension<TInput, TOutput>(IIntegrator<TInput, TOutput>)

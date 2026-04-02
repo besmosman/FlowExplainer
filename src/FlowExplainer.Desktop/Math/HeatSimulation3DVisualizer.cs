@@ -271,6 +271,7 @@ public class HeatSimulation3DVisualizer : WorldService
             }
         }
 
+        GL.Disable(EnableCap.DepthTest);
 
         Gizmos.Instanced.DrawSpheres(view.Camera);
     }

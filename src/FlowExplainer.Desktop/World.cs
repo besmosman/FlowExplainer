@@ -23,7 +23,7 @@ namespace FlowExplainer
         public T AddVisualisationService<T>(int? index = null) where T : WorldService
         {
             var worldService = Activator.CreateInstance<T>();
-            AddVisualisationService(worldService);
+            AddVisualisationService(worldService, index);
             return worldService;
         }
 
@@ -121,7 +121,7 @@ namespace FlowExplainer
                         service.IsInitialzied = true;
                     }
 
-                    service.Update();
+                    service.PreDraw();
                 }
         }
 
@@ -160,7 +160,7 @@ namespace FlowExplainer
                     var t = 1.5f + (double)(ImGuiHelpers.MessageTime - DateTime.Now).TotalSeconds;
                     if (t > 0)
                     {
-                        Gizmos2D.Text(view.ScreenCamera, new Vec2(view.RenderTarget.Size.X / 2f, view.RenderTarget.Size.Y - 90), 80, new Color(1, 1, 0, 1.5f - (1.5f - t) * (1.5f - t)), ImGuiHelpers.LastMessage, centered: true);
+                        Gizmos2D.AdvText(view.ScreenCamera, new Vec2(view.RenderTarget.Size.X / 2f, view.RenderTarget.Size.Y - 90), 32, new Color(1, 1, 0, 1.5f - (1.5f - t) * (1.5f - t)), ImGuiHelpers.LastMessage, centered: true);
                     }
                 }
             });

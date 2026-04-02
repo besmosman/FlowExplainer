@@ -57,6 +57,9 @@ public interface IVectorField<TInput, TOutput> where TInput : IVec<TInput, doubl
     public static IVectorField<TInput, TOutput> Constant(TOutput value) => new ConstantField<TInput, TOutput>(value, IDomain<TInput>.Infinite);
     public static IVectorField<TInput, TOutput> Constant(TOutput value, IDomain<TInput> domain) => new ConstantField<TInput, TOutput>(value, domain);
 
+    public static IVectorField<TInput, TOutput> Arbitrary(IDomain<TInput> domain, Func<TInput, TOutput> f) => new ArbitraryField<TInput, TOutput>(domain, f);
+    
+    
     private readonly struct ConstantField<TInput, TOutput> : IVectorField<TInput, TOutput> where TInput : IVec<TInput, double>
     {
         private readonly TOutput Value;

@@ -13,7 +13,7 @@ public class DensityParticlesData : WorldService
         public double HeatingCoolingAccumelation;
     }
 
-    public ResizableArray<Particle> Particles;
+    public ResizableStructArray<Particle> Particles;
     public double ReseedRate = 0.01;
     public override string? Name => "Density Particles";
     public double SeedTimeRange = .2f;
@@ -48,10 +48,11 @@ public class DensityParticlesData : WorldService
         var domainBounding = bounds;
 
         var targetDt = dt;
-        var eps = 0.000000001;
+        //var eps = 0.000000001;
         var sliceT = DataService.SimulationTime;
         rect = new Rect<Vec3>(rect.Min.XY.Up(sliceT - SeedTimeRange), rect.Max.XY.Up(sliceT + SeedTimeRange));
 
+        if(Particles.Length > 0)
         Parallel.ForEach(Partitioner.Create(0, Particles.Length), range =>
         {
             for (int i = range.Item1; i < range.Item2; i++)
@@ -103,7 +104,7 @@ public class DensityParticlesData : WorldService
     public override void DrawImGuiSettings()
     {
         int t = Particles.Length;
-        ImGuiHelpers.SliderInt("Particle Count", ref t, 0, 10000);
+        ImGuiHelpers.Slider("Particle Count", ref t, 0, 10000);
         Particles.ResizeIfNeeded(t);
         ImGuiHelpers.Slider("Fictitious Integration Time", ref dt, 0, .1);
         ImGuiHelpers.Slider("Seed Rate", ref ReseedRate, 0, .01);
