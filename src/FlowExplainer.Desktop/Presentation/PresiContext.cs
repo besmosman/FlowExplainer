@@ -411,7 +411,7 @@ public class PresiContext
             var childRect = new Rect<Vec2>(RelToSceen(view.Key.RelPosition - view.Key.RelSize/2), RelToSceen(view.Key.TargetSize));
             //Gizmos2D.RectCenter(View.Camera2D, childRect.Center, childRect.Size, Color.Green);
             var relChildView = childRect.ToRelative(relMouseInPresi);
-            Logger.LogDebug(relChildView.ToString());
+            //Logger.LogDebug(relChildView.ToString());
             var childWold = CoordinatesConverter2D.ViewToWorld(view.Value, new Vec2(0,1) * view.Value.Size.ToVec2());
             view.Value.RelativeMousePosition = childWold;
             

@@ -3,25 +3,51 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
 
-public class DensityPathVisualizer : WorldService
+public class SpacetimePathVisualizer : WorldService
 {
+    public override string? Name => "Spacetime Trajectory";
+    public double X;
+    public double Y;
+    public double Z;
 
     public override void Initialize()
     {
-
     }
+
     public override void Draw(View view)
     {
         var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
         var vec = DataService.VectorField;
-        var FluxField = new ArbitraryField<Vec3, Vec3>(vec.Domain, x => vec.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)));
+        var FluxField = new ArbitraryField<Vec3, Vec3>(vec.Domain, 
+            x => vec.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)));
 
-        var traj = IFlowOperatorSteady<Vec3>.Default.ComputeTrajectory(new Vec3(0.1, 0.25, DataService.SimulationTime), -15, FluxField);
+        var traj = IFlowOperatorSteady<Vec3>.Default.ComputeTrajectory(new Vec3(X, Y, Z), 10, FluxField);
 
         foreach (var (start, end) in traj.EnumerateSegments())
         {
+            if (double.Abs(start.X - end.X) > .5)
+            {
+                continue;
+            }
             Gizmos.DrawLine(view, start, end, .004f, Color.Green);
         }
+
+        /*var Particles = GetWorldService<DensityParticlesData>().Particles;
+        foreach (ref var p in Particles.AsSpan())
+        {
+            if (Random.Shared.NextSingle() > .9999)
+            {
+                p.Phase = new Vec3(X, Y, Z);
+            }
+        }*/
+    }
+
+    public override void DrawImGuiSettings()
+    {
+        ImGuiHelpers.Slider("X", ref X, 0, 1);
+        ImGuiHelpers.Slider("Y", ref Y, 0, .5);
+        ImGuiHelpers.Slider("Z", ref Z, 0, DataService.VectorField.Domain.RectBoundary.Max.Z);
+        base.DrawImGuiSettings();
     }
 }
 
@@ -33,7 +59,6 @@ public class DensityParticles3DVisualizer : WorldService
 
     public override void Initialize()
     {
-
     }
 
     public override void Draw(View view)

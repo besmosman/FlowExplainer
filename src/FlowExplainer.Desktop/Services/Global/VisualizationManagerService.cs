@@ -130,6 +130,8 @@ namespace FlowExplainer
 
         public override void Initialize()
         {
+            Worlds.Clear();
+            NewWorld();
         }
     }
 }

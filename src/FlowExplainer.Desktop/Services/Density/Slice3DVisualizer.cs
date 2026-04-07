@@ -18,7 +18,7 @@ public class Slice3DVisualizer : WorldService
         SliceView.Camera2D.Position = default;
         SliceView.Camera2D.Scale = 10;
     }
-    
+
     public override void Draw(View view)
     {
         if (!view.Is3DCamera)
@@ -31,6 +31,7 @@ public class Slice3DVisualizer : WorldService
         {
             //GL.ClearColor(.0f, .0f, 0, 0);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.Disable(EnableCap.DepthTest);
             foreach (var service in World.Services)
             {
                 if (service is not Slice3DVisualizer && service.IsEnabled)
@@ -40,11 +41,10 @@ public class Slice3DVisualizer : WorldService
             }
         });
         double t = DataService.SimulationTime;
-        GL.Enable(EnableCap.DepthTest);
         RenderTexture.Blit(SliceView.RenderTarget, SliceView.PostProcessingTarget);
         var p = DataService.VectorField.Domain.Bounding.Bound(new Vec3(0, 0, t));
+        GL.Enable(EnableCap.DepthTest);
         Gizmos.DrawTexturedQuadXY(view.Camera, SliceView.PostProcessingTarget, p, DataService.VectorField.Domain.RectBoundary.Size.XY);
-        GL.Disable(EnableCap.DepthTest);
         //Gizmos2D.ImageCenteredInvertedY(view.Camera2D, SliceView.PostProcessingTarget, new Vec2(1.5, .5), new Vec2(1, .5f));
     }
 }

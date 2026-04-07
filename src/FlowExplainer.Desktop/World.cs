@@ -138,6 +138,15 @@ namespace FlowExplainer
                 var clearColor = view.AltClearColor ?? Style.Current.BackgroundColor;
                 GL.ClearColor((float)clearColor.R, (float)clearColor.G, (float)clearColor.B, (float)clearColor.A);
                 GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
+                if (view.Is3DCamera)
+                {
+                    GL.Enable(EnableCap.DepthTest);
+                }
+                else
+                {
+                    GL.Disable(EnableCap.DepthTest);
+                }
+
                 foreach (var service in Services)
                 {
                     Profiler.Begin(service?.Name ?? service!.GetType().Name);
@@ -148,6 +157,7 @@ namespace FlowExplainer
                             service.Initialize();
                             service.IsInitialzied = true;
                         }
+
 
                         service.Draw(view);
                     }

@@ -29,16 +29,24 @@ public static class ImGuiToolWindows
 
     public static void Draw(ImGUIService imguiService)
     {
+        DrawSerivicesToolWindow(imguiService);
+    }
+
+    private static void DrawSerivicesToolWindow(ImGUIService imguiService)
+    {
         if (ImGui.Begin("Services", ref imguiService.RenderData.ShowToolWindow))
         {
             
-            var visualizationService = imguiService.GetRequiredGlobalService<WorldManagerService>();
-            toolWorld ??= visualizationService.Worlds.First();
+            var worldManager = imguiService.GetRequiredGlobalService<WorldManagerService>();
+            toolWorld ??= worldManager.Worlds.First();
+            if(!worldManager.Worlds.Contains(toolWorld))
+                toolWorld = worldManager.Worlds.First();
+
             lastDraggingIndex = draggingIndex;
 
             if (ImGui.BeginCombo("World", toolWorld.Name))
             {
-                foreach (var world in visualizationService.Worlds)
+                foreach (var world in worldManager.Worlds)
                 {
                     if (ImGui.Selectable(world.Name, world == toolWorld))
                     {
@@ -185,6 +193,7 @@ public static class ImGuiToolWindows
             ImGui.End();
         }
     }
+
     private static bool DrawService(WorldService s, ref float lastCurserY)
     {
 

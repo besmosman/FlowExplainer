@@ -7,6 +7,7 @@ public class DensityParticlesData : WorldService
 {
     public struct Particle
     {
+        public double LastTimeAlive;
         public double TimeAlive;
         public Vec3 Phase;
         public Vec3 LastPhase;
@@ -25,7 +26,7 @@ public class DensityParticlesData : WorldService
     {
         var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
         SourceField = DataService.LoadedDataset.ScalerFields["Physical Source"];
-        Particles = new(1000);
+        Particles = new(1);
         var rect = ConvectiveTemp.Domain.RectBoundary;
 
         foreach (ref var p in Particles.AsSpan())
@@ -34,14 +35,13 @@ public class DensityParticlesData : WorldService
         }
     }
 
-    public override void Draw(View view)
-    {
+    public override void PreDraw()
+    { 
         var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
         var vec = DataService.VectorField;
         var FluxField = new ArbitraryField<Vec3, Vec3>(vec.Domain, x => vec.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)));
         var boundsZ = ConvectiveTemp.Domain.RectBoundary.Size.Z > 1 ? BoundaryType.Fixed : BoundaryType.Periodic;
         var bounds = BoundingFunctions.Build([BoundaryType.Periodic, BoundaryType.Fixed, boundsZ], ConvectiveTemp.Domain.RectBoundary);
-        view.CameraOffset = new Vec3(-0.5, -0.25, DataService.SimulationTime);
 
         var rk4 = IIntegrator<Vec3, Vec3>.Rk4Steady;
         var rect = ConvectiveTemp.Domain.RectBoundary;
@@ -75,7 +75,14 @@ public class DensityParticlesData : WorldService
                     Reseed(ref p, SourceField, rect);
             }
         });
+        base.PreDraw();
     }
+
+    public override void Draw(View view)
+    {
+        view.CameraOffset = new Vec3(-0.5, -0.25, DataService.SimulationTime);
+    }
+    
     private IVectorField<Vec3, T> PerodicExtend<T>(IVectorField<Vec3, T> vec)
     {
         var rect = vec.Domain.RectBoundary;

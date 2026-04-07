@@ -9,7 +9,7 @@ namespace FlowExplainer
 
     public class View : IDisposable
     {
-        private static int viewsCreated;
+        public static int viewsCreated;
         public const int SuperSamplingLevel = 1;
         public readonly int Id;
         public string Name;

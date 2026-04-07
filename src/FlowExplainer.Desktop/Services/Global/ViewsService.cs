@@ -6,7 +6,6 @@
 
         public override void Draw()
         {
-            
             if (!Views.Any(n => n.IsFullScreen))
                 foreach (var view in Views)
                 {
@@ -37,6 +36,8 @@
 
         public override void Initialize()
         {
+            View.viewsCreated = 0;
+            Views.Clear();
             NewView();
         }
     }

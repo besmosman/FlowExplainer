@@ -1,7 +1,10 @@
 using System.Data;
 using System.Globalization;
 using System.Numerics;
+using System.Reflection;
 using System.Text;
+using ImGuiNET;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Newtonsoft.Json;
 
 namespace FlowExplainer;
@@ -34,7 +37,7 @@ public static class Scripting
     {
         // RebuildSpeetjensDatasets();
 
-        foreach (var dataset in world.FlowExplainer.GetGlobalService<DatasetsService>().Datasets.Values)
+        /*foreach (var dataset in world.FlowExplainer.GetGlobalService<DatasetsService>().Datasets.Values)
         {
             if (!dataset.Loaded)
             {
@@ -69,19 +72,22 @@ public static class Scripting
             dataset.VectorFields["Q' * (T'/|T'|)"] = y;
         }
 
-        LoadPeriodicCopies(world);
+        LoadPeriodicCopies(world);*/
         SetGyreDataset(world);
 
 
-        var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(3).Key;
+        var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(0).Key;
         world.GetWorldService<DataService>().SetDataset(name);
         world.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
         world.GetWorldService<DataService>().currentSelectedVectorField = "Convection Flux";
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
-
+        
+        LoadScene(world, new SpacetimeDensityStructureScene());
+        
+        /*
         world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new ClusterPresentation());
-        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();*/
 
 
         //var g = world.AddVisualisationService<GridVisualizer>();
@@ -89,7 +95,7 @@ public static class Scripting
         //world.GetWorldService<DataService>().currentSelectedScaler = "Convective Temperature";
         //g.SetGridDiagnostic(new StagnationCompareGridDiagnostic());
 
-        DensityParticlesScene(world);
+       // DensityParticlesScene(world);
 
         //var gridVisualizer = new GridVisualizer();
         //world.AddVisualisationService(gridVisualizer);
@@ -144,6 +150,11 @@ gridDiagnostic.Recompute(gridVisualizer);
 });*/
     }
 
+    private static void LoadScene(World world, Scene scene)
+    {
+        world.FlowExplainer.GetGlobalService<SceneManager>().LoadScene(scene);
+    }
+
     private static void WriteDatasetToPlaintext(Dataset dataset)
     {
         if (Directory.Exists("PlainText"))
@@ -179,10 +190,11 @@ gridDiagnostic.Recompute(gridVisualizer);
         world.FlowExplainer.GetGlobalService<ViewsService>().Views[0].Is3DCamera = true;
         world.AddVisualisationService(new DensityParticlesData());
         world.AddVisualisationService(new DensityParticles3DVisualizer());
-        world.AddVisualisationService(new DensityPathVisualizer());
+        world.AddVisualisationService(new SpacetimePathVisualizer());
         world.AddVisualisationService(new Slice3DVisualizer());
         world.AddVisualisationService(new DensityPathStructuresSpaceTime());
         world.AddVisualisationService(new DensityPathStructuresExamples());
+        world.FlowExplainer.GetGlobalService<ViewsService>().NewView();
         //world.AddVisualisationService(new DensityPathStructures());
         //world.AddVisualisationService(new SpaceTimeScalerGradientService());
 

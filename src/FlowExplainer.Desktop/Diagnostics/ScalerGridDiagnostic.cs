@@ -31,7 +31,7 @@ public class ScalerGridDiagnostic : IGridDiagnostic
 public class StagnationCompareGridDiagnostic : IGridDiagnostic
 {
     public bool UseCustomColoring => true;
-    public double e = 0.02;
+    public double e = 0.025;
     
     public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
@@ -69,7 +69,11 @@ public class StagnationCompareGridDiagnostic : IGridDiagnostic
         });
     }
 
-    public string Name() => $"Red = T' < {e:N3}, Green = |Q'| < {e:N3}, Yellow = both";
+    public string Name(GridVisualizer gridVisualizer)
+    {
+        return $"Both @yellow[(Yellow)] \r\n |Q'| < {e:N3} @green[(Green)],\r\n |T'| < {e:N3} @red[(Red)],";
+    }
+
     public void OnImGuiEdit(GridVisualizer gridVisualizer)
     {
         ImGuiHelpers.Slider("threshold", ref e, 0, .1);

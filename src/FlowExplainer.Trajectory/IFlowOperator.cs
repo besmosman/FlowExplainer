@@ -8,7 +8,7 @@ public interface IFlowOperatorSteady<TPhase>
     Trajectory<TPhase> ComputeTrajectory(TPhase x, double duration, IVectorField<TPhase, TPhase> v);
     TPhase ComputeEnd(TPhase x, double duration, IVectorField<TPhase, TPhase> v);
 
-    public static IFlowOperatorSteady<TPhase> Default => new DefaultFlowOperatorSteady(164);
+    public static IFlowOperatorSteady<TPhase> Default => new DefaultFlowOperatorSteady(64);
 
     private class DefaultFlowOperatorSteady : IFlowOperatorSteady<TPhase>
     {

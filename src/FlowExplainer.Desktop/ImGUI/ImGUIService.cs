@@ -1,4 +1,5 @@
 using System.Numerics;
+using System.Text;
 using FlowExplainer.Logging;
 using ImGuiNET;
 using OpenTK.Windowing.Desktop;
@@ -28,6 +29,9 @@ public class ImGuiRenderData
 public class ImGUIService : GlobalService
 {
     public ImGuiRenderData RenderData = new();
+
+    public string text = "";
+    public string consoleInput2 = "";
 
     public override void Draw()
     {
@@ -171,14 +175,17 @@ public class ImGUIService : GlobalService
     };
 
     private int lastLogId;
-    private string input = "";
     public bool ConsoleVisible = false;
     public CommandHandler CommandHandler = new();
 
     private void DrawLogger()
     {
+        
         var window = GetRequiredGlobalService<WindowService>().Window;
-        if (window.IsKeyPressed(Keys.GraveAccent))
+        
+        bool shortcut = window.IsKeyPressed(Keys.D1) && (window.IsKeyDown(Keys.LeftShift) || window.IsKeyDown(Keys.RightShift));
+
+        if (shortcut)
         {
             ConsoleVisible = !ConsoleVisible;
         }
@@ -209,15 +216,22 @@ public class ImGUIService : GlobalService
         ImGui.EndChild();
         ImGui.Spacing();
         ImGui.Separator();
-        bool textEntered = ImGui.InputText("Command", ref input, 256, ImGuiInputTextFlags.EnterReturnsTrue);
+
+        bool textEntered = ImGui.InputText("Command", ref text, 256, ImGuiInputTextFlags.EnterReturnsTrue);
+
+        ImGui.SetKeyboardFocusHere(-1);
+
+        // if (Encoding.UTF8.GetString(consoleInputText).StartsWith("`"))
+
         if (textEntered)
         {
-            CommandHandler.Execute(input);
-            input = "";
+            CommandHandler.Execute(text);
+            text = "";
         }
 
-        if (window.IsKeyPressed(Keys.GraveAccent) || textEntered)
+        if (shortcut || textEntered)
             ImGui.SetKeyboardFocusHere(-1);
+
         ImGui.SameLine();
         if (ImGui.Button("Clear all"))
             Logger.Clean(0);

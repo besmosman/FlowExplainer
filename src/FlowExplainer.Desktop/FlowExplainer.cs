@@ -29,10 +29,10 @@ namespace FlowExplainer
             AddGlobalService(new NewImGUIRenderService());
             AddGlobalService(new ImGUIService());
             AddGlobalService(new DatasetsService());
+            AddGlobalService(new SceneManager());
 
             var visualisations = new WorldManagerService();
             AddGlobalService(visualisations);
-            var mainworld = visualisations.NewWorld();
             AddGlobalService(new ViewsService());
             AddGlobalService(new PresentationService());
         }

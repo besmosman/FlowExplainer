@@ -48,6 +48,12 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
     
     public ColorGradient? AltGradient { get; set; }
 
+    public bool Bilinear
+    {
+        get => RegularGrid.Interpolate;
+        set => RegularGrid.Interpolate = value;
+    }
+
     public bool AutoScale = true;
 
     public override string? Name => "Grid Scaler";
@@ -86,7 +92,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
 
     public override IEnumerable<ISelectableVectorField<Vec2, double>> GetSelectableVec2Vec1()
     {
-        yield return new SelectableVectorField<Vec2, double>(Name + GetTitle(),
+        yield return new SelectableVectorField<Vec2, double>(Name +  GetTitle(),
             new ArbitraryField<Vec2, double>(
                 RegularGrid.Domain,
                 (x) => RegularGrid.Evaluate(x).Value));

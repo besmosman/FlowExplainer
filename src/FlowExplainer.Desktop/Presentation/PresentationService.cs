@@ -109,12 +109,12 @@ public class PresentationService : GlobalService
             if (window.IsKeyDown(Keys.LeftControl))
             {
                 //LoadPresentation(new HeatStructuresPresentation());
-            }
 
             if (!IsPresenting)
                 StartPresenting();
             else
                 PausePresenting();
+            }
         }
 
         if (PresiView != null && window.IsMouseButtonDown(MouseButton.Right))

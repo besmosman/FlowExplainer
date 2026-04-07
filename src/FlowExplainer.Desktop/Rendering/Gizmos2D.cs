@@ -250,7 +250,7 @@ public static class Gizmos2D
 
     public static void AdvText(ICamera camera, Vec2 pos, double lh, Color color, string text, double t = 1, bool centered = false)
     {
-
+        
         //pos = new Vec2(1920, 1200)/2;
         var font = MsdfRenderer.GetClosestFont(camera, 120);
         double effectiveLH = camera.LineHeightToPixelSize(lh);
@@ -315,6 +315,9 @@ public static class Gizmos2D
                     if (tag == "blue")
                         action = (s, e) => colored(new Color(.1f, .5f, 1f, 1), s, e);
 
+                    if (tag == "yellow")
+                        action = (s, e) => colored(new Color(1f, 1f, 0f, 1), s, e);
+
                     /*
                     if (tag == "underline")
                         action = (s, e) =>
@@ -363,7 +366,9 @@ public static class Gizmos2D
             MsdfRenderer.Material.SetUniform("mainTex", font.Texture);
             MsdfRenderer.Material.SetUniform("view", camera.GetViewMatrix());
             MsdfRenderer.Material.SetUniform("projection", camera.GetProjectionMatrix());
-            MsdfRenderer.Material.SetUniform("model", Matrix4x4.CreateScale((float)lh, (float)lh, 1) * Matrix4x4.CreateTranslation((float)pos.X, (float)pos.Y - l * (float)(lh + lineSpacing), 0));
+            var inverted = false;
+            float yOffset = l * (float)(lh + lineSpacing);
+            MsdfRenderer.Material.SetUniform("model", Matrix4x4.CreateScale((float)lh, (float)lh, 1) * Matrix4x4.CreateTranslation((float)pos.X, (float)pos.Y - (inverted ? -yOffset : yOffset), 0));
             MsdfRenderer.Render();
             cur += line.Length;
         }
@@ -440,6 +445,7 @@ public static class Gizmos2D
         material.SetUniform("model", model);
         imageQuad.Draw();
     }
+    
 
     
     public static void RectCenter(ICamera cam, Vec2 center, Vec2 size, Color color)

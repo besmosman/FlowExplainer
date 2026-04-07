@@ -4,6 +4,8 @@ namespace FlowExplainer;
 
 public class DensityPathStructuresExamples : WorldService
 {
+    public override string? Name => "Examples";
+
     public struct Entry
     {
         public required string Dataset;
@@ -25,7 +27,7 @@ public class DensityPathStructuresExamples : WorldService
             {
                 Dataset = "Double Gyre EPS=0.1, Pe=100",
                 VectorField = "Total Flux",
-                ParticleCount = 16_000,
+                ParticleCount =5_000,
                 FictitiousDeltaTime = .01f,
                 Time = 3,
                 SeedRange = .3,
@@ -36,7 +38,7 @@ public class DensityPathStructuresExamples : WorldService
             {
                 Dataset = "Double Gyre EPS=0.1, Pe=100",
                 VectorField = "Total Flux",
-                ParticleCount = 16_000,
+                ParticleCount = 5_000,
                 FictitiousDeltaTime = -.02f,
                 Time = 3,
                 SeedRange = .3,
@@ -47,7 +49,7 @@ public class DensityPathStructuresExamples : WorldService
             {
                 Dataset = "Double Gyre EPS=0, Pe=100",
                 VectorField = "Diffusion Flux",
-                ParticleCount = 10_000,
+                ParticleCount = 5_000,
                 FictitiousDeltaTime = -.05f,
                 Time = 3,
                 SeedRange = 3,
@@ -58,7 +60,7 @@ public class DensityPathStructuresExamples : WorldService
             {
                 Dataset = "Double Gyre EPS=0.1, Pe=100",
                 VectorField = "Diffusion Flux",
-                ParticleCount = 10_000,
+                ParticleCount = 5_000,
                 FictitiousDeltaTime = -.05f,
                 Time = 3,
                 SeedRange = 3,
@@ -69,7 +71,7 @@ public class DensityPathStructuresExamples : WorldService
     }
     public override void Draw(View view)
     {
-        Initialize();
+        
     }
     public override void DrawImGuiSettings()
     {
@@ -78,20 +80,25 @@ public class DensityPathStructuresExamples : WorldService
             var entry = Entries[i];
             if (ImGui.Button("Example " + i))
             {
-                DataService.SimulationTime = entry.Time;
-                DataService.SetDataset(entry.Dataset);
-                DataService.currentSelectedVectorField = entry.VectorField;
-                var particles = GetRequiredWorldService<DensityParticlesData>();
-                var structures = GetRequiredWorldService<DensityPathStructuresSpaceTime>();
-                particles.dt = entry.FictitiousDeltaTime;
-                particles.Particles.ResizeIfNeeded(entry.ParticleCount);
-                particles.SeedTimeRange = entry.SeedRange;
-                structures.Tau = entry.VisualizationRange;
-                structures.Decay = entry.Decay;
-                particles.Initialize();
-                structures.Initialize();
+                LoadExample(entry);
             }
         }
         base.DrawImGuiSettings();
+    }
+
+    public void LoadExample(Entry entry)
+    {
+        DataService.SimulationTime = entry.Time;
+        DataService.SetDataset(entry.Dataset);
+        DataService.currentSelectedVectorField = entry.VectorField;
+        var particles = GetRequiredWorldService<DensityParticlesData>();
+        var structures = GetRequiredWorldService<DensityPathStructuresSpaceTime>();
+        particles.dt = entry.FictitiousDeltaTime;
+        particles.SeedTimeRange = entry.SeedRange;
+        structures.Tau = entry.VisualizationRange;
+        structures.Decay = entry.Decay;
+        particles.Initialize();
+        structures.Initialize();
+        particles.Particles.ResizeIfNeeded(entry.ParticleCount);
     }
 }

@@ -23,7 +23,7 @@ public class PresiChildViewController : IViewController
         
         view.MousePosition = view.RelativeMousePosition;
         ///var relMouseInPresi = presi.CanvasRect.ToRelative(mousePosPresi);
-        Logger.LogDebug( view.MousePosition.ToString());
+        //Logger.LogDebug( view.MousePosition.ToString());
         view.ResizeToTargetSize();
         view.World.Draw(view);
     }

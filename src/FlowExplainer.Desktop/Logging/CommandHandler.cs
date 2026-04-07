@@ -24,7 +24,7 @@ namespace FlowExplainer.Logging
 
         private void AddCommandsInReflectionSaver()
         {
-            foreach (var method in Assembly.GetExecutingAssembly().GetExportedTypes().SelectMany(t => t.GetRuntimeMethods()))
+            foreach (var method in ServicesInfo.RegisteredAssemblies.SelectMany(s => s.GetExportedTypes()).SelectMany(t => t.GetRuntimeMethods()))
             {
                 if (method.GetCustomAttributes(typeof(CommandAttribute), true).Any())
                 {
@@ -74,7 +74,7 @@ namespace FlowExplainer.Logging
 
                 if (target == null)
                 {
-                    Logger.LogMessage($"No instance of {declaringType.Name} in NeuroTrace.");
+                    Logger.LogMessage($"No instance of {declaringType.Name} in FlowExplainer.");
                     return;
                 }
             }
@@ -88,7 +88,7 @@ namespace FlowExplainer.Logging
 
                 if (target == null)
                 {
-                    Logger.LogMessage($"No instance of {declaringType.Name} in NeuroTrace.");
+                    Logger.LogMessage($"No instance of {declaringType.Name} in FlowExplainer.");
                     return;
                 }
             }
