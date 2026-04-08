@@ -41,9 +41,9 @@ public class StochasticVisualization : WorldService, IAxisTitle
     public IVectorField<Vec3, Vec2>? AltVectorfield;
     public ColorGradient? AltGradient;
     public double dt = 0.01;
-    public double RenderRadius = .008f;
+    public double RenderRadius = .006f;
 
-    public double alpha = .1f;
+    public double alpha = .18f;
     public bool reverse;
     public bool fadeIn = true;
     public double ReseedChance = .01f;
@@ -115,7 +115,7 @@ public class StochasticVisualization : WorldService, IAxisTitle
 
 
                 var relative = domainRectBoundary.ToRelative(p.Position.Up(t));
-                if (Random.Shared.NextSingle() < ReseedChance * dt || relative.X < -0.1 || relative.Y < -0.1 || relative.X > 1.1 || relative.Y > 1.1)
+                if (Random.Shared.NextSingle() < ReseedChance * dt)
                 {
                     Particles[i].Position = Utils.Random(domainRectBoundary).XY;
                     Particles[i].Timealive = 0;
@@ -131,7 +131,7 @@ public class StochasticVisualization : WorldService, IAxisTitle
                 var r = reverse;
 
 
-                p.Position = rk4.Integrate(advection, domainBounding.Bound(p.Position.Up(t)), dt).XY;
+                p.Position = domainBounding.Bound(rk4.Integrate(advection, p.Position.Up(t), dt)).XY;
                 //p.Position += Vec2.Normalize(advectionR.Evaluate(p.Position.Up(t))) * dt;
                 //p.Position += sqrt * RandomWienerVector();
             }
@@ -185,7 +185,7 @@ public class StochasticVisualization : WorldService, IAxisTitle
             }
             color.A = (float)alpha;
             if (fadeIn)
-                color.A *= MathF.Min(1, (float)p.Timealive / 8);
+                color.A *= MathF.Min(1, (float)p.Timealive / 4);
             Gizmos2D.Instanced.RegisterCircle(p.Position, RenderRadius, color);
         }
 

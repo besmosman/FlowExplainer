@@ -22,8 +22,9 @@ public class DensityStructuresSpaceTime3DUI : WorldService
             double t_bounded = bounding.BoundLastAxis(dat.SimulationTime);
             var s = GetRequiredWorldService<DensityParticlesData>().SeedTimeRange;
             var structures = GetRequiredWorldService<DensityPathStructuresSpaceTime>();
-            Gizmos.DrawLine(view, new Vec3(.0, .0, t_bounded - structures.Tau), new Vec3(.0, .0, t_bounded + structures.Tau), .03, new Color(1, 1, 0));
-            Gizmos.DrawLine(view, new Vec3(.0, .0, t_bounded - s), new Vec3(.0, .0, t_bounded + s), .022, new Color(0, 1, 0));
+            Gizmos.DrawLine(view, new Vec3(.0, .0, t_bounded - s), new Vec3(.0, .0, t_bounded + s), .025, new Color(1, 1, 0));
+            if(structures.Tau > 0)
+            Gizmos.DrawLine(view, new Vec3(.0, .0, t_bounded - structures.Tau), new Vec3(.0, .0, t_bounded + structures.Tau), .03, new Color(1, .4, 0));
         }
     }
 }
@@ -55,7 +56,6 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
     public double InfluenceRadius = .005f;
     public double AccumelationFactor = .1f;
     public double Decay = .04f;
-    public bool Normalize = true;
     public double Power = 1 / 2f;
     public double Tau = 0.01;
 

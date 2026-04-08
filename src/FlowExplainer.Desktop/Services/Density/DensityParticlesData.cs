@@ -22,21 +22,25 @@ public class DensityParticlesData : WorldService
     //public IVectorField<Vec3, Vec3> VelocityField;
     public IVectorField<Vec3, double> SourceField;
     public double dt;
+    public bool Reversed = false;
     public override void Initialize()
     {
         var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
         SourceField = DataService.LoadedDataset.ScalerFields["Physical Source"];
-        Particles = new(1);
+        if (Particles == null)
+            Particles = new(1);
+        Array.Clear(Particles.Array);
         var rect = ConvectiveTemp.Domain.RectBoundary;
 
         foreach (ref var p in Particles.AsSpan())
         {
             Reseed(ref p, SourceField, rect);
+            
         }
     }
 
     public override void PreDraw()
-    { 
+    {
         var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
         var vec = DataService.VectorField;
         var FluxField = new ArbitraryField<Vec3, Vec3>(vec.Domain, x => vec.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)));
@@ -51,30 +55,30 @@ public class DensityParticlesData : WorldService
         //var eps = 0.000000001;
         var sliceT = DataService.SimulationTime;
         rect = new Rect<Vec3>(rect.Min.XY.Up(sliceT - SeedTimeRange), rect.Max.XY.Up(sliceT + SeedTimeRange));
+        var dtFicticious = dt * (Reversed ? -1 : 1);
 
-        if(Particles.Length > 0)
-        Parallel.ForEach(Partitioner.Create(0, Particles.Length), range =>
-        {
-            for (int i = range.Item1; i < range.Item2; i++)
+        if (Particles.Length > 0)
+            Parallel.ForEach(Partitioner.Create(0, Particles.Length), range =>
             {
-                ref var p = ref Particles[i];
-                //var dtFicticious = targetDt / double.Max(double.Abs(ConvectiveTemp.Evaluate(p.Phase)), eps);
-                var dtFicticious = dt;
-                p.LastPhase = p.Phase;
-                p.Phase = rk4.Integrate(FluxField, p.Phase, dtFicticious);
-                p.HeatingCoolingAccumelation += (p.Phase.Z - p.LastPhase.Z);
-                p.Phase = domainBounding.Bound(p.Phase);
-                p.TimeAlive += double.Abs(dtFicticious);
-            }
-            
-            for (int i = range.Item1; i < range.Item2; i++)
-            {
-                ref var p = ref Particles[i];
-                
-                if (Random.Shared.NextSingle() < ReseedRate || p.Phase.Z > sliceT + SeedTimeRange || p.Phase.Z < sliceT - SeedTimeRange)
-                    Reseed(ref p, SourceField, rect);
-            }
-        });
+                for (int i = range.Item1; i < range.Item2; i++)
+                {
+                    ref var p = ref Particles[i];
+                    //var dtFicticious = targetDt / double.Max(double.Abs(ConvectiveTemp.Evaluate(p.Phase)), eps);
+                    p.LastPhase = p.Phase;
+                    p.Phase = rk4.Integrate(FluxField, p.Phase, dtFicticious);
+                    p.HeatingCoolingAccumelation += (p.Phase.Z - p.LastPhase.Z);
+                    p.Phase = domainBounding.Bound(p.Phase);
+                    p.TimeAlive += double.Abs(dtFicticious);
+                }
+
+                for (int i = range.Item1; i < range.Item2; i++)
+                {
+                    ref var p = ref Particles[i];
+
+                    if (Random.Shared.NextSingle() < ReseedRate * double.Abs(dtFicticious) || p.Phase.Z > sliceT + SeedTimeRange || p.Phase.Z < sliceT - SeedTimeRange)
+                        Reseed(ref p, SourceField, rect);
+                }
+            });
         base.PreDraw();
     }
 
@@ -82,7 +86,7 @@ public class DensityParticlesData : WorldService
     {
         view.CameraOffset = new Vec3(-0.5, -0.25, DataService.SimulationTime);
     }
-    
+
     private IVectorField<Vec3, T> PerodicExtend<T>(IVectorField<Vec3, T> vec)
     {
         var rect = vec.Domain.RectBoundary;
@@ -114,7 +118,11 @@ public class DensityParticlesData : WorldService
         ImGuiHelpers.Slider("Particle Count", ref t, 0, 10000);
         Particles.ResizeIfNeeded(t);
         ImGuiHelpers.Slider("Fictitious Integration Time", ref dt, 0, .1);
-        ImGuiHelpers.Slider("Seed Rate", ref ReseedRate, 0, .01);
+        if (ImGui.Checkbox("Reversed", ref Reversed))
+        {
+            Initialize();
+        }
+        ImGuiHelpers.Slider("Reseed Rate", ref ReseedRate, 0, 1);
         ImGuiHelpers.Slider("Seed Time Range", ref SeedTimeRange, 0, 2);
         if (ImGui.Button("Reset"))
         {

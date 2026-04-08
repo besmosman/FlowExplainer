@@ -63,6 +63,11 @@ public abstract class NewPresentation
     {
         return Presi.CurrentStep > Presi.Walk.FinalRenderStep;
     }
+    
+    public bool AfterCurrentStep(int steps)
+    {
+        return Presi.CurrentStep > Presi.Walk.FinalRenderStep && Presi.CurrentStep <= Presi.Walk.FinalRenderStep+steps;
+    }
 
     public void Title(string text, [FilePath] string filePath = "", [LineNumber] int lineNumber = 0)
     {

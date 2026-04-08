@@ -80,7 +80,7 @@ namespace FlowExplainer
                 
                 if (fileSource != null)
                 {
-                    Logger.LogMessage($"Compiling {ShaderType} \"{fileSource?.Name}\"...");
+                    //Logger.LogMessage($"Compiling {ShaderType} \"{fileSource?.Name}\"...");
                     string path = fileSource.FullName;
 
                     if (altPath != null)
@@ -90,7 +90,7 @@ namespace FlowExplainer
                 
                 if (!ShaderCompiler.TryCompileShader(ShaderHandle, contents, out var err))
                     throw new Exception($"{ShaderType} \"{fileSource?.Name}\" failed to compile: {err}");
-                Logger.LogMessage($"Successfuly compiled \"{fileSource?.Name}\"!");
+// Logger.LogMessage($"Successfuly compiled \"{fileSource?.Name}\"!");
 
                 HasChanged = true;
             }

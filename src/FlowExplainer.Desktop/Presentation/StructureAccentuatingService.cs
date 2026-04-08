@@ -4,7 +4,7 @@ namespace FlowExplainer;
 
 public class StructureAccentuatingService : WorldService
 {
-    public ResizableStructArray<Particle> Particles = new(60000);
+    public ResizableStructArray<Particle> Particles = new(10000);
     private PointSpatialPartitioner2D<Vec2, Vec2i, Particle> partitioner;
 
     private RgbArrayTexture ArrayTexture;
@@ -18,8 +18,9 @@ public class StructureAccentuatingService : WorldService
     }
 
     public double RenderRadius = .002f;
-    public double speed = .4;
-
+    public double speed = .2;
+    public double reseedRate = 0.06;
+    public double hitDecayFactor = .2;
     public bool Integration;
     public bool Reseed;
     public bool Transparency;
@@ -37,7 +38,7 @@ public class StructureAccentuatingService : WorldService
             //p.Position = (p.Position * 50).FloorInt().ToVec2()/50;
             p.Direction = 1;
         }
-        double cellSize = .002f;
+        double cellSize = .001f;
         var gridSize = (domainRectBoundary.Size.XY / cellSize).CeilInt();
         partitioner = new PointSpatialPartitioner2D<Vec2, Vec2i, Particle>(cellSize);
         partitioner.Init(Particles.Array, (particles, i) => particles[i].Position);
@@ -49,7 +50,7 @@ public class StructureAccentuatingService : WorldService
         HitCount = new Vec2[ArrayTexture.Pixels.Length];
     }
 
-    public float HitBlendFactor = 0;
+    public double HitBlendFactor = 0;
     public override void Draw(View view)
     {
         var vel = World.DataService.VectorField;
@@ -65,7 +66,7 @@ public class StructureAccentuatingService : WorldService
             Parallel.For(0, ps.Length, i =>
             {
                 ref var p = ref ps[i];
-                if (Random.Shared.NextDouble() > 1 - (dt * 0.2))
+                if (Random.Shared.NextDouble() > 1 - (dt * reseedRate))
                 {
                     p.Position = Utils.Random(DataService.VectorField.Domain.RectBoundary).XY;
                     p.timeAlive = 0;
@@ -104,7 +105,7 @@ public class StructureAccentuatingService : WorldService
                     c = p.Direction == 1 ? new Color(.0, 1, .0) : new Color(1, .0, .0);
                 if (Transparency)
                 {
-                    c = c.WithAlpha(double.Max(1, p.timeAlive / 5) / 10);
+                    c = c.WithAlpha(double.Min(1,double.Abs(p.timeAlive) /2) / 3);
                     //RenderRadius *= 2;
                 }
 
@@ -114,15 +115,15 @@ public class StructureAccentuatingService : WorldService
         var domainRectBoundary = vel.Domain.RectBoundary.Reduce<Vec2>();
 
 
-        var max = HitCount.MaxBy(m => m.Y).Y / 70;
-        var min = -max;
-        var colorGradient = new ColorGradient("r", [(0, Color.Red), (0.5, new Color(1, 1, 0, 1)), (1, Color.Green)]);
+        //var max = 600;
+        var min = 10;
+        var colorGradient = new ColorGradient("r", [(0.0, Color.Red), (0.5, new Color(1, 1, 0, 1)),(1, Color.Green)]);
         //    colorGradient = Gradients.Grayscale;
 
         if (!Colored)
             colorGradient = Gradients.Grayscale;
 
-        HitBlendFactor = .993f;
+        HitBlendFactor = 1 - (hitDecayFactor * dt);
         if (DrawTexture)
         {
             ParallelGrid.For(ArrayTexture.Size, CancellationToken.None, (i, j) =>
@@ -139,23 +140,26 @@ public class StructureAccentuatingService : WorldService
             });
             ParallelGrid.For(ArrayTexture.Size, CancellationToken.None, (i, j) =>
             {
-                double count = HitCount[j * ArrayTexture.Size.X + i].Y;
+                double count = double.Abs(HitCount[j * ArrayTexture.Size.X + i].Y);
                 double dirAvg = HitCount[j * ArrayTexture.Size.X + i].X;
+                if (!Colored)
+                    dirAvg = double.Abs(dirAvg);
+                
                 //count = double.Clamp(count, min, max);
                 var countScaled = (count - min) / (max - min);
                 var colorC = ((dirAvg / count) + 1) / 2;
                 if (count == 0)
                     colorC = 0;
 
-                var f = double.Clamp(count / max, 0, 1);
+                var mind = -max;
+                var f = double.Clamp(double.Pow(count,pow1) / max, 0, 1);
                 //if (count > 0)
-                ArrayTexture.Pixels[j * ArrayTexture.Size.X + i] = colorGradient.Get(colorC) * double.Pow(f, 0.6f);
-
+                ArrayTexture.Pixels[j * ArrayTexture.Size.X + i] += colorGradient.Get(colorC) * double.Pow(f, pow);
+                ArrayTexture.Pixels[j * ArrayTexture.Size.X + i] /= 1.8f;
             });
         }
         ArrayTexture.Upload();
         Gizmos2D.ImageCenteredInvertedY(view.Camera2D, ArrayTexture, domainRectBoundary.Center, domainRectBoundary.Size);
-        Gizmos2D.Circle(view.Camera2D, view.MousePosition, Color.Red, .01f);
         //GL.Disable(EnableCap.DepthTest);
         if (Transparency)
             GL.BlendFuncSeparate(
@@ -164,5 +168,19 @@ public class StructureAccentuatingService : WorldService
             );
         Gizmos2D.Instanced.RenderCircles(view.Camera2D);
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+    }
+
+    public double max = 4;
+    public double pow = 1;
+    public double pow1 = 0.42;
+    public override void DrawImGuiSettings()
+    {
+        ImGuiHelpers.Slider("HitDecay", ref hitDecayFactor, 0, 1);
+        ImGuiHelpers.Slider("Speed", ref speed, 0, 1);
+        ImGuiHelpers.Slider("ReseedRate", ref reseedRate, 0, 1);
+        ImGuiHelpers.Slider("max", ref max, 1, 1000);
+        ImGuiHelpers.Slider("pow", ref pow, 0, 1);
+        ImGuiHelpers.Slider("pow1", ref pow1, 0, 1);
+        base.DrawImGuiSettings();
     }
 }

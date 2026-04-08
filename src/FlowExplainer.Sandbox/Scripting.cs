@@ -36,46 +36,9 @@ public static class Scripting
     public static void Startup(World world)
     {
         // RebuildSpeetjensDatasets();
-
-        /*foreach (var dataset in world.FlowExplainer.GetGlobalService<DatasetsService>().Datasets.Values)
-        {
-            if (!dataset.Loaded)
-            {
-                dataset.Load(dataset);
-                dataset.Loaded = true;
-            }
-
-            var Q_ = dataset.VectorFields["Total Flux"];
-            var T_ = dataset.ScalerFields["Convective Temperature"];
-            var Ttilde = dataset.ScalerFields["No Flow Temperature"];
-
-
-            var transportField = new ArbitraryField<Vec3, Vec2>(Q_.Domain, (x) =>
-            {
-                var q_ = Q_.Evaluate(x);
-                double t_ = T_.Evaluate(x);
-                if (double.Abs(t_) < 0.0001f)
-                    return Vec2.Zero;
-                return q_ / t_;
-            });
-            dataset.VectorFields["Q' / T'"] = transportField;
-
-
-            var y = new ArbitraryField<Vec3, Vec2>(Q_.Domain, (x) =>
-            {
-                var q_ = Q_.Evaluate(x);
-                double t_ = T_.Evaluate(x);
-                if (double.IsNaN(t_))
-                    return Vec2.Zero;
-                return q_ * -Math.Sign(t_);
-            });
-            dataset.VectorFields["Q' * (T'/|T'|)"] = y;
-        }
-
-        LoadPeriodicCopies(world);*/
+        //LoadPeriodicCopies(world);
         SetGyreDataset(world);
-
-
+        
         var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(0).Key;
         world.GetWorldService<DataService>().SetDataset(name);
         world.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
@@ -83,11 +46,10 @@ public static class Scripting
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
         
-        LoadScene(world, new SpacetimeDensityStructureScene());
+        //LoadScene(world, new SpacetimeDensityStructureScene());
         
-        /*
         world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new ClusterPresentation());
-        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();*/
+        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
 
 
         //var g = world.AddVisualisationService<GridVisualizer>();
@@ -148,6 +110,44 @@ gridDiagnostic.Recompute(gridVisualizer);
     ParticleCount = 10000,
     AccumelationFactor = .035f,
 });*/
+    }
+    private static void LoadAdditionalVectorfields(World world)
+    {
+
+        foreach (var dataset in world.FlowExplainer.GetGlobalService<DatasetsService>().Datasets.Values)
+        {
+            if (!dataset.Loaded)
+            {
+                dataset.Load(dataset);
+                dataset.Loaded = true;
+            }
+
+            var Q_ = dataset.VectorFields["Total Flux"];
+            var T_ = dataset.ScalerFields["Convective Temperature"];
+            var Ttilde = dataset.ScalerFields["No Flow Temperature"];
+
+
+            var transportField = new ArbitraryField<Vec3, Vec2>(Q_.Domain, (x) =>
+            {
+                var q_ = Q_.Evaluate(x);
+                double t_ = T_.Evaluate(x);
+                if (double.Abs(t_) < 0.0001f)
+                    return Vec2.Zero;
+                return q_ / t_;
+            });
+            dataset.VectorFields["Q' / T'"] = transportField;
+
+
+            var y = new ArbitraryField<Vec3, Vec2>(Q_.Domain, (x) =>
+            {
+                var q_ = Q_.Evaluate(x);
+                double t_ = T_.Evaluate(x);
+                if (double.IsNaN(t_))
+                    return Vec2.Zero;
+                return q_ * -Math.Sign(t_);
+            });
+            dataset.VectorFields["Q' * (T'/|T'|)"] = y;
+        }
     }
 
     private static void LoadScene(World world, Scene scene)

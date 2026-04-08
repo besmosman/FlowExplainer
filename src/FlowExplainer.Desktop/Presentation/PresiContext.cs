@@ -144,9 +144,8 @@ public class PresiContext
         int lineNumber = 0)
     {
         var widgetData = GetWidgetData(filePath, lineNumber);
-        widgetData.RelPosition = relCenter;
-        widgetData.RelSize = relSize;
-        Gizmos2D.RectCenter(View.Camera2D, RelToSceen(relCenter), RelToSceen(relSize), color.WithAlpha(widgetData.AnimAppearing));
+        widgetData.UpdateTransform(relCenter,relSize);
+        Gizmos2D.RectCenter(View.Camera2D, RelToSceen(widgetData.RelPosition), RelToSceen(widgetData.RelSize), color.WithAlpha(widgetData.AnimAppearing));
     }
 
 
@@ -313,7 +312,7 @@ public class PresiContext
     {
         var widgetData = GetWidgetData(filePath, lineNumber);
         var pos = new Vec2(50, CanvasSize.Y - 250);
-        var lh = 48;
+        var lh = 42;
         widgetData.RelPosition = pos;
         widgetData.RelSize = new Vec2(lh, lh);
         if (title.StartsWith("\r\n"))

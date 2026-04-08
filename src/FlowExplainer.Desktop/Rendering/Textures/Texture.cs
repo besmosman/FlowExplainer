@@ -54,7 +54,7 @@ namespace FlowExplainer
     {
         public int TextureHandle;
         public Vec2i Size { get; protected set; }
-        public TextureMinFilter TextureMinFilter = TextureMinFilter.Nearest;
+        public TextureMinFilter TextureMinFilter = TextureMinFilter.Linear;
         public TextureMagFilter TextureMagFilter = TextureMagFilter.Linear;
         public TextureTarget TextureTarget = TextureTarget.Texture2D;
 
