@@ -15,7 +15,7 @@ public class DensityParticlesData : WorldService
     }
 
     public ResizableStructArray<Particle> Particles;
-    public double ReseedRate = 0.01;
+    public double ReseedRate = 0.3;
     public override string? Name => "Density Particles";
     public double SeedTimeRange = .2f;
 

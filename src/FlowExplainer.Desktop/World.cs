@@ -165,7 +165,7 @@ namespace FlowExplainer
                     Profiler.End(service?.Name ?? service!.GetType().Name);
                 }
 
-                if (!string.IsNullOrEmpty(ImGuiHelpers.LastMessage))
+                if (!string.IsNullOrEmpty(ImGuiHelpers.LastMessage) && view.Is2DCamera)
                 {
                     var t = 1.5f + (double)(ImGuiHelpers.MessageTime - DateTime.Now).TotalSeconds;
                     if (t > 0)
