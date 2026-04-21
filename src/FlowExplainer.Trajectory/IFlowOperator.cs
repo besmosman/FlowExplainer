@@ -38,11 +38,14 @@ public interface IFlowOperatorSteady<TPhase>
         public TPhase ComputeEnd(TPhase x, double duration, IVectorField<TPhase, TPhase> v)
         {
             var dt = duration / Steps;
+                var bounding = v.Domain.Bounding;
 
             for (int i = 0; i < Steps; i++)
-                x = Integrator.Integrate(v, x, dt);
+            {
+                x = Integrator.Integrate(v, bounding.Bound(x), dt);
+            }
 
-            return x;
+            return bounding.Bound(x);
         }
     }
 }

@@ -31,7 +31,7 @@ public class ClusterPresentation : NewPresentation
                     var particles = world.AddVisualisationService<DensityParticlesData>();
                     var structure = world.AddVisualisationService<DensityPathStructuresSpaceTime>();
                     world.AddVisualisationService<Slice3DVisualizer>().Disable();
-                    particles.SeedTimeRange = 1.4;
+                    //particles.SeedTimeRange = 1.4;
                     particles.Particles.ResizeIfNeeded(0);
                     structure.Tau = 0;
                     world.AddVisualisationService<DensityStructuresSpaceTime3DUI>().Disable();

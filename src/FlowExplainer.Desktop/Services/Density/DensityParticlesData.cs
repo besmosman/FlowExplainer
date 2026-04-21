@@ -7,22 +7,25 @@ public class DensityParticlesData : WorldService
 {
     public struct Particle
     {
+        public double Weight;
         public double LastTimeAlive;
         public double TimeAlive;
         public Vec3 Phase;
         public Vec3 LastPhase;
+        public Vec3 LastLastPhase;
         public double HeatingCoolingAccumelation;
     }
 
     public ResizableStructArray<Particle> Particles;
     public double ReseedRate = 0.3;
     public override string? Name => "Density Particles";
-    public double SeedTimeRange = .2f;
-
+    public Rect<Vec1> SeedInterval = new Rect<Vec1>(0,3);
     //public IVectorField<Vec3, Vec3> VelocityField;
     public IVectorField<Vec3, double> SourceField;
     public double dt;
     public bool Reversed = false;
+
+    private int seedCounter;
     public override void Initialize()
     {
         var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
@@ -35,7 +38,7 @@ public class DensityParticlesData : WorldService
         foreach (ref var p in Particles.AsSpan())
         {
             Reseed(ref p, SourceField, rect);
-            
+
         }
     }
 
@@ -43,18 +46,20 @@ public class DensityParticlesData : WorldService
     {
         var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
         var vec = DataService.VectorField;
-        var FluxField = new ArbitraryField<Vec3, Vec3>(vec.Domain, x => vec.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)));
+        var FluxField = new ArbitraryField<Vec3, Vec3>(vec.Domain,
+            x => vec.Evaluate(x)
+                .Up(double.Abs(ConvectiveTemp.Evaluate(x))));
         var boundsZ = ConvectiveTemp.Domain.RectBoundary.Size.Z > 1 ? BoundaryType.Fixed : BoundaryType.Periodic;
         var bounds = BoundingFunctions.Build([BoundaryType.Periodic, BoundaryType.Fixed, boundsZ], ConvectiveTemp.Domain.RectBoundary);
 
         var rk4 = IIntegrator<Vec3, Vec3>.Rk4Steady;
-        var rect = ConvectiveTemp.Domain.RectBoundary;
+        var seed = ConvectiveTemp.Domain.RectBoundary;
         var domainBounding = bounds;
 
         var targetDt = dt;
         //var eps = 0.000000001;
         var sliceT = DataService.SimulationTime;
-        rect = new Rect<Vec3>(rect.Min.XY.Up(sliceT - SeedTimeRange), rect.Max.XY.Up(sliceT + SeedTimeRange));
+        seed = new Rect<Vec3>(seed.Min.XY.Up(SeedInterval.Min), seed.Max.XY.Up(SeedInterval.Max));
         var dtFicticious = dt * (Reversed ? -1 : 1);
 
         if (Particles.Length > 0)
@@ -64,10 +69,12 @@ public class DensityParticlesData : WorldService
                 {
                     ref var p = ref Particles[i];
                     //var dtFicticious = targetDt / double.Max(double.Abs(ConvectiveTemp.Evaluate(p.Phase)), eps);
+                    p.LastLastPhase = p.LastPhase;
                     p.LastPhase = p.Phase;
                     p.Phase = rk4.Integrate(FluxField, p.Phase, dtFicticious);
                     p.HeatingCoolingAccumelation += (p.Phase.Z - p.LastPhase.Z);
                     p.Phase = domainBounding.Bound(p.Phase);
+                    p.LastTimeAlive = p.TimeAlive;
                     p.TimeAlive += double.Abs(dtFicticious);
                 }
 
@@ -75,8 +82,10 @@ public class DensityParticlesData : WorldService
                 {
                     ref var p = ref Particles[i];
 
-                    if (Random.Shared.NextSingle() < ReseedRate * double.Abs(dtFicticious) || p.Phase.Z > sliceT + SeedTimeRange || p.Phase.Z < sliceT - SeedTimeRange)
-                        Reseed(ref p, SourceField, rect);
+                    if (Random.Shared.NextSingle() < ReseedRate * double.Abs(dtFicticious) /* ||
+                        (!Reversed && p.Phase.Z > sliceT) ||
+                        (Reversed && p.Phase.Z < sliceT)*/)
+                        Reseed(ref p, SourceField, seed);
                 }
             });
         base.PreDraw();
@@ -104,12 +113,13 @@ public class DensityParticlesData : WorldService
 
     private void Reseed(ref Particle p, IVectorField<Vec3, double> sourceField, Rect<Vec3> rect)
     {
-        var spacetime = Utils.Random(rect);
-
-        var sourceTerm = sourceField.Evaluate(spacetime);
+        var spacetime = Utils.Halton3(rect, ++seedCounter);
         p.Phase = spacetime;
         p.LastPhase = p.Phase;
+        p.LastLastPhase = p.LastPhase;
+        p.Weight = sourceField.Evaluate(spacetime);
         p.TimeAlive = 0;
+        p.LastTimeAlive = 0;
     }
 
     public override void DrawImGuiSettings()
@@ -123,7 +133,8 @@ public class DensityParticlesData : WorldService
             Initialize();
         }
         ImGuiHelpers.Slider("Reseed Rate", ref ReseedRate, 0, 1);
-        ImGuiHelpers.Slider("Seed Time Range", ref SeedTimeRange, 0, 2);
+        ImGuiHelpers.Slider("Seed Interval Start", ref SeedInterval.Min.X, 0, DataService.ScalerField.Domain.RectBoundary.Max.Z);
+        ImGuiHelpers.Slider("Seed Interval End", ref SeedInterval.Max.X, SeedInterval.Min.X, DataService.ScalerField.Domain.RectBoundary.Max.Z);
         if (ImGui.Button("Reset"))
         {
             Initialize();

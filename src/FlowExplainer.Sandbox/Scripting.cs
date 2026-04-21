@@ -46,22 +46,26 @@ public static class Scripting
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
         
-        //LoadScene(world, new SpacetimeDensityStructureScene());
-        
-        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new ClusterPresentation());
-        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+       //var g = world.AddVisualisationService<GridVisualizer>();
+       //g.SetGridDiagnostic(new DensityEstimation()); 
+
+       LoadScene(world, new SpacetimeDensityStructureScene());
 
 
-        //var g = world.AddVisualisationService<GridVisualizer>();
-        //world.GetWorldService<DataService>().currentSelectedVectorField = "Total Flux";
-        //world.GetWorldService<DataService>().currentSelectedScaler = "Convective Temperature";
-        //g.SetGridDiagnostic(new StagnationCompareGridDiagnostic());
+       //world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new ClusterPresentation());
+       //world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+
+
+       //var g = world.AddVisualisationService<GridVisualizer>();
+       //world.GetWorldService<DataService>().currentSelectedVectorField = "Total Flux";
+       //world.GetWorldService<DataService>().currentSelectedScaler = "Convective Temperature";
+       //g.SetGridDiagnostic(new StagnationCompareGridDiagnostic());
 
        // DensityParticlesScene(world);
 
-        //var gridVisualizer = new GridVisualizer();
-        //world.AddVisualisationService(gridVisualizer);
-        //gridVisualizer.SetGridDiagnostic(new DivergenceAlongTrajectoryGridDiagnostic());
+       //var gridVisualizer = new GridVisualizer();
+       //world.AddVisualisationService(gridVisualizer);
+       //gridVisualizer.SetGridDiagnostic(new DivergenceAlongTrajectoryGridDiagnostic());
 //WriteDatasetToPlaintext(world.DataService.LoadedDataset);
 // world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new VisualComputingPresentation());
 // world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();

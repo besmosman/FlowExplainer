@@ -56,8 +56,9 @@ void main()
 	//if(accum>.1)
 	//	color.g = 1;
 
-	color = ColorGradient(pow(accum,Power));
-	//color = ColorGradient(0.5 + heatingCoolingFactor/count * 160);
+	color = ColorGradient(pow(accum,Power) );
+	
+	//color = ColorGradient(heatingCoolingFactor/10);
 	//color = ColorGradient((signedDistanceZ+ 1) /2);
 
 	//color = ColorGradient(sqrt(lic)/4);
