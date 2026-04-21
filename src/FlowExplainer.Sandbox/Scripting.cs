@@ -46,10 +46,10 @@ public static class Scripting
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
         
-        //LoadScene(world, new SpacetimeDensityStructureScene());
+        //LoadScene(world, new TrajectoryComparisonScene());
         
-        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new ClusterPresentation());
-        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+       // world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new ClusterPresentation());
+       // world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
 
 
         //var g = world.AddVisualisationService<GridVisualizer>();
@@ -57,7 +57,7 @@ public static class Scripting
         //world.GetWorldService<DataService>().currentSelectedScaler = "Convective Temperature";
         //g.SetGridDiagnostic(new StagnationCompareGridDiagnostic());
 
-       // DensityParticlesScene(world);
+        DensityParticlesScene(world);
 
         //var gridVisualizer = new GridVisualizer();
         //world.AddVisualisationService(gridVisualizer);

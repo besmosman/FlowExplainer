@@ -2,15 +2,10 @@ using ImGuiNET;
 
 namespace FlowExplainer;
 
-
 public class TrajectoryComparison : WorldService
 {
-
-
-
     public override void Initialize()
     {
-
     }
 
     public Trajectory<Vec3> True;
@@ -18,37 +13,62 @@ public class TrajectoryComparison : WorldService
 
     public override void Draw(View view)
     {
-        var TotalFlux = DataService.LoadedDataset.VectorFields["Total Flux"];
-        var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
-        var u = new ArbitraryField<Vec3, Vec2>(TotalFlux.Domain, p => TotalFlux.Evaluate(p) / ConvectiveTemp.Evaluate(p));
+        var Q = DataService.LoadedDataset.VectorFields["Total Flux"];
+        var T = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
+        var u = new ArbitraryField<Vec3, Vec2>(Q.Domain, p => Q.Evaluate(p) / T.Evaluate(p));
+        var phase = new ArbitraryField<Vec3, Vec3>(Q.Domain, p => Q.Evaluate(p).Up(T.Evaluate(p)));
 
-        var t_start = 1.0;
-        var t_end = 1.3;
+        var t_start = DataService.SimulationTime;
+        var t_end = DataService.SimulationTime+.5;
 
         True = IFlowOperator<Vec2, Vec3>.Default.ComputeTrajectory(t_start, t_end, view.MousePosition, u);
-        // Ficticious = IFlowOperator<Vec2, Vec3>.Default.ComputeTrajectory(t_start, t_end, new Vec2(.5, .3f), u);
+        // Ficticious = IFlowOperatorSteady<Vec3>.Default.ComputeTrajectory(view.MousePosition.Up(t_start), t_end - t_start, phase);
 
+        var rk4 = IIntegrator<Vec3, Vec3>.Rk4Steady;
+        int steps = 64;
+        var fiticiousDt = 1.0;
+        var dt = fiticiousDt / steps;
+        var pos = view.MousePosition.Up(t_start);
+        List<Vec3> fict = new List<Vec3>();
+        fict.Add(pos);
+        for (int i = 0; i < steps; i++)
+        {
+            pos = rk4.Integrate(phase, pos, dt * double.Sign(T.Evaluate(pos)));
+            fict.Add(pos);
+        }
 
+        Ficticious = new Trajectory<Vec3>(fict.ToArray());
 
         foreach (ref var p in True.Entries.AsSpan())
         {
-            Gizmos2D.Instanced.RegisterCircle(p.XY, 0.001f, Color.Red);
+            Gizmos2D.Instanced.RegisterCircle(p.XY, 0.004f, Color.Green);
         }
 
-        int steps = 0;
+
+        foreach (ref var p in Ficticious.Entries.AsSpan())
+        {
+            Gizmos2D.Instanced.RegisterCircle(p.XY, 0.004f, Color.Red);
+        }
+
+        /*int steps = 0;
         var t = t_start;
         var fakeTime = 0;
         var pos = view.MousePosition;
-        while (steps < 1000 && t < t_end)
+        if (pos.IsReal())
         {
-            var Q = TotalFlux.Evaluate(pos.Up(t));
-            double T = ConvectiveTemp.Evaluate(pos.Up(t));
-            var dt = double.Sign(T) * .1f;
-            pos += Q * dt;
-            t += T * dt;
-            steps++;
+            while (steps < 1000 && t < t_end)
+            {
+                var Q = TotalFlux.Evaluate(pos.Up(t));
+                double T = ConvectiveTemp.Evaluate(pos.Up(t));
+                var dt = double.Sign(T) * .01f;
+                pos += Q * dt;
+                t += T * dt;
+                steps++;
+            }
         }
-        Gizmos2D.Instanced.RegisterCircle(pos, 0.001f, t >= t_end ? Color.Green : Color.Blue);
+        */
+
+        //Gizmos2D.Instanced.RegisterCircle(pos, 0.01f, t >= t_end ? Color.Yellow : Color.Blue);
         Gizmos2D.Instanced.RenderCircles(view.Camera2D);
     }
 }
@@ -127,6 +147,7 @@ public class SpaceTimeSurfaceStructureExtractor : WorldService
     }
 
     public List<Structure> Structures = new();
+
     public override void Initialize()
     {
         ScalerField = World.GetSelectableVectorFields<Vec2, double>().First().VectorField;
@@ -236,6 +257,7 @@ public class SpaceTimeSurfaceStructureExtractor : WorldService
                                 ending.RestDistance = 0;
                             }
                         }
+
                         ending.RestDistance = double.Min(ending.RestDistance, MaxRestDistance);
                         var pushDirection = (ending.AttachedNode.Position - ending.AttachedPriorNode.Position).NormalizedSafe();
                         // ending.TemporaryNode.Position = ending.AttachedNode.Position - new Vec2(double.Cos(FlowExplainer.Time.TotalSeconds * 40), double.Sin(FlowExplainer.Time.TotalSeconds * 40)) * ending.RestDistance;
@@ -254,8 +276,6 @@ public class SpaceTimeSurfaceStructureExtractor : WorldService
                         /*var dis = Vec2.Distance(ending.AttachedPriorNode.Position, ending.TemporaryNode.Position);
                         if (dis < MaxRestDistance)
                             ending.TemporaryNode.Position += pushDirection * .1f * dt;*/
-
-
                     }
             }
 
@@ -308,6 +328,7 @@ public class SpaceTimeSurfaceStructureExtractor : WorldService
                     // ApplyConstraint(a, 0.01, gradient, C);
                     // ApplyConstraint(b, 0.01, -gradient, C);
                 }
+
                 foreach (var ending in s.GetEndings())
                 {
                     var a = ending.TemporaryNode;
@@ -316,9 +337,9 @@ public class SpaceTimeSurfaceStructureExtractor : WorldService
                     var C = Vec2.Distance(a.Position, b.Position) - ending.RestDistance;
                     //ApplyConstraint(a, 0.01, gradient, C);
                     //ApplyConstraint(b, 0.1, -gradient, C);
-
                 }
             }
+
             foreach (var s in Structures)
             {
                 foreach (var n in s.InternalNodes)
@@ -330,6 +351,7 @@ public class SpaceTimeSurfaceStructureExtractor : WorldService
                 }
             }
         }
+
         foreach (var s in Structures)
         {
             foreach (var con in s.GetNoneEndingNeighbors())
@@ -340,19 +362,18 @@ public class SpaceTimeSurfaceStructureExtractor : WorldService
 
         foreach (var s in Structures)
         {
-
             if (s.Expanding)
                 foreach (var n in s.GetEndings())
                 {
                     Gizmos2D.Instanced.RegisterCircle(n.TemporaryNode.Position, .005f, Color.Red);
                     Gizmos2D.Instanced.RegisterLine(n.TemporaryNode.Position, n.AttachedNode.Position, Color.Red, .001f);
                 }
+
             foreach (var n in s.InternalNodes)
             {
                 Gizmos2D.Instanced.RegisterCircle(n.Position, .005f, Color.Blue);
             }
         }
-
 
 
         Gizmos2D.Instanced.RenderRects(view.Camera2D);
@@ -373,6 +394,7 @@ public class SpaceTimeSurfaceStructureExtractor : WorldService
                 s.Expanding = false;
             }
         }
+
         base.DrawImGuiSettings();
     }
 

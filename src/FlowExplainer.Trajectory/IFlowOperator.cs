@@ -2,6 +2,7 @@ using System.Buffers;
 
 namespace FlowExplainer;
 
+
 public interface IFlowOperatorSteady<TPhase>
     where TPhase : IVec<TPhase, double>
 {

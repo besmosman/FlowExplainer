@@ -65,7 +65,7 @@ public class DensityParticlesData : WorldService
                     ref var p = ref Particles[i];
                     //var dtFicticious = targetDt / double.Max(double.Abs(ConvectiveTemp.Evaluate(p.Phase)), eps);
                     p.LastPhase = p.Phase;
-                    p.Phase = rk4.Integrate(FluxField, p.Phase, dtFicticious);
+                    p.Phase = rk4.Integrate(FluxField, p.Phase, dtFicticious * double.Sign(ConvectiveTemp.Evaluate(p.Phase)));
                     p.HeatingCoolingAccumelation += (p.Phase.Z - p.LastPhase.Z);
                     p.Phase = domainBounding.Bound(p.Phase);
                     p.TimeAlive += double.Abs(dtFicticious);

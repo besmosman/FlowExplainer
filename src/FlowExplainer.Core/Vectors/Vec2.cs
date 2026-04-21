@@ -281,4 +281,9 @@ public struct Vec2 : IVec<Vec2, double>, IVecUpDimension<Vec3>, IVecDownDimensio
     {
         return HashCode.Combine(X, Y);
     }
+
+    public bool IsReal()
+    {
+        return double.IsRealNumber(X) && double.IsRealNumber(Y);
+    }
 }
