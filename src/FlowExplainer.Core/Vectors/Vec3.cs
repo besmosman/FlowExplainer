@@ -190,6 +190,12 @@ public struct Vec3 :
         return (Vec3)Vector3.Transform(vec3, rotation);
     }
 
+    public static double DistanceSquared(Vec3 a, Vec3 b)
+    {
+        var c = b - a;
+        return Dot(c, c);
+    }
+    
     public static Vec3 Transform(Vec3 vec3, Matrix4x4 m)
     {
         return (Vec3)Vector3.Transform(vec3, m);
@@ -267,5 +273,9 @@ public struct Vec3 :
     public Vector3 ToNumerics()
     {
         return new Vector3((float)X, (float)Y, (float)Z);
+    }
+    public static double Dot(Vec3 a, Vec3 b)
+    {
+        return a.X * b.X + a.Y * b.Y + a.Z * b.Z;
     }
 }

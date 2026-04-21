@@ -94,7 +94,7 @@ public class DensityPathStructuresExamples : WorldService
         var particles = GetRequiredWorldService<DensityParticlesData>();
         var structures = GetRequiredWorldService<DensityPathStructuresSpaceTime>();
         particles.dt = entry.FictitiousDeltaTime;
-        particles.SeedTimeRange = entry.SeedRange;
+        //particles.SeedTimeRange = entry.SeedRange;
         structures.Tau = entry.VisualizationRange;
         structures.Decay = entry.Decay;
         particles.Initialize();

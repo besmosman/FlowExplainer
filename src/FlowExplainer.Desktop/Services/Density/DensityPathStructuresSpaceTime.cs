@@ -1,5 +1,7 @@
 using System.Numerics;
+using System.Text.Json;
 using ImGuiNET;
+using Newtonsoft.Json;
 using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
@@ -7,7 +9,7 @@ namespace FlowExplainer;
 public class DensityStructuresSpaceTime3DUI : WorldService
 {
     public override string? Name => "UI";
-    
+
     public override void Initialize()
     {
     }
@@ -20,11 +22,20 @@ public class DensityStructuresSpaceTime3DUI : WorldService
             var flux = GetRequiredWorldService<DataService>().VectorField;
             var bounding = flux.Domain.Bounding;
             double t_bounded = bounding.BoundLastAxis(dat.SimulationTime);
-            var s = GetRequiredWorldService<DensityParticlesData>().SeedTimeRange;
+            var seedInterval = GetRequiredWorldService<DensityParticlesData>().SeedInterval;
             var structures = GetRequiredWorldService<DensityPathStructuresSpaceTime>();
-            Gizmos.DrawLine(view, new Vec3(.0, .0, t_bounded - s), new Vec3(.0, .0, t_bounded + s), .025, new Color(1, 1, 0));
-            if(structures.Tau > 0)
-            Gizmos.DrawLine(view, new Vec3(.0, .0, t_bounded - structures.Tau), new Vec3(.0, .0, t_bounded + structures.Tau), .03, new Color(1, .4, 0));
+            Gizmos.DrawLine(view, new Vec3(.0, .0, seedInterval.Min), new Vec3(.0, .0, seedInterval.Max), .025, new Color(1, 1, 0));
+            if (structures.Tau > 0)
+            {
+                if (GetRequiredWorldService<DensityParticlesData>().Reversed)
+                {
+                    Gizmos.DrawLine(view, new Vec3(.0, .0, t_bounded), new Vec3(.0, .0, t_bounded + structures.Tau), .03, new Color(1, .4, 0));
+                }
+                else
+                {
+                    Gizmos.DrawLine(view, new Vec3(.0, .0, t_bounded - structures.Tau), new Vec3(.0, .0, t_bounded), .03, new Color(1, .4, 0));
+                }
+            }
         }
     }
 }
@@ -39,7 +50,7 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
     public struct Sample
     {
         public float Accumulation;
-        public float SignedZDistance;
+        public float Density;
         public float Count;
         public float padding1;
     }
@@ -139,6 +150,7 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
             foreach (ref var s in Samples.AsSpan())
             {
                 s.Accumulation *= decayMulti;
+                s.Density *= decayMulti;
             }
 
             var worldRect = WorldRect;
@@ -161,7 +173,7 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
                 var centerA = WorldToGrid(p.LastPhase.XY).RoundInt();
                 var centerB = WorldToGrid(p.Phase.XY).RoundInt();
 
-                if (Vec2i.DistanceSquared(centerA, centerB) > SampleGridSize.X / 2)
+                if (Vec2.DistanceSquared(p.LastPhase.XY, p.Phase.XY) > (WorldRect.Size.X / 2) * (WorldRect.Size.X / 2))
                 {
                     centerB = centerA; //bound issue
                 }
@@ -175,18 +187,13 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
                 {
                     var gridCoord = new Vec2i(i, j);
                     var samplePos = worldRect.FromRelative((gridCoord.ToVec2() + new Vec2(.0f, .0f)) / SampleGridSize.ToVec2());
-                    var disSqrt = DistancePointSegmentSq(samplePos, p.LastPhase.XY, p.Phase.XY, out var t);
-
-                    var signedDistanceToSliceZ = (Utils.Lerp(p.LastPhase, p.Phase, t).Z - t_bounded);
-                    var timeAlive = double.Lerp(p.LastTimeAlive, p.TimeAlive, t);
-                    double particleInfluence = 1 - double.Abs(signedDistanceToSliceZ / Tau);
-                    //particleInfluence *= double.Abs(p.Phase.Z - p.LastPhase.Z);
-                    particleInfluence = Math.Clamp(particleInfluence, 0, 1);
-
                     ref var sampleInfoAt = ref GetSampleInfoAt(gridCoord);
-                   // particleInfluence = 1;
-                   // disSqrt = 0;
-                    sampleInfoAt.Accumulation += Accum((float)disSqrt, 1, (float)(AccumelationFactor * particleInfluence));
+                    double legnthRatio = double.Min(1, Vec2.Distance(p.LastPhase.XY, p.Phase.XY) / InfluenceRadius * 2);
+                    double accum = TransferFunction(samplePos, p.LastPhase, p.Phase, t_bounded, p.TimeAlive);
+                    accum -= TransferFunction(samplePos, p.LastLastPhase, p.LastPhase, t_bounded, p.TimeAlive) * legnthRatio;
+                    accum *= double.Abs(p.Weight);
+                    accum = Math.Max(accum, 0);
+                    sampleInfoAt.Accumulation += (float)accum;
                     sampleInfoAt.Count++;
                 }
             });
@@ -197,7 +204,7 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
 
             SampleBuffer.Upload();
             SampleBuffer.Use();
-            
+
             material.SetUniform("WorldViewMin", worldRect.Min);
             material.SetUniform("WorldViewMax", worldRect.Max);
             material.SetUniform("GridSize", SampleGridSize.ToVec2());
@@ -214,6 +221,78 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
         base.PreDraw();
     }
 
+    //https://en.wikipedia.org/wiki/Smoothstep
+    double smoothstep(double x, float edge0 = 0, double edge1 = 1)
+    {
+        x = double.Clamp((x - edge0) / (edge1 - edge0), 0, 1);
+        return x * x * (3.0f - 2.0f * x);
+    }
+
+
+    public double TransferFunction(Vec2 samplePos, Vec3 phaseLast, Vec3 phase, double sliceT, double timeAlive)
+    {
+        var disSqrt = DistancePointSegmentSq(samplePos, phaseLast.XY, phase.XY, out var t);
+        var closestPointTime = Utils.Lerp(phaseLast.Z, phase.Z, t); //t_
+        double particleInfluence = double.Clamp(1 - double.Abs((closestPointTime - sliceT) / Tau), 0, 1);
+        var timeFactor =smoothstep(timeAlive);
+
+        double sigma = (double)InfluenceRadius / 3.3f;
+        double spatialFactor = Math.Exp(-disSqrt / (2f * sigma * sigma));
+        return spatialFactor * particleInfluence * AccumelationFactor * timeFactor;
+    }
+
+
+    //gpt
+    static double DistancePointSegmentSq(Vec2 p, Vec2 a, Vec2 b, out double t)
+    {
+        Vec2 ab = b - a;
+        double abLenSq = Vec2.Dot(ab, ab);
+
+        // Degenerate segment
+        if (abLenSq == 0f)
+        {
+            t = .5;
+            return Vec2.Dot(p - a, p - a);
+        }
+
+        t = Vec2.Dot(p - a, ab) / abLenSq;
+        t = Math.Clamp(t, 0f, 1f);
+
+        Vec2 closest = a + ab * t;
+        Vec2 d = p - closest;
+        return Vec2.Dot(d, d);
+    }
+
+    private static Vec2 ClosestPointOnLine(Vec2 p, Vec2 a, Vec2 b, out double t)
+    {
+        Vec2 ab = b - a;
+        double abLenSq = Vec2.Dot(ab, ab);
+
+        // Degenerate segment
+        if (abLenSq == 0f)
+        {
+            t = .5;
+            return (a + b) / 2;
+        }
+
+        t = Vec2.Dot(p - a, ab) / abLenSq;
+        t = Math.Clamp(t, 0f, 1f);
+
+        Vec2 closest = a + ab * t;
+        return closest;
+    }
+
+    public double ComputeContrubtion(Vec2 samplePos, Vec3 LastPhase, Vec3 Phase, double sliceT, double timeAlive)
+    {
+        var disSqrt = DistancePointSegmentSq(samplePos, LastPhase.XY, Phase.XY, out var t);
+        var phaseAtT = Utils.Lerp(LastPhase, Phase, t);
+        var signedDistanceToSliceZ = (phaseAtT.Z - sliceT);
+        double particleInfluence = 1 - double.Abs(signedDistanceToSliceZ / Tau);
+        particleInfluence = Math.Clamp(particleInfluence, 0, 1);
+        return Accum((float)disSqrt, Math.Min(1, timeAlive), (float)(AccumelationFactor * particleInfluence));
+    }
+
+
     public override void Draw(View view)
     {
         if (view.Is3DCamera)
@@ -223,15 +302,15 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
         var flux = GetRequiredWorldService<DataService>().VectorField;
         var bounding = flux.Domain.Bounding;
         double t_bounded = bounding.BoundLastAxis(dat.SimulationTime);
-        
+
         Gizmos2D.ImageCenteredInvertedY(view.Camera2D, RenderTexture, new Vec2(0.5, 0.25), new Vec2(1, .5));
     }
 
 
-    private float Accum(float dis, float timeFactor, float accum)
+    private double Accum(double dis, double timeFactor, double accum)
     {
-        float sigma = (float)InfluenceRadius / 3.3f * timeFactor;
-        float spatialFactor = MathF.Exp(-(dis) / (2f * sigma * sigma));
+        double sigma = (double)InfluenceRadius / 3.3f * timeFactor;
+        double spatialFactor = Math.Exp(-(dis) / (2f * sigma * sigma));
         return timeFactor * spatialFactor * accum;
     }
 
@@ -254,28 +333,9 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
     public string GetTitle()
     {
         var dat = World.GetWorldService<DataService>();
-        var type = World.GetWorldService<DensityParticlesData>().dt > 0? "Attracting" : "Repelling";
+        var type = World.GetWorldService<DensityParticlesData>().dt > 0 ? "Attracting" : "Repelling";
         return $"{type} {(dat.currentSelectedVectorField)} [Double Gyre Pe={dat.LoadedDataset.Properties["Pe"]},eps={dat.LoadedDataset.Properties["EPS"]}]";
     }
 
-    //gpt
-    static double DistancePointSegmentSq(Vec2 p, Vec2 a, Vec2 b, out double t)
-    {
-        Vec2 ab = b - a;
-        double abLenSq = Vec2.Dot(ab, ab);
 
-        // Degenerate segment
-        if (abLenSq == 0f)
-        {
-            t = .5;
-            return Vec2.Dot(p - a, p - a);
-        }
-
-        t = Vec2.Dot(p - a, ab) / abLenSq;
-        t = Math.Clamp(t, 0f, 1f);
-
-        Vec2 closest = a + ab * t;
-        Vec2 d = p - closest;
-        return Vec2.Dot(d, d);
-    }
 }
