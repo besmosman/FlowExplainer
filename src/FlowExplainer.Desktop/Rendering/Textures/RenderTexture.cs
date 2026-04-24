@@ -15,8 +15,7 @@ namespace FlowExplainer
 
         public const int Samples = 8;
 
-        private static int CurrentBoundFrameBuffer = 0;
-        private static Rect<Vec2> LastViewPort = default;
+        private static Stack<RenderTexture> targets = new();
 
         public RenderTexture(int width, int height, bool depth = true, bool multisample = false) : base(width, height, true)
         {
@@ -99,38 +98,36 @@ namespace FlowExplainer
             var result = GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer);
             if (result != FramebufferErrorCode.FramebufferComplete)
                 throw new Exception($"Could not create RenderTexture: {result}");
+            RetargetCurrent();
         }
 
         public void DrawTo(Action action)
         {
-            var oldId = CurrentBoundFrameBuffer;
-            var oldViewport = LastViewPort;
-
+            targets.Push(this);
             Activate();
             action();
-
-            CurrentBoundFrameBuffer = oldId;
-            LastViewPort = oldViewport;
-            BindLastFrameBuffer();
+            targets.Pop();
+            RetargetCurrent();
         }
-
-        private static void BindLastFrameBuffer()
+        private static void RetargetCurrent()
         {
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, CurrentBoundFrameBuffer);
-            GL.Viewport((int)LastViewPort.Min.X, (int)LastViewPort.Min.Y, (int)LastViewPort.Size.X, (int)LastViewPort.Size.Y);
-        }
 
+            if (targets.Count == 0)
+            {
+                GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
+                var windowSize = FlowExplainer.Instance.GetGlobalService<WindowService>().Window.Size;
+                GL.Viewport(0, 0, windowSize.X, windowSize.Y);
+            }
+            else
+            {
+                targets.Peek().Activate();
+            }
+        }
 
         public void Activate()
         {
-            Activate(FramebufferHandle, new Rect<Vec2>(Vec2.Zero, Size.ToVec2()));
-        }
-
-        public static void Activate(int FramebufferHandle, Rect<Vec2> viewport)
-        {
-            CurrentBoundFrameBuffer = FramebufferHandle;
-            LastViewPort = viewport;
-            BindLastFrameBuffer();
+            GL.BindFramebuffer(FramebufferTarget.Framebuffer, FramebufferHandle);
+            GL.Viewport((int)0, 0, (int)Size.X, (int)Size.Y);
         }
 
         public void Resize(int width, int height)
@@ -162,7 +159,7 @@ namespace FlowExplainer
 
         public static void ReadAllPixels(byte[] bytes, Vec2i Size)
         {
-            GL.ReadPixels(0, 0, Size.X, Size.Y, PixelFormat.Bgra, PixelType.UnsignedByte, bytes);
+            GL.ReadPixels(0, 0, Size.X, Size.Y, PixelFormat.Bgra, PixelType.Float, bytes);
             for (int i = 0; i < bytes.Length; i += 4)
             {
                 bytes[i + 3] = 255;
@@ -171,36 +168,54 @@ namespace FlowExplainer
 
         public static void Blit(RenderTexture source, RenderTexture dest)
         {
-            int oldId = CurrentBoundFrameBuffer;
             GL.BindFramebuffer(FramebufferTarget.ReadFramebuffer, source.FramebufferHandle);
             GL.BindFramebuffer(FramebufferTarget.DrawFramebuffer, dest.FramebufferHandle);
             GL.BlitFramebuffer(0, 0, dest.Size.X, dest.Size.Y, 0, 0, dest.Size.X, dest.Size.Y, ClearBufferMask.ColorBufferBit, BlitFramebufferFilter.Nearest);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, oldId);
+            RetargetCurrent();
         }
 
-        public static void SaveToFile(string path, Vec2i Size, int scaler = 1)
+        public void SaveToFile(string path, Vec2i size, int scaler = 1)
         {
-            int currentframebuffer = CurrentBoundFrameBuffer;
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            var bytes = ArrayPool<byte>.Shared.Rent(Size.X * Size.Y * 4);
-            ReadAllPixels(bytes, Size);
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            //Task.Run(() =>
-            //{
-
-            var image = Image.LoadPixelData<Bgra32>(bytes, Size.X, Size.Y);
-            ArrayPool<byte>.Shared.Return(bytes);
-            image.Mutate(x => x.Flip(FlipMode.Vertical));
-            image.Save(path);
-            if (scaler != 1)
+            DrawTo(() =>
             {
-                image.Mutate(x => x.Resize(Size.X * scaler, Size.Y * scaler, KnownResamplers.NearestNeighbor, false));
-            }
+                int pixelCount = size.X * size.Y;
+                float[] floats = ArrayPool<float>.Shared.Rent(pixelCount * 4);
 
-            image.Save(path);
-            image.Dispose();
-            GL.BindFramebuffer(FramebufferTarget.Framebuffer, currentframebuffer);
-            //});
+                GL.ReadPixels(0, 0, size.X, size.Y, PixelFormat.Rgba, PixelType.Float, floats);
+
+                var pixels = new Rgba32[pixelCount];
+                for (int i = 0; i < pixelCount; i++)
+                {
+                    pixels[i] = new Rgba32(
+                        Math.Clamp(floats[i * 4 + 0], 0f, 1f),
+                        Math.Clamp(floats[i * 4 + 1], 0f, 1f),
+                        Math.Clamp(floats[i * 4 + 2], 0f, 1f),
+                        1f
+                    );
+                }
+
+                ArrayPool<float>.Shared.Return(floats);
+
+                var image = Image.LoadPixelData<Rgba32>(pixels, size.X, size.Y);
+                image.Mutate(x => x.Flip(FlipMode.Vertical));
+
+
+                /*
+                var wrapped = new Image<Rgba32>(size.X * 2, size.Y);
+                int w = image.Size.Width;
+                for (int x = 0; x < wrapped.Size.Width; x++)
+                for (int y = 0; y < wrapped.Size.Height; y++)
+                {
+                    wrapped[x, y] = image[((x + w / 2) % w + w) % w, y];
+                }*/
+
+                if (scaler != 1)
+                    image.Mutate(x => x.Resize(size.X * scaler, size.Y * scaler,
+                        KnownResamplers.NearestNeighbor, false));
+
+                image.Save(path);
+                image.Dispose();
+            });
         }
     }
 }

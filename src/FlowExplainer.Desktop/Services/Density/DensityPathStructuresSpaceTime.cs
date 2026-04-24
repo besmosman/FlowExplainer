@@ -58,7 +58,7 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
 
     public int SampleGridSizeX = 1280;
     public int SampleToTextureMultiple = 1;
-    public Vec2i SampleGridSize => new Vec2i(SampleGridSizeX, SampleGridSizeX / 2);
+    public Vec2i SampleGridSize;
     public Vec2i TextureSize => SampleGridSize * SampleToTextureMultiple;
     private Rect<Vec2> WorldRect;
     private Rect<Vec2> RenderWorldRect;
@@ -101,6 +101,7 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
     private void Reset()
     {
         var rect = DataService.VectorField.Domain.RectBoundary;
+        
         WorldRect = rect.Reduce<Vec2>();
 
         Samples = new Sample[SampleGridSize.Volume()];
@@ -116,6 +117,7 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
 
     public override void PreDraw()
     {
+        SampleGridSize = new Vec2i(SampleGridSizeX, (int)(SampleGridSizeX * (WorldRect.Size / (double)WorldRect.Size.X).Y));
         if (Samples.Length != SampleGridSize.Volume())
         {
             Array.Resize(ref Samples, SampleGridSize.Volume());
@@ -135,7 +137,7 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
             {
                 Position = -new Vec2(.5, .25),
                 RenderTargetSize = RenderTexture.Size.ToVec2(),
-                Scale = RenderTexture.Size.ToVec2().X,
+                Scale = RenderTexture.Size.ToVec2().Y*2,
             };
             var dat = GetRequiredWorldService<DataService>();
             var flux = GetRequiredWorldService<DataService>().VectorField;
@@ -191,8 +193,9 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
                     double legnthRatio = double.Min(1, Vec2.Distance(p.LastPhase.XY, p.Phase.XY) / InfluenceRadius * 2);
                     double accum = TransferFunction(samplePos, p.LastPhase, p.Phase, t_bounded, p.TimeAlive);
                     accum -= TransferFunction(samplePos, p.LastLastPhase, p.LastPhase, t_bounded, p.TimeAlive) * legnthRatio;
-                    accum *= double.Abs(p.Weight);
+                    //accum *= double.Abs(p.Weight);
                     accum = Math.Max(accum, 0);
+                    accum *= (p.Weight);
                     sampleInfoAt.Accumulation += (float)accum;
                     sampleInfoAt.Count++;
                 }
@@ -303,7 +306,7 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
         var bounding = flux.Domain.Bounding;
         double t_bounded = bounding.BoundLastAxis(dat.SimulationTime);
 
-        Gizmos2D.ImageCenteredInvertedY(view.Camera2D, RenderTexture, new Vec2(0.5, 0.25), new Vec2(1, .5));
+        Gizmos2D.ImageCenteredInvertedY(view.Camera2D, RenderTexture,WorldRect.Center,WorldRect.Size);
     }
 
 

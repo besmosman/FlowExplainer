@@ -1,3 +1,4 @@
+using ImGuiNET;
 using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
@@ -14,7 +15,6 @@ public class Slice3DVisualizer : WorldService
     public override void Initialize()
     {
         SliceView = new View(1, 1, World);
-        SliceView.TargetSize = new Vec2(1000, 500);
         SliceView.Camera2D.Position = default;
         SliceView.Camera2D.Scale = 10;
     }
@@ -24,8 +24,12 @@ public class Slice3DVisualizer : WorldService
         if (!view.Is3DCamera)
             return;
 
-        SliceView.Camera2D.Scale = 1000f;
+        SliceView.Camera2D.Scale = 4000f;
         SliceView.Camera2D.Position = new Vec2(-.5, -.25);
+        var s = DataService.ScalerField.Domain.RectBoundary.Size.XY;
+        s /= DataService.ScalerField.Domain.RectBoundary.Size.Y;
+        s *= 2000;
+        SliceView.TargetSize =  s;
         SliceView.ResizeToTargetSize();
         SliceView.RenderTarget.DrawTo(() =>
         {
@@ -46,5 +50,14 @@ public class Slice3DVisualizer : WorldService
         GL.Enable(EnableCap.DepthTest);
         Gizmos.DrawTexturedQuadXY(view.Camera, SliceView.PostProcessingTarget, p, DataService.VectorField.Domain.RectBoundary.Size.XY);
         //Gizmos2D.ImageCenteredInvertedY(view.Camera2D, SliceView.PostProcessingTarget, new Vec2(1.5, .5), new Vec2(1, .5f));
+    }
+
+    public override void DrawImGuiSettings()
+    {
+        if (ImGui.Button("screen"))
+        {
+            SliceView.PostProcessingTarget.SaveToFile("test.png", SliceView.PostProcessingTarget.Size,1);
+        }
+        base.DrawImGuiSettings();
     }
 }

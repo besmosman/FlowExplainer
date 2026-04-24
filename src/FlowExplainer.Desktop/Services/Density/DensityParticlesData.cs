@@ -19,7 +19,7 @@ public class DensityParticlesData : WorldService
     public ResizableStructArray<Particle> Particles;
     public double ReseedRate = 0.3;
     public override string? Name => "Density Particles";
-    public Rect<Vec1> SeedInterval = new Rect<Vec1>(0,3);
+    public Rect<Vec1> SeedInterval = new Rect<Vec1>(0, 3);
     //public IVectorField<Vec3, Vec3> VelocityField;
     public IVectorField<Vec3, double> SourceField;
     public double dt;
@@ -46,9 +46,8 @@ public class DensityParticlesData : WorldService
     {
         var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
         var vec = DataService.VectorField;
-        var FluxField = new ArbitraryField<Vec3, Vec3>(vec.Domain,
-            x => vec.Evaluate(x)
-                .Up(double.Abs(ConvectiveTemp.Evaluate(x))));
+        var FluxField = new ArbitraryField<Vec3, Vec3>(new RectDomain<Vec3>(vec.Domain.RectBoundary),
+            x => { return vec.Evaluate(x).Up(double.Abs(ConvectiveTemp.Evaluate(x))); });
         var boundsZ = ConvectiveTemp.Domain.RectBoundary.Size.Z > 1 ? BoundaryType.Fixed : BoundaryType.Periodic;
         var bounds = BoundingFunctions.Build([BoundaryType.Periodic, BoundaryType.Fixed, boundsZ], ConvectiveTemp.Domain.RectBoundary);
 
@@ -82,7 +81,7 @@ public class DensityParticlesData : WorldService
                 {
                     ref var p = ref Particles[i];
 
-                    if (Random.Shared.NextSingle() < ReseedRate * double.Abs(dtFicticious) /* ||
+                    if (Random.Shared.NextSingle() < ReseedRate * double.Abs(dtFicticious) /*||
                         (!Reversed && p.Phase.Z > sliceT) ||
                         (Reversed && p.Phase.Z < sliceT)*/)
                         Reseed(ref p, SourceField, seed);

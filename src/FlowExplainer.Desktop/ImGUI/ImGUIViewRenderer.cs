@@ -68,6 +68,10 @@ public class ImGUIViewRenderer
                             }
                             ImGui.EndMenu();
                         }
+                        if (ImGui.Button("Screenshot Domain"))
+                        {
+                            view.RenderTarget.SaveToFile("screen.png", new Vec2i(300,150),2);
+                        }
                         ImGui.EndPopup();
                     }
                 }

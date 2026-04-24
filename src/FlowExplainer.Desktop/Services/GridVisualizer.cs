@@ -260,7 +260,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             foreach (var dia in Diagnostics)
             {
                 bool selected = dia == diagnostic;
-                if (ImGui.Selectable(dia.Name(this), ref selected))
+                if (ImGui.Selectable(dia.Name(this) ?? "?", ref selected))
                 {
                     SetGridDiagnostic(dia);
                 }
