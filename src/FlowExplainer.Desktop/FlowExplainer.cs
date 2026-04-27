@@ -11,7 +11,13 @@ namespace FlowExplainer
 
         public TimeSpan Time { get; set; }
         public double DeltaTime { get; private set; }
+        public static FlowExplainer Instance { get; set; }
 
+        public FlowExplainer()
+        {
+            Instance = this;
+        }
+        
         public void AddGlobalService(GlobalService service)
         {
             Services.Add(service);

@@ -38,34 +38,80 @@ public static class Scripting
         // RebuildSpeetjensDatasets();
         //LoadPeriodicCopies(world);
         SetGyreDataset(world);
-        
+
         var name = world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.ElementAt(0).Key;
+
+        foreach (var d in world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.Values.ToArray())
+        {
+            if (!d.Loaded)
+            {
+                d.Load(d);
+                d.Loaded = true;
+            }
+            var copy = d.Clone();
+            foreach (var v in d.VectorFields.Keys)
+            {
+                var ori = d.VectorFields[v];
+                var domain = new RectDomain<Vec3>(ori.Domain.RectBoundary.Min, ori.Domain.RectBoundary.Max);
+                domain.Rect.Min -= new Vec3(.5, 0, 0);
+                domain.Rect.Max += new Vec3(.5, 0, 0);
+                copy.VectorFields[v] = new ArbitraryField<Vec3, Vec2>(domain, x =>
+                {
+                    if (x.X > 1)
+                        x.X -= 1;
+                    if (x.X < 0)
+                        x.X += 1;
+                    return ori.Evaluate(x);
+                });
+            }
+            
+            foreach (var v in d.ScalerFields.Keys)
+            {
+                var ori = d.ScalerFields[v];
+                var domain = new RectDomain<Vec3>(ori.Domain.RectBoundary.Min, ori.Domain.RectBoundary.Max);
+                domain.Rect.Min -= new Vec3(.5, 0, 0);
+                domain.Rect.Max += new Vec3(.5, 0, 0);
+                copy.ScalerFields[v] = new ArbitraryField<Vec3, double>(domain, x =>
+                {
+                    if (x.X > 1)
+                        x.X -= 1;
+                    if (x.X < 0)
+                        x.X += 1;
+                    return ori.Evaluate(x);
+                });
+            }
+
+            copy.Loaded = true;
+            copy.Properties["Name"] = "W";
+            world.FlowExplainer.GetGlobalService<DatasetsService>()!.Datasets.Add(d.Name + " (W)", copy);
+        }
+
         world.GetWorldService<DataService>().SetDataset(name);
         world.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
         world.GetWorldService<DataService>().currentSelectedVectorField = "Convection Flux";
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
-        
-       //var g = world.AddVisualisationService<GridVisualizer>();
-       //g.SetGridDiagnostic(new DensityEstimation()); 
 
-       LoadScene(world, new SpacetimeDensityStructureScene());
+        //var g = world.AddVisualisationService<GridVisualizer>();
+        //g.SetGridDiagnostic(new DensityEstimation()); 
 
-
-       //world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new ClusterPresentation());
-       //world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+        LoadScene(world, new SpacetimeDensityStructureScene());
 
 
-       //var g = world.AddVisualisationService<GridVisualizer>();
-       //world.GetWorldService<DataService>().currentSelectedVectorField = "Total Flux";
-       //world.GetWorldService<DataService>().currentSelectedScaler = "Convective Temperature";
-       //g.SetGridDiagnostic(new StagnationCompareGridDiagnostic());
+        //world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new ClusterPresentation());
+        //world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
 
-       // DensityParticlesScene(world);
 
-       //var gridVisualizer = new GridVisualizer();
-       //world.AddVisualisationService(gridVisualizer);
-       //gridVisualizer.SetGridDiagnostic(new DivergenceAlongTrajectoryGridDiagnostic());
+        //var g = world.AddVisualisationService<GridVisualizer>();
+        //world.GetWorldService<DataService>().currentSelectedVectorField = "Total Flux";
+        //world.GetWorldService<DataService>().currentSelectedScaler = "Convective Temperature";
+        //g.SetGridDiagnostic(new StagnationCompareGridDiagnostic());
+
+        // DensityParticlesScene(world);
+
+        //var gridVisualizer = new GridVisualizer();
+        //world.AddVisualisationService(gridVisualizer);
+        //gridVisualizer.SetGridDiagnostic(new DivergenceAlongTrajectoryGridDiagnostic());
 //WriteDatasetToPlaintext(world.DataService.LoadedDataset);
 // world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new VisualComputingPresentation());
 // world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
