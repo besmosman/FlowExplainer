@@ -23,14 +23,11 @@ public class Slice3DVisualizer : WorldService
     {
         if (!view.Is3DCamera)
             return;
-
-        SliceView.Camera2D.Scale = 4000f;
+        SliceView.Camera2D.Scale = 2000f;
         SliceView.Camera2D.Position = new Vec2(-.5, -.25);
-        var s = DataService.ScalerField.Domain.RectBoundary.Size.XY;
-        s /= DataService.ScalerField.Domain.RectBoundary.Size.Y;
-        s *= 2000;
-        SliceView.TargetSize =  s;
+        SliceView.TargetSize = new Vec2(2000, 1000);
         SliceView.ResizeToTargetSize();
+        
         SliceView.RenderTarget.DrawTo(() =>
         {
             //GL.ClearColor(.0f, .0f, 0, 0);

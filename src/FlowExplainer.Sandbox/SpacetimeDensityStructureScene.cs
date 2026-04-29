@@ -39,6 +39,7 @@ public class SpacetimeDensityStructureScene : Scene
 
         var view3D = world.FlowExplainer.GetGlobalService<ViewsService>().Views[0];
         view3D.Is3DCamera = true;
+        view3D.Name = "Spacetime View";
         world.AddVisualisationService<AxisVisualizer>();
         world.AddVisualisationService<Axis3D>();
         world.AddVisualisationService<DensityParticlesData>();
@@ -50,6 +51,6 @@ public class SpacetimeDensityStructureScene : Scene
         var examples = world.AddVisualisationService<DensityPathStructuresExamples>();
         examples.LoadExample(examples.Entries[0]);
         var view2D = world.FlowExplainer.GetGlobalService<ViewsService>().NewView();
-        view2D.Name = "Slice View";
+        view2D.Name = "Texture View";
     }
 }

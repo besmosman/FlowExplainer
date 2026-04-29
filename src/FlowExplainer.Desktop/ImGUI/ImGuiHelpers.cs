@@ -150,7 +150,7 @@ public class ImGuiHelpers
 
     private static void UpdateMsg(string name, string value)
     {
-        LastMessage = name + ": " + value;
+        LastMessage = name + " = " + value;
         MessageTime = DateTime.Now;
     }
 

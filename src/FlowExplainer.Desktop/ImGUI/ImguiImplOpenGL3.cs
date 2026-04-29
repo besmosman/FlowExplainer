@@ -301,8 +301,8 @@ public unsafe static class ImguiImplOpenGL3
 
         GL.BindTexture(TextureTarget.Texture2D, last_texture);
         */
-        
-        
+
+
         LoadFont(23);
         LoadFont(96);
         LoadFont(48);
@@ -311,7 +311,15 @@ public unsafe static class ImguiImplOpenGL3
     public static void LoadFont(int size)
     {
         var io = ImGui.GetIO();
-        io.Fonts.AddFontFromFileTTF("Assets/Fonts/InterTight-VariableFont_wght.ttf", size);
+        ImFontGlyphRangesBuilder builder =  new ImFontGlyphRangesBuilder();;
+        var b = new ImFontGlyphRangesBuilderPtr(&builder);
+        b.Clear();
+        b.AddRanges(io.Fonts.GetGlyphRangesDefault());
+        b.AddRanges(io.Fonts.GetGlyphRangesGreek());
+        b.BuildRanges(out var r);
+        io.Fonts.AddFontFromFileTTF("Assets/Fonts/InterTight-VariableFont_wght.ttf", size, null, r.Data);
+
+
         io.Fonts.GetTexDataAsRGBA32(out byte* pixels, out int width, out int height, out int bytesPerPixel);
         byte[] bytes = new byte[width * height * bytesPerPixel];
         for (int i = 0; i < width * height * bytesPerPixel; i++)

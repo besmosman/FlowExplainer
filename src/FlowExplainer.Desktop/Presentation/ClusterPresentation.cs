@@ -63,7 +63,7 @@ public class ClusterPresentation : NewPresentation
             {
                 var densityParticlesData = view3d.World.GetWorldService<DensityParticlesData>();
                 var structuresSpaceTime = view3d.World.GetWorldService<DensityPathStructuresSpaceTime>();
-                densityParticlesData.dt = -.02;
+                densityParticlesData.dFicticious = -.02;
             }
 
             if (BeginStep())
