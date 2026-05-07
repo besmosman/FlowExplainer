@@ -312,7 +312,7 @@ public class PresiContext
     {
         var widgetData = GetWidgetData(filePath, lineNumber);
         var pos = new Vec2(50, CanvasSize.Y - 250);
-        var lh = 42;
+        var lh = 40;
         widgetData.RelPosition = pos;
         widgetData.RelSize = new Vec2(lh, lh);
         if (title.StartsWith("\r\n"))

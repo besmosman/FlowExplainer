@@ -95,11 +95,12 @@ public static class Scripting
         //var g = world.AddVisualisationService<GridVisualizer>();
         //g.SetGridDiagnostic(new DensityEstimation()); 
 
+        
         LoadScene(world, new SpacetimeDensityStructureScene());
 
 
-        //world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new ClusterPresentation());
-        //world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new SupplVideoPresentation());
+        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
 
 
         //var g = world.AddVisualisationService<GridVisualizer>();

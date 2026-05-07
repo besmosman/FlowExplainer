@@ -58,7 +58,7 @@ public class ClusterPresentation : NewPresentation
                 var structuresSpaceTime = view3d.World.GetWorldService<DensityPathStructuresSpaceTime>();
                 densityParticlesData.Particles.ResizeIfNeeded(15000);
             }
-            
+
             if (BeginStep())
             {
                 var densityParticlesData = view3d.World.GetWorldService<DensityParticlesData>();
@@ -221,7 +221,7 @@ public class ClusterPresentation : NewPresentation
 
         }
 
-       
+
         if (BeginSlide())
         {
             //Presi.RectCentered(Vec2.One/2, Vec2.One, Color.Green);
@@ -324,7 +324,7 @@ public class ClusterPresentation : NewPresentation
                 Presi.Text("= ", new Vec2(.49, middleY), lh, true, Color.White);
                 Presi.Text($"  =  ({double.Round(vel.X, 3)}, {double.Round(vel.X, 3)})", new Vec2(.73, 0.14), lh, false, Color.White);
             }
-          
+
             /*var vel = DrawWorldPanel(tempRelPos, tempRelSize, zoom: .76,
                 load: (world) =>
                 {
@@ -346,13 +346,13 @@ public class ClusterPresentation : NewPresentation
         }
         if (BeginSlide())
         {
-            var t = DrawWorldPanel(new Vec2(.5,.5), new Vec2(1,.5), zoom: .76,
+            var t = DrawWorldPanel(new Vec2(.5, .5), new Vec2(1, .5), zoom: .76,
                 load: (w) =>
                 {
                     w.DataService.SetDataset("Double Gyre EPS=0.1, Pe=100");
                     var flux = w.DataService.LoadedDataset.VectorFields["Total Flux"];
                     var T = w.DataService.LoadedDataset.ScalerFields["Convective Temperature"];
-                    w.DataService.LoadedDataset.VectorFields["temp"] = new ArbitraryField<Vec3, Vec2>(flux.Domain, x => flux.Evaluate(x)/(T.Evaluate(x)));
+                    w.DataService.LoadedDataset.VectorFields["temp"] = new ArbitraryField<Vec3, Vec2>(flux.Domain, x => flux.Evaluate(x) / (T.Evaluate(x)));
                     w.DataService.currentSelectedVectorField = "temp";
                     var stoch = w.AddVisualisationService<StochasticVisualization>();
                     var axis = w.AddVisualisationService<AxisVisualizer>();
@@ -491,7 +491,7 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
             Presi.Image(structure_accentuating, new Vec2(0.5, .33), .9);
             if (BeginStep())
             {
-                Presi.Text("*Only for steady flow", new Vec2(0.1,.75), .03, false, Color.Yellow);
+                Presi.Text("*Only for steady flow", new Vec2(0.1, .75), .03, false, Color.Yellow);
             }
         }
     }
@@ -499,14 +499,14 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
     {
         if (BeginSlide())
         {
-            Presi.Text("Density Structures", new Vec2(0.5,.6), .04, true,Color.White);
-            Presi.Text("in Convective Heat Transport", new Vec2(0.5,.5), .04, true,Color.White);
+            Presi.Text("Density Structures", new Vec2(0.5, .6), .04, true, Color.White);
+            Presi.Text("in Convective Heat Transport", new Vec2(0.5, .5), .04, true, Color.White);
         }
 
         if (BeginSlide())
         {
             Title("Convective Heat Transfer");
-            Presi.Image(convection, new Vec2(0.5,.43), .78);
+            Presi.Image(convection, new Vec2(0.5, .43), .78);
         }
         if (BeginSlide())
         {
@@ -847,6 +847,4 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
             }
         }
     }
-
-
 }
