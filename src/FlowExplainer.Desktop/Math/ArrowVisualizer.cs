@@ -134,8 +134,8 @@ public class ArrowVisualizer : WorldService, IAxisTitle
 
         if (AutoResize)
         {
-            Length = cellSize.X * 1;
-            Thickness = cellSize.X / 10;
+            Length = cellSize.Y * .6;
+            Thickness = cellSize.Y / 10;
         }
     }
 

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using FlowExplainer;
 using FlowExplainer;
 using ImGuiNET;
@@ -54,6 +56,12 @@ public abstract class WorldService : Service
     {
         yield break;
     }
+    
+    public virtual IEnumerable<ISelectableVectorField<Vec2, Vec2>> GetSelectableVec2Vec2()
+    {
+        yield break;
+    }
+
     
     public virtual IEnumerable<ISelectableVectorField<Vec3, Vec2>> GetSelectableVec3Vec2()
     {

@@ -16,6 +16,8 @@ public class RungeKutta4IntegratorBaseGen<TInput> : IIntegrator<TInput, TInput> 
     }
 }
 
+
+
 public class RungeKutta4IntegratorGen<TPhase, TSpace> : IIntegrator<TPhase, TSpace>
     where TPhase : IVec<TPhase, double>, IVecDownDimension<TSpace>
     where TSpace : IVec<TSpace, double>, IVecUpDimension<TPhase>

@@ -54,7 +54,7 @@ public class SpacetimePathVisualizer : WorldService
 public class DensityParticles3DVisualizer : WorldService
 {
     public override string? Name => "Density 3D Spheres";
-    public double Radius = .004;
+    public double Radius = .003;
     public bool ExtendBounds;
 
     public override void Initialize()
@@ -68,7 +68,7 @@ public class DensityParticles3DVisualizer : WorldService
 
         foreach (ref var p in GetRequiredWorldService<DensityParticlesData>().Particles.AsSpan())
         {
-            Gizmos.Instanced.RegisterSphere(p.Phase, Radius, Color.White.WithAlpha(1f));
+            Gizmos.Instanced.RegisterSphere(p.Phase, Radius, Color.Grey(.9f));
         }
 
         if (ExtendBounds)
@@ -80,7 +80,7 @@ public class DensityParticles3DVisualizer : WorldService
 
 
         GL.Enable(EnableCap.DepthTest);
-        Gizmos.Instanced.DrawSpheresLit(view.Camera);
+        Gizmos.Instanced.DrawSpheres(view.Camera);
         GL.Disable(EnableCap.DepthTest);
     }
 

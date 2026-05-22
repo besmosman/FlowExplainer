@@ -2,17 +2,59 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace FlowExplainer;
 
+
+/*public readonly struct IntegralCurve<TPhase, TExtendedPhase> 
+    where TPhase : IVec<TPhase, double>, IVecUpDimension<TExtendedPhase>
+    where TExtendedPhase : IVec<TExtendedPhase, double>, IVecDownDimension<TPhase>
+{
+    public double t_0 => Entries[0].Last;
+    public TPhase x_0 => Entries[0].Down();
+    public double Interval => Entries[^1].Last - t_0;
+    
+    private readonly TExtendedPhase[] Entries;
+    
+    public IntegralCurve(TExtendedPhase[] entries)
+    {
+        Entries = entries;
+    }
+
+    public Orbit<TPhase> Orbit()
+    {
+        return new Orbit<TPhase>(Entries.Select(s => s.Down()).ToArray());
+    }
+}
+
+public readonly struct Orbit<TPhase>
+{
+    private readonly TPhase[] Entries;
+    
+    public Orbit(TPhase[] entries)
+    {
+        Entries = entries;
+    }
+}*/
+
 public interface IIntegrator<TPhase, TSpace> where TPhase : IVec<TPhase, double>
 {
     TPhase Integrate(IVectorField<TPhase, TSpace> f, TPhase x, double dt);
 }
 
-
+public static class IVectorFieldExtensions
+{
+    extension<TInput, TOutput>(IVectorField<TInput, TOutput> v) where TInput : IVec<TInput, double>
+    {
+        
+        public IVectorField<TInput, D> Select<D>(Func<TOutput, D> selector)
+        {
+            return new ArbitraryField<TInput, D>(v.Domain, p => selector(v.Evaluate(p)));
+        }
+    }
+}
 public static class IIntegratorExtensions
 {
     extension<TInput, TOutput>(IIntegrator<TInput, TOutput>)
-        where TInput : IVec<TInput,double>, IVecDownDimension<TOutput>
-        where TOutput : IVec<TOutput,double>, IVecUpDimension<TInput>
+        where TInput : IVec<TInput, double>, IVecDownDimension<TOutput>
+        where TOutput : IVec<TOutput, double>, IVecUpDimension<TInput>
     {
         public static IIntegrator<TInput, TOutput> Rk4 => RungeKutta4IntegratorGen<TInput, TOutput>.Instance;
     }

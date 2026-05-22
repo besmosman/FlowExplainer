@@ -35,7 +35,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         }
     }
 
-    public IGridDiagnostic diagnostic = new ScalerGridDiagnostic();
+    public IGridDiagnostic diagnostic = new Scaler3DGridDiagnostic();
 
     // public InterpolatedRenderGrid gridData;
     public bool Continous = true;
@@ -66,7 +66,8 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         new LICGridDiagnostic(),
         //new LICS(),
         new LagrangianTemperatureGridDiagnostic(),
-        new ScalerGridDiagnostic(),
+        new Scaler2DGridDiagnostic(),
+        new Scaler3DGridDiagnostic(),
         new FTLEGridDiagnostic(),
         new LAVDGridDiagnostic(),
         new FunctionGridDiagnostic(),
@@ -86,7 +87,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
 
     public override void Initialize()
     {
-        SetGridDiagnostic(new ScalerGridDiagnostic());
+        SetGridDiagnostic(new Scaler3DGridDiagnostic());
         material = new Material(Shader.DefaultWorldSpaceVertex, new Shader("Assets/Shaders/grid-reg.frag", ShaderType.FragmentShader));
     }
 

@@ -4,18 +4,41 @@ namespace FlowExplainer;
 
 public static class FD
 {
-    extension<Vec,Veci, Dat>(IVectorField<Vec, Dat> field) where Vec : IVec<Vec, double>, IVecIntegerEquivalent<Veci>
+    extension<Vec, Veci, Dat>(IVectorField<Vec, Dat> field) where Vec : IVec<Vec, double>, IVecIntegerEquivalent<Veci>
         where Dat : IMultiplyOperators<Dat, double, Dat>, IAdditionOperators<Dat, Dat, Dat>
         where Veci : IVec<Veci, int>, IVecDoubleEquivalent<Vec>
     {
-        public DiscretizedField<Vec, Veci, Dat> Discritize(Veci gridSize) 
+        public DiscretizedField<Vec, Veci, Dat> Discritize(Veci gridSize)
         {
             return new DiscretizedField<Vec, Veci, Dat>(gridSize, field);
         }
     }
+
+    extension(IVectorField<Vec2, double> scalerfield)
+    {
+        //https://docs.sciml.ai/FiniteDiff/dev/hessians/
+        //H[i,j] ≈ (f(x + e_ih_i + e_jh_j) - f(x + e_ih_i - e_jh_j) - f(x - e_ih_i + e_jh_j) + f(x - e_ih_i - e_jh_j)) / (4h_ih_j)
+        public Matrix2 Hessian(Vec2 x, double h)
+        {
+            var H = new Matrix2();
+            var f = scalerfield.Evaluate;
+            
+            for (int i = 0; i < 2; i++)
+            for (int j = 0; j < 2; j++)
+            {
+                var e_i = new Vec2(i == 0 ? 1 : 0, i == 1 ? 1 : 0);
+                var e_j = new Vec2(j == 0 ? 1 : 0, j == 1 ? 1 : 0);
+                var h_i = h;
+                var h_j = h;
+                H[i, j] = (f(x + e_i * h_i + e_j * h_j) - f(x + e_i * h_i - e_j * h_j) - f(x - e_i * h_i + e_j * h_j) + f(x - e_i * h_i - e_j * h_j)) / (4 * h_i * h_j);
+            }
+            return H;
+        }
+    }
+
     extension<Vec>(IVectorField<Vec, double> scalerfield) where Vec : IVec<Vec, double>
     {
-        
+
         public Vec FiniteDifferenceGradient(Vec x, double h)
         {
             var d = Vec.Zero;
@@ -43,7 +66,7 @@ public static class FD
             }
             return d;
         }
-        
+
     }
 
     public struct Neighbors(Vec2 left, Vec2 right, Vec2 up, Vec2 down, Vec2 delta)

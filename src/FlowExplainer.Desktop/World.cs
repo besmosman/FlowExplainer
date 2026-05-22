@@ -48,9 +48,14 @@ namespace FlowExplainer
                 foreach (var f in s.GetSelectableVec2Vec1())
                     yield return (ISelectableVectorField<I, O>)f;
             else if (typeof(I) == typeof(Vec3) && typeof(O) == typeof(Vec2))
+            {
+
                 foreach (var s in Services)
-                foreach (var f in s.GetSelectableVec3Vec2())
-                    yield return (ISelectableVectorField<I, O>)f;
+                {
+                    foreach (var f in s.GetSelectableVec3Vec2())
+                        yield return (ISelectableVectorField<I, O>)f;
+                }
+            }
             else if (typeof(I) == typeof(Vec3) && typeof(O) == typeof(double))
                 foreach (var s in Services)
                 foreach (var f in s.GetSelectableVec3Vec1())

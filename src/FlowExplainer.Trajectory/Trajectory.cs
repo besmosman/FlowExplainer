@@ -2,9 +2,9 @@ using System.Numerics;
 
 namespace FlowExplainer;
 
-public class Trajectory<T> where T : IVec<T, double>
+public readonly struct Trajectory<T> where T : IVec<T, double>
 {
-    public T[] Entries;
+    public readonly T[] Entries;
 
     public Trajectory(T[] entries)
     {
@@ -74,7 +74,7 @@ public class Trajectory<T> where T : IVec<T, double>
     }
 
 
-    private int last_returned_Entry = 0;
+    private static int last_returned_Entry = 0;
     public T AtC(double c)
     {
         return AtTime(c * (Entries[^1].Last - Entries[0].Last) + Entries[0].Last);

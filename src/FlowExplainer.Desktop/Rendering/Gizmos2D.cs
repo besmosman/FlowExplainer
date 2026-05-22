@@ -317,7 +317,8 @@ public static class Gizmos2D
 
                     if (tag == "yellow")
                         action = (s, e) => colored(new Color(1f, 1f, 0f, 1), s, e);
-
+                    if (tag == "orange")
+                        action = (s, e) => colored(new Color(1f, .65f, .2f, 1), s, e);
                     /*
                     if (tag == "underline")
                         action = (s, e) =>

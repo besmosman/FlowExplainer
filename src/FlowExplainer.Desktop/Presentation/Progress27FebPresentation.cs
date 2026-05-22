@@ -148,7 +148,7 @@ $\boldsymbol{v}$ should be $\boldsymbol{Q}'/T'$ for correct timing.", new Vec2(.
                     data.ColorGradient = Gradients.GetGradient("BlueGrayRed");
                     var gridVisualizer = new GridVisualizer();
                     world.AddVisualisationService(gridVisualizer);
-                    gridVisualizer.SetGridDiagnostic(new ScalerGridDiagnostic());
+                    gridVisualizer.SetGridDiagnostic(new Scaler3DGridDiagnostic());
                     world.AddVisualisationService(gridVisualizer);
                 });
             

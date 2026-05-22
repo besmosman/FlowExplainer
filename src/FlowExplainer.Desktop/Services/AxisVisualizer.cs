@@ -63,6 +63,7 @@ public class AxisVisualizer : WorldService
                     if (service is IAxisTitle titler && service.IsEnabled)
                     {
                         string title = Title ?? titler.GetTitle();
+                        title = title.Replace("eps=", " ε=");
                         Gizmos2D.AdvText(view.ScreenCamera, new Vec2((lb.X + rb.X) / 2, y), lh, color, title, centered: true);
                         y -= lh*1.8;
                     }

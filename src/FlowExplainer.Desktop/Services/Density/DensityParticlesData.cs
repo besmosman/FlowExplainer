@@ -17,12 +17,12 @@ public class DensityParticlesData : WorldService
     }
 
     public ResizableStructArray<Particle> Particles;
-    public double ReseedRate = 0.3;
+    public double ReseedRate = 0.2;
     public override string? Name => "Density Particles";
     public Rect<Vec1> SeedInterval = new Rect<Vec1>(0, 3);
     //public IVectorField<Vec3, Vec3> VelocityField;
     public IVectorField<Vec3, double> SourceField;
-    public double dt;
+    public double dFicticious;
     public bool Reversed = false;
 
     private int seedCounter;
@@ -34,6 +34,7 @@ public class DensityParticlesData : WorldService
             Particles = new(1);
         Array.Clear(Particles.Array);
         var rect = ConvectiveTemp.Domain.RectBoundary;
+        rect = new Rect<Vec3>(rect.Min.XY.Up(SeedInterval.Min), rect.Max.XY.Up(SeedInterval.Max));
 
         foreach (ref var p in Particles.AsSpan())
         {
@@ -44,6 +45,7 @@ public class DensityParticlesData : WorldService
 
     public override void PreDraw()
     {
+      
         var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
         var vec = DataService.VectorField;
         var FluxField = new ArbitraryField<Vec3, Vec3>(new RectDomain<Vec3>(vec.Domain.RectBoundary),
@@ -55,11 +57,11 @@ public class DensityParticlesData : WorldService
         var seed = ConvectiveTemp.Domain.RectBoundary;
         var domainBounding = bounds;
 
-        var targetDt = dt;
+        var targetDt = dFicticious;
         //var eps = 0.000000001;
         var sliceT = DataService.SimulationTime;
         seed = new Rect<Vec3>(seed.Min.XY.Up(SeedInterval.Min), seed.Max.XY.Up(SeedInterval.Max));
-        var dtFicticious = dt * (Reversed ? -1 : 1);
+        var dtFicticious = dFicticious * (Reversed ? -1 : 1);
 
         if (Particles.Length > 0)
             Parallel.ForEach(Partitioner.Create(0, Particles.Length), range =>
@@ -126,14 +128,14 @@ public class DensityParticlesData : WorldService
         int t = Particles.Length;
         ImGuiHelpers.Slider("Particle Count", ref t, 0, 10000);
         Particles.ResizeIfNeeded(t);
-        ImGuiHelpers.Slider("Fictitious Integration Time", ref dt, 0, .1);
-        if (ImGui.Checkbox("Reversed", ref Reversed))
+        ImGuiHelpers.Slider("Δξ", ref dFicticious, 0, .1);
+        if (ImGui.Checkbox("Backwords Integration", ref Reversed))
         {
             Initialize();
         }
         ImGuiHelpers.Slider("Reseed Rate", ref ReseedRate, 0, 1);
-        ImGuiHelpers.Slider("Seed Interval Start", ref SeedInterval.Min.X, 0, DataService.ScalerField.Domain.RectBoundary.Max.Z);
-        ImGuiHelpers.Slider("Seed Interval End", ref SeedInterval.Max.X, SeedInterval.Min.X, DataService.ScalerField.Domain.RectBoundary.Max.Z);
+        ImGuiHelpers.Slider("t0", ref SeedInterval.Min.X, 0, DataService.ScalerField.Domain.RectBoundary.Max.Z);
+        ImGuiHelpers.Slider("t1", ref SeedInterval.Max.X, SeedInterval.Min.X, DataService.ScalerField.Domain.RectBoundary.Max.Z);
         if (ImGui.Button("Reset"))
         {
             Initialize();

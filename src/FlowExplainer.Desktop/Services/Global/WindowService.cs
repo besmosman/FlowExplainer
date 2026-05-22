@@ -84,7 +84,7 @@ namespace FlowExplainer
             GL.Viewport(0, 0, Window.ClientSize.X, Window.ClientSize.Y);
             Window.Context.SwapBuffers();
             // NativeWindow.ProcessWindowEvents(Window.IsEventDriven);
-            Window.ProcessEvents(0f);
+            Window.ProcessEvents(0);
 
             //GL.ClearColor(0.13f, 0.11f, 0.18f, 1);
             GL.ClearColor((float)ClearColor.R, (float)ClearColor.G, (float)ClearColor.B, (float)ClearColor.A);
