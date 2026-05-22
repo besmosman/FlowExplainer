@@ -84,7 +84,7 @@ public class UpdatePresentation : NewPresentation
                     w.DataService.currentSelectedScaler = "Convective Temperature";
                     var g = w.AddVisualisationService<GridVisualizer>();
                     var a = w.AddVisualisationService<ArrowVisualizer>();
-                    g.SetGridDiagnostic(new ScalerGridDiagnostic());
+                    g.SetGridDiagnostic(new Scaler3DGridDiagnostic());
                     w.DataService.TimeMultiplier = .5f;
                     w.DataService.SimulationTime = 0;
                 }).World;

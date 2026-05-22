@@ -117,7 +117,10 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
     {
         Grid = new RegularGrid<Veci, TData>(gridSize);
         RectDomain = rectDomain;
-        genBounding = (GenBounding<Vec>)rectDomain.Bounding;
+        if (rectDomain.Bounding.GetType() == typeof(BoundingNone<Vec>))
+            genBounding = GenBounding<Vec>.None();
+        else
+            genBounding = (GenBounding<Vec>)rectDomain.Bounding;
 
     }
 

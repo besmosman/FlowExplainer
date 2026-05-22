@@ -270,7 +270,7 @@ public class ClusterPresentation : NewPresentation
                 if (StepEnter())
                 {
                     var grid = temp.World.AddVisualisationService<GridVisualizer>(0);
-                    grid.SetGridDiagnostic(new ScalerGridDiagnostic());
+                    grid.SetGridDiagnostic(new Scaler3DGridDiagnostic());
                     grid.AltGradient = Gradients.BlueGrayRed;
                     grid.WaitForComputation();
                 }
@@ -577,7 +577,7 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
                     var grid = view.World.AddVisualisationService<GridVisualizer>();
                     view.World.DataService.SimulationTime = 0;
                     view.World.DataService.currentSelectedScaler = "No Flow Temperature";
-                    grid.SetGridDiagnostic(new ScalerGridDiagnostic());
+                    grid.SetGridDiagnostic(new Scaler3DGridDiagnostic());
                     grid.WaitForComputation();
                     grid.AutoScale = false;
                     grid.max = 2;
@@ -607,7 +607,7 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
                     var grid = view.World.AddVisualisationService<GridVisualizer>();
                     view.World.DataService.SimulationTime = 0;
                     view.World.DataService.currentSelectedScaler = "Total Temperature";
-                    grid.SetGridDiagnostic(new ScalerGridDiagnostic());
+                    grid.SetGridDiagnostic(new Scaler3DGridDiagnostic());
                     grid.WaitForComputation();
                     grid.AutoScale = false;
                     grid.max = 2;
@@ -678,7 +678,7 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
                         data.SetDataset("Double Gyre EPS=0.1, Pe=100");
                         data.TimeMultiplier = .2f;
                         data.currentSelectedScaler = "Convective Temperature";
-                        world.AddVisualisationService<GridVisualizer>().SetGridDiagnostic(new ScalerGridDiagnostic());
+                        world.AddVisualisationService<GridVisualizer>().SetGridDiagnostic(new Scaler3DGridDiagnostic());
                         world.AddVisualisationService<ArrowVisualizer>().Disable();
 
                     }, "#m");
@@ -702,7 +702,7 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
                         axis.Title = "Temperature without Flow";
                         data.SetDataset("Double Gyre EPS=0.1, Pe=100");
                         data.currentSelectedScaler = "No Flow Temperature";
-                        world.AddVisualisationService<GridVisualizer>().SetGridDiagnostic(new ScalerGridDiagnostic());
+                        world.AddVisualisationService<GridVisualizer>().SetGridDiagnostic(new Scaler3DGridDiagnostic());
                     }, "#r");
 
                 var view = DrawWorldPanel(new Vec2(.5 + offsetX, posY), size, zoom: .78,
@@ -715,7 +715,7 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
                         axis.Title = "Temperature with Flow";
                         data.SetDataset("Double Gyre EPS=0.1, Pe=100");
                         data.currentSelectedScaler = "Total Temperature";
-                        world.AddVisualisationService<GridVisualizer>().SetGridDiagnostic(new ScalerGridDiagnostic());
+                        world.AddVisualisationService<GridVisualizer>().SetGridDiagnostic(new Scaler3DGridDiagnostic());
                     }, "#l");
 
 
@@ -820,7 +820,7 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
                         var axis = world.AddVisualisationService<AxisVisualizer>();
                         data.SetDataset("Double Gyre EPS=0.1, Pe=100");
                         data.currentSelectedScaler = "Total Temperature";
-                        world.AddVisualisationService<GridVisualizer>().SetGridDiagnostic(new ScalerGridDiagnostic());
+                        world.AddVisualisationService<GridVisualizer>().SetGridDiagnostic(new Scaler3DGridDiagnostic());
                         world.AddVisualisationService<ArrowVisualizer>().Disable();
                     }, "#m");
                 view1.World.DataService.SimulationTime = t;

@@ -17,7 +17,7 @@ public static class Scripting
         {
         };
         world.AddVisualisationService(gridVisualizer);
-        gridVisualizer.SetGridDiagnostic(new ScalerGridDiagnostic());
+        gridVisualizer.SetGridDiagnostic(new Scaler3DGridDiagnostic());
         world.GetWorldService<DataService>().currentSelectedScaler = "Convective Temperature";
         world.AddVisualisationService(new SpaceTimeSurfaceStructureExtractor
         {
@@ -96,11 +96,11 @@ public static class Scripting
         //g.SetGridDiagnostic(new DensityEstimation()); 
 
         
-        LoadScene(world, new SpacetimeDensityStructureScene());
+        LoadScene(world, new VariationalScene());
 
 
-        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new SupplVideoPresentation());
-        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+        //world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new SupplVideoPresentation());
+        //world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
 
 
         //var g = world.AddVisualisationService<GridVisualizer>();
@@ -324,6 +324,7 @@ gridDiagnostic.Recompute(gridVisualizer);
             };
         }
     }
+
 
     private static void ComputeSpeetjensDataset(string tspFolder, string outputFieldsFolder)
     {

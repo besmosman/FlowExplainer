@@ -6,7 +6,7 @@ namespace FlowExplainer;
 
 public class FlowDirectionVisualization : WorldService, IAxisTitle
 {
-    private int posPer = 32;
+    private int posPer = 64;
     public int amount = 1600;
     public double thickness = .003f;
     public double speed = 3;

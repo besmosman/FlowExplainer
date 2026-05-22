@@ -45,8 +45,17 @@ public struct Matrix2
         };
     }
 
+    public static Vec2 operator *(Matrix2 A, Vec2 B)
+    {
+        return new Vec2(
+            A.Row1.X * B.X + A.Row1.Y * B.Y,
+            A.Row2.X * B.X + A.Row2.Y * B.Y
+        );
+    }
+
     public static Matrix2 operator *(Matrix2 A, Matrix2 B)
     {
+        
         double m11 = A.Row1.X * B.Row1.X + A.Row1.Y * B.Row2.X; // Row1 * Col1
         double m12 = A.Row1.X * B.Row1.Y + A.Row1.Y * B.Row2.Y; // Row1 * Col2
     
@@ -89,5 +98,31 @@ public struct Matrix2
             Row1 = new Vec2(Row1.X, Row2.X),
             Row2 = new Vec2(Row1.Y, Row2.Y),
         };
+    }
+    public double this[int i, int j]
+    {
+        get
+        {
+            return (i, j) switch
+            {
+                (0, 0) => Row1.X,
+                (0, 1) => Row1.Y,
+                (1, 0) => Row2.X,
+                (1, 1) => Row2.Y,
+                _ => throw new IndexOutOfRangeException($"Invalid index [{i},{j}]")
+            };
+        }
+        set
+        {
+            switch (i, j)
+            {
+                case (0, 0): Row1.X = value; break;
+                case (0, 1): Row1.Y = value; break;
+                case (1, 0): Row2.X = value; break;
+                case (1, 1): Row2.Y = value; break;
+                default:
+                    throw new IndexOutOfRangeException($"Invalid index [{i},{j}]");
+            }
+        }
     }
 }

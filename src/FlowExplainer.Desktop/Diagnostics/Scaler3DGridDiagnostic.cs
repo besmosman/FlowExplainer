@@ -1,12 +1,45 @@
 namespace FlowExplainer;
 
-public class ScalerGridDiagnostic : IGridDiagnostic
+public class Scaler2DGridDiagnostic : IGridDiagnostic
 {
+    public IVectorField<Vec2, double> ScalerField = IVectorField<Vec2,Double>.Constant(0);
+
     public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
         var renderGrid = gridVisualizer.RegularGrid.Grid;
         var dat = gridVisualizer.GetRequiredWorldService<DataService>();
-        var tempratureField = dat.ScalerField;
+        var scalerfield = ScalerField;
+        var spaceBounds = dat.VectorField.Domain.RectBoundary.Reduce<Vec2>();
+
+
+        Parallel.For(0, renderGrid.GridSize.X * renderGrid.GridSize.Y, c =>
+        {
+            var i = c % renderGrid.GridSize.X;
+            var j = c / renderGrid.GridSize.X;
+            var pos = (new Vec2(i, j) / renderGrid.GridSize.ToVec2()) * spaceBounds.Size + spaceBounds.Min;
+            renderGrid.AtCoords(new Vec2i(i, j)).Value = scalerfield.Evaluate(pos);
+        });
+    }
+    public string Name(GridVisualizer gridVisualizer)
+    {
+        //gridVisualizer.DataService.ScalerField.DisplayName
+        return "Scaler 2D";
+    }
+    public void OnImGuiEdit(GridVisualizer gridVisualizer)
+    {
+        ImGuiHelpers.OptonalVectorFieldSelector(gridVisualizer.World, ref ScalerField);
+    }
+}
+
+public class Scaler3DGridDiagnostic : IGridDiagnostic
+{
+    public IVectorField<Vec3, double>? AltScalerField;
+
+    public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
+    {
+        var renderGrid = gridVisualizer.RegularGrid.Grid;
+        var dat = gridVisualizer.GetRequiredWorldService<DataService>();
+        var tempratureField = AltScalerField ?? dat.ScalerField;
         var spaceBounds = dat.VectorField.Domain.RectBoundary.Reduce<Vec2>();
 
 
@@ -20,11 +53,12 @@ public class ScalerGridDiagnostic : IGridDiagnostic
     }
     public string Name(GridVisualizer gridVisualizer)
     {
-        return gridVisualizer.DataService.ScalerField.DisplayName;
+        //gridVisualizer.DataService.ScalerField.DisplayName
+        return "Scaler 3D";
     }
     public void OnImGuiEdit(GridVisualizer gridVisualizer)
     {
-
+        ImGuiHelpers.OptonalVectorFieldSelector(gridVisualizer.World, ref AltScalerField);
     }
 }
 
@@ -32,7 +66,7 @@ public class StagnationCompareGridDiagnostic : IGridDiagnostic
 {
     public bool UseCustomColoring => true;
     public double e = 0.025;
-    
+
     public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
         var renderGrid = gridVisualizer.RegularGrid.Grid;

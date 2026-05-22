@@ -96,7 +96,8 @@ public class ImGuiHelpers
             v = t;
     }
 
-    public static void OptonalVectorFieldSelector(World world, ref IVectorField<Vec3, Vec2>? vectorField)
+    public static void OptonalVectorFieldSelector<TIn,TOut>(World world, ref IVectorField<TIn, TOut>? vectorField)
+        where TIn : IVec<TIn, double>
     {
         var f = vectorField != null;
         ImGui.Text("Alt vectorfield");
@@ -111,7 +112,7 @@ public class ImGuiHelpers
         if (!f)
             vectorField = null;
 
-        var vectorfields = world.GetSelectableVectorFields<Vec3, Vec2>().ToList();
+        var vectorfields = world.GetSelectableVectorFields<TIn, TOut>().ToList();
         if (vectorField == null && f)
             vectorField =  vectorfields.First().VectorField;
         foreach (var selectable in vectorfields)

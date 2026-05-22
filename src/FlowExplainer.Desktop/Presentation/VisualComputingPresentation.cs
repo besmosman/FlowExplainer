@@ -67,7 +67,7 @@ public class VisualComputingPresentation : NewPresentation
                     var grid = view.World.AddVisualisationService<GridVisualizer>();
                     view.World.DataService.SimulationTime = 0;
                     view.World.DataService.currentSelectedScaler = "No Flow Temperature";
-                    grid.SetGridDiagnostic(new ScalerGridDiagnostic());
+                    grid.SetGridDiagnostic(new Scaler3DGridDiagnostic());
                     grid.WaitForComputation();
                     grid.AutoScale = false;
                     grid.max = 2;
@@ -97,7 +97,7 @@ public class VisualComputingPresentation : NewPresentation
                     var grid = view.World.AddVisualisationService<GridVisualizer>();
                     view.World.DataService.SimulationTime = 0;
                     view.World.DataService.currentSelectedScaler = "Total Temperature";
-                    grid.SetGridDiagnostic(new ScalerGridDiagnostic());
+                    grid.SetGridDiagnostic(new Scaler3DGridDiagnostic());
                     grid.WaitForComputation();
                     grid.AutoScale = false;
                     grid.max = 2;
@@ -236,7 +236,7 @@ public class VisualComputingPresentation : NewPresentation
                 axisVisualizer.DrawTitle = false;
                 var stoch = w.AddVisualisationService<GridVisualizer>();
                 stoch.DataService.ColorGradient = Gradients.GetGradient("BlueGrayRed");
-                stoch.SetGridDiagnostic(new ScalerGridDiagnostic());
+                stoch.SetGridDiagnostic(new Scaler3DGridDiagnostic());
                 //  w.AddVisualisationService<ArrowVisualizer>().colorByGradient = false;
             }, zoom: .8f);
             ref var t = ref view.World.DataService.SimulationTime;

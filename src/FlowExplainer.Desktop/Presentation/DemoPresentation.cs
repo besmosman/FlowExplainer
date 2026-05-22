@@ -78,7 +78,7 @@ x^{M}(t) = x_0 + \int_{0}^{t} M_n\bigl(x(\eta), \eta\bigr)\, d\eta
                         data.TimeMultiplier = .5f;
                         data.currentSelectedScaler = "Convective Temperature";
                         var grid = world.AddVisualisationService<GridVisualizer>();
-                        grid.SetGridDiagnostic(new ScalerGridDiagnostic());
+                        grid.SetGridDiagnostic(new Scaler3DGridDiagnostic());
                         grid.WaitForComputation();
                         var axis = world.AddVisualisationService<AxisVisualizer>();
                         data.ColorGradient = Gradients.GetGradient("BlueGrayRed");
