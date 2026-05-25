@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using FlowExplainer;
 using FlowExplainer;
-using ImGuiNET;
 
 namespace FlowExplainer;
 
@@ -25,6 +24,8 @@ public abstract class WorldService : Service
 
     public DataService DataService => GetRequiredWorldService<DataService>();
 
+    public OptionsManager OptionsManager;
+    public ArtifactsManager Artifacts = new();
     public virtual void OnEnable()
     {
     }
@@ -34,9 +35,12 @@ public abstract class WorldService : Service
         IsEnabled = true;
         if (!IsInitialzied)
         {
+            OptionsManager = new OptionsManager(this);
+            OptionsManager.Init();
             Initialize();
             IsInitialzied = true;
         }
+
         OnEnable();
     }
 
@@ -51,26 +55,25 @@ public abstract class WorldService : Service
     {
         yield break;
     }
-    
+
     public virtual IEnumerable<ISelectableVectorField<Vec2, double>> GetSelectableVec2Vec1()
     {
         yield break;
     }
-    
+
     public virtual IEnumerable<ISelectableVectorField<Vec2, Vec2>> GetSelectableVec2Vec2()
     {
         yield break;
     }
 
-    
+
     public virtual IEnumerable<ISelectableVectorField<Vec3, Vec2>> GetSelectableVec3Vec2()
     {
         yield break;
     }
-    
+
     public virtual void OnDisable()
     {
-
     }
 
     /// <summary>
@@ -82,7 +85,9 @@ public abstract class WorldService : Service
     /// <summary>
     /// Gets called once per frame, prior to view draw calls.
     /// </summary>
-    public virtual void PreDraw() { }
+    public virtual void PreDraw()
+    {
+    }
 
     public T? GetWorldService<T>() where T : WorldService =>
         World.GetWorldService<T>();
@@ -91,11 +96,10 @@ public abstract class WorldService : Service
 
     public virtual void DrawImGuiDataSettings()
     {
-
     }
 
     public virtual void DrawImGuiSettings()
     {
-
+        OptionsManager?.DrawSettings();
     }
 }

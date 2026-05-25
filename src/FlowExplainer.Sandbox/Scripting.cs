@@ -91,6 +91,7 @@ public static class Scripting
         world.GetWorldService<DataService>().currentSelectedVectorField = "Convection Flux";
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
+        //world.AddVisualisationService(new ArrowVisualizer());
 
         //var g = world.AddVisualisationService<GridVisualizer>();
         //g.SetGridDiagnostic(new DensityEstimation()); 

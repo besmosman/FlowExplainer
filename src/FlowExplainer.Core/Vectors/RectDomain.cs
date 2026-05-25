@@ -23,7 +23,7 @@ public struct RectDomain<Vec> : IDomain<Vec> where Vec : IVec<Vec, double>
     }
 
 
-    public bool IsWithinPhase(Vec p)
+    public bool IsWithinBounds(Vec p)
     {
         return p > Rect.Min && p < Rect.Max;
     }

@@ -141,7 +141,7 @@ public class VisualComputingPresentation : NewPresentation
                     data.currentSelectedVectorField = "Convection Flux";
                     data.currentSelectedVectorField = "Diffusion Flux";
                     //world.AddVisualisationService<ArrowVisualizer>();
-                    var f = world.AddVisualisationService<FlowDirectionVisualization>();
+                    var f = world.AddVisualisationService<AnimatedGlyphFlowService>();
                     f.amount = 6000;
                     f.opacity *= 1.4f;
                     f.speed *= -2;

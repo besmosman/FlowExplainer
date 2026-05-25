@@ -350,4 +350,15 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         }
         UpdateRenderData();
     }
+
+    public void EvaluateParralelGrid(IVectorField<Vec2, double> field, CancellationToken token)
+    {
+        var grid = RegularGrid;
+        var rect = grid.RectDomain.RectBoundary;
+        ParallelGrid.For(grid.GridSize, token, (i, j) =>
+        {
+             var pos = rect.FromRelative(new Vec2(i, j) / grid.GridSize.ToVec2());
+             grid.AtCoords(new Vec2i(i, j)).Value = field.Evaluate(pos);
+        });
+    }
 }

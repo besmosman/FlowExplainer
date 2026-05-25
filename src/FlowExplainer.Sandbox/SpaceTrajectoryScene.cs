@@ -14,7 +14,7 @@ public class TrajectoryComparisonScene : Scene
         axis.DrawGradient = false;
 
         var grid = world.AddVisualisationService<GridVisualizer>();
-        grid.SetGridDiagnostic(new ScalerGridDiagnostic());
+        grid.SetGridDiagnostic(new Scaler3DGridDiagnostic());
         world.DataService.ColorGradient = Gradients.BlueGrayRed;
         var traj = world.AddVisualisationService<TrajectoryComparison>();
     }

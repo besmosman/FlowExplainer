@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace FlowExplainer;
 
+/*
 public struct InstantFieldVersionLowerDim<VecOri, VecNew, Data> : IVectorField<VecNew, Data>
     where VecNew : IVec<VecNew, double>, IVecUpDimension<VecOri>
     where VecOri : IVec<VecOri, double>, IVecDownDimension<VecNew>
@@ -16,8 +17,7 @@ public struct InstantFieldVersionLowerDim<VecOri, VecNew, Data> : IVectorField<V
     {
         this.orifield = orifield;
         Time = time;
-        Domain = new RectDomain<VecNew>(orifield.Domain.RectBoundary.Reduce<VecNew>(),
-            new BoundingDownDim(orifield.Domain.Bounding, Time));
+        Domain = orifield.Domain.ReducedSlice<VecOri,VecNew>(Time);
     }
     public Data Evaluate(VecNew x)
     {
@@ -29,7 +29,10 @@ public struct InstantFieldVersionLowerDim<VecOri, VecNew, Data> : IVectorField<V
         return orifield.TryEvaluate(x.Up(Time), out value);
     }
 
-    public class BoundingDownDim : IBounding<VecNew>
+}*/
+    public struct BoundingDownDim<VecOri,VecNew> : IBounding<VecNew>
+        where VecNew : IVec<VecNew, double>, IVecUpDimension<VecOri>
+        where VecOri : IVec<VecOri, double>, IVecDownDimension<VecNew>
     {
         private IBounding<VecOri> oriBounding;
         private double Time;
@@ -43,9 +46,8 @@ public struct InstantFieldVersionLowerDim<VecOri, VecNew, Data> : IVectorField<V
         {
             return oriBounding.Bound(x.Up(Time)).Down();
         }
-        public double ShortestSpatialDistanceSqrt(VecNew a, VecNew b) => oriBounding.ShortestSpatialDistanceSqrt(a.Up(0), b.Up(0));
+        public double ShortestSpatialDistanceSqrt(VecNew a, VecNew b) => oriBounding.ShortestSpatialDistanceSqrt(a.Up(Time), b.Up(Time));
     }
-}
 
 public struct InstantField<VecOri, Data> : IVectorField<VecOri, Data>
     where VecOri : IVec<VecOri, double>

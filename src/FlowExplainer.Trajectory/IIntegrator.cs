@@ -44,7 +44,7 @@ public static class IVectorFieldExtensions
     extension<TInput, TOutput>(IVectorField<TInput, TOutput> v) where TInput : IVec<TInput, double>
     {
         
-        public IVectorField<TInput, D> Select<D>(Func<TOutput, D> selector)
+        public ArbitraryField<TInput, D> Select<D>(Func<TOutput, D> selector)
         {
             return new ArbitraryField<TInput, D>(v.Domain, p => selector(v.Evaluate(p)));
         }

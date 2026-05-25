@@ -3,7 +3,8 @@ using System.Numerics;
 namespace FlowExplainer;
 
 public static class FD
-{
+{ 
+  
     extension<Vec, Veci, Dat>(IVectorField<Vec, Dat> field) where Vec : IVec<Vec, double>, IVecIntegerEquivalent<Veci>
         where Dat : IMultiplyOperators<Dat, double, Dat>, IAdditionOperators<Dat, Dat, Dat>
         where Veci : IVec<Veci, int>, IVecDoubleEquivalent<Vec>

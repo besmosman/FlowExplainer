@@ -31,7 +31,7 @@ public class VariationalScene : Scene
             (d) =>
             {
                 d.VectorFields.Add("Velocity", new ArbitraryField<Vec3, Vec2>(
-                    new RectDomain<Vec3>(new Rect<Vec3>(new Vec3(-1,-1,0),new Vec3(1,1,10))),
+                    new RectDomain<Vec3>(new Rect<Vec3>(new Vec3(-1,-1,0),new Vec3(1,1,100))),
                     x => new Vec2(x.X, -x.Y)));
             });
         var dataset = dataset1;
@@ -42,13 +42,13 @@ public class VariationalScene : Scene
         world.DataService.currentSelectedScaler = "Convective Temperature";
         world.DataService.SimulationTime = 0f;
         world.AddVisualisationService<AxisVisualizer>();
-        var scaler = world.AddVisualisationService<GridVisualizer>();
-        scaler.TargetCellCount = 1024 * 512 / 1000;
+        //var scaler = world.AddVisualisationService<GridVisualizer>();
+        //scaler.TargetCellCount = 1024 * 512 / 1000;
         var variational = world.AddVisualisationService<VariationalLCS>();
-        scaler.SetGridDiagnostic(new Scaler2DGridDiagnostic()
+        /*scaler.SetGridDiagnostic(new Scaler2DGridDiagnostic()
         {
             ScalerField = variational.GetSelectableVec2Vec1().ElementAt(2).VectorField
-        });
+        });*/
         /*var arrow1 = world.AddVisualisationService<ArrowVisualizer>();
         arrow1.AltVectorfield = variational.GetSelectableVec3Vec2().ElementAt(1).VectorField;*/
     }

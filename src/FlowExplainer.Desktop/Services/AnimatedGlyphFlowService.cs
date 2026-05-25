@@ -4,7 +4,7 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
 
-public class FlowDirectionVisualization : WorldService, IAxisTitle
+public class AnimatedGlyphFlowService : WorldService, IAxisTitle
 {
     private int posPer = 64;
     public int amount = 1600;
@@ -19,8 +19,8 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
     public double lastSimTime = -1f;
     private double avgSpeed = 0.0;
 
-    public IVectorField<Vec3, Vec2>? AltVectorField;
-    public double? AltTime;
+    [Input] public IVectorField<Vec3, Vec2>? AltVectorField;
+    [Input] public double? AltTime;
 
     public override string? Name => "Animated Glyph Flow Visualizer";
     public override string? CategoryName => "Vectorfield";
@@ -52,6 +52,7 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
 
 
     private Data[] PerData;
+
     public override void Initialize()
     {
         Init();
@@ -78,9 +79,9 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
 
         streamtube = new Mesh(new Geometry(tubeVerts.ToArray(), indicies.ToArray()), dynamicVertices: true);
     }
+
     private void Init()
     {
-
         PerData = new Data[amount];
         centers = new Vec2[amount * posPer];
         var dat = GetRequiredWorldService<DataService>();
@@ -101,14 +102,14 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
         var dat = GetRequiredWorldService<DataService>();
         var velField = AltVectorField ?? dat.VectorField;
         double time = AltTime ?? dat.SimulationTime;
-        var instantField = new InstantFieldVersionLowerDim<Vec3, Vec2, Vec2>(velField, time);
+        var instantField = velField.ReducedSlice<Vec3, Vec2, Vec2>(() => time);
         var velMag = 0.0;
 
         if (amount != PerData.Length)
             Init();
 
 
-        if (time != lastSimTime )
+        if (time != lastSimTime)
         {
             for (int i = 0; i < amount; i++)
             {
@@ -118,9 +119,9 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
                 span.Fill(pos);
             }
         }
+
         lastSimTime = time;
         int c = 0;
-
 
 
         Parallel.For(0, amount, i =>
@@ -140,16 +141,19 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
                 if (instantField.TryEvaluate(lastPos, out var vel) && double.IsRealNumber(vel.X))
                 {
                     velMag += vel.Length();
-                    if (instantField.Domain.IsWithinPhase(lastPos))
+                    if (instantField.Domain.IsWithinBounds(lastPos))
                         newPos += vel * (speed / avgSpeed) * FlowExplainer.DeltaTime * .01f;
                 }
+
                 for (int j = 0; j < span.Length - 1; j++)
                 {
                     span[j] = span[j + 1];
                 }
+
                 span[posPer - 1] = newPos;
                 c++;
             }
+
             PerData[i].TimeAlive += FlowExplainer.DeltaTime;
         });
         avgSpeed = velMag / c;
@@ -158,9 +162,9 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
 
     public override void Draw(View view)
     {
-        if(view.Is3DCamera)
+        if (view.Is3DCamera)
             return;
-        
+
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.One);
 
         if (amount != PerData.Length)
@@ -190,16 +194,17 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
 
             if (color.A > 0)
             {
-
                 double distanceSquared = Vec2.DistanceSquared(span[0], span[span.Length - 1]);
                 if (distanceSquared < .00005f)
                 {
                     //    color.A *= (float)distanceSquared / .00005f;
                 }
+
                 StreamTube(view.Camera2D, span, color, thickness);
                 /*else
                     Gizmos2D.Circle(view.Camera2D, span[^1],color, .003f/2);*/
             }
+
             a = 0;
         }
 
@@ -211,7 +216,6 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
 
     public static void StreamTube(ICamera camera, Span<Vec2> centers, Color color, double thickness)
     {
-
         /*foreach (var center in centers)
         {
             Gizmos2D.Circle(camera, center,Color.White, .001f);
@@ -221,7 +225,7 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
             throw new NotImplementedException();
 
         material.SetUniform("tint", color);
-      
+
         /*
         0 => 0
         c => 1
@@ -255,6 +259,7 @@ public class FlowDirectionVisualization : WorldService, IAxisTitle
         streamtube.Draw();
         //  Gizmos2D.Circle(camera, centers.Last(), color, 1f);
     }
+
     public string GetTitle()
     {
         return "Animated Glyphs (" + (AltVectorField?.DisplayName ?? GetRequiredWorldService<DataService>().VectorField.DisplayName) + ")";

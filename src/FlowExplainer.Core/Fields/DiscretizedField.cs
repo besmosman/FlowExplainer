@@ -2,6 +2,7 @@ using System.Numerics;
 
 namespace FlowExplainer;
 
+
 public class DiscretizedField<Vec, Veci, TData> : IVectorField<Vec, TData>
     where Vec : IVec<Vec, double>, IVecIntegerEquivalent<Veci>
     where Veci : IVec<Veci, int>, IVecDoubleEquivalent<Vec>
@@ -36,9 +37,6 @@ public class DiscretizedField<Vec, Veci, TData> : IVectorField<Vec, TData>
         return GridField.TryEvaluate(x, out value);
     }
     
-    public IVectorField<Vec, D> Select<D>(Func<TData, D> selector)
-    {
-        return new ArbitraryField<Vec, D>(Domain, p => selector(Evaluate(p)));
-    }
+  
 
 }

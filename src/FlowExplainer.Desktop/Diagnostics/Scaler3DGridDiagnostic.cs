@@ -6,19 +6,7 @@ public class Scaler2DGridDiagnostic : IGridDiagnostic
 
     public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
-        var renderGrid = gridVisualizer.RegularGrid.Grid;
-        var dat = gridVisualizer.GetRequiredWorldService<DataService>();
-        var scalerfield = ScalerField;
-        var spaceBounds = dat.VectorField.Domain.RectBoundary.Reduce<Vec2>();
-
-
-        Parallel.For(0, renderGrid.GridSize.X * renderGrid.GridSize.Y, c =>
-        {
-            var i = c % renderGrid.GridSize.X;
-            var j = c / renderGrid.GridSize.X;
-            var pos = (new Vec2(i, j) / renderGrid.GridSize.ToVec2()) * spaceBounds.Size + spaceBounds.Min;
-            renderGrid.AtCoords(new Vec2i(i, j)).Value = scalerfield.Evaluate(pos);
-        });
+        gridVisualizer.EvaluateParralelGrid(ScalerField, token);
     }
     public string Name(GridVisualizer gridVisualizer)
     {

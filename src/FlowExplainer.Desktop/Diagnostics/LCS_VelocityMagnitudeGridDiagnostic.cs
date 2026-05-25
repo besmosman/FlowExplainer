@@ -6,27 +6,20 @@ namespace FlowExplainer;
 
 public class MagnitudeGridDiagnostic : IGridDiagnostic
 {
-    public double T = 1;
-
     public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
-        var renderGrid = gridVisualizer.RegularGrid.Grid;
-
         var dat = gridVisualizer.GetRequiredWorldService<DataService>()!;
-        var domain = dat.VectorField.Domain;
-
         var t = dat.SimulationTime;
-        var rectBound = domain.RectBoundary.Reduce<Vec2>();
-        ParallelGrid.For(renderGrid.GridSize, token,  (i,j) =>
-        {
-            var pos = rectBound.FromRelative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());
-            renderGrid.AtCoords(new Vec2i(i, j)).Value = dat.VectorField.Evaluate(pos.Up(t)).Length();
-        });
+        
+        var field = new ArbitraryField<Vec2, double>(
+            dat.VectorField.Domain.ReducedSlice<Vec3, Vec2>(), 
+            x => dat.VectorField.Evaluate(x.Up(t)).Length());
+        
+        gridVisualizer.EvaluateParralelGrid(field, token);
     }
 
     public void OnImGuiEdit(GridVisualizer vis)
     {
-    
     }
 }
 

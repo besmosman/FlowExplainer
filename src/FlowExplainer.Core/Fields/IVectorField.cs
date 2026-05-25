@@ -3,8 +3,6 @@ using System.Numerics;
 
 namespace FlowExplainer;
 
-
-
 /*
 public interface IEditabalePeriodicVectorField<TInput, TOutput> : IPeriodicVectorField<TInput, TOutput>
 {
@@ -24,7 +22,7 @@ public struct SelectableVectorField<TInput, TOutput> : ISelectableVectorField<TI
         DisplayName = displayName;
         VectorField = vectorField;
     }
-    
+
     public string DisplayName { get; init; }
     public IVectorField<TInput, TOutput> VectorField { get; init; }
 }
@@ -35,15 +33,72 @@ public interface ISelectableVectorField<TInput, TOutput> where TInput : IVec<TIn
     public IVectorField<TInput, TOutput> VectorField { get; }
 }
 
+public interface IArtifact
+{
+    public string DisplayName { get; }
+    public string Description { get; }
+    public Type ValueType { get; }
+    public object ValueObj { get; }
+}
+
+public class Artifact<T> : IArtifact
+{
+    public T Value { get; set; }
+    public int Version { get; set; }
+    public object ValueObj => Value;
+    public string DisplayName { get; set; }
+    public string Description { get; set; }
+    public Type ValueType => Value.GetType();
+
+    public Artifact(T value, string displayName, string description)
+    {
+        Value = value;
+        DisplayName = displayName;
+        Description = description;
+    }
+}
+
+public class VectorfieldSlice<TUp, TDown, TOutput> : IVectorField<TDown, TOutput>
+    where TDown : IVec<TDown, double>, IVecUpDimension<TUp>
+    where TUp : IVec<TUp, double>, IVecDownDimension<TDown>
+{
+    public readonly IVectorField<TUp, TOutput> VectorField;
+    public IDomain<TDown> Domain { get; }
+    public Func<double> Time;
+
+    public VectorfieldSlice(IVectorField<TUp, TOutput> vectorField, Func<double> time)
+    {
+        VectorField = vectorField;
+        Time = time;
+        Domain = VectorField.Domain.ReducedSlice<TUp, TDown>(time);
+    }
+
+
+    public TOutput Evaluate(TDown x)
+    {
+        return VectorField.Evaluate(x.Up(Time()));
+    }
+
+    public bool TryEvaluate(TDown x, [MaybeNullWhen(false)] out TOutput value)
+    {
+        return VectorField.TryEvaluate(x.Up(Time()), out value);
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(base.GetHashCode(), Time());
+    }
+}
+
 public interface IVectorField<TInput, TOutput> where TInput : IVec<TInput, double>
 {
-
     /// <summary>
     /// Get value at point, exception if outside of bounds.
     /// </summary>
     /// <param name="x"></param>
     /// <returns></returns>
     TOutput Evaluate(TInput x);
+
     bool TryEvaluate(TInput x, [MaybeNullWhen(false)] out TOutput value);
     public virtual string DisplayName => "?";
 
@@ -52,14 +107,13 @@ public interface IVectorField<TInput, TOutput> where TInput : IVec<TInput, doubl
     }
 
     public IDomain<TInput> Domain { get; }
-    
-    
-    
+
+
     public static IVectorField<TInput, TOutput> Constant(TOutput value) => new ConstantField<TInput, TOutput>(value, IDomain<TInput>.Infinite);
     public static IVectorField<TInput, TOutput> Constant(TOutput value, IDomain<TInput> domain) => new ConstantField<TInput, TOutput>(value, domain);
 
     public static IVectorField<TInput, TOutput> Arbitrary(IDomain<TInput> domain, Func<TInput, TOutput> f) => new ArbitraryField<TInput, TOutput>(domain, f);
-   
+
     private readonly struct ConstantField<TInput, TOutput> : IVectorField<TInput, TOutput> where TInput : IVec<TInput, double>
     {
         private readonly TOutput Value;
@@ -89,6 +143,5 @@ public interface IVectorField<TInput, TOutput> where TInput : IVec<TInput, doubl
             v = Value;
             return true;
         }
-
     }
 }

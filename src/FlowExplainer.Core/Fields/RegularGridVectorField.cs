@@ -95,7 +95,7 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
 
     public IDomain<Vec> Domain => RectDomain;
     public IBounding<Vec> Bounding => genBounding;
-    private GenBounding<Vec> genBounding;
+    private GenBounding<Vec>? genBounding;
 
     public RegularGridVectorField(TData[] data, Veci gridSize, Vec minCellPos, Vec maxCellPos, GenBounding<Vec>? boundary = null)
     {
@@ -120,7 +120,7 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
         if (rectDomain.Bounding.GetType() == typeof(BoundingNone<Vec>))
             genBounding = GenBounding<Vec>.None();
         else
-            genBounding = (GenBounding<Vec>)rectDomain.Bounding;
+            genBounding = rectDomain.Bounding as GenBounding<Vec>;
 
     }
 
@@ -181,6 +181,9 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
 
     public void Save(string path)
     {
+        if (genBounding == null)
+            throw new Exception("Boundary not serializable");
+        
         var vectorFieldSave = new RegularGridVectorFieldSave<Vec, Veci, TData>()
         {
             Name = DisplayName,
@@ -258,5 +261,10 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
     {
         Grid.Resize(gridSize);
         RectDomain = domain;
+    }
+    
+    public IVectorField<Vec, D> Select<D>(Func<TData, D> selector)
+    {
+        return new ArbitraryField<Vec, D>(Domain, p => selector(Evaluate(p)));
     }
 }
