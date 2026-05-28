@@ -7,7 +7,7 @@ namespace FlowExplainer
         public int X;
         public int Y;
         public int Z;
-        public Vec2i XY => new(X,Y);
+        public Vec2i XY => new(X, Y);
 
         public Vec3i(int x, int y, int z)
         {
@@ -73,7 +73,7 @@ namespace FlowExplainer
             );
         }
 
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vec3i operator /(Vec3i left, Vec3i right)
         {
@@ -119,7 +119,7 @@ namespace FlowExplainer
         {
             return new Vec3i(int.Max(X, b.X), int.Max(Y, b.Y), int.Max(Z, b.Z));
         }
-        
+
         public Vec3i Min(Vec3i b)
         {
             return new Vec3i(int.Min(X, b.X), int.Min(Y, b.Y), int.Min(Z, b.Z));
@@ -130,9 +130,13 @@ namespace FlowExplainer
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int Sum() => X + Y + Z;
+        public static int Dot(Vec3i a, Vec3i b)
+        {
+            return (a.X * b.X) + (a.Y * b.Y) + (a.Z * b.Z);
+        }
 
         public static Vec3i Zero { get; } = default;
-        public static Vec3i One { get; } = new Vec3i(1,1,1);
+        public static Vec3i One { get; } = new Vec3i(1, 1, 1);
 
         public int Last
         {
@@ -172,7 +176,7 @@ namespace FlowExplainer
         {
             return new Vec3i(left.X * right.X, left.Y * right.Y, left.Z * right.Z);
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator >(Vec3i left, Vec3i right) => left.X > right.X && left.Y > right.Y && left.Z > right.Z;
 

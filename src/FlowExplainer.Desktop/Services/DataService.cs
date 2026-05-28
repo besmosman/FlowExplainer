@@ -82,12 +82,12 @@ public class DataService : WorldService
         Artifacts.Clear();
         foreach (var f in LoadedDataset.ScalerFields)
         {
-            Artifacts.Register(new Artifact<IVectorField<Vec3, double>>(f.Value, f.Key, $"From dataset: {LoadedDataset.Name}"));
+            Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec3, double>>(f.Value, f.Key, $"From dataset: {LoadedDataset.Name}"));
         }
 
         foreach (var f in LoadedDataset.VectorFields)
         {
-            Artifacts.Register(new Artifact<IVectorField<Vec3, Vec2>>(f.Value, f.Key, $"From  dataset: {LoadedDataset.Name}"));
+            Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec3, Vec2>>(f.Value, f.Key, $"From  dataset: {LoadedDataset.Name}"));
         }
         
         
@@ -95,14 +95,14 @@ public class DataService : WorldService
         {
             var vectorField = f.Value;
             var v = vectorField.ReducedSlice<Vec3, Vec2, double>(() => SimulationTime);
-            Artifacts.Register(new Artifact<IVectorField<Vec2, double>>(v, f.Key + " slice", $"From  dataset: {LoadedDataset.Name}"));
+            Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, double>>(v, f.Key + " slice", $"From  dataset: {LoadedDataset.Name}"));
         }
         
         foreach (var f in LoadedDataset.VectorFields)
         {
             var vectorField = f.Value;
             var v = vectorField.ReducedSlice<Vec3, Vec2, Vec2>(() => SimulationTime);
-            Artifacts.Register(new Artifact<IVectorField<Vec2, Vec2>>(v, f.Key + " slice", $"From  dataset: {LoadedDataset.Name}"));
+            Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, Vec2>>(v, f.Key + " slice", $"From  dataset: {LoadedDataset.Name}"));
         }
     }
 

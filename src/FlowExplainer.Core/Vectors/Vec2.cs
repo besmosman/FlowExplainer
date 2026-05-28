@@ -30,6 +30,7 @@ public interface IVec<TVec, TNumber> :
     public int ElementCount { get; }
 
     public TNumber Sum();
+    public static abstract TNumber Dot(TVec a, TVec b);
     public static abstract TVec Zero { get; }
     public static abstract TVec One { get; }
 
@@ -79,7 +80,8 @@ public struct Vec2 : IVec<Vec2, double>, IVecUpDimension<Vec3>, IVecDownDimensio
         X = x;
         Y = y;
     }
-
+    
+    
     public static Vec2 Zero => new Vec2();
     public static Vec2 One { get; } = new Vec2(1, 1);
     public static Vec2 Half { get; } = new Vec2(.5, .5);

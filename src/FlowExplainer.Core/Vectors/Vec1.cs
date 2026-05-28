@@ -14,6 +14,10 @@ public struct Vec1 : IVec<Vec1, double>
 
     public int ElementCount => 1;
     public static Vec1 One => 1;
+    public static double Dot(Vec1 a, Vec1 b)
+    {
+        return a.X * b.X;
+    }
     public static Vec1 Zero => 0;
     public double Last
     {

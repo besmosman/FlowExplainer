@@ -48,7 +48,11 @@ public struct Vec4i : IVec<Vec4i, int>, IVecDoubleEquivalent<Vec4>
     {
         return $"({X}, {Y}, {Z}, {W})";
     }
-
+    
+    public static int Dot(Vec4i a, Vec4i b)
+    {
+        return (a.X * b.X) + (a.Y * b.Y) + (a.Z * b.Z) + (a.W * b.W);
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Vec4i operator +(Vec4i left, Vec4i right)

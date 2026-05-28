@@ -7,7 +7,7 @@ public static class FastFieldAccessor
 {
     public class FieldAccesMethods
     {
-        public Action<object, object> SetValue { get; init; }
+        public Action<object,object> SetValue { get; init; }
         public Func<object, object> GetValue { get; init; }
     }
 

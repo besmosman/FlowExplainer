@@ -7,10 +7,10 @@ public class VariationalLCS : WorldService
     [Input] public Artifact<IVectorField<Vec3, Vec2>>? VelocityField;
     public override string? Name => "Variational LCS";
 
-    public double l_f = 0.2;
-    public double l_min = .1;
-    public double T = 20;
-    double t0 = 0;
+    [Input(Min = 0.0, Max = 1.0)] public double l_f = 0.2;
+    [Input(Min = 0.0, Max = 1.0)] public double T = 20;
+    [Input(Min = 0.0, Max = 1.0)] public double l_min = .1;
+    double t0 = 0; 
     double h = .1;
 
 
@@ -22,10 +22,9 @@ public class VariationalLCS : WorldService
     }
 
 
-    Vec2 IntegrateRk4(IVectorField<Vec2, Vec2> f, Vec2 initDir, Vec2 p, double dt)
+    Vec2 IntegrateRk4(IVectorField<Vec2, Vec2> f, Vec2 lastDir, Vec2 p, double dt)
     {
-        var k1 = EvaluateDirectionUnawareScaled(f, initDir, p);
-        return p + k1 * dt;
+        var k1 = EvaluateDirectionUnawareScaled(f, lastDir, p);
         var k2 = EvaluateDirectionUnawareScaled(f, k1, p + (k1 / 2.0) * dt);
         var k3 = EvaluateDirectionUnawareScaled(f, k2, p + (k2 / 2.0) * dt);
         var k4 = EvaluateDirectionUnawareScaled(f, k3, p + (k3) * dt);
@@ -43,26 +42,17 @@ public class VariationalLCS : WorldService
 
     private void Recompute()
     {
-        h = .000000000001f;
+        h = .00000000000001;
         var velocity = VelocityField!.Value;
         var flowOperator = IFlowOperator<Vec2, Vec3>.Default;
+        flowOperator = new IFlowOperator<Vec2, Vec3>.DefaultFlowOperatorUnsteady(64);
 
         var cauchyGreenField = CachyGreenStrainField(velocity, flowOperator, t0, T, h);
-        var eigenInfoField = EigenInfoField(cauchyGreenField);
+        eigenInfoField = EigenInfoField(cauchyGreenField).Discritize(new Vec2i(256,128));
 
         var lambda2Field = eigenInfoField.Select(s => s.Lambda2);
         var eigen2Field = eigenInfoField.Select(s => s.Eigen2);
         var hessianLambda2 = new ArbitraryField<Vec2, Matrix2>(lambda2Field.Domain, x => lambda2Field.Hessian(x, h / 2));
-
-        var conditionBField = new ArbitraryField<Vec2, double>(lambda2Field.Domain, x =>
-        {
-            var eigenInfo = eigenInfoField.Evaluate(x);
-            var cond = Vec2.Dot(
-                           eigenInfo.Eigen2,
-                           hessianLambda2.Evaluate(x) * eigenInfo.Eigen2) <=
-                       0;
-            return cond ? 1 : 0;
-        });
 
 
         var scaled_eigen2 = new ArbitraryField<Vec2, Vec2>(eigenInfoField.Domain, (x) =>
@@ -74,7 +64,7 @@ public class VariationalLCS : WorldService
                 return default;
             var alpha = double.Pow((lamdbaMax - lamdbaMin) / (lamdbaMax + lamdbaMin), 2);
             return alpha * info.Eigen1;
-        });
+        }).Discritize(new Vec2i(256,128));
 
         var validSubspace = new ArbitraryField<Vec2, double>(lambda2Field.Domain, x =>
         {
@@ -84,75 +74,10 @@ public class VariationalLCS : WorldService
                                    hessianLambda2.Evaluate(x) * eigenInfo.Eigen2) <=
                                0);
             return (ConditionAValid(eigenInfo) && conditionB) ? 1 : -1;
-        });
+        }).Discritize(new Vec2i(256,128));
 
-        Vec2i seedGridSize = new Vec2i(32, 16) / 2;
+        Vec2i seedGridSize = new Vec2i(32, 16) / 3;
         unfiltered.Clear();
-        ParallelGrid.For(seedGridSize, CancellationToken.None, (i, j) =>
-        {
-            var domainRectBoundary = eigenInfoField.Domain.RectBoundary;
-            var pos = domainRectBoundary.FromRelative(new Vec2(i, j) / (seedGridSize.ToVec2() - Vec2.One));
-
-            if (pos.X < 0 || pos.X > 2 || pos.Y < 0 || pos.Y > 1) //double gyre only
-                return;
-
-            var dir = scaled_eigen2.Evaluate(pos);
-
-            var cur = pos;
-            var dt = .006;
-            List<Vec2> positions = new();
-            if (validSubspace.Evaluate(pos) < 0)
-                return;
-
-            positions.Add(cur);
-
-            var invalidLength = 0.0;
-            var totalLenght = 0.0;
-            for (int k = 0; k < 1; k++)
-            {
-                int count = 0;
-                if (k == 1)
-                {
-                    dir = -scaled_eigen2.Evaluate(pos);
-                    positions.Reverse();
-                    cur = positions.Last();
-                }
-
-                var last = cur;
-                while (true)
-                {
-                    cur = IntegrateRk4(scaled_eigen2, dir, cur, dt);
-                    dir = (last - cur) / dt;
-                    positions.Add(cur);
-                    var segmentLength = Vec2.Distance(last, cur);
-
-                    count++;
-
-                    if (count > 1250)
-                        break;
-
-
-                    totalLenght += segmentLength;
-                    if (validSubspace.Evaluate(pos) <= 0)
-                    {
-                        invalidLength += segmentLength;
-                    }
-                    else invalidLength = 0;
-
-                    if (invalidLength > l_f)
-                        break;
-
-                    if (Vec2.Distance(cur, pos) < dt * .01 && positions.Count > 5)
-                        break;
-
-                    if (!domainRectBoundary.Contains(cur))
-                        break;
-                }
-            }
-
-            if (totalLenght >= l_min)
-                unfiltered.Add(new Trajectory<Vec2>(positions.ToArray()));
-        });
 
 
         /*ParallelGrid.For(seedGridSize, CancellationToken.None, (i, j) =>
@@ -164,29 +89,166 @@ public class VariationalLCS : WorldService
         }*/
 
 
+
+
+        // unfiltered = Filter(unfiltered);
         //.Discritize(gridSize);
+        var e2 = eigenInfoField.Select(s => s.Lambda2);
+        var hh = .001;
+        eigen2GradN = new ArbitraryField<Vec2, Vec2>(eigenInfoField.Domain, x => e2.FiniteDifferenceGradient(x, hh).NormalizedSafe());
+        eigen2Grad =  eigen2GradN.Discritize(new Vec2i(100, 50) * 2);
 
-        Artifacts.Clear();
+        localMaximaParticles.Clear();
 
-        Artifacts.Register(new Artifact<IVectorField<Vec2, double>>(
+        Vec2i sseedGridSize = new Vec2i(32, 16) /1;
+        for (int i = 0; i < sseedGridSize.X; i++)
+        for (int j = 0; j < sseedGridSize.Y; j++)
+        {
+            var domainRectBoundary = eigenInfoField.Domain.RectBoundary;
+            var pos = domainRectBoundary.FromRelative(new Vec2(i, j) / (sseedGridSize.ToVec2() - Vec2.One));
+            localMaximaParticles.Add(new Particle()
+            {
+                pos = pos
+            });
+        }
+
+        var cellSize = (scaled_eigen2.Domain.RectBoundary.Size / sseedGridSize);
+        var stepSize = .00001;
+        double d = .01;
+        var steps = (double.Max(cellSize.X, cellSize.Y) / stepSize) * 3;
+        for (int i = 0; i < steps; i++)
+        {
+            var rk4 = IIntegrator<Vec2, Vec2>.Rk4Steady;
+            Parallel.ForEach(localMaximaParticles, p => { p.pos = rk4.Integrate(eigen2Grad, p.pos, stepSize); });
+        }
+        for (int i = localMaximaParticles.Count - 1; i >= 0; i--)
+        {
+            var p = localMaximaParticles[i];
+            if (eigen2Grad.Evaluate(p.pos).Length() > d)
+            {
+                localMaximaParticles.RemoveAt(i);
+            }
+        }
+
+        for (int i = 0; i < localMaximaParticles.Count; i++)
+        {
+            for (int j = localMaximaParticles.Count - 1; j > i; j--)
+            {
+                if (Vec2.Distance(localMaximaParticles[i].pos, localMaximaParticles[j].pos) < 2 * d)
+                {
+                    localMaximaParticles.RemoveAt(j);
+                }
+            }
+        }
+
+        localMaximaParticles = localMaximaParticles.Select(s => (s, lambda2Field.Evaluate(s.pos))).OrderBy(o => o.Item2).Select(o => o.s).ToList();
+        while (localMaximaParticles.Count > 0)
+        {
+            var particle = localMaximaParticles[0];
+            var traj = IntegrateStrainLineFromLocalMax(particle.pos, scaled_eigen2, validSubspace);
+            localMaximaParticles.RemoveAt(0);
+
+            if (traj.HasValue)
+            {
+                unfiltered.Add(traj.Value);
+                for (int i = localMaximaParticles.Count - 1; i >= 0; i--)
+                {
+                    var dis = traj.Value.ClosestDistanceToLine(localMaximaParticles[i].pos);
+                    if (dis < 4 * d)
+                    {
+                        localMaximaParticles.RemoveAt(i);
+                    }
+                }
+            }
+
+           
+        }
+
+        
+        Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, double>>(
             eigenInfoField.Select(s => s.Lambda1), "λ_1",
             "Lambda 1 of Cauchy-Green Strain Tensor"));
 
-        Artifacts.Register(new Artifact<IVectorField<Vec2, double>>(
-            eigenInfoField.Select(s => s.Lambda2), "λ_2",
+        Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, double>>(
+            eigenInfoField.Select(s => double.Log(s.Lambda2)), "log(λ_2)",
             "Lambda 2 of Cauchy-Green Strain Tensor"));
 
-        Artifacts.Register(new Artifact<IVectorField<Vec2, Vec2>>(
+        Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, double>>(
+            eigenInfoField.Select(
+                s =>  (1f / double.Abs(T)) * double.Log(double.Sqrt(double.Max(s.Lambda1, s.Lambda2)))), "FTLE",
+            "FTLE"));
+        
+        Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, Vec2>>(
             eigenInfoField.Select(s => s.Eigen1), "Eigen Vector 1",
             "First eigenvector of Cauchy-Green Strain Tensor"));
 
-        Artifacts.Register(new Artifact<IVectorField<Vec2, Vec2>>(
+        Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, Vec2>>(
             eigenInfoField.Select(s => s.Eigen2), "Eigen Vector 2",
             "Second eigenvector of Cauchy-Green Strain Tensor"));
+    }
 
-        Artifacts.Register(new Artifact<IVectorField<Vec2, Vec2>>(
-            eigenInfoField.Select(s => s.Eigen2), "Eigen Vector 2",
-            "Second eigenvector of Cauchy-Green Strain Tensor"));
+    private Trajectory<Vec2>? IntegrateStrainLineFromLocalMax(Vec2 pos, IVectorField<Vec2, Vec2> scaled_eigen2, IVectorField<Vec2, double> validSubspace)
+    {
+        var rect = scaled_eigen2.Domain.RectBoundary;
+
+
+        var lastDir = scaled_eigen2.Evaluate(pos);
+
+        var cur = pos;
+        var dt = .02;
+        List<Vec2> positions = new();
+        if (validSubspace.Evaluate(pos) < 0)
+            return null;
+
+        positions.Add(cur);
+
+        var invalidLength = 0.0;
+        var totalLenght = 0.0;
+        for (int k = 0; k < 2; k++)
+        {
+            int count = 0;
+            if (k == 1)
+            {
+                lastDir = -scaled_eigen2.Evaluate(pos);
+                positions.Reverse();
+                cur = positions.Last();
+            }
+
+            while (true)
+            {
+                var last = cur;
+                cur = IntegrateRk4(scaled_eigen2, lastDir, cur, dt);
+                lastDir = (cur - last);
+                positions.Add(cur);
+                var segmentLength = Vec2.Distance(last, cur);
+
+                count++;
+
+                if (count > 250 * 32)
+                    break;
+
+                totalLenght += segmentLength;
+                if (validSubspace.Evaluate(pos) <= 0)
+                {
+                    invalidLength += segmentLength;
+                }
+                else invalidLength = 0;
+
+                if (invalidLength > l_f)
+                    break;
+
+                if (Vec2.Distance(cur, pos) < dt * .01 && positions.Count > 5)
+                    break;
+
+                if (!rect.Contains(cur))
+                    break;
+            }
+        }
+
+        if (totalLenght >= l_min)
+            return new Trajectory<Vec2>(positions.ToArray());
+        else return null;
+
     }
 
     private static ArbitraryField<Vec2, EigenInfo> EigenInfoField(ArbitraryField<Vec2, Tensor2D> cauchyGreenField)
@@ -206,7 +268,6 @@ public class VariationalLCS : WorldService
             double det = a * d - b * c;
 
             double discriminant = Math.Sqrt(trace * trace - 4.0 * det);
-
             double lambda1 = 0.5 * (trace - discriminant);
             double lambda2 = 0.5 * (trace + discriminant);
 
@@ -254,11 +315,12 @@ public class VariationalLCS : WorldService
     }
 
     public List<Trajectory<Vec2>> StrainLines = new();
+    private IVectorField<Vec2, EigenInfo> eigenInfoField;
 
-    Vec2 EvaluateDirectionUnawareScaled(IVectorField<Vec2, Vec2> vectorfield, Vec2 initialDirection, Vec2 x)
+    Vec2 EvaluateDirectionUnawareScaled(IVectorField<Vec2, Vec2> vectorfield, Vec2 lastDirection, Vec2 x)
     {
         var v = vectorfield.Evaluate(x);
-        var dir = double.Sign(Vec2.Dot(v, initialDirection));
+        var dir = double.Sign(Vec2.Dot(v, lastDirection));
         return dir * v;
     }
 
@@ -305,60 +367,36 @@ public class VariationalLCS : WorldService
         return v.NormalizedSafe();
     }
 
+    class Particle
+    {
+        public Vec2 pos;
+    }
+
+    private List<Particle> localMaximaParticles = new();
+    private IVectorField<Vec2, Vec2> eigen2Grad;
+    private IVectorField<Vec2, Vec2> eigen2GradN;
     public override void Draw(View view)
     {
+
+        var hh = .001;
+        var rk4 = IIntegrator<Vec2, Vec2>.Rk4Steady;
+        /*
+        Parallel.ForEach(localMaximaParticles, p => { p.pos = rk4.Integrate(eigen2GradN, p.pos, hh); });
+        */
+        foreach (var p in localMaximaParticles)
+        {
+            Gizmos2D.Instanced.RegisterCircle(p.pos, .002f, Color.Red);
+        }
+        Gizmos2D.Instanced.RenderCircles(view.Camera2D);
         foreach (var traj in unfiltered)
         foreach (var (start, end) in traj.EnumerateSegments())
         {
             //Gizmos2D.Instanced.RegisterLine(view.Camera2D, FlowOp(start), FlowOp(end), Color.Green, .009f);
-            Gizmos2D.Instanced.RegisterLine(start, end, Color.Red, .001f);
+            //var lambda2 = eigenInfoField.Evaluate((start + end) / 2).Lambda2;
+            Gizmos2D.Instanced.RegisterLine(start, end, Color.White, .002f);
         }
 
         Gizmos2D.Instanced.RenderRects(view.Camera2D);
-        /*h = .01;
-        Vec2 x = view.MousePosition;
-        Vec2 x_prev = view.MousePosition;
-
-        List<Vec2> positions = new List<Vec2>();
-        positions.Add(x);
-
-        int count = 0;
-        var initialDir = EigenInfoField.Evaluate(x).Eigen1;
-        if (!double.IsRealNumber(initialDir.X))
-            return;
-
-        for (int i = 0; i < count; i++)
-        {
-            if (!double.IsRealNumber(x.X))
-                return;
-
-            var x_new = IntegrateRk4(EigenInfoField, -initialDir, x, .003f);
-            x = x_new;
-            positions.Add(x);
-        }
-
-        positions.Reverse();
-        x = positions.Last();
-        for (int i = 0; i < count; i++)
-        {
-            if (!double.IsRealNumber(x.X))
-                return;
-
-            var x_new = IntegrateRk4(EigenInfoField, initialDir, x, .003f);
-            x = x_new;
-            positions.Add(x);
-        }
-
-        var traj = new Trajectory<Vec2>(positions.ToArray());
-        var velocity = DataService.VectorField;
-        var domain = new RectDomain<Vec2>(velocity.Domain.RectBoundary.Reduce<Vec2>());
-        var FlowOp = (Vec2 x) => IFlowOperator<Vec2, Vec3>.Default.ComputeEnd(t0, t0 + T, x, velocity);
-
-        foreach (var (start, end) in traj.EnumerateSegments())
-        {
-            Gizmos2D.Line(view.Camera2D, FlowOp(start), FlowOp(end), Color.Green, .009f);
-            Gizmos2D.Line(view.Camera2D, (start), (end), Color.Red, .009f);
-        }*/
     }
 
     public override void DrawImGuiSettings()

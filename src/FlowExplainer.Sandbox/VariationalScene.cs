@@ -45,10 +45,17 @@ public class VariationalScene : Scene
         //var scaler = world.AddVisualisationService<GridVisualizer>();
         //scaler.TargetCellCount = 1024 * 512 / 1000;
         var variational = world.AddVisualisationService<VariationalLCS>();
+        
+        world.DataService.SetDataset("Double Gyre EPS=0.1, Pe=100");
+        world.DataService.currentSelectedVectorField = "Total Flux";
+        variational.VelocityField = world.DataService.Artifacts.Get<IVectorField<Vec3, Vec2>>("Total Flux");
+        world.DataService.SimulationTime = 3;
+        variational.T = 3;
+        
         /*scaler.SetGridDiagnostic(new Scaler2DGridDiagnostic()
         {
             ScalerField = variational.GetSelectableVec2Vec1().ElementAt(2).VectorField
-        });*/
+        });
         /*var arrow1 = world.AddVisualisationService<ArrowVisualizer>();
         arrow1.AltVectorfield = variational.GetSelectableVec3Vec2().ElementAt(1).VectorField;*/
     }

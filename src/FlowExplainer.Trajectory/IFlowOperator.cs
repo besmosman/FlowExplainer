@@ -58,7 +58,7 @@ public interface IFlowOperator<TInput, TOutput>
     Trajectory<TOutput> ComputeTrajectory(double t_start, double t_end, TInput x, IVectorField<TOutput, TInput> v);
     TInput ComputeEnd(double t_start, double t_end, TInput x, IVectorField<TOutput, TInput> v);
 
-    public static IFlowOperator<TInput, TOutput> Default { get; } = new DefaultFlowOperatorUnsteady(64);
+    public static IFlowOperator<TInput, TOutput> Default { get; } = new DefaultFlowOperatorUnsteady(128);
 
 
     class DefaultFlowOperatorUnsteady : IFlowOperator<TInput, TOutput>

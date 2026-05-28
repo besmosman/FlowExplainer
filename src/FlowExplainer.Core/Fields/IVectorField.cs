@@ -38,14 +38,14 @@ public interface IArtifact
     public string DisplayName { get; }
     public string Description { get; }
     public Type ValueType { get; }
-    public object ValueObj { get; }
+    public object ValueObj { get; set; }
 }
 
 public class Artifact<T> : IArtifact
 {
     public T Value { get; set; }
     public int Version { get; set; }
-    public object ValueObj => Value;
+    public object ValueObj { get => Value; set => Value = (T)value; }
     public string DisplayName { get; set; }
     public string Description { get; set; }
     public Type ValueType => Value.GetType();

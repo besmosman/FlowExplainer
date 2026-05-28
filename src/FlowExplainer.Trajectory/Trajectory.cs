@@ -51,7 +51,32 @@ public readonly struct Trajectory<T> where T : IVec<T, double>
         return new Trajectory<Z>(entries);
     }
 
+    public double ClosestDistanceToLine(T point)
+    {
+        var min = double.MaxValue;
+        foreach (var segment in EnumerateSegments())
+        {
+            min = double.Min(min,DistancePointSegmentSq(point, segment.start, segment.end));
+        }
+        return double.Sqrt(min);
+    }
+    static double DistancePointSegmentSq(T p, T a, T b)
+    {
+        var ab = b - a;
+        double abLenSq = T.Dot(ab, ab);
 
+        // Degenerate segment
+        if (abLenSq == 0f)
+            return T.Dot(p - a, p - a);
+
+        double t = T.Dot(p - a, ab) / abLenSq;
+        t = Math.Clamp(t, 0f, 1f);
+
+        var closest = a + ab * t;
+        var d = p - closest;
+        return T.Dot(d, d);
+    }
+    
     public Trajectory<Z> Select<Z>(Func<T, T, Z> selector) where Z : IVec<Z, double>
     {
         var entries = new Z[Entries.Length];

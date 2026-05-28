@@ -39,6 +39,10 @@ public struct Vec4 : IVec<Vec4,double>, IVecDownDimension<Vec3>, IVecIntegerEqui
     }
 
     public static Vec4 One { get; } = new Vec4(1);
+    public static double Dot(Vec4 a, Vec4 b)
+    {
+        return (a.X * b.X) + (a.Y * b.Y) + (a.Z * b.Z) + (a.W * b.W);
+    }
     public static Vec4 Zero => default;
     
     public double Last

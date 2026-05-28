@@ -34,7 +34,6 @@ public class FTLEGridDiagnostic : IGridDiagnostic
 
         var spatialBounds = domain.RectBoundary.Reduce<Vec2>();
         var flowOperator = IFlowOperator<Vec2, Vec3>.Default;
-
         ParallelGrid.For(renderGrid.GridSize, token, (i, j) =>
         {
             var pos = spatialBounds.FromRelative(new Vec2(i, j) / renderGrid.GridSize.ToVec2());

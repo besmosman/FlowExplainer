@@ -17,6 +17,10 @@ public struct Vec2i :
     public int X;
     public int Y;
 
+    public static int Dot(Vec2i v1, Vec2i v2)
+    {
+        return (v1.X * v2.X) + (v1.Y * v2.Y);
+    }
     public static Vec2i Zero { get; } = new(0, 0);
     public static Vec2i One { get; } = new(1, 1);
     public static readonly Vec2i Right = new(1, 0);
@@ -48,7 +52,6 @@ public struct Vec2i :
     {
         return !(left == right);
     }
-
     
     public static Vec2i operator +(Vec2i v1, Vec2i v2) => new(v1.X + v2.X, v1.Y + v2.Y);
     public static Vec2i operator -(Vec2i v1, Vec2i v2) => new(v1.X - v2.X, v1.Y - v2.Y);

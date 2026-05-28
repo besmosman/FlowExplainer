@@ -169,11 +169,11 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
 
             if (!currentUpdateTask.IsCompleted)
             {
-                var pos = new Vec2(RegularGrid.Domain.RectBoundary.Center.X, RegularGrid.Domain.RectBoundary.Min.Y + RegularGrid.Domain.RectBoundary.Size.Y * 3 / 4);
+                var pos = new Vec2(RegularGrid.Domain.RectBoundary.Center.X, RegularGrid.Domain.RectBoundary.Min.Y + RegularGrid.Domain.RectBoundary.Size.Y * 2 / 4);
                 double sizeY = RegularGrid.Domain.RectBoundary.Size.Y / 5;
                 var alpha = double.Min(1, double.Max(0, currentUpdateGridTime.Elapsed.TotalSeconds - .0f) * 100);
                 Gizmos2D.RectCenter(view.Camera2D, pos, new Vec2(sizeY * 6, sizeY), Color.Black.WithAlpha(alpha));
-                Gizmos2D.Text(view.Camera2D, pos, sizeY, Color.White.WithAlpha(alpha), "Recomputing", centered: true);
+                Gizmos2D.Text(view.Camera2D, pos + new Vec2(0,-sizeY/5), sizeY/2, Color.White.WithAlpha(alpha), "Recomputing", centered: true);
             }
             var boundary = dat.VectorField.Domain.RectBoundary;
         }
