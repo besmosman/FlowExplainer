@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Numerics;
 using ImGuiNET;
+using MathNet.Numerics;
 using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
@@ -45,13 +46,19 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
     public RegularGridVectorField<Vec2, Vec2i, CellData> RegularGrid;
     public StorageBuffer<CellData> gridbuffer;
     private Material material;
-    
+
     public ColorGradient? AltGradient { get; set; }
 
     public bool Bilinear
     {
-        get => RegularGrid.Interpolate;
-        set => RegularGrid.Interpolate = value;
+        get => RegularGrid.IsInterpolating;
+        set
+        {
+            if (!RegularGrid.IsInterpolating && value)
+                RegularGrid.UseMultivariateLinearInterpolator();
+            if (RegularGrid.IsInterpolating && !value)
+                RegularGrid.UseNoInterpolator();
+        }
     }
 
     public bool AutoScale = true;
@@ -91,9 +98,10 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         material = new Material(Shader.DefaultWorldSpaceVertex, new Shader("Assets/Shaders/grid-reg.frag", ShaderType.FragmentShader));
     }
 
+
     public override IEnumerable<ISelectableVectorField<Vec2, double>> GetSelectableVec2Vec1()
     {
-        yield return new SelectableVectorField<Vec2, double>(Name +  GetTitle(),
+        yield return new SelectableVectorField<Vec2, double>(Name + GetTitle(),
             new ArbitraryField<Vec2, double>(
                 RegularGrid.Domain,
                 (x) => RegularGrid.Evaluate(x).Value));
@@ -144,7 +152,6 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             }
             else
             {
-
             }
 
             UpdateRenderData();
@@ -153,7 +160,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             material.Use();
             material.SetUniform("gridSize", RegularGrid.GridSize.ToVec2());
             material.SetUniform("tint", new Color(1, 1, 0, 1));
-            material.SetUniform("interpolate", RegularGrid.Interpolate);
+            material.SetUniform("interpolate", RegularGrid.IsInterpolating);
             material.SetUniform("view", camera.GetViewMatrix());
             material.SetUniform("projection", camera.GetProjectionMatrix());
             material.SetUniform("useCustomColor", diagnostic.UseCustomColoring);
@@ -173,8 +180,9 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
                 double sizeY = RegularGrid.Domain.RectBoundary.Size.Y / 5;
                 var alpha = double.Min(1, double.Max(0, currentUpdateGridTime.Elapsed.TotalSeconds - .0f) * 100);
                 Gizmos2D.RectCenter(view.Camera2D, pos, new Vec2(sizeY * 6, sizeY), Color.Black.WithAlpha(alpha));
-                Gizmos2D.Text(view.Camera2D, pos + new Vec2(0,-sizeY/5), sizeY/2, Color.White.WithAlpha(alpha), "Recomputing", centered: true);
+                Gizmos2D.Text(view.Camera2D, pos + new Vec2(0, -sizeY / 5), sizeY / 2, Color.White.WithAlpha(alpha), "Recomputing", centered: true);
             }
+
             var boundary = dat.VectorField.Domain.RectBoundary;
         }
     }
@@ -201,17 +209,19 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             for (int i = 0; i < gridbuffer.Data.Length; i++)
             {
                 var v = gridbuffer.Data[i].Value;
-                if (double.IsRealNumber(v))
+                if (double.IsRealNumber(v) && !double.IsInfinity(v))
                 {
                     nextMin = double.Min(nextMin, v);
                     nextMax = double.Max(nextMax, v);
                 }
             }
+
             if (double.Abs(min - nextMin) > .01)
             {
                 min = double.Lerp(min, nextMin, 1);
                 max = double.Lerp(max, nextMax, 1);
             }
+
             min = double.Lerp(min, nextMin, .1);
             max = double.Lerp(max, nextMax, .1);
             if (!double.IsRealNumber(min))
@@ -272,7 +282,9 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
 
         ImGui.Checkbox("Continous", ref Continous);
         ImGui.Checkbox("Auto scale", ref AutoScale);
-        ImGui.Checkbox("Bilinear", ref RegularGrid.Interpolate);
+        bool bilinear = Bilinear;
+        ImGui.Checkbox("Bilinear", ref bilinear);
+        Bilinear = bilinear;
         if (!Continous)
         {
             if (ImGui.Button("Recompute"))
@@ -290,9 +302,9 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         double scale = Math.Sqrt(TargetCellCount / (aspect.X * aspect.Y));
         int width = Math.Max(1, (int)Math.Round(aspect.X * scale));
         int height = Math.Max(1, (int)Math.Round(aspect.Y * scale));
-        bool interpolate = RegularGrid.Interpolate;
+        var interpolator = RegularGrid.Interpolator;
         RegularGrid = new(new Vec2i(width, height), dat.VectorField.Domain.RectBoundary.Min.XY, dat.VectorField.Domain.RectBoundary.Max.XY);
-        RegularGrid.Interpolate = interpolate;
+        RegularGrid.Interpolator = interpolator;
         gridbuffer = new(RegularGrid.Grid.Data);
     }
 
@@ -342,12 +354,13 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
 
         field.Save(path);
     }
+
     public void WaitForComputation()
     {
         while (!currentUpdateTask.IsCompleted)
         {
-
         }
+
         UpdateRenderData();
     }
 
@@ -357,8 +370,8 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
         var rect = grid.RectDomain.RectBoundary;
         ParallelGrid.For(grid.GridSize, token, (i, j) =>
         {
-             var pos = rect.FromRelative(new Vec2(i, j) / grid.GridSize.ToVec2());
-             grid.AtCoords(new Vec2i(i, j)).Value = field.Evaluate(pos);
+            var pos = rect.FromRelative(new Vec2(i, j) / grid.GridSize.ToVec2());
+            grid.AtCoords(new Vec2i(i, j)).Value = field.Evaluate(pos);
         });
     }
 }

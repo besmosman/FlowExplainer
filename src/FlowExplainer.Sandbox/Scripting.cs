@@ -97,11 +97,13 @@ public static class Scripting
         //g.SetGridDiagnostic(new DensityEstimation()); 
 
         
-        LoadScene(world, new VariationalScene());
+        //LoadScene(world, new VariationalScene());
 
-
-        //world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new SupplVideoPresentation());
-        //world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+       // VariationalPresentation.RecomputeDataset(world.FlowExplainer);
+        var variationalPresentation = new VariationalPresentation();
+        variationalPresentation.LoadDataset();
+        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(variationalPresentation);
+        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
 
 
         //var g = world.AddVisualisationService<GridVisualizer>();

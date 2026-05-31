@@ -1,7 +1,31 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 
 namespace FlowExplainer;
 
+
+/*
+public class OrientedDiscretizedField2D : IVectorField<Vec2, Vec2>
+{
+    public DiscretizedField<Vec2, Vec2i,Vec2> Grid { get; private set; }
+
+    
+    
+    public Vec2 Evaluate(Vec2 x)
+    {
+        x = Grid.GridField.ToVoxelCoord(x);
+        x = Utils.Clamp<Vec2, double>(x, Vec2.Zero, Grid.GridField.GridSize.ToVecF() - Vec2.One);
+        var grid = Grid.GridField.Grid;
+        grid.AtCoords(Grid.Evaluate())
+    }
+
+    public bool TryEvaluate(Vec2 x, [MaybeNullWhen(false)] out Vec2 value)
+    {
+        
+    }
+
+    public IDomain<Vec> Domain { get; }
+}*/
 
 public class DiscretizedField<Vec, Veci, TData> : IVectorField<Vec, TData>
     where Vec : IVec<Vec, double>, IVecIntegerEquivalent<Veci>

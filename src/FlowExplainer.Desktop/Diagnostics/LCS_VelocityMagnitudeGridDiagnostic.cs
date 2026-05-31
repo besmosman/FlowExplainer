@@ -6,20 +6,17 @@ namespace FlowExplainer;
 
 public class MagnitudeGridDiagnostic : IGridDiagnostic
 {
+    public Artifact<IVectorField<Vec2, Vec2>>? vectorfield;
+
     public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
-        var dat = gridVisualizer.GetRequiredWorldService<DataService>()!;
-        var t = dat.SimulationTime;
-        
-        var field = new ArbitraryField<Vec2, double>(
-            dat.VectorField.Domain.ReducedSlice<Vec3, Vec2>(), 
-            x => dat.VectorField.Evaluate(x.Up(t)).Length());
-        
-        gridVisualizer.EvaluateParralelGrid(field, token);
+        if (vectorfield != null)
+            gridVisualizer.EvaluateParralelGrid(vectorfield.Value.Select(s => s.Length()), token);
     }
 
     public void OnImGuiEdit(GridVisualizer vis)
     {
+        vis.OptionsManager.ArtifactSelector(ref vectorfield);
     }
 }
 

@@ -17,6 +17,7 @@ class BoundingNone<Vec> : IBounding<Vec> where Vec : IVec<Vec, double>
     {
         return x;
     }
+
     public double ShortestSpatialDistanceSqrt(Vec a, Vec b) => Utils.DistanceSquared(a, b);
 }
 
@@ -50,14 +51,24 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
     public RegularGrid<Veci, TData> Grid { get; private set; }
     public Veci GridSize => Grid.GridSize;
 
-    public bool Interpolate = true;
 
     public RectDomain<Vec> RectDomain { get; set; }
     public string DisplayName { get; set; }
 
+    public bool IsInterpolating => Interpolator is not NoGridInterpolator<Vec, Veci, TData>;
+    public IGridInterpolator<Vec, Veci, TData> Interpolator = new MultivariateLinearInterpolation<Vec, Veci, TData>();
+
     public TData Evaluate(Vec x)
     {
-        x = ToVoxelCoord(x);
+        var coords = ToVoxelCoord(x);
+
+        if (!Interpolator.TryInterpolate(this, coords, out var value))
+            return default;
+
+        return value;
+
+
+        /*x = ToVoxelCoord(x);
         x = Utils.Clamp<Vec, double>(x, Vec.Zero, GridSize.ToVecF() - Vec.One);
         if (!Interpolate)
         {
@@ -68,7 +79,7 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
         if (!TryMultivariateInterpolation(x, out var value))
             throw new Exception();
 
-        return value;
+        return value;*/
     }
 
     public Vec Wrap(Vec x)
@@ -78,8 +89,8 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
 
     public bool TryEvaluate(Vec x, out TData value)
     {
-        x = ToVoxelCoord(x);
-        if (!Interpolate)
+        return Interpolator.TryInterpolate(this, ToVoxelCoord(x), out value);
+        /*if (!Interpolate)
         {
             var coord = x.RoundInt();
             if (Grid.Contains(coord))
@@ -87,10 +98,12 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
                 value = Grid.AtCoords(coord);
                 return true;
             }
+
             value = default!;
             return false;
         }
-        return TryMultivariateInterpolation(x, out value);
+
+        return TryMultivariateInterpolation(x, out value);*/
     }
 
     public IDomain<Vec> Domain => RectDomain;
@@ -109,7 +122,6 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
         Grid = new RegularGrid<Veci, TData>(gridSize);
         genBounding = boundary ?? GenBounding<Vec>.None();
         RectDomain = new RectDomain<Vec>(minCellPos, maxCellPos, genBounding);
-
     }
 
 
@@ -121,7 +133,6 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
             genBounding = GenBounding<Vec>.None();
         else
             genBounding = rectDomain.Bounding as GenBounding<Vec>;
-
     }
 
 
@@ -182,8 +193,10 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
     public void Save(string path)
     {
         if (genBounding == null)
-            throw new Exception("Boundary not serializable");
-        
+        {
+            genBounding = GenBounding<Vec>.None();
+        }
+
         var vectorFieldSave = new RegularGridVectorFieldSave<Vec, Veci, TData>()
         {
             Name = DisplayName,
@@ -262,9 +275,137 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
         Grid.Resize(gridSize);
         RectDomain = domain;
     }
-    
+
     public IVectorField<Vec, D> Select<D>(Func<TData, D> selector)
     {
         return new ArbitraryField<Vec, D>(Domain, p => selector(Evaluate(p)));
+    }
+
+    public void UseMultivariateLinearInterpolator()
+    {
+        Interpolator = new MultivariateLinearInterpolation<Vec, Veci, TData>();
+    }
+
+    public void UseNoInterpolator()
+    {
+        Interpolator = new NoGridInterpolator<Vec, Veci, TData>();
+    }
+}
+
+public interface IGridInterpolator<Vec, Veci, TData>
+    where Vec : IVec<Vec, double>, IVecIntegerEquivalent<Veci>
+    where Veci : IVec<Veci, int>, IVecDoubleEquivalent<Vec>
+    where TData : IMultiplyOperators<TData, double, TData>, IAdditionOperators<TData, TData, TData>
+{
+    bool TryInterpolate(RegularGridVectorField<Vec, Veci, TData> regularGridVectorField, Vec voxelCoords, out TData result);
+}
+
+public class NoGridInterpolator<Vec, Veci, TData> : IGridInterpolator<Vec, Veci, TData>
+    where Vec : IVec<Vec, double>, IVecIntegerEquivalent<Veci>
+    where Veci : IVec<Veci, int>, IVecDoubleEquivalent<Vec>
+    where TData : IMultiplyOperators<TData, double, TData>, IAdditionOperators<TData, TData, TData>
+{
+    public bool TryInterpolate(RegularGridVectorField<Vec, Veci, TData> regularGridVectorField, Vec coords, out TData result)
+    {
+        coords = Utils.Clamp<Vec, double>(coords, Vec.Zero, regularGridVectorField.GridSize.ToVecF() - Vec.One);
+        result = regularGridVectorField.Grid.AtCoords(coords.FloorInt());
+        return true;
+    }
+}
+
+public class MultivariateLinearInterpolation<Vec, Veci, TData> : IGridInterpolator<Vec, Veci, TData>
+    where Vec : IVec<Vec, double>, IVecIntegerEquivalent<Veci>
+    where Veci : IVec<Veci, int>, IVecDoubleEquivalent<Vec>
+    where TData : IMultiplyOperators<TData, double, TData>, IAdditionOperators<TData, TData, TData>
+{
+    //modified from random online source. Tested for 2D and 3D cases, should work in any dimension.
+    public bool TryInterpolate(RegularGridVectorField<Vec, Veci, TData> regularGridVectorField, Vec voxelCoords, out TData result)
+    {
+        int dim = regularGridVectorField.GridSize.ElementCount;
+        var baseCoord = voxelCoords.FloorInt();
+
+        var weights = voxelCoords - baseCoord.ToVecF();
+
+        if (baseCoord.Last == regularGridVectorField.GridSize.Last)
+            baseCoord[voxelCoords.ElementCount - 1] -= 1;
+
+        int numCorners = 1 << dim;
+        double totalWeight = 0.0f;
+        result = default!;
+
+        for (int c = 0; c < numCorners; c++)
+        {
+            double weight = 1.0f;
+            var corner = baseCoord;
+
+            for (int i = 0; i < dim; i++)
+            {
+                int bit = (c >> i) & 1;
+                weight *= bit == 1 ? weights[i] : (1 - weights[i]);
+                corner[i] = baseCoord[i] + bit;
+            }
+
+            if (regularGridVectorField.Grid.Contains(corner))
+            {
+                totalWeight += weight;
+                var value = regularGridVectorField.Grid.AtCoords(corner);
+                result += value * weight;
+            }
+        }
+
+        if (totalWeight == 0.0f)
+            return false;
+
+        result *= 1f / totalWeight;
+        return true;
+    }
+}
+
+public class OrientedLinearInterpolation : IGridInterpolator<Vec2, Vec2i, Vec2>
+{
+    public bool TryInterpolate(RegularGridVectorField<Vec2, Vec2i, Vec2> regularGridVectorField, Vec2 voxelCoords, out Vec2 result)
+    {
+        int dim = regularGridVectorField.GridSize.ElementCount;
+        var baseCoord = voxelCoords.FloorInt();
+
+        var weights = voxelCoords - baseCoord.ToVecF();
+
+        if (baseCoord.Last == regularGridVectorField.GridSize.Last)
+            baseCoord[voxelCoords.ElementCount - 1] -= 1;
+
+        int numCorners = 1 << dim;
+        double totalWeight = 0.0f;
+        result = default!;
+
+        var refValue = default(Vec2);
+
+        for (int c = 0; c < numCorners; c++)
+        {
+            double weight = 1.0f;
+            var corner = baseCoord;
+
+            for (int i = 0; i < dim; i++)
+            {
+                int bit = (c >> i) & 1;
+                weight *= bit == 1 ? weights[i] : (1 - weights[i]);
+                corner[i] = baseCoord[i] + bit;
+            }
+
+            if (regularGridVectorField.Grid.Contains(corner))
+            {
+                totalWeight += weight;
+                var value = regularGridVectorField.Grid.AtCoords(corner);
+                if (refValue == default)
+                    refValue = value;
+                value *= double.Sign(Vec2.Dot(refValue, value));
+                result += value * weight;
+            }
+        }
+
+        if (totalWeight == 0.0f)
+            return false;
+
+        result *= 1f / totalWeight;
+        return true;
     }
 }

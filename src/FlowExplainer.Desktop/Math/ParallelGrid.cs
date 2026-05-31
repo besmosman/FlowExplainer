@@ -45,16 +45,52 @@ namespace FlowExplainer
     {
         public static void For(Vec2i gridSize, CancellationToken token, Action<int, int> action)
         {
-            Parallel.ForEach(Partitioner.Create(0, gridSize.X * gridSize.Y), range =>
+            var blockSize = 16;
+            /*List<(Vec2i, Vec2i)> blocks = new();
+            for (int j = 0; j <= gridSize.Y / blockSize; j++)
+            for (int i = 0; i <= gridSize.X / blockSize; i++)
             {
-                    for (int i = range.Item1; i < range.Item2; i++)
+                blocks.Add((new Vec2i(i * blockSize, j * blockSize),
+                    new Vec2i(int.Min((i + 1) * blockSize, gridSize.X), int.Min((j + 1) * blockSize, gridSize.Y))));
+            }*/
+
+            Parallel.For(0, ((gridSize / blockSize) + Vec2i.One).Volume(), i =>
+            {
+                if (!token.IsCancellationRequested)
+                {
+                    var block_x = i % ((gridSize.X / blockSize)+1);
+                    var block_y = i / ((gridSize.X / blockSize)+1);
+                    
+                    for (int x = block_x * blockSize; x < int.Min((block_x + 1) * blockSize, gridSize.X); x++)
+                    for (int y = block_y * blockSize; y < int.Min((block_y + 1) * blockSize, gridSize.Y); y++)
                     {
-                        var x = i % gridSize.X;
-                        var y = i / gridSize.X;
-                        if (!token.IsCancellationRequested)
                         action(x, y);
                     }
+                }
             });
+            /*//blocks = blocks.OrderBy(o => o.GetHashCode()).ToList();
+            Parallel.ForEach(blocks, p =>
+            {
+                if (!token.IsCancellationRequested)
+                {
+                    for (int i = p.Item1.X; i < p.Item2.X; i++)
+                    for (int j = p.Item1.Y; j < p.Item2.Y; j++)
+                    {
+                        action(i, j);
+                    }
+                }
+            });*/
+
+            /*Parallel.ForEach(Partitioner.Create(0, gridSize.X * gridSize.Y), range =>
+            {
+                for (int i = range.Item1; i < range.Item2; i++)
+                {
+                    var x = i % gridSize.X;
+                    var y = i / gridSize.X;
+                    if (!token.IsCancellationRequested)
+                        action(x, y);
+                }
+            });*/
         }
 
         public static void RunMainThread(Vec2i grid, Action<int, int> action)

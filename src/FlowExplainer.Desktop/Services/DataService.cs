@@ -70,6 +70,12 @@ public class DataService : WorldService
 
     private bool firstDraw = true;
 
+    public void SetDataset(Dataset dataset)
+    {
+        GetRequiredGlobalService<DatasetsService>().Datasets.TryAdd(dataset.Name, dataset);
+        SetDataset(dataset.Name);
+    }
+
     public void SetDataset(string name)
     {
         LoadedDataset = GetRequiredGlobalService<DatasetsService>().Datasets[name];
@@ -90,14 +96,13 @@ public class DataService : WorldService
             Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec3, Vec2>>(f.Value, f.Key, $"From  dataset: {LoadedDataset.Name}"));
         }
         
-        
         foreach (var f in LoadedDataset.ScalerFields)
         {
             var vectorField = f.Value;
             var v = vectorField.ReducedSlice<Vec3, Vec2, double>(() => SimulationTime);
             Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, double>>(v, f.Key + " slice", $"From  dataset: {LoadedDataset.Name}"));
         }
-        
+
         foreach (var f in LoadedDataset.VectorFields)
         {
             var vectorField = f.Value;

@@ -35,8 +35,8 @@ public abstract class NewPresentation
             CurrentLayout(this);
         return isCur;
     }
-    
-    
+
+
     public bool SlideEnter()
     {
         return Presi.LastCurrentSlide != Presi.CurrentSlide && Presi.CurrentSlide == Presi.Walk.RenderSlide;
@@ -44,7 +44,7 @@ public abstract class NewPresentation
 
     public bool StepEnter()
     {
-        return Presi.LastCurrentStep != Presi.CurrentStep && Presi.CurrentSlide == Presi.Walk.RenderSlide; 
+        return Presi.LastCurrentStep != Presi.CurrentStep && Presi.CurrentSlide == Presi.Walk.RenderSlide;
     }
 
     public bool IsFirstStep()
@@ -63,10 +63,10 @@ public abstract class NewPresentation
     {
         return Presi.CurrentStep > Presi.Walk.FinalRenderStep;
     }
-    
+
     public bool AfterCurrentStep(int steps)
     {
-        return Presi.CurrentStep > Presi.Walk.FinalRenderStep && Presi.CurrentStep <= Presi.Walk.FinalRenderStep+steps;
+        return Presi.CurrentStep > Presi.Walk.FinalRenderStep && Presi.CurrentStep <= Presi.Walk.FinalRenderStep + steps;
     }
 
     public void Title(string text, [FilePath] string filePath = "", [LineNumber] int lineNumber = 0)
@@ -126,7 +126,13 @@ public abstract class NewPresentation
         }
         else
         {
-            view.Camera2D.Position = -new Vec2(1, .5f) / 2;
+            var firstOrDefault = view.World?.DataService?.LoadedDataset?.VectorFields.FirstOrDefault();
+            if (firstOrDefault.HasValue)
+            {
+                var cc = firstOrDefault.Value.Value.Domain.RectBoundary.Center;
+                view.Camera2D.Position = -cc.XY;
+            }
+
             view.Camera2D.Scale = view.PostProcessingTarget.Size.X * zoom;
             view.TargetSize = size;
         }

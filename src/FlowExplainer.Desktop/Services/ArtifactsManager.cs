@@ -1,14 +1,18 @@
+using System.Collections;
+
 namespace FlowExplainer;
 
-public class ArtifactsManager
+public class ArtifactsManager : IEnumerable<IArtifact>
 {
     private Dictionary<Type, Dictionary<string, IArtifact>> artifacts = new();
 
-    public void RegisterOrUpdate<T>(Artifact<T> artifact)
+    public void RegisterOrUpdate(IArtifact artifact)
     {
-        if (!artifacts.ContainsKey(typeof(T)))
-            artifacts.Add(typeof(T), new());
-        var dictionary = artifacts[typeof(T)];
+        var type = artifact.ValueType;
+        
+        if (!artifacts.ContainsKey(type))
+            artifacts.Add(type, new());
+        var dictionary = artifacts[type];
         if (dictionary.TryGetValue(artifact.DisplayName, out var value))
         {
             value.ValueObj = artifact.ValueObj;
@@ -34,5 +38,17 @@ public class ArtifactsManager
         if (!artifacts.TryGetValue(t, out var all))
             return [];
         return all.Values;
+    }
+
+    public IEnumerator<IArtifact> GetEnumerator()
+    {
+        foreach (var artifact in artifacts)
+        foreach (var a in artifact.Value)
+            yield return a.Value;
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 }

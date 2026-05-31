@@ -31,7 +31,7 @@ public class VariationalScene : Scene
             (d) =>
             {
                 d.VectorFields.Add("Velocity", new ArbitraryField<Vec3, Vec2>(
-                    new RectDomain<Vec3>(new Rect<Vec3>(new Vec3(-1,-1,0),new Vec3(1,1,100))),
+                    new RectDomain<Vec3>(new Rect<Vec3>(new Vec3(-1,-1,0),new Vec3(1,1,10))),
                     x => new Vec2(x.X, -x.Y)));
             });
         var dataset = dataset1;
@@ -42,20 +42,22 @@ public class VariationalScene : Scene
         world.DataService.currentSelectedScaler = "Convective Temperature";
         world.DataService.SimulationTime = 0f;
         world.AddVisualisationService<AxisVisualizer>();
-        //var scaler = world.AddVisualisationService<GridVisualizer>();
-        //scaler.TargetCellCount = 1024 * 512 / 1000;
+        var scaler = world.AddVisualisationService<GridVisualizer>();
+        scaler.TargetCellCount = 1024 * 512 / 1000;
         var variational = world.AddVisualisationService<VariationalLCS>();
-        
+     
         world.DataService.SetDataset("Double Gyre EPS=0.1, Pe=100");
-        world.DataService.currentSelectedVectorField = "Total Flux";
-        variational.VelocityField = world.DataService.Artifacts.Get<IVectorField<Vec3, Vec2>>("Total Flux");
-        world.DataService.SimulationTime = 3;
+        variational.VelocityField = world.DataService.Artifacts.Get<IVectorField<Vec3, Vec2>>("Convection Flux");
+        variational.t0 = 3;
         variational.T = 3;
-        
-        /*scaler.SetGridDiagnostic(new Scaler2DGridDiagnostic()
+        variational.Recompute();
+
+        scaler.SetGridDiagnostic(new Scaler2DGridDiagnostic()
         {
-            ScalerField = variational.GetSelectableVec2Vec1().ElementAt(2).VectorField
+            ScalerField = variational.Artifacts.Get<IVectorField<Vec2,double>>("Valid Subspace"),
+            // ScalerField = variational.GetSelectableVec2Vec1().ElementAt(2).VectorField
         });
+
         /*var arrow1 = world.AddVisualisationService<ArrowVisualizer>();
         arrow1.AltVectorfield = variational.GetSelectableVec3Vec2().ElementAt(1).VectorField;*/
     }

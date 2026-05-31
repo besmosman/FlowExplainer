@@ -48,7 +48,7 @@ public class Artifact<T> : IArtifact
     public object ValueObj { get => Value; set => Value = (T)value; }
     public string DisplayName { get; set; }
     public string Description { get; set; }
-    public Type ValueType => Value.GetType();
+    public Type ValueType => typeof(T);
 
     public Artifact(T value, string displayName, string description)
     {
