@@ -1,8 +1,10 @@
 using System.Numerics;
+using MemoryPack;
 
 namespace FlowExplainer;
 
-public readonly struct Trajectory<T> where T : IVec<T, double>
+[MemoryPackable]
+public readonly partial struct Trajectory<T> where T : IVec<T, double>
 {
     public readonly T[] Entries;
 

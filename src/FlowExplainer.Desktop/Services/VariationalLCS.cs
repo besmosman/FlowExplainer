@@ -2,165 +2,8 @@ using System.Numerics;
 using ImGuiNET;
 
 namespace FlowExplainer;
-using LineNumber = System.Runtime.CompilerServices.CallerLineNumberAttribute;
-using FilePath = System.Runtime.CompilerServices.CallerFilePathAttribute;
-
-public class VariationalPresentation : NewPresentation
-{
-    public static Dataset DatasetDoubleGyreContained;
-
-    static VariationalPresentation()
-    {
-        DatasetDoubleGyreContained = new Dataset(new()
-            {
-                {
-                    "Name", "Double Gyre Contained"
-                },
-            },
-            (d) =>
-            {
-                d.VectorFields.Add("Velocity", new AnalyticalEvolvingVelocityField()
-                {
-                    A = 0.1,
-                    w = 2 * double.Pi / 10,
-                    epsilon = 0.1,
-                });
-            });
-    }
-
-    static string folder = "variational/contained";
-
- 
-    
-    public static void RecomputeDataset(FlowExplainer flowExplainer)
-    {
-        if (Directory.Exists(folder))
-            Directory.Delete(folder, true);
-        Directory.CreateDirectory(folder);
-        var world = flowExplainer.GetGlobalService<WorldManagerService>().Worlds[0];
-        world.DataService.SetDataset(DatasetDoubleGyreContained);
-        var variational = world.AddVisualisationService<VariationalLCS>();
-        variational.t0 = 0;
-        variational.T = 20;
-        variational.Recompute();
-        foreach (var artifact in variational.Artifacts)
-        {
-            ArtifactSerializer.Save(artifact, Path.Combine(folder, artifact.DisplayName));
-        }
-    }
-
-    private ArtifactsManager Artifacts = new();
 
 
-    public void LoadDataset()
-    {
-        foreach (var f in Directory.GetFiles(folder))
-        {
-            var artifact = ArtifactSerializer.Load(f);
-            Artifacts.RegisterOrUpdate(artifact);
-        }
-    }
-
-
- 
-    public override void Draw()
-    {
-        void DrawContainedWorldPanel(Action<World>? load, [FilePath]string filePath = "",
-            [LineNumber] int lineNumber = 0)
-        {
-            DrawWorldPanel(new Vec2(.5, .5), new Vec2(1, .5), zoom: .3,
-                load: (world) =>
-                {
-                    var data = world.GetWorldService<DataService>();
-                    data.SetDataset(DatasetDoubleGyreContained);
-                    var grid = world.AddVisualisationService<GridVisualizer>();
-                    grid.SetGridDiagnostic(new Scaler2DGridDiagnostic()
-                    {
-                        ScalerField = Artifacts.Get<IVectorField<Vec2, double>>("Valid Subspace"),
-                    });
-                    grid.TargetCellCount = 50_000;
-                    world.AddVisualisationService<AxisVisualizer>();
-                    world.AddVisualisationService(new ArrowVisualizer()
-                    {
-                        Vectorfield = Artifacts.Get<IVectorField<Vec2, Vec2>>("Lambda 2 Gradient"),
-                        GridCells = 10_000
-                    });
-                }, filePath, lineNumber);
-        }
-        
-        if (BeginSlide())
-        {
-            var view = DrawWorldPanel(new Vec2(.5, .5), new Vec2(1, .5), zoom: .3,
-                load: (world) =>
-                {
-                    SetupContainedWorld(world);
-                    var data = world.GetWorldService<DataService>();
-                    data.SetDataset(DatasetDoubleGyreContained);
-                    var grid = world.AddVisualisationService<GridVisualizer>();
-                    grid.SetGridDiagnostic(new Scaler2DGridDiagnostic()
-                    {
-                        ScalerField = Artifacts.Get<IVectorField<Vec2, double>>("Valid Subspace"),
-                    });
-                    grid.TargetCellCount = 50_000;
-                    world.AddVisualisationService<AxisVisualizer>();
-                    world.AddVisualisationService(new ArrowVisualizer()
-                    {
-                        Vectorfield = Artifacts.Get<IVectorField<Vec2, Vec2>>("Lambda 2 Gradient"),
-                        GridCells = 10_000
-                    });
-                });
-            view.Camera2D.Position = -new Vec2(2, 1) / 2;
-        }
-
-        if (BeginSlide())
-        {
-            var view = DrawWorldPanel(new Vec2(.5, .5), new Vec2(1, .5), zoom: .3,
-                load: (world) =>
-                {
-                    var data = world.GetWorldService<DataService>();
-                    data.SetDataset(DatasetDoubleGyreContained);
-                    foreach (var artifact in Artifacts)
-                        data.Artifacts.RegisterOrUpdate(artifact);
-                    world.AddVisualisationService<AxisVisualizer>();
-                    var vectorfield = Artifacts.Get<IVectorField<Vec2, Vec2>>("Eigen Vector 2");
-                    ((RegularGridVectorField<Vec2, Vec2i, Vec2>)vectorfield.Value).Interpolator = new NoGridInterpolator<Vec2, Vec2i, Vec2>();
-                    world.AddVisualisationService(new ArrowVisualizer()
-                    {
-                        Vectorfield = vectorfield,
-                        GridCells = 1_00
-                    });
-                });
-            view.Camera2D.Position = -new Vec2(2, 1) / 2;
-        }
-
-        if (BeginSlide())
-        {
-            var view = DrawWorldPanel(new Vec2(.5, .5), new Vec2(1, .5), zoom: .3,
-                load: (world) =>
-                {
-                    var axis  = world.AddVisualisationService<AxisVisualizer>();
-                    //SetupContainedWorld(world);
-                    /*var vectorfield = Artifacts.Get<IVectorField<Vec2, Vec2>>("Eigen Vector 2");
-                    ((RegularGridVectorField<Vec2, Vec2i, Vec2>)vectorfield.Value).Interpolator = new OrientedLinearInterpolation();
-                    world.AddVisualisationService(new ArrowVisualizer()
-                    {
-                        Vectorfield = vectorfield,
-                        GridCells = 1_00
-                    });*/
-                });
-        }
-    }
-
-    private void SetupContainedWorld(World world)
-    {
-        var data = world.GetWorldService<DataService>();
-        data.SetDataset(DatasetDoubleGyreContained);
-        var axis  = world.AddVisualisationService<AxisVisualizer>();
-        foreach (var artifact in Artifacts)
-            data.Artifacts.RegisterOrUpdate(artifact);
-        axis.DrawTitle = false;
-    }
-}
 
 public class VariationalLCS : WorldService
 {
@@ -169,10 +12,10 @@ public class VariationalLCS : WorldService
 
     [Input(Min = 0.0, Max = 1.0)] public double l_f = 0.2;
     [Input(Min = 0.0, Max = 1.0)] public double T = 20;
-    [Input(Min = 0.0, Max = 1.0)] public double l_min = 1;
+    [Input(Min = 0.0, Max = 1.0)] public double l_min = .4;
     public double t0 = 0;
-    [Input(Min = 0.0, Max = 0.01)] double dF = 10e-5;
-    [Input(Min = 0.0, Max = 0.01)] double dHessian = 0.002;
+    [Input(Min = 0.0, Max = 0.01)] double dF = 10e-4;
+    [Input(Min = 0.0, Max = 0.01)] double dHessian = 0.004;
 
 
     private bool lowQuality = true;
@@ -186,7 +29,7 @@ public class VariationalLCS : WorldService
     }
 
 
-    Vec2 IntegrateRk4(IVectorField<Vec2, Vec2> f, Vec2 lastDir, Vec2 p, double dt)
+    static Vec2 IntegrateRk4(IVectorField<Vec2, Vec2> f, Vec2 lastDir, Vec2 p, double dt)
     {
         var k1 = EvaluateDirectionUnawareScaled(f, lastDir, p);
         var k2 = EvaluateDirectionUnawareScaled(f, k1, p + (k1 / 2.0) * dt);
@@ -198,15 +41,18 @@ public class VariationalLCS : WorldService
 
     public override void Initialize()
     {
-        VelocityField ??= DataService.Artifacts.Get<IVectorField<Vec3, Vec2>>("Velocity");
+        //VelocityField ??= DataService.Artifacts.Get<IVectorField<Vec3, Vec2>>("Velocity");
     }
 
-    private List<Trajectory<Vec2>> unfiltered = new();
+    private List<Trajectory<Vec2>> trajs = new();
 
     private bool attracting = false;
 
     public void Recompute()
     {
+        /*Artifacts.RegisterOrUpdate(new Artifact<TrajectoryGroup<Vec2>>(
+            new TrajectoryGroup<Vec2>([new Trajectory<Vec2>([Vec2.Zero, Vec2.One])]), "LCS", ""));
+        return;*/
         /*dF = 10e-3;
         dHessian = dF / 2;*/
         var velocity = VelocityField!.Value;
@@ -214,9 +60,10 @@ public class VariationalLCS : WorldService
 
         var cauchyGreenField = CachyGreenStrainField(velocity, flowOperator, t0, T, dF);
 
-        var gridSize = new Vec2i(256, 128) * 2;
+        var gridSize = new Vec2i(256, 128) * 1;
 
         IVectorField<Vec2, double> validSubspace;
+        IVectorField<Vec2, Vec2> eigenVector1;
         IVectorField<Vec2, Vec2> eigenVector2;
         IVectorField<Vec2, Vec2> scaledEigenVector2;
         IVectorField<Vec2, Vec2> scaledEigenVector2Perp;
@@ -226,6 +73,7 @@ public class VariationalLCS : WorldService
             lambda2Field = info.Select(s => s.Lambda2);
             var hessianLambda = new ArbitraryField<Vec2, Matrix2>(lambda2Field.Domain, x => lambda2Field.Hessian(x, dHessian));
 
+            eigenVector1 = info.Select(s => s.Eigen1);
             eigenVector2 = info.Select(s => s.Eigen2);
 
             scaledEigenVector2 = new ArbitraryField<Vec2, Vec2>(lambda2Field.Domain, (x) =>
@@ -250,8 +98,9 @@ public class VariationalLCS : WorldService
                 return (ConditionAValid(eigenInfo) && conditionB) ? 1 : 0;
             });
 
-            var hh = .00000001;
-            eigen2Grad = new ArbitraryField<Vec2, Vec2>(info.Domain, x => lambda2Field.FiniteDifferenceGradient(x, hh).NormalizedSafe());
+            var hh = .000001;
+            var lnLambda2 = lambda2Field.Select(s => double.Log(double.Sqrt(s)));
+            eigen2Grad = new ArbitraryField<Vec2, Vec2>(info.Domain, x => lnLambda2.FiniteDifferenceGradient(x, hh).NormalizedSafe());
         }
 
 
@@ -271,12 +120,12 @@ public class VariationalLCS : WorldService
             return new Vec2(-r.Y, r.X);
         });
 
-        eigen2Grad = eigen2Grad.Discritize(new Vec2i(100, 50) * 1);
+        eigen2Grad = eigen2Grad.Discritize(gridSize);
 
 
         localMaximaParticles.Clear();
 
-        Vec2i sseedGridSize = new Vec2i(32, 16) * 1;
+        Vec2i sseedGridSize = new Vec2i(32, 16) * 2;
         for (int i = 0; i < sseedGridSize.X; i++)
         for (int j = 0; j < sseedGridSize.Y; j++)
         {
@@ -288,28 +137,29 @@ public class VariationalLCS : WorldService
             });
         }
 
-        if (false)
+
+        var cellSize = (scaledEigenVector2.Domain.RectBoundary.Size / sseedGridSize);
+        var stepSize = .01;
+        double d = .001;
+        //var steps = (double.Max(cellSize.X, cellSize.Y) / stepSize) * 20;
+        var steps = 20_000;
+        for (int i = 0; i < steps; i++)
         {
-            var cellSize = (scaledEigenVector2.Domain.RectBoundary.Size / sseedGridSize);
-            var stepSize = .00001;
-            double d = .01;
-            var steps = (double.Max(cellSize.X, cellSize.Y) / stepSize) * 3;
-            for (int i = 0; i < steps; i++)
+            var rk4 = IIntegrator<Vec2, Vec2>.Rk4Steady;
+            Parallel.ForEach(localMaximaParticles, p => { p.pos = rk4.Integrate(eigen2Grad, p.pos, stepSize); });
+        }
+
+        for (int i = localMaximaParticles.Count - 1; i >= 0; i--)
+        {
+            var p = localMaximaParticles[i];
+            if (double.Abs(Vec2.Dot(eigen2Grad.Evaluate(p.pos), eigenVector2.Evaluate(p.pos))) > d)
             {
-                var rk4 = IIntegrator<Vec2, Vec2>.Rk4Steady;
-                Parallel.ForEach(localMaximaParticles, p => { p.pos = rk4.Integrate(eigen2Grad, p.pos, stepSize); });
+                localMaximaParticles.RemoveAt(i);
             }
+        }
 
-            for (int i = localMaximaParticles.Count - 1; i >= 0; i--)
-            {
-                var p = localMaximaParticles[i];
-                if (eigen2Grad.Evaluate(p.pos).Length() > d)
-                {
-                    localMaximaParticles.RemoveAt(i);
-                }
-            }
-
-
+        if (true)
+        {
             for (int i = 0; i < localMaximaParticles.Count; i++)
             {
                 for (int j = localMaximaParticles.Count - 1; j > i; j--)
@@ -321,21 +171,21 @@ public class VariationalLCS : WorldService
                 }
             }
 
-            unfiltered.Clear();
+            trajs.Clear();
             localMaximaParticles = localMaximaParticles.Select(s => (s, lambda2Field.Evaluate(s.pos))).OrderBy(o => o.Item2).Select(o => o.s).ToList();
             while (localMaximaParticles.Count > 0)
             {
                 var particle = localMaximaParticles[0];
-                var traj = IntegrateStrainLineFromLocalMax(particle.pos, scaledEigenVector2Perp, validSubspace);
+                var traj = IntegrateStrainLineFromLocalMax(particle.pos, scaledEigenVector2Perp, validSubspace, l_f, l_min);
                 localMaximaParticles.RemoveAt(0);
 
                 if (traj.HasValue)
                 {
-                    unfiltered.Add(traj.Value);
+                    trajs.Add(traj.Value);
                     for (int i = localMaximaParticles.Count - 1; i >= 0; i--)
                     {
                         var dis = traj.Value.ClosestDistanceToLine(localMaximaParticles[i].pos);
-                        if (dis < 4 * d)
+                        if (dis < .01)
                         {
                             localMaximaParticles.RemoveAt(i);
                         }
@@ -363,14 +213,25 @@ public class VariationalLCS : WorldService
 
         Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, double>>(
             lambda2Field, "Lambda 2", ""));
-
-
+        
         Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, Vec2>>(
             scaledEigenVector2, "Scaled Eigen Vector 2", ""));
 
+        /*Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, Vec2>>(
+            scaledEigenVector2Perp, "Scaled Eigen Vector 2 Perp", ""));*/
+
+        Artifacts.RegisterOrUpdate(new Artifact<TrajectoryGroup<Vec2>>(
+            new TrajectoryGroup<Vec2>(trajs.ToArray()), "LCS", ""));
+        
+        /*
         Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, Vec2>>(
             eigen2Grad, "Lambda 2 Gradient",
             "Conditions A and B"));
+            */
+
+
+        Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, Vec2>>(eigenVector1.Discritize(gridSize),
+            "Eigen Vector 1", ""));
 
         Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, Vec2>>(eigenVector2.Discritize(gridSize),
             "Eigen Vector 2", ""));
@@ -388,7 +249,7 @@ public class VariationalLCS : WorldService
             "Second eigenvector of Cauchy-Green Strain Tensor"));*/
     }
 
-    private Trajectory<Vec2>? IntegrateStrainLineFromLocalMax(Vec2 startPos, IVectorField<Vec2, Vec2> scaled_eigen2, IVectorField<Vec2, double> validSubspace)
+    public static Trajectory<Vec2>? IntegrateStrainLineFromLocalMax(Vec2 startPos, IVectorField<Vec2, Vec2> scaled_eigen2, IVectorField<Vec2, double> validSubspace, double l_f, double l_min)
     {
         var rect = scaled_eigen2.Domain.RectBoundary;
 
@@ -397,7 +258,7 @@ public class VariationalLCS : WorldService
 
         var cur = startPos;
         var dt = .01;
-        int maxsteps = 80_000;
+        int maxsteps = 180_000;
 
         List<Vec2> positions = new();
         if (validSubspace.Evaluate(startPos) < .5)
@@ -515,7 +376,7 @@ public class VariationalLCS : WorldService
     public List<Trajectory<Vec2>> StrainLines = new();
     //private IVectorField<Vec2, EigenInfo> eigenInfoField;
 
-    Vec2 EvaluateDirectionUnawareScaled(IVectorField<Vec2, Vec2> vectorfield, Vec2 lastDirection, Vec2 x)
+    static Vec2 EvaluateDirectionUnawareScaled(IVectorField<Vec2, Vec2> vectorfield, Vec2 lastDirection, Vec2 x)
     {
         var v = vectorfield.Evaluate(x);
         var dir = double.Sign(Vec2.Dot(v, lastDirection));
@@ -575,18 +436,16 @@ public class VariationalLCS : WorldService
 
     public override void Draw(View view)
     {
-        /*
-        var hh = .0001;
+        /*var hh = .0001;
         var rk4 = IIntegrator<Vec2, Vec2>.Rk4Steady;
-        Parallel.ForEach(localMaximaParticles, p => { p.pos = rk4.Integrate(eigen2Grad, p.pos, hh); });
+        Parallel.ForEach(localMaximaParticles, p => { p.pos = rk4.Integrate(eigen2Grad, p.pos, hh); });*/
         foreach (var p in localMaximaParticles)
         {
             Gizmos2D.Instanced.RegisterCircle(p.pos, .002f, Color.Red);
         }
-        */
 
         Gizmos2D.Instanced.RenderCircles(view.Camera2D);
-        foreach (var traj in unfiltered)
+        foreach (var traj in trajs)
         foreach (var (start, end) in traj.EnumerateSegments())
         {
             //Gizmos2D.Instanced.RegisterLine(view.Camera2D, FlowOp(start), FlowOp(end), Color.Green, .009f);

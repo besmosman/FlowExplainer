@@ -3,6 +3,7 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace FlowExplainer;
 
+
 public class ArrowVisualizer : WorldService, IAxisTitle
 {
     public override string? Name => "Arrow Glyphs";
@@ -42,7 +43,7 @@ public class ArrowVisualizer : WorldService, IAxisTitle
         if (!view.Is2DCamera || Vectorfield == null)
             return;
 
-        int fieldHash = Vectorfield.GetHashCode();
+        int fieldHash = Vectorfield.Value.GetHashCode();
         if (fieldHash != lastFieldHash)
         {
             cached.Clear();

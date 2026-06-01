@@ -46,16 +46,21 @@ public class VariationalScene : Scene
         scaler.TargetCellCount = 1024 * 512 / 1000;
         var variational = world.AddVisualisationService<VariationalLCS>();
      
-        world.DataService.SetDataset("Double Gyre EPS=0.1, Pe=100");
-        variational.VelocityField = world.DataService.Artifacts.Get<IVectorField<Vec3, Vec2>>("Convection Flux");
-        variational.t0 = 3;
-        variational.T = 3;
+       // world.DataService.SetDataset("Double Gyre EPS=0.1, Pe=100");
+       // variational.VelocityField = world.DataService.Artifacts.Get<IVectorField<Vec3, Vec2>>("Convection Flux");
+       // variational.t0 = 3;
+       // variational.T = 3;
         variational.Recompute();
-
+        var l2 = variational.Artifacts.Get<IVectorField<Vec2, double>>("Lambda 2");
         scaler.SetGridDiagnostic(new Scaler2DGridDiagnostic()
         {
-            ScalerField = variational.Artifacts.Get<IVectorField<Vec2,double>>("Valid Subspace"),
+            ScalerField = new Artifact<IVectorField<Vec2, double>>(l2.Value.Select(s => double.Log(s)), "ln l2", ""),
             // ScalerField = variational.GetSelectableVec2Vec1().ElementAt(2).VectorField
+        });
+        world.AddVisualisationService(new VariationalPresentation.IntegratorService()
+        {
+            VectorField = variational.Artifacts.Get<IVectorField<Vec2,Vec2>>("Scaled Eigen Vector 2 Perp").Value,
+             ValidSubspace= variational.Artifacts.Get<IVectorField<Vec2,double>>("Valid Subspace").Value
         });
 
         /*var arrow1 = world.AddVisualisationService<ArrowVisualizer>();

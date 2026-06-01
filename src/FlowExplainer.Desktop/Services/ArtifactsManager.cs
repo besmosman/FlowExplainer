@@ -33,6 +33,13 @@ public class ArtifactsManager : IEnumerable<IArtifact>
         return (Artifact<T>)(artifacts[typeof(T)][name]);
     }
 
+    public IEnumerable<Artifact<T>> GetAll<T>()
+    {
+        if (!artifacts.TryGetValue(typeof(T), out var all))
+            return [];
+        return all.Values.Cast<Artifact<T>>();
+    }
+
     public IEnumerable<IArtifact> GetAll(Type t)
     {
         if (!artifacts.TryGetValue(t, out var all))

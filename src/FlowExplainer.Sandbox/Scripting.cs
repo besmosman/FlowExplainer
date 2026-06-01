@@ -64,7 +64,7 @@ public static class Scripting
                     return ori.Evaluate(x);
                 });
             }
-            
+
             foreach (var v in d.ScalerFields.Keys)
             {
                 var ori = d.ScalerFields[v];
@@ -88,7 +88,7 @@ public static class Scripting
 
         world.GetWorldService<DataService>().SetDataset(name);
         world.GetWorldService<DataService>().currentSelectedVectorField = "Velocity";
-        world.GetWorldService<DataService>().currentSelectedVectorField = "Convection Flux";
+        //world.GetWorldService<DataService>().currentSelectedVectorField = "Convection Flux";
         world.AddVisualisationService(new AxisVisualizer());
         world.AddVisualisationService(new Axis3D());
         //world.AddVisualisationService(new ArrowVisualizer());
@@ -96,14 +96,21 @@ public static class Scripting
         //var g = world.AddVisualisationService<GridVisualizer>();
         //g.SetGridDiagnostic(new DensityEstimation()); 
 
-        
-        //LoadScene(world, new VariationalScene());
 
-       // VariationalPresentation.RecomputeDataset(world.FlowExplainer);
-        var variationalPresentation = new VariationalPresentation();
-        variationalPresentation.LoadDataset();
-        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(variationalPresentation);
-        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+        //
+
+        //VariationalPresentation.RecomputeDataset(world.FlowExplainer, 3);
+        if (true)
+        {
+            var variationalPresentation = new VariationalPresentation();
+            variationalPresentation.LoadDataset();
+            world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(variationalPresentation);
+            world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+        }
+        else
+        {
+            LoadScene(world, new VariationalScene());
+        }
 
 
         //var g = world.AddVisualisationService<GridVisualizer>();

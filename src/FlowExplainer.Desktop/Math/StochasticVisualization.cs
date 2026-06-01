@@ -101,6 +101,8 @@ public class StochasticVisualization : WorldService, IAxisTitle
 
         double sqrt = double.Sqrt((2 * dt) / Pe);
         var domainRectBoundary = vectorfield.Domain.RectBoundary;
+        domainRectBoundary.Min -= domainRectBoundary.Max/3;
+        domainRectBoundary.Max += domainRectBoundary.Max/3;
         var rk4 = IIntegrator<Vec3, Vec2>.Rk4;
         var domainBounding = advection.Domain.Bounding;
         Parallel.ForEach(Partitioner.Create(0, Particles.Length), (range) =>

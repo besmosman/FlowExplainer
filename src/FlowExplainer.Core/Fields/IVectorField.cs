@@ -86,7 +86,7 @@ public class VectorfieldSlice<TUp, TDown, TOutput> : IVectorField<TDown, TOutput
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(base.GetHashCode(), Time());
+        return HashCode.Combine(VectorField.GetHashCode(), Time().GetHashCode());
     }
 }
 

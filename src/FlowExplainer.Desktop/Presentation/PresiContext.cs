@@ -133,9 +133,8 @@ public class PresiContext
         int lineNumber = 0)
     {
         var widgetData = GetWidgetData(filePath, lineNumber);
-        widgetData.RelPosition = relCenter;
-        widgetData.RelSize.X = relWidth;
-        Gizmos2D.ImageCentered(View.Camera2D, texture, RelToSceen(relCenter), RelToSceen(relWidth), alpha:widgetData.AnimAppearing);
+        widgetData.UpdateTransform(relCenter,new Vec2(relWidth, relWidth));
+        Gizmos2D.ImageCentered(View.Camera2D, texture, RelToSceen(widgetData.RelPosition), RelToSceen(widgetData.RelSize.X), alpha:widgetData.AnimAppearing);
     }
 
     

@@ -71,7 +71,10 @@ public abstract class NewPresentation
 
     public void Title(string text, [FilePath] string filePath = "", [LineNumber] int lineNumber = 0)
     {
-        Presi.Text(text, new Vec2(.5f, .94f), .03, true, Color.White, filePath, lineNumber);
+        var h = .94;
+        if (text.Contains('\n'))
+            h -= .03;
+        Presi.Text(text, new Vec2(.5f, h), .03, true, Color.White, filePath, lineNumber);
     }
 
 
