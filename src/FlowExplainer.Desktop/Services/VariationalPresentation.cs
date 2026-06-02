@@ -141,6 +141,10 @@ public class VariationalPresentation : NewPresentation
     {
         if (BeginSlide())
         {
+            Title("02/06/2026");
+        }
+        if (BeginSlide())
+        {
             Presi.MainParagraph("\nA variational theory of hyperbolic Lagrangian Coherent Structures \n (Haller 2010) \n \nComputing Lagrangian coherent structures from their\nvariational theory (Farazmand et al. 2012)" +
                                 "\n \nLCS Tool: A computational platform for \n Lagrangian coherent structures (Onu et al. 2015)");
             Title("Variational LCS");
