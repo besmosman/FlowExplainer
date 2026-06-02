@@ -56,11 +56,11 @@ public class VariationalLCS : WorldService
         /*dF = 10e-3;
         dHessian = dF / 2;*/
         var velocity = VelocityField!.Value;
-        var flowOperator = new IFlowOperator<Vec2, Vec3>.DefaultFlowOperatorUnsteady(256);
+        var flowOperator = new IFlowOperator<Vec2, Vec3>.DefaultFlowOperatorUnsteady(64);
 
         var cauchyGreenField = CachyGreenStrainField(velocity, flowOperator, t0, T, dF);
 
-        var gridSize = new Vec2i(256, 128) * 1;
+        var gridSize = new Vec2i(256, 128) * 3;
 
         IVectorField<Vec2, double> validSubspace;
         IVectorField<Vec2, Vec2> eigenVector1;
@@ -98,9 +98,9 @@ public class VariationalLCS : WorldService
                 return (ConditionAValid(eigenInfo) && conditionB) ? 1 : 0;
             });
 
-            var hh = .000001;
-            var lnLambda2 = lambda2Field.Select(s => double.Log(double.Sqrt(s)));
-            eigen2Grad = new ArbitraryField<Vec2, Vec2>(info.Domain, x => lnLambda2.FiniteDifferenceGradient(x, hh).NormalizedSafe());
+            var hh = .01;
+            var lnLambda2 = lambda2Field.Select(s => double.Log(s));
+            eigen2Grad = new ArbitraryField<Vec2, Vec2>(info.Domain, x => lnLambda2.FiniteDifferenceGradient(x, hh));
         }
 
 
@@ -139,10 +139,10 @@ public class VariationalLCS : WorldService
 
 
         var cellSize = (scaledEigenVector2.Domain.RectBoundary.Size / sseedGridSize);
-        var stepSize = .01;
-        double d = .001;
+        var stepSize = .00001;
+        double d = .0001;
         //var steps = (double.Max(cellSize.X, cellSize.Y) / stepSize) * 20;
-        var steps = 20_000;
+        var steps = 20_00;
         for (int i = 0; i < steps; i++)
         {
             var rk4 = IIntegrator<Vec2, Vec2>.Rk4Steady;

@@ -119,6 +119,8 @@ public class VariationalPresentation : NewPresentation
 
         public override void Draw(View view)
         {
+            var s = EigenVector2.Domain.RectBoundary.Size.Y;
+
             var stepSize = .000001;
             if (Move)
                 for (int i = 0; i < 14; i++)
@@ -128,7 +130,7 @@ public class VariationalPresentation : NewPresentation
                 }
             foreach (var p in localMaximaParticles)
             {
-                Gizmos2D.Instanced.RegisterCircle(p.pos, .003f, Color.Red);
+                Gizmos2D.Instanced.RegisterCircle(p.pos, s * .006f, Color.Red);
             }
             Gizmos2D.Instanced.RenderCircles(view.Camera2D);
         }
@@ -137,6 +139,13 @@ public class VariationalPresentation : NewPresentation
     public double t;
     public override void Draw()
     {
+        if (BeginSlide())
+        {
+            Presi.MainParagraph("\nA variational theory of hyperbolic Lagrangian Coherent Structures \n (Haller 2010) \n \nComputing Lagrangian coherent structures from their\nvariational theory (Farazmand et al. 2012)" +
+                                "\n \nLCS Tool: A computational platform for \n Lagrangian coherent structures (Onu et al. 2015)");
+            Title("Variational LCS");
+        }
+      
         if (BeginSlide())
         {
             var view = DrawWorldPanel(new Vec2(.5, .44), new Vec2(1, .5), zoom: .34,
@@ -287,7 +296,6 @@ $$
 
         for (int i = 1; i <= 3; i++)
         {
-            i = 3;
             var zoomFactor = 1.0;
             if (i > 1)
                 zoomFactor = 2;
@@ -301,7 +309,7 @@ $$\begin{aligned}
 \dot{\mathbf{x}}= uT', t=0, T=3
 \end{aligned}$$", new Vec2(0.5, .5), .2);
             }
-            
+
             if (i == 3 && BeginSlide())
             {
                 Title("Backwords LCSs in Convective Flux");
@@ -312,7 +320,7 @@ $$\begin{aligned}
             }
             if (BeginSlide())
             {
-                var view = DrawWorldPanel(new Vec2(.5, .5), new Vec2(1, .5), zoom: .35*zoomFactor,
+                var view = DrawWorldPanel(new Vec2(.5, .5), new Vec2(1, .5), zoom: .35 * zoomFactor,
                     load: (world) =>
                     {
                         SetupContainedWorld(world, i);
@@ -324,16 +332,16 @@ $$\begin{aligned}
                             GridCells = 800
                         });
                     });
-                view.Camera2D.Position = -new Vec2(2, 1) / (2*zoomFactor);
+                view.Camera2D.Position = -new Vec2(2, 1) / (2 * zoomFactor);
                 Presi.LatexCentered("(C) $\\boldsymbol{\\xi}_2(\\mathbf{x}_0) \\perp \\mathcal{M}(t_0)$", new Vec2(0.5, .9), .14);
             }
 
             if (BeginSlide())
             {
-                var view = DrawWorldPanel(new Vec2(.5, .5), new Vec2(1, .5), zoom: .35*zoomFactor,
+                var view = DrawWorldPanel(new Vec2(.5, .5), new Vec2(1, .5), zoom: .35 * zoomFactor,
                     load: (world) =>
                     {
-                        SetupContainedWorld(world,i);
+                        SetupContainedWorld(world, i);
                         var vectorfield = Artifacts[i].Get<IVectorField<Vec2, Vec2>>("Scaled Eigen Vector 2 Perp");
                         world.AddVisualisationService(new ArrowVisualizer()
                         {
@@ -349,7 +357,7 @@ $$\begin{aligned}
                     }, "#world", 0);
                 var screenRelToWorld = ScreenRelToWorld(Presi.GetWidgetData("#world", 0), Presi.View.MousePosition);
                 view.World.GetWorldService<IntegratorService>().mousepos = screenRelToWorld;
-                view.Camera2D.Position = -new Vec2(2, 1) / (2*zoomFactor);
+                view.Camera2D.Position = -new Vec2(2, 1) / (2 * zoomFactor);
                 Presi.LatexCentered("$\\boldsymbol{\\xi}'^\\perp_2(\\mathbf{x}_0)  \\| \\mathcal{M}(t_0)$", new Vec2(0.5, .9), .14);
 
             }
@@ -357,7 +365,7 @@ $$\begin{aligned}
             if (BeginSlide())
             {
 
-                var view = DrawWorldPanel(new Vec2(.5, .5), new Vec2(1, .5), zoom: .35*zoomFactor,
+                var view = DrawWorldPanel(new Vec2(.5, .5), new Vec2(1, .5), zoom: .35 * zoomFactor,
                     load: (world) =>
                     {
                         SetupContainedWorld(world, i);
@@ -380,7 +388,7 @@ $$\begin{aligned}
                     }, "#world1", 0);
                 var screenRelToWorld = ScreenRelToWorld(Presi.GetWidgetData("#world1", 0), Presi.View.MousePosition);
                 view.World.GetWorldService<IntegratorService>().mousepos = screenRelToWorld;
-                view.Camera2D.Position = -new Vec2(2, 1) / (2*zoomFactor);
+                view.Camera2D.Position = -new Vec2(2, 1) / (2 * zoomFactor);
                 Presi.LatexCentered("$\\text{Valid subspace and } \\boldsymbol{\\xi}'^\\perp_2(\\mathbf{x}_0)  \\| \\mathcal{M}(t_0)$", new Vec2(0.5, .9), .14);
 
             }
@@ -393,10 +401,10 @@ $$\begin{aligned}
             if (BeginSlide())
             {
 
-                var view = DrawWorldPanel(new Vec2(.5, .4), new Vec2(1, .5), zoom: .39*zoomFactor,
+                var view = DrawWorldPanel(new Vec2(.5, .4), new Vec2(1, .5), zoom: .39 * zoomFactor,
                     load: (world) =>
                     {
-                        SetupContainedWorld(world,i);
+                        SetupContainedWorld(world, i);
                         var grid = world.AddVisualisationService<GridVisualizer>();
                         var scalerField = Artifacts[i].Get<IVectorField<Vec2, double>>("Log Lambda 2");
                         grid.SetGridDiagnostic(new Scaler2DGridDiagnostic()
@@ -411,7 +419,7 @@ $$\begin{aligned}
                         world.AddVisualisationService(localMaxService);
                         grid.TargetCellCount = 150_000;
                     });
-                view.Camera2D.Position = -new Vec2(2, 1) / (2*zoomFactor);
+                view.Camera2D.Position = -new Vec2(2, 1) / (2 * zoomFactor);
 
                 var localMaxService = view.World.GetWorldService<LocalMaxService>();
                 Presi.LatexCentered("(D) $\\left\\langle \\nabla \\lambda_2(\\mathbf{x}_0), \\boldsymbol{\\xi}_2(\\mathbf{x}_0) \\right\\rangle = 0$",
@@ -462,7 +470,7 @@ $$
             if (BeginSlide())
             {
                 Title("FTLE");
-                var view = DrawWorldPanel(new Vec2(.5, .5), new Vec2(1, .5), zoom: .34*zoomFactor,
+                var view = DrawWorldPanel(new Vec2(.5, .5), new Vec2(1, .5), zoom: .34 * zoomFactor,
                     load: (world) =>
                     {
                         SetupContainedWorld(world, i);
@@ -471,28 +479,40 @@ $$
                         {
                             ScalerField = Artifacts[i].Get<IVectorField<Vec2, double>>("FTLE"),
                         });
-                        grid.AutoScale = false;
-                        grid.max = .35;
                         grid.TargetCellCount = 150_000;
 
                     });
-                view.Camera2D.Position = -new Vec2(2, 1) / (2*zoomFactor);
+                view.Camera2D.Position = -new Vec2(2, 1) / (2 * zoomFactor);
             }
 
             if (BeginSlide())
             {
                 Title("Variational LCS");
-                var view = DrawWorldPanel(new Vec2(.5, .5), new Vec2(1, .5), zoom: .34*zoomFactor,
+                var view = DrawWorldPanel(new Vec2(.5, .5), new Vec2(1, .5), zoom: .34 * zoomFactor,
                     load: (world) =>
                     {
                         SetupContainedWorld(world, i);
                         var traj = world.AddVisualisationService<TrajDrawerService>();
                         traj.Trajectories = Artifacts[i].Get<TrajectoryGroup<Vec2>>("trajs").Value.Trajectories;
                     });
-                view.Camera2D.Position = -new Vec2(2, 1) / (2*zoomFactor);
+                view.Camera2D.Position = -new Vec2(2, 1) / (2 * zoomFactor);
             }
+            
+            
         }
 
+        if (BeginSlide())
+        {
+            Title("Variants");
+            Presi.MainParagraph(
+                @"
+
+- A variational theory of hyperbolic Lagrangian Coherent Structures
+- Shearless transport barriers in unsteady two-dimensional flows and maps
+- Material barriers to diffusive and stochastic transport
+- Barriers to the Transport of Diffusive Scalars in Compressible Flows
+");
+        }
         void FuncCompare(Texture image, Func<Vec2, Vec2> field)
         {
 
@@ -586,7 +606,7 @@ $$
     public static void RecomputeDataset(FlowExplainer flowExplainer, int d)
     {
         if (!Directory.Exists(folder))
-        Directory.CreateDirectory(folder);
+            Directory.CreateDirectory(folder);
         var world = flowExplainer.GetGlobalService<WorldManagerService>().Worlds[0];
         var variational = world.AddVisualisationService<VariationalLCS>();
         if (d == 1)
@@ -607,23 +627,23 @@ $$
         {
             world.DataService.SetDataset("Double Gyre EPS=0.1, Pe=100");
             variational.VelocityField = world.DataService.Artifacts.Get<IVectorField<Vec3, Vec2>>("Convection Flux");
-            variational.t0 = 2;
-            variational.T = -2;
+            variational.t0 = 3;
+            variational.T = -3;
             variational.l_min = .3;
         }
         variational.Recompute();
-        string su = Path.Combine(folder, "contained"+d);
-        if(Directory.Exists(su))
-           Directory.Delete(su,true);
+        string su = Path.Combine(folder, "contained" + d);
+        if (Directory.Exists(su))
+            Directory.Delete(su, true);
         Directory.CreateDirectory(su);
         foreach (var artifact in variational.Artifacts)
         {
-            ArtifactSerializer.Save(artifact, Path.Combine(folder, "contained"+d, artifact.DisplayName));
+            ArtifactSerializer.Save(artifact, Path.Combine(folder, "contained" + d, artifact.DisplayName));
         }
 
     }
 
-    private Dictionary<int,ArtifactsManager> Artifacts = new();
+    private Dictionary<int, ArtifactsManager> Artifacts = new();
 
 
     public void LoadDataset()
@@ -666,7 +686,7 @@ $$
     {
         var data = world.GetWorldService<DataService>();
         data.SetDataset(DatasetDoubleGyreContained);
-        if(d != 1)
+        if (d != 1)
             data.SetDataset("Double Gyre EPS=0.1, Pe=100");
         var axis = world.AddVisualisationService<AxisVisualizer>();
         foreach (var artifact in Artifacts[d])

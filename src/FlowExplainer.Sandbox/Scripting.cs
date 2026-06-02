@@ -106,6 +106,7 @@ public static class Scripting
             variationalPresentation.LoadDataset();
             world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(variationalPresentation);
             world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+            world.FlowExplainer.GetGlobalService<PresentationService>().Presi.CurrentSlide = 18;
         }
         else
         {
