@@ -100,7 +100,7 @@ public class OptionsManager
         }
     }
 
-    public void ArtifactSelector<T>(ref Artifact<T> field)
+    public void ArtifactSelector<T>(ref Artifact<T>? field)
     {
         if (ImGui.Button("Select artifact"))
         {

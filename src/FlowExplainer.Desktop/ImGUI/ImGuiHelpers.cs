@@ -165,7 +165,7 @@ public class ImGuiHelpers
         ImGui.EndPopup();
     }
 
-    public static bool Combo<T>(string name, ref T value) where T : struct, Enum
+    public static bool EnumCombo<T>(string name, ref T value) where T : struct, Enum
     {
         bool set = false;
         if (ImGui.BeginCombo(name, Enum.GetName(value)))

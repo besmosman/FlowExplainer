@@ -97,10 +97,12 @@ public static class Scripting
         //g.SetGridDiagnostic(new DensityEstimation()); 
 
 
+        
+        LoadScene(world, new SpacetimeDensityStructureScene());
         //
-
+        
         //VariationalPresentation.RecomputeDataset(world.FlowExplainer, 3);
-        if (true)
+        /*if (true)
         {
             var variationalPresentation = new VariationalPresentation();
             variationalPresentation.LoadDataset();
@@ -110,7 +112,7 @@ public static class Scripting
         else
         {
             LoadScene(world, new VariationalScene());
-        }
+        }*/
 
 
         //var g = world.AddVisualisationService<GridVisualizer>();
@@ -249,7 +251,7 @@ gridDiagnostic.Recompute(gridVisualizer);
     {
         world.DataService.SimulationTime = .5f;
         world.FlowExplainer.GetGlobalService<ViewsService>().Views[0].Is3DCamera = true;
-        world.AddVisualisationService(new DensityParticlesData());
+        world.AddVisualisationService(new DensityParticleSystem());
         world.AddVisualisationService(new DensityParticles3DVisualizer());
         world.AddVisualisationService(new SpacetimePathVisualizer());
         world.AddVisualisationService(new Slice3DVisualizer());

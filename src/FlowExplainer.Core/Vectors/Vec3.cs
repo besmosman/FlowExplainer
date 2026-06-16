@@ -278,4 +278,8 @@ public struct Vec3 :
     {
         return a.X * b.X + a.Y * b.Y + a.Z * b.Z;
     }
+    public bool IsReal()
+    {
+        return double.IsRealNumber(X) && double.IsRealNumber(Y) && double.IsRealNumber(Z);
+    }
 }

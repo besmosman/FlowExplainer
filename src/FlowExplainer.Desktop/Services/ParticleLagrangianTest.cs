@@ -178,8 +178,8 @@ public class ParticleLagrangianTest : WorldService
         ImGuiHelpers.Slider("T", ref T, 0, 10);
         ImGuiHelpers.Slider("Radius", ref radius, 0, 1f);
         ImGuiHelpers.Slider("t", ref DisplayT, 0, 1);
-        ImGuiHelpers.Combo("Position", ref positionEnum);
-        ImGuiHelpers.Combo("Value", ref valueEnum);
+        ImGuiHelpers.EnumCombo("Position", ref positionEnum);
+        ImGuiHelpers.EnumCombo("Value", ref valueEnum);
         ImGui.Checkbox("UseGradient", ref useGradient);
         if (ImGui.Button("Reset"))
         {

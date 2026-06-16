@@ -37,8 +37,13 @@ public class RegularGrid<Veci, TData> where Veci : IVec<Veci, int>
             m[i] = m[i - 1] * GridSize[i - 1];
         return m;
     }
-
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public ref TData AtCoordsClamped(Veci x)
+    {
+        x = Utils.Clamp<Veci, int>(x, Veci.Zero, GridSize - Veci.One);
+        int index = GetCoordsIndex(x);
+        return ref Data[index];
+    }
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ref TData AtCoords(Veci x)
     {

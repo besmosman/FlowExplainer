@@ -306,7 +306,8 @@ public class VariationalLCS : WorldService
 
         if (totalLenght >= l_min)
             return new Trajectory<Vec2>(positions.ToArray());
-        else return null;
+        else 
+            return null;
     }
 
     private static ArbitraryField<Vec2, EigenInfo> EigenInfoField(ArbitraryField<Vec2, Tensor2D> cauchyGreenField)

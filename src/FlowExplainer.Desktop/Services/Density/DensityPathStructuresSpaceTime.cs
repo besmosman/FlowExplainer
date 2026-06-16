@@ -22,19 +22,19 @@ public class DensityStructuresSpaceTime3DUI : WorldService
             var flux = GetRequiredWorldService<DataService>().VectorField;
             var bounding = flux.Domain.Bounding;
             double t_bounded = bounding.BoundLastAxis(dat.SimulationTime);
-            var seedInterval = GetRequiredWorldService<DensityParticlesData>().SeedInterval;
+            var seedInterval = GetRequiredWorldService<DensityParticleSystem>().SeedRect;
             var structures = GetRequiredWorldService<DensityPathStructuresSpaceTime>();
-            Gizmos.DrawLine(view, new Vec3(.0, .0, seedInterval.Min), new Vec3(.0, .0, seedInterval.Max), .025, new Color(1, 1, 0));
+            Gizmos.DrawLine(view, new Vec3(.0, .0, seedInterval.Min.Z), new Vec3(.0, .0, seedInterval.Max.Z), .025, new Color(1, 1, 0));
             if (structures.Tau > 0)
             {
-                if (GetRequiredWorldService<DensityParticlesData>().Reversed)
+                /*if (GetRequiredWorldService<DensityParticlesData>().Reversed)
                 {
                     Gizmos.DrawLine(view, new Vec3(.0, .0, t_bounded), new Vec3(.0, .0, t_bounded + structures.Tau), .03, new Color(1, .4, 0));
                 }
                 else
                 {
                     Gizmos.DrawLine(view, new Vec3(.0, .0, t_bounded - structures.Tau), new Vec3(.0, .0, t_bounded), .03, new Color(1, .4, 0));
-                }
+                }*/
             }
         }
     }
@@ -60,7 +60,7 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
     public int SampleToTextureMultiple = 1;
     public Vec2i SampleGridSize;
     public Vec2i TextureSize => SampleGridSize * SampleToTextureMultiple;
-    private Rect<Vec2> WorldRect;
+    private Rect<Vec3> WorldRect;
     private Rect<Vec2> RenderWorldRect;
 
     private bool Extend = true;
@@ -73,9 +73,18 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
     public override string? Name => "Density Path Structures";
     public override string? Description => "Visualization of attracting and repelling structures in transport fields";
 
-    public Vec2 WorldToGrid(Vec2 world)
+    public int HorizontalAxisDimension = 0;
+    public int VerticalAxisDimension = 1;
+
+    public Vec2 GetRelevant2DPos(Vec3 x)
     {
-        return WorldRect.ToRelative(world) * SampleGridSize.ToVec2();
+        return new Vec2(x[HorizontalAxisDimension], x[VerticalAxisDimension]);
+    }
+
+    public Vec2 WorldToGrid(Vec3 world)
+    {
+        var rel = WorldRect.ToRelative(world);
+        return new Vec2(rel[HorizontalAxisDimension], rel[VerticalAxisDimension]) * SampleGridSize.ToVec2();
     }
 
     private Sample def;
@@ -100,14 +109,11 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
 
     private void Reset()
     {
-        var rect = DataService.VectorField.Domain.RectBoundary;
-
-        WorldRect = rect.Reduce<Vec2>();
-
+        var particleSystem = GetRequiredWorldService<DensityParticleSystem>();
+        particleSystem.Initialize();
+        WorldRect = particleSystem.TransportField.Domain.RectBoundary;
         Samples = new Sample[SampleGridSize.Volume()];
         SampleBuffer = new StorageBuffer<Sample>(Samples);
-        ref var Particles = ref GetRequiredWorldService<DensityParticlesData>().Particles;
-        GetRequiredWorldService<DensityParticlesData>().Initialize();
     }
 
     private float EvalNoise(Vec2 pos)
@@ -118,6 +124,9 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
 
     public override void PreDraw()
     {
+        HorizontalAxisDimension = 1;
+        VerticalAxisDimension = 0;
+
         if (DataService.SimulationTime != lastT)
         {
             lastT = DataService.SimulationTime;
@@ -127,11 +136,12 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
                 s.Accumulation *= decayMulti;
                 s.Density *= decayMulti;
             }
-
         }
 
-        SampleGridSize = new Vec2i(SampleGridSizeX, (int)(SampleGridSizeX * (WorldRect.Size / (double)WorldRect.Size.X).Y));
+        var sampleGridSize3D = (WorldRect.Size / WorldRect.Size.X) * SampleGridSizeX;
+        SampleGridSize = new Vec2(sampleGridSize3D[HorizontalAxisDimension], sampleGridSize3D[VerticalAxisDimension]).RoundInt();
         if (Samples.Length != SampleGridSize.Volume())
+
         {
             Array.Resize(ref Samples, SampleGridSize.Volume());
             Array.Clear(Samples);
@@ -157,7 +167,7 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
             var bounding = flux.Domain.Bounding;
             double t_bounded = bounding.BoundLastAxis(dat.SimulationTime);
 
-            var Particles = GetRequiredWorldService<DensityParticlesData>().Particles;
+            var Particles = GetRequiredWorldService<DensityParticleSystem>().Particles;
 
 
             float decayMulti = 1 / (1f + (float)Decay);
@@ -180,10 +190,10 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
             double weightWeight = 0;
             if (DataService.currentSelectedVectorField == "Total Flux")
                 weightWeight = 1;
-            
-            var relevantTime = new Rect<Vec1>(t_bounded - Tau, t_bounded);
-            if( GetRequiredWorldService<DensityParticlesData>().Reversed)
-                relevantTime = new Rect<Vec1>(t_bounded, t_bounded + Tau);
+
+            var relevantTime = new Rect<Vec1>(t_bounded - Tau, t_bounded + Tau);
+            /*if( GetRequiredWorldService<DensityParticlesData>().Reversed)
+                relevantTime = new Rect<Vec1>(t_bounded, t_bounded + Tau);*/
             Parallel.For(0, Particles.Length, c =>
             {
                 ref var p = ref Particles[c];
@@ -191,8 +201,8 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
                 if (!relevantTime.Contains(particleTime))
                     return;
 
-                var centerA = WorldToGrid(p.LastPhase.XY).RoundInt();
-                var centerB = WorldToGrid(p.Phase.XY).RoundInt();
+                var centerA = WorldToGrid(p.LastPhase).RoundInt();
+                var centerB = WorldToGrid(p.Phase).RoundInt();
 
                 if (Vec2.DistanceSquared(p.LastPhase.XY, p.Phase.XY) > (WorldRect.Size.X / 2) * (WorldRect.Size.X / 2))
                 {
@@ -207,14 +217,18 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
                 for (int j = -radY + minCenter.Y; j < radY + maxCenter.Y; j++)
                 {
                     var gridCoord = new Vec2i(i, j);
-                    var samplePos = worldRect.FromRelative((gridCoord.ToVec2() + new Vec2(.0f, .0f)) / SampleGridSize.ToVec2());
+                    var gridRel3D = new Vec3();
+                    gridRel3D[HorizontalAxisDimension] = i;
+                    gridRel3D[VerticalAxisDimension] = j;
+                    gridRel3D /= sampleGridSize3D;
+
+                    var samplePos3d = worldRect.FromRelative(gridRel3D);
+                    var samplePos = new Vec2(samplePos3d[HorizontalAxisDimension], samplePos3d[VerticalAxisDimension]);
                     ref var sampleInfoAt = ref GetSampleInfoAt(gridCoord);
                     double legnthRatio = double.Min(1, Vec2.Distance(p.LastPhase.XY, p.Phase.XY) / InfluenceRadius * 2);
                     double accum = TransferFunction(samplePos, p.LastPhase, p.Phase, t_bounded, p.TimeAlive);
                     accum -= TransferFunction(samplePos, p.LastLastPhase, p.LastPhase, t_bounded, p.TimeAlive) * legnthRatio;
-                    accum *= double.Lerp(.33, double.Abs(p.Weight), weightWeight);
                     accum = Math.Max(accum, 0);
-                    //accum *= (p.Weight);
                     sampleInfoAt.Accumulation += (float)accum;
                     sampleInfoAt.Count++;
                 }
@@ -325,7 +339,7 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
         var bounding = flux.Domain.Bounding;
         double t_bounded = bounding.BoundLastAxis(dat.SimulationTime);
 
-        Gizmos2D.ImageCenteredInvertedY(view.Camera2D, RenderTexture, WorldRect.Center, WorldRect.Size);
+        Gizmos2D.ImageCenteredInvertedY(view.Camera2D, RenderTexture, GetRelevant2DPos(WorldRect.Center), GetRelevant2DPos(WorldRect.Size));
     }
 
 
@@ -355,7 +369,22 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
     public string GetTitle()
     {
         var dat = World.GetWorldService<DataService>();
-        var type = !World.GetWorldService<DensityParticlesData>().Reversed ? "Attracting" : "Repelling";
+        var type = "";
+        switch (World.GetWorldService<DensityParticleSystem>().integrationMode)
+        {
+
+            case DensityParticleSystem.IntegrationMode.Forward:
+                type = "Attracting";
+                break;
+            case DensityParticleSystem.IntegrationMode.Backwords:
+                type = "Repelling";
+                break;
+            case DensityParticleSystem.IntegrationMode.Mixed:
+                type = "Attracting/Repelling";
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
         type = type + " Structures ";
         type += "(" + (dat.currentSelectedVectorField).Replace("Flux", "Contribution") + ")";
         return $"Dataset: [Double Gyre Pe={dat.LoadedDataset.Properties["Pe"]},eps={dat.LoadedDataset.Properties["EPS"]}] \r\n {type}";

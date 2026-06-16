@@ -16,24 +16,26 @@ public class TrajectoryComparison : WorldService
         var Q = DataService.LoadedDataset.VectorFields["Total Flux"];
         var T = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
         var u = new ArbitraryField<Vec3, Vec2>(Q.Domain, p => Q.Evaluate(p) / T.Evaluate(p));
-        var phase = new ArbitraryField<Vec3, Vec3>(Q.Domain, p => Q.Evaluate(p).Up(T.Evaluate(p)));
 
         var t_start = DataService.SimulationTime;
-        var t_end = DataService.SimulationTime+.5;
+        var t_end = DataService.SimulationTime + .1;
 
-        True = IFlowOperator<Vec2, Vec3>.Default.ComputeTrajectory(t_start, t_end, view.MousePosition, u);
+        var flowOperator = new IFlowOperator<Vec2, Vec3>.DefaultFlowOperatorUnsteady(1048);
+        True = flowOperator.ComputeTrajectory(t_start, t_end, view.MousePosition, u);
         // Ficticious = IFlowOperatorSteady<Vec3>.Default.ComputeTrajectory(view.MousePosition.Up(t_start), t_end - t_start, phase);
 
         var rk4 = IIntegrator<Vec3, Vec3>.Rk4Steady;
-        int steps = 64;
-        var fiticiousDt = 1.0;
-        var dt = fiticiousDt / steps;
+        int steps = 164;
+        var fiticiousDt = 0.01;
+        var phase = new ArbitraryField<Vec3, Vec3>(Q.Domain, p => Q.Evaluate(p).Up(T.Evaluate(p)));
         var pos = view.MousePosition.Up(t_start);
         List<Vec3> fict = new List<Vec3>();
         fict.Add(pos);
         for (int i = 0; i < steps; i++)
         {
-            pos = rk4.Integrate(phase, pos, dt * double.Sign(T.Evaluate(pos)));
+            if (!pos.IsReal())
+                break;
+            pos = rk4.Integrate(phase, pos, fiticiousDt);
             fict.Add(pos);
         }
 
@@ -41,13 +43,18 @@ public class TrajectoryComparison : WorldService
 
         foreach (ref var p in True.Entries.AsSpan())
         {
-            Gizmos2D.Instanced.RegisterCircle(p.XY, 0.004f, Color.Green);
+          //  Gizmos2D.Instanced.RegisterCircle(p.XY, 0.005f, Color.Green);
         }
 
 
+        var last = Ficticious.Entries[0];
         foreach (ref var p in Ficticious.Entries.AsSpan())
         {
-            Gizmos2D.Instanced.RegisterCircle(p.XY, 0.004f, Color.Red);
+            var col = Color.Green;
+            if (last.Z > p.Z)
+                col = Color.Red;
+            Gizmos2D.Instanced.RegisterCircle(p.XY, 0.004f, col);
+            last = p;
         }
 
         /*int steps = 0;

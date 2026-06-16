@@ -105,7 +105,7 @@ public class StochasticConnectionVisualization : WorldService
 
         public void OnImGuiEdit(GridVisualizer gridVisualizer)
         {
-            ImGuiHelpers.Combo("Mode", ref type);
+            ImGuiHelpers.EnumCombo("Mode", ref type);
             ImGuiHelpers.Slider("Interpolation", ref interpolationFactor, 0, 1);
         }
     }

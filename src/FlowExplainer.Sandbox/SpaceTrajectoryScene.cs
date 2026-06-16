@@ -1,25 +1,5 @@
 namespace FlowExplainer;
 
-public class TrajectoryComparisonScene : Scene
-{
-    public override void Load(FlowExplainer flowExplainer)
-    {
-        var world = flowExplainer.GetGlobalService<WorldManagerService>().Worlds[0];
-        world.DataService.SetDataset("Double Gyre EPS=0, Pe=100");
-        world.DataService.currentSelectedVectorField = "Total Flux";
-        world.DataService.currentSelectedScaler = "Convective Temperature";
-        world.DataService.SimulationTime = 3f;
-
-        var axis = world.AddVisualisationService<AxisVisualizer>();
-        axis.DrawGradient = false;
-
-        var grid = world.AddVisualisationService<GridVisualizer>();
-        grid.SetGridDiagnostic(new Scaler3DGridDiagnostic());
-        world.DataService.ColorGradient = Gradients.BlueGrayRed;
-        var traj = world.AddVisualisationService<TrajectoryComparison>();
-    }
-}
-
 public class SpaceTrajectoryScene : Scene
 {
     public override void Load(FlowExplainer flowExplainer)
@@ -34,7 +14,7 @@ public class SpaceTrajectoryScene : Scene
         view3D.Is3DCamera = true;
         world.AddVisualisationService<AxisVisualizer>();
         world.AddVisualisationService<Axis3D>();
-        world.AddVisualisationService<DensityParticlesData>();
+        world.AddVisualisationService<DensityParticleSystem>();
         world.AddVisualisationService<DensityParticles3DVisualizer>();
         world.AddVisualisationService<SpacetimePathVisualizer>();
         //world.AddVisualisationService<Slice3DVisualizer>();

@@ -66,13 +66,13 @@ public class DensityParticles3DVisualizer : WorldService
         if (!view.Is3DCamera)
             return;
 
-        foreach (ref var p in GetRequiredWorldService<DensityParticlesData>().Particles.AsSpan())
+        foreach (ref var p in GetRequiredWorldService<DensityParticleSystem>().Particles.AsSpan())
         {
             Gizmos.Instanced.RegisterSphere(p.Phase, Radius, Color.Grey(.9f));
         }
 
         if (ExtendBounds)
-            foreach (ref var p in GetRequiredWorldService<DensityParticlesData>().Particles.AsSpan())
+            foreach (ref var p in GetRequiredWorldService<DensityParticleSystem>().Particles.AsSpan())
                 if (p.Phase.X > 0.5)
                     Gizmos.Instanced.RegisterSphere(p.Phase + new Vec3(-1, 0, 0), Radius, Color.White.WithAlpha(1f));
                 else

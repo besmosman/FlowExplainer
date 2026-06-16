@@ -24,15 +24,14 @@ public class SupplVideoPresentation : NewPresentation
                     data.SimulationTime = 1;
                     data.currentSelectedScaler = "Convective Temperature";
                     data.currentSelectedVectorField = "Diffusion Flux";
-                    var d = world.AddVisualisationService<DensityParticlesData>();
+                    var d = world.AddVisualisationService<DensityParticleSystem>();
                     var s = world.AddVisualisationService<DensityPathStructuresSpaceTime>();
-                    d.dFicticious = .1;
+                    d.dFictitious = .1;
                     d.Particles.ResizeIfNeeded(10000);
-                    d.SeedInterval = new Rect<Vec1>(0, 4);
                     s.Power = 0.3;
                     s.Tau = 3;
                     data.ColorGradient = Gradients.GetGradient("matlab_hot");
-                    d.Reversed = true;
+                    //d.Reversed = true;
 
                 }, "#m");
 

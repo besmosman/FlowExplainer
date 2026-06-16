@@ -102,7 +102,7 @@ public class StochasticVisualization3D : WorldService
         ImGuiHelpers.Slider("Smooth Factor", ref SmoothFactor, 0, 1);
         ImGuiHelpers.Slider("Smooth Steps", ref SmoothSteps, 0, 32);
         ImGuiHelpers.Slider("Depth Scaling", ref depthScaling, 1, 10_0);
-        ImGuiHelpers.Combo("Mode", ref mode);
+        ImGuiHelpers.EnumCombo("Mode", ref mode);
 
         base.DrawImGuiSettings();
     }

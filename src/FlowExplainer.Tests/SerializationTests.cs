@@ -1,5 +1,19 @@
 namespace FlowExplainer.Tests;
 
+public class TrajectoriesTests
+{
+    /*[Fact]
+    public void ScalingTest()
+    {
+        var vel = IVectorField<Vec3, Vec2>.Arbitrary(IDomain<Vec3>.Infinite, (x) => new Vec2(double.Sin(x.X), -double.Cos(x.Y)));
+        var vel = IVectorField<Vec3, Vec2>.Arbitrary(IDomain<Vec3>.Infinite, (x) => new Vec2(double.Sin(x.X), -double.Cos(x.Y)));
+        
+        var flowOp = IFlowOperator<Vec2, Vec3>.Default;
+        var x = new Vec2(1, 0);
+        Assert.True(Vec2.Distance(flowOp.ComputeEnd(0, 1, x, vel),flowOp.ComputeEnd(0, 1, x, vel)));
+    }*/
+}
+
 public class SerializationTests
 {
     [Fact]

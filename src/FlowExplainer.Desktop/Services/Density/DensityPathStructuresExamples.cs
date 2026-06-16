@@ -145,16 +145,13 @@ public class DensityPathStructuresExamples : WorldService
         DataService.SimulationTime = entry.Time;
         DataService.SetDataset(entry.Dataset);
         DataService.currentSelectedVectorField = entry.VectorField;
-        var particles = GetRequiredWorldService<DensityParticlesData>();
+        var particles = GetRequiredWorldService<DensityParticleSystem>();
         var structures = GetRequiredWorldService<DensityPathStructuresSpaceTime>();
-        particles.dFicticious = entry.FictitiousDeltaTime;
-        particles.Reversed = false;
-        if (particles.dFicticious < 0)
+        particles.dFictitious = entry.FictitiousDeltaTime;
+        if (particles.dFictitious < 0)
         {
-            particles.dFicticious = -particles.dFicticious;
-            particles.Reversed = true;
+            particles.dFictitious = -particles.dFictitious;
         }
-        particles.SeedInterval = new Rect<Vec1>(entry.t0, entry.t1);
         //particles.SeedTimeRange = entry.SeedRange;
         structures.Tau = entry.tau;
         structures.Decay = entry.Decay;

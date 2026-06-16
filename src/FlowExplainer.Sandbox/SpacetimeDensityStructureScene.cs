@@ -15,14 +15,14 @@ public class SpacetimeDensityStructureScene : Scene
         view3D.Name = "Spacetime View";
         world.AddVisualisationService<AxisVisualizer>();
         world.AddVisualisationService<Axis3D>();
-        world.AddVisualisationService<DensityParticlesData>();
+        world.AddVisualisationService<DensityParticleSystem>();
         world.AddVisualisationService<DensityParticles3DVisualizer>();
         //world.AddVisualisationService<DensityPathVisualizer>();
         world.AddVisualisationService<Slice3DVisualizer>();
         world.AddVisualisationService<DensityPathStructuresSpaceTime>();
         world.AddVisualisationService<DensityStructuresSpaceTime3DUI>();
-        var examples = world.AddVisualisationService<DensityPathStructuresExamples>();
-        examples.LoadExample(examples.Entries[0]);
+        /*var examples = world.AddVisualisationService<DensityPathStructuresExamples>();*/
+        /*examples.LoadExample(examples.Entries[0]);*/
         var view2D = world.FlowExplainer.GetGlobalService<ViewsService>().NewView();
         view2D.Name = "Texture View";
     }
