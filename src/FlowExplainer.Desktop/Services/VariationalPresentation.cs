@@ -162,7 +162,7 @@ public class VariationalPresentation : NewPresentation
                         Vectorfield = new Artifact<IVectorField<Vec2, Vec2>>(vec, "v", "")
                     });
                 });
-            t += .1;
+            t += .01;
             Presi.LatexCentered(@"$$\dot{\mathbf{x}} = \mathbf{v}(\mathbf{x}, t), \quad \mathbf{x} \in U, \quad t \in [\alpha, \beta]$$", new Vec2(.5, .93), .15);
             Presi.LatexCentered(@"$$\mathbf{F}_{t_0}^t(\mathbf{x}_0) := \mathbf{x}(t, t_0, \mathbf{x}_0)$$", new Vec2(.5, .84), .15);
             // Presi.Slider("t", ref t, 0, 10, new Vec2(.5,.1), .7);

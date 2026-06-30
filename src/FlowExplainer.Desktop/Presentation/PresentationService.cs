@@ -164,7 +164,11 @@ public class PresentationService : GlobalService
             if (window.IsKeyPressed(Keys.Down))
                 NextSlide();
 
-
+            if (window.IsKeyPressed(Keys.R))
+            {
+                Presi.CurrentSlide = 0;
+                Presi.CurrentStep = 0;
+            }
             if (window.IsKeyPressed(Keys.F12))
             {
                 ToggleFullScreen();
