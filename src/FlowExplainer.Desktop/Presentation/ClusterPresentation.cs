@@ -28,7 +28,7 @@ public class ClusterPresentation : NewPresentation
                     data.currentSelectedScaler = "Convective Temperature";
                     world.AddVisualisationService<Axis3D>();
                     //data.ColorGradient = Gradients.Grayscale;
-                    var particles = world.AddVisualisationService<DensityParticleSystem>();
+                    var particles = world.AddVisualisationService<ParticleSystem>();
                     var structure = world.AddVisualisationService<DensityPathStructuresSpaceTime>();
                     world.AddVisualisationService<Slice3DVisualizer>().Disable();
                     //particles.SeedTimeRange = 1.4;
@@ -54,14 +54,14 @@ public class ClusterPresentation : NewPresentation
             }
             if (BeginStep())
             {
-                var densityParticlesData = view3d.World.GetWorldService<DensityParticleSystem>();
+                var densityParticlesData = view3d.World.GetWorldService<ParticleSystem>();
                 var structuresSpaceTime = view3d.World.GetWorldService<DensityPathStructuresSpaceTime>();
                 densityParticlesData.Particles.ResizeIfNeeded(15000);
             }
 
             if (BeginStep())
             {
-                var densityParticlesData = view3d.World.GetWorldService<DensityParticleSystem>();
+                var densityParticlesData = view3d.World.GetWorldService<ParticleSystem>();
                 var structuresSpaceTime = view3d.World.GetWorldService<DensityPathStructuresSpaceTime>();
                 densityParticlesData.dFictitious = -.02;
             }

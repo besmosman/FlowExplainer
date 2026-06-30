@@ -35,7 +35,7 @@ public static class Scripting
 
     public static void Startup(World world)
     {
-        // RebuildSpeetjensDatasets();
+        //RebuildSpeetjensDatasets();
         //LoadPeriodicCopies(world);
         SetGyreDataset(world);
 
@@ -251,7 +251,7 @@ gridDiagnostic.Recompute(gridVisualizer);
     {
         world.DataService.SimulationTime = .5f;
         world.FlowExplainer.GetGlobalService<ViewsService>().Views[0].Is3DCamera = true;
-        world.AddVisualisationService(new DensityParticleSystem());
+        world.AddVisualisationService(new ParticleSystem());
         world.AddVisualisationService(new DensityParticles3DVisualizer());
         world.AddVisualisationService(new SpacetimePathVisualizer());
         world.AddVisualisationService(new Slice3DVisualizer());

@@ -145,7 +145,7 @@ public class DensityPathStructuresExamples : WorldService
         DataService.SimulationTime = entry.Time;
         DataService.SetDataset(entry.Dataset);
         DataService.currentSelectedVectorField = entry.VectorField;
-        var particles = GetRequiredWorldService<DensityParticleSystem>();
+        var particles = GetRequiredWorldService<ParticleSystem>();
         var structures = GetRequiredWorldService<DensityPathStructuresSpaceTime>();
         particles.dFictitious = entry.FictitiousDeltaTime;
         if (particles.dFictitious < 0)

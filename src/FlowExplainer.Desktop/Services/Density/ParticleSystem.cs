@@ -3,7 +3,7 @@ using ImGuiNET;
 
 namespace FlowExplainer;
 
-public class DensityParticleSystem : WorldService
+public class ParticleSystem : WorldService
 {
     public struct Particle
     {
@@ -21,11 +21,11 @@ public class DensityParticleSystem : WorldService
         Mixed,
     }
 
-    public override string? Name => "Density Particles";
-    public ResizableStructArray<Particle> Particles = new(1);
+    public override string? Name => "Particles System";
+    public ResizableStructArray<Particle> Particles = new(8096);
     public double ReseedRate = 0.2;
     public Rect<Vec3> SeedRect;
-    public double dFictitious;
+    public double dFictitious = .05;
     public IntegrationMode integrationMode;
     private int seedCounter;
     public IVectorField<Vec3, Vec3> TransportField;
@@ -43,15 +43,28 @@ public class DensityParticleSystem : WorldService
         }
         var TotalFlux = DataService.LoadedDataset.VectorFields["Total Flux"];
         TransportField = new ArbitraryField<Vec3, Vec3>(new RectDomain<Vec3>(TotalFlux.Domain.RectBoundary),
-            x => TotalFlux.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)));
+            x => TotalFlux.Evaluate(x).Up(double.Abs(ConvectiveTemp.Evaluate(x))));
 
 
     }
 
     public override void PreDraw()
     {
-   
+        var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
+        var TotalFlux = DataService.LoadedDataset.VectorFields["Total Flux"];
 
+        TransportField = new ArbitraryField<Vec3, Vec3>(new RectDomain<Vec3>(TotalFlux.Domain.RectBoundary),
+            x => TotalFlux.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)));
+
+        /*
+        TransportField = new ArbitraryField<Vec3, Vec3>(new RectDomain<Vec3>(TotalFlux.Domain.RectBoundary),
+            x =>
+            {
+                double d = ConvectiveTemp.Evaluate(x);
+                if (double.Abs(d) < 0.001)
+                    d =double.Sign(d) * 0.001;
+                return (TotalFlux.Evaluate(x) / d).Up(1);
+            });*/
         var bounds = TransportField.Domain.Bounding;
 
         //For the forced periodic definition
@@ -68,6 +81,7 @@ public class DensityParticleSystem : WorldService
             _ => throw new ArgumentOutOfRangeException(),
         };
 
+        if(Particles.Length > 0)
         Parallel.ForEach(Partitioner.Create(0, Particles.Length), range =>
         {
             for (int i = range.Item1; i < range.Item2; i++)
@@ -94,7 +108,7 @@ public class DensityParticleSystem : WorldService
 
     public override void Draw(View view)
     {
-        view.CameraOffset = new Vec3(-0.5, -0.25, DataService.SimulationTime);
+        view.CameraOffset = new Vec3(-1.0 / 2, -.5 / 2, DataService.SimulationTime);
     }
 
     private IVectorField<Vec3, T> PerodicExtend<T>(IVectorField<Vec3, T> vec)

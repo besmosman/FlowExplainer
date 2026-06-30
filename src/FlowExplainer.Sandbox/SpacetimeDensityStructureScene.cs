@@ -15,7 +15,7 @@ public class SpacetimeDensityStructureScene : Scene
         view3D.Name = "Spacetime View";
         world.AddVisualisationService<AxisVisualizer>();
         world.AddVisualisationService<Axis3D>();
-        world.AddVisualisationService<DensityParticleSystem>();
+        world.AddVisualisationService<ParticleSystem>();
         world.AddVisualisationService<DensityParticles3DVisualizer>();
         //world.AddVisualisationService<DensityPathVisualizer>();
         world.AddVisualisationService<Slice3DVisualizer>();

@@ -7,8 +7,6 @@ namespace FlowExplainer;
 public class AxisVisualizer : WorldService
 {
     public bool DrawAxis = true;
-    public int StepsX = 5;
-    public int StepsY = 5;
     public bool DrawGradient = true;
     public bool DrawTitle = true;
 
@@ -20,6 +18,23 @@ public class AxisVisualizer : WorldService
     public override string? Description => "Render axis";
     public override string? CategoryName => "General";
 
+    public AxisInfo HorizontalAxis = new AxisInfo("X");
+    public AxisInfo VerticalAxis = new AxisInfo("Y");
+
+    public class AxisInfo
+    {
+        public string Name;
+        public double Min;
+        public double Max;
+        public int Steps;
+        public bool Visible = true;
+        
+        public AxisInfo(string name)
+        {
+            Name = name;
+        }
+    }
+    
     public override void Initialize()
     {
         gradientMesh = new Mesh(new Geometry(
@@ -47,15 +62,15 @@ public class AxisVisualizer : WorldService
         var lh = view.Width / 48f;
         if (DrawAxis)
         {
-            var lb = CoordinatesConverter2D.WorldToView(view, new Vec2(domain.Min.X, domain.Min.Y));
-            var rb = CoordinatesConverter2D.WorldToView(view, new Vec2(domain.Max.X, domain.Min.Y));
-            var lt = CoordinatesConverter2D.WorldToView(view, new Vec2(domain.Min.X, domain.Max.Y));
-            Gizmos2D.Line(view.ScreenCamera, lb + new Vec2(-thickness / 2, margin), rb + new Vec2(0, margin), color, thickness);
-            Gizmos2D.Line(view.ScreenCamera, lb + new Vec2(0, margin), rb + new Vec2(0, margin), color, thickness);
-            Gizmos2D.Line(view.ScreenCamera, lb + new Vec2(-margin, 0), lt + new Vec2(-margin, 0), color, thickness);
+            var horizontalStart = CoordinatesConverter2D.WorldToView(view, new Vec2(HorizontalAxis.Min, 0));
+            var horizontalEnd = CoordinatesConverter2D.WorldToView(view, new Vec2(HorizontalAxis.Max, 0));
+            var verticalStart = CoordinatesConverter2D.WorldToView(view, new Vec2(0, VerticalAxis.Min));
+            var verticalEnd = CoordinatesConverter2D.WorldToView(view, new Vec2(0, VerticalAxis.Max));
+            Gizmos2D.Line(view.ScreenCamera, horizontalStart + new Vec2(-thickness / 2, margin), horizontalEnd + new Vec2(0, margin), color, thickness);
+            Gizmos2D.Line(view.ScreenCamera, verticalStart + new Vec2(-margin, 0), verticalEnd + new Vec2(-margin, 0), color, thickness);
 
 
-            var y = lt.Y - lh * 3.5;
+            var y = verticalEnd.Y - lh * 3.5;
             if (DrawTitle)
                 for (int index = World.Services.Count - 1; index >= 0; index--)
                 {
@@ -64,7 +79,7 @@ public class AxisVisualizer : WorldService
                     {
                         string title = Title ?? titler.GetTitle();
                         title = title.Replace("eps=", " ε=");
-                        Gizmos2D.AdvText(view.ScreenCamera, new Vec2((lb.X + rb.X) / 2, y), lh, color, title, centered: true);
+                        Gizmos2D.AdvText(view.ScreenCamera, new Vec2((horizontalStart.X + horizontalEnd.X) / 2, y), lh, color, title, centered: true);
                         y -= lh*1.8;
                     }
                 }
@@ -87,20 +102,23 @@ public class AxisVisualizer : WorldService
 
                 Gizmos2D.Text(view.ScreenCamera, new Vec2((lb.X + rb.X) / 2, lt.Y - lh * 2), lh, color, title, centered: true);
             }*/
-            for (int i = 0; i <= StepsX; i++)
+            
+            
+            
+            for (int i = 0; i <= HorizontalAxis.Steps; i++)
             {
-                double c = i / (double)StepsX;
-                var value = Utils.Lerp(domain.Min.X, domain.Max.X, c);
-                var pos = Utils.Lerp(lb, rb, c);
+                double c = i / (double)HorizontalAxis.Steps;
+                var value = Utils.Lerp(HorizontalAxis.Min, HorizontalAxis.Max, c);
+                var pos = Utils.Lerp(horizontalStart, horizontalEnd, c);
                 Gizmos2D.Line(view.ScreenCamera, pos + new Vec2(0, 15), pos + new Vec2(0, -thickness / 2f), color, thickness);
                 Gizmos2D.AdvText(view.ScreenCamera, pos + new Vec2(0, 0), lh, color, value.ToString("N1"), centered: true);
             }
 
-            for (int i = 0; i <= StepsY; i++)
+            for (int i = 0; i <= VerticalAxis.Steps; i++)
             {
-                double c = i / (double)StepsY;
+                double c = i / (double)VerticalAxis.Steps;
                 var value = Utils.Lerp(domain.Min.Y, domain.Max.Y, c);
-                var pos = Utils.Lerp(lb, lt, c);
+                var pos = Utils.Lerp(horizontalStart, horizontalEnd, c);
                 Gizmos2D.Line(view.ScreenCamera, pos + new Vec2(-25, 0), pos + new Vec2(thickness / 2f, 0), color, thickness);
                 Gizmos2D.AdvText(view.ScreenCamera, pos + new Vec2(-lh*3,-lh*1.3), lh, color, value.ToString("N1"), centered: true);
             }

@@ -24,7 +24,7 @@ public class SupplVideoPresentation : NewPresentation
                     data.SimulationTime = 1;
                     data.currentSelectedScaler = "Convective Temperature";
                     data.currentSelectedVectorField = "Diffusion Flux";
-                    var d = world.AddVisualisationService<DensityParticleSystem>();
+                    var d = world.AddVisualisationService<ParticleSystem>();
                     var s = world.AddVisualisationService<DensityPathStructuresSpaceTime>();
                     d.dFictitious = .1;
                     d.Particles.ResizeIfNeeded(10000);

@@ -96,7 +96,7 @@ public class ImGuiHelpers
             v = t;
     }
 
-    public static void OptonalVectorFieldSelector<TIn,TOut>(World world, ref IVectorField<TIn, TOut>? vectorField)
+    public static void OptonalVectorFieldSelector<TIn, TOut>(World world, ref IVectorField<TIn, TOut>? vectorField)
         where TIn : IVec<TIn, double>
     {
         var f = vectorField != null;
@@ -114,7 +114,7 @@ public class ImGuiHelpers
 
         var vectorfields = world.GetSelectableVectorFields<TIn, TOut>().ToList();
         if (vectorField == null && f)
-            vectorField =  vectorfields.First().VectorField;
+            vectorField = vectorfields.First().VectorField;
         foreach (var selectable in vectorfields)
         {
             if (selectable.VectorField == vectorField)
@@ -137,7 +137,7 @@ public class ImGuiHelpers
         if (!f)
             ImGui.EndDisabled();
     }
-    
+
     public static bool Slider(string name, ref int f, int min, int max)
     {
         if (ImGui.SliderInt(name, ref f, min, max))
@@ -163,6 +163,24 @@ public class ImGuiHelpers
     public static void EndDataSection()
     {
         ImGui.EndPopup();
+    }
+
+    public static bool NamedIntCombo(string name, ref int axis, string[] axisNames)
+    {
+        bool set = false;
+        if (ImGui.BeginCombo(name, axisNames[axis]))
+        {
+            for (int i = 0; i < axisNames.Length; i++)
+            {
+                if (ImGui.Selectable(axisNames[i], axis == i))
+                {
+                    axis = i;
+                    set = true;
+                }
+            }
+            ImGui.EndCombo();
+        }
+        return set;
     }
 
     public static bool EnumCombo<T>(string name, ref T value) where T : struct, Enum

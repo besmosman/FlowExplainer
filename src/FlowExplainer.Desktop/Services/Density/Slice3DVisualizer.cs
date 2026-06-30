@@ -1,3 +1,4 @@
+using System.Numerics;
 using ImGuiNET;
 using OpenTK.Graphics.OpenGL4;
 
@@ -23,11 +24,14 @@ public class Slice3DVisualizer : WorldService
     {
         if (!view.Is3DCamera)
             return;
+        var spaceTime = GetRequiredWorldService<DensityPathStructuresSpaceTime>();
+        var size = spaceTime.GetRelevant2DPos(DataService.VectorField.Domain.RectBoundary.Size);
+
         SliceView.Camera2D.Scale = 2000f;
-        SliceView.Camera2D.Position = new Vec2(-.5, -.25);
-        SliceView.TargetSize = new Vec2(2000, 1000);
+        SliceView.Camera2D.Position = -size/2;
+        SliceView.TargetSize = size*2000;
         SliceView.ResizeToTargetSize();
-        
+
         SliceView.RenderTarget.DrawTo(() =>
         {
             //GL.ClearColor(.0f, .0f, 0, 0);
@@ -43,17 +47,41 @@ public class Slice3DVisualizer : WorldService
         });
         double t = DataService.SimulationTime;
         RenderTexture.Blit(SliceView.RenderTarget, SliceView.PostProcessingTarget);
-        var p = DataService.VectorField.Domain.Bounding.Bound(new Vec3(0, 0, t));
+        var p = new Vec3();
+        p[spaceTime.SlicingAxis] = spaceTime.SliceValue;
         GL.Enable(EnableCap.DepthTest);
-        Gizmos.DrawTexturedQuadXY(view.Camera, SliceView.PostProcessingTarget, p, DataService.VectorField.Domain.RectBoundary.Size.XY);
-        //Gizmos2D.ImageCenteredInvertedY(view.Camera2D, SliceView.PostProcessingTarget, new Vec2(1.5, .5), new Vec2(1, .5f));
+
+        Gizmos.texturedMat.Use();
+        var pos = p;
+        Gizmos.texturedMat.SetUniform("view", view.Camera.GetViewMatrix());
+        Gizmos.texturedMat.SetUniform("projection", view.Camera.GetProjectionMatrix());
+        var rot = Matrix4x4.Identity;
+        if (spaceTime.SlicingAxis == 1)
+        {
+            rot = Matrix4x4.CreateRotationX(-float.Pi/2) * Matrix4x4.CreateRotationY(-float.Pi/2);
+            //size = new Vec2(size.Y, size.X);
+        }
+        
+        if (spaceTime.SlicingAxis == 0)
+        {
+            rot = Matrix4x4.CreateRotationY(-float.Pi/2) ;
+            //size = new Vec2(size.Y, size.X);
+        }
+        Gizmos.texturedMat.SetUniform("model", 
+                                                Matrix4x4.CreateScale((float)size.X, (float)size.Y, 1) * rot  * 
+                                               Matrix4x4.CreateTranslation(pos.ToNumerics()));
+        Gizmos.texturedMat.SetUniform("tint", Color.White);
+        Gizmos.texturedMat.SetUniform("mainTex", SliceView.PostProcessingTarget);
+        Gizmos.Quad.Draw();
+
+        //Gizmos.DrawTexturedQuadXY(view.Camera, SliceView.PostProcessingTarget, p, DataService.VectorField.Domain.RectBoundary.Size.XY);
     }
 
     public override void DrawImGuiSettings()
     {
         if (ImGui.Button("screen"))
         {
-            SliceView.PostProcessingTarget.SaveToFile("test.png", SliceView.PostProcessingTarget.Size,1);
+            SliceView.PostProcessingTarget.SaveToFile("test.png", SliceView.PostProcessingTarget.Size, 1);
         }
         base.DrawImGuiSettings();
     }

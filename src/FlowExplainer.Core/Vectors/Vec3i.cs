@@ -1,7 +1,9 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace FlowExplainer
 {
+    [StructLayout(LayoutKind.Sequential)]
     public struct Vec3i : IEquatable<Vec3i>, IVec<Vec3i, int>, IVecDoubleEquivalent<Vec3>
     {
         public int X;

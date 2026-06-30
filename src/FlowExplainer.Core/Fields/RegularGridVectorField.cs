@@ -80,6 +80,7 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
             throw new Exception();
 
         return value;*/
+        
     }
 
     public Vec Wrap(Vec x)

@@ -1,5 +1,6 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace FlowExplainer;
 
@@ -8,6 +9,7 @@ public interface IVecDoubleEquivalent<TVecF>
     TVecF ToVecF();
 }
 
+[StructLayout(LayoutKind.Sequential)]
 public struct Vec2i :
     IVec<Vec2i, int>,
     IEquatable<Vec2i>,

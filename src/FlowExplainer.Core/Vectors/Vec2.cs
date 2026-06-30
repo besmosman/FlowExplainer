@@ -1,61 +1,10 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace FlowExplainer;
 
-/*public interface IVec<TVec> : IVec<TVec, double>
-    where TVec : IVec<TVec, double>
-{
-}*/
-
-public interface IVecIntegerEquivalent<TVeci> where TVeci : IVec<TVeci, int>
-{
-    TVeci FloorInt();
-    TVeci RoundInt();
-}
-
-public interface IVec<TVec, TNumber> :
-    IMultiplyOperators<TVec, TNumber, TVec>,
-    ISubtractionOperators<TVec, TVec, TVec>,
-    IDivisionOperators<TVec, TNumber, TVec>,
-    IAdditionOperators<TVec, TVec, TVec>,
-    IEqualityOperators<TVec, TVec, bool>,
-    IEquatable<TVec>
-    where TVec : IVec<TVec, TNumber>
-    where TNumber : INumber<TNumber>
-{
-    public TVec Max(TVec b);
-    public TVec Min(TVec b);
-
-    public int ElementCount { get; }
-
-    public TNumber Sum();
-    public static abstract TNumber Dot(TVec a, TVec b);
-    public static abstract TVec Zero { get; }
-    public static abstract TVec One { get; }
-
-    public TNumber Last { get; set; }
-    public TNumber this[int n] { get; set; }
-
-
-    static abstract TVec operator *(TNumber left, TVec right);
-    static abstract TVec operator *(TVec left, TVec right);
-    static abstract TVec operator /(TVec left, TVec right);
-    static abstract bool operator >(TVec left, TVec right);
-    static abstract bool operator <(TVec left, TVec right);
-
-
-    public TNumber Volume()
-    {
-        TNumber n = TNumber.One;
-
-        for (int i = 0; i < ElementCount; i++)
-            n *= this[i];
-
-        return n;
-    }
-}
-
+[StructLayout(LayoutKind.Sequential)]
 public struct Vec2 : IVec<Vec2, double>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>, IVecIntegerEquivalent<Vec2i>
 {
     public double X;
