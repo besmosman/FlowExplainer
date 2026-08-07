@@ -3,6 +3,9 @@ using MathNet.Numerics.LinearAlgebra.Double;
 
 namespace FlowExplainer;
 
+
+
+
 public class PerronFrobeniusOperatorUlamsMethod
 {
     public struct Particle
@@ -17,6 +20,7 @@ public class PerronFrobeniusOperatorUlamsMethod
     public PointSpatialPartitioner2D<Vec2, Vec2i, Particle>? partitionerStartPoint;
     public PointSpatialPartitioner2D<Vec2, Vec2i, Particle>? partitionerEndPoints;
     private Dictionary<Vec2i, int> CellToMatrixIndex;
+    
     public void Compute(IVectorField<Vec3, Vec2> vectorField)
     {
         var bounds = vectorField.Domain.RectBoundary;

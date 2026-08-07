@@ -16,7 +16,6 @@ public struct Vec3 :
     public double Y;
     public double Z;
 
-    public static int SizeInBytes { get; } = 12;
     public int ElementCount => 3;
     public double Last
     {

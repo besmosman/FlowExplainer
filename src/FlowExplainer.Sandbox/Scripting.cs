@@ -98,7 +98,7 @@ public static class Scripting
 
 
         
-        LoadScene(world, new SpacetimeDensityStructureScene());
+        LoadScene(world, new HeatlinesComparisonScene());
         //
         
         //VariationalPresentation.RecomputeDataset(world.FlowExplainer, 3);

@@ -102,7 +102,7 @@ public class RegularGrid<Veci, TData> where Veci : IVec<Veci, int>
         if (!a.GridSize.Equals(b.GridSize))
             throw new Exception("Different sizes");
     }
-
+    
     public static RegularGrid<Veci, TData> Rent(Veci size)
     {
         var array = ArrayPool<TData>.Shared.Rent(size.Volume());
