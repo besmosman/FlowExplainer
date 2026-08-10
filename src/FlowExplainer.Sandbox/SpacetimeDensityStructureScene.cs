@@ -8,9 +8,10 @@ public class HeatlinesComparisonScene : Scene
         world.DataService.SetDataset("Double Gyre EPS=0.1, Pe=100");
         world.DataService.currentSelectedScaler = "Convective Temperature";
         
+        world.AddVisualisationService(new GridVisualizer());
         world.AddVisualisationService(new HeatlinesService());
         world.DataService.SimulationTime = 3f;
-        
+
     }
 }
 

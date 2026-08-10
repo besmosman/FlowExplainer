@@ -43,10 +43,17 @@ public static class IVectorFieldExtensions
 {
     extension<TInput, TOutput>(IVectorField<TInput, TOutput> v) where TInput : IVec<TInput, double>
     {
-        
-        public ArbitraryField<TInput, D> Select<D>(Func<TOutput, D> selector)
+        public ArbitraryField<TInput, D> SelectOutput<D>(Func<TOutput, D> selector)
         {
             return new ArbitraryField<TInput, D>(v.Domain, p => selector(v.Evaluate(p)));
+        }
+    }
+    
+    extension<TInput, TOutput>(IVectorField<TInput, TOutput> v) where TInput : IVec<TInput, double>
+    {
+        public ArbitraryField<TInput, D> Select<D>(Func<IVectorField<TInput, TOutput>, TInput, D> selector)
+        {
+            return new ArbitraryField<TInput, D>(v.Domain, p => selector(v, p));
         }
     }
 }

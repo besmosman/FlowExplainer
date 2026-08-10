@@ -11,7 +11,7 @@ public class MagnitudeGridDiagnostic : IGridDiagnostic
     public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
         if (vectorfield != null)
-            gridVisualizer.EvaluateParralelGrid(vectorfield.Value.Select(s => s.Length()), token);
+            gridVisualizer.EvaluateParralelGrid(vectorfield.Value.SelectOutput(s => s.Length()), token);
     }
 
     public void OnImGuiEdit(GridVisualizer vis)

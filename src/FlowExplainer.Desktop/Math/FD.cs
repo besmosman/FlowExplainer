@@ -3,8 +3,8 @@ using System.Numerics;
 namespace FlowExplainer;
 
 public static class FD
-{ 
-  
+{
+
     extension<Vec, Veci, Dat>(IVectorField<Vec, Dat> field) where Vec : IVec<Vec, double>, IVecIntegerEquivalent<Veci>
         where Dat : IMultiplyOperators<Dat, double, Dat>, IAdditionOperators<Dat, Dat, Dat>
         where Veci : IVec<Veci, int>, IVecDoubleEquivalent<Vec>
@@ -23,7 +23,7 @@ public static class FD
         {
             var H = new Matrix2();
             var f = scalerfield.Evaluate;
-            
+
             for (int i = 0; i < 2; i++)
             for (int j = 0; j < 2; j++)
             {
@@ -37,9 +37,22 @@ public static class FD
         }
     }
 
+    extension<VecSpatial, VecOut>(IVectorField<VecSpatial, VecOut> scalerfield)
+        where VecSpatial : IVec<VecSpatial, double>
+        where VecOut : INumber<VecOut>, IDivisionOperators<VecOut, double, VecOut>
+    {
+        public VecOut SpatialDerivative(VecSpatial x, int axis, double h)
+        {
+            var leftCoords = x;
+            var rightCoords = x;
+            leftCoords[axis] -= h;
+            rightCoords[axis] += h;
+            return (scalerfield.Evaluate(rightCoords) - scalerfield.Evaluate(leftCoords)) / (2 * h);
+        }
+    }
+
     extension<Vec>(IVectorField<Vec, double> scalerfield) where Vec : IVec<Vec, double>
     {
-
         public Vec FiniteDifferenceGradient(Vec x, double h)
         {
             var d = Vec.Zero;

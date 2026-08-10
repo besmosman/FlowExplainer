@@ -54,7 +54,7 @@ public class VariationalScene : Scene
         var l2 = variational.Artifacts.Get<IVectorField<Vec2, double>>("Lambda 2");
         scaler.SetGridDiagnostic(new Scaler2DGridDiagnostic()
         {
-            ScalerField = new Artifact<IVectorField<Vec2, double>>(l2.Value.Select(s => double.Log(s)), "ln l2", ""),
+            ScalerField = new Artifact<IVectorField<Vec2, double>>(l2.Value.SelectOutput(s => double.Log(s)), "ln l2", ""),
             // ScalerField = variational.GetSelectableVec2Vec1().ElementAt(2).VectorField
         });
         world.AddVisualisationService(new VariationalPresentation.IntegratorService()

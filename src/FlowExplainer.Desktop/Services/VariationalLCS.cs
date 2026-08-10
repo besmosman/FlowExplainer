@@ -99,7 +99,7 @@ public class VariationalLCS : WorldService
             });
 
             var hh = .01;
-            var lnLambda2 = lambda2Field.Select(s => double.Log(s));
+            var lnLambda2 = lambda2Field.SelectOutput(s => double.Log(s));
             eigen2Grad = new ArbitraryField<Vec2, Vec2>(info.Domain, x => lnLambda2.FiniteDifferenceGradient(x, hh));
         }
 
