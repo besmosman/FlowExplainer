@@ -1,5 +1,14 @@
 namespace FlowExplainer;
 
+public class HeatSimScene : Scene
+{
+    public HeatSimulation 
+    public override void Load(FlowExplainer flowExplainer)
+    {
+        
+    }
+}
+
 public class TrajectoryComparisonScene : Scene
 {
     public override void Load(FlowExplainer flowExplainer)

@@ -7,13 +7,17 @@ public interface IDomain<Vec> where Vec : IVec<Vec, double>
 
     public IBounding<Vec> Bounding { get; }
     public static IDomain<Vec> Infinite => new InfiniteDomain();
-
-
+    
     private struct InfiniteDomain : IDomain<Vec>
     {
         public bool IsWithinBounds(Vec p) => true;
         public Rect<Vec> RectBoundary => throw new Exception();
         public IBounding<Vec> Bounding => BoundingFunctions.None<Vec>();
+        
+        public Vec GetPositionFromRelative(Vec rel)
+        {
+            throw new Exception();
+        }
     }
 }
 
@@ -44,6 +48,10 @@ public class DomainSlice<TUp, TDown> : IDomain<TDown>
 
     public Rect<TDown> RectBoundary => oriDomain.RectBoundary.Reduce<TDown>();
     public IBounding<TDown> Bounding => new BoundingDownDim<TUp, TDown>(oriDomain.Bounding, Time());
+    public TDown GetPositionFromRelative(TDown rel)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 public static class DomainExtentions

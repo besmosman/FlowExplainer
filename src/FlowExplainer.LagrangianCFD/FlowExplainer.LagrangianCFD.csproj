@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>FlowExplainer.SphCFD</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\FlowExplainer.Core\FlowExplainer.Core.csproj" />
+      <ProjectReference Include="..\FlowExplainer.Trajectory\FlowExplainer.Trajectory.csproj" />
+    </ItemGroup>
+
+</Project>

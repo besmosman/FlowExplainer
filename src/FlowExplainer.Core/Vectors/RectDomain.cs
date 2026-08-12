@@ -9,6 +9,10 @@ public struct RectDomain<Vec> : IDomain<Vec> where Vec : IVec<Vec, double>
 
     public Rect<Vec> RectBoundary => Rect;
     public IBounding<Vec> Bounding { get; set; }
+    public Vec GetPositionFromRelative(Vec rel)
+    {
+        return Rect.FromRelative(rel);
+    }
 
     public RectDomain(Vec min, Vec max, IBounding<Vec>? bounding = null)
     {

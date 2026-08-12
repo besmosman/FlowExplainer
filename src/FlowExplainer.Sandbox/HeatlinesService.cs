@@ -64,8 +64,22 @@ public class HeatlinesService : WorldService
                 var down = H.AtCoords(new Vec2i(i, j - 1));
 
                 var qAt = q.Evaluate(pos);
-                at = Utils.Lerp(at, right - qAt.X * d.X, step);
-                at = Utils.Lerp(at, up + qAt.Y * d.Y, step);
+                //at = Utils.Lerp(at, right - qAt.X * d.X, step);
+                //dHdy = q_x
+                //dHdy = (up - at)/d.Y
+                //(up - at)/d.Y = c
+                //(up-at) = c*d.Y
+                //-at =  c*d.y - up;
+                //at = up - c*d.y
+                
+                
+                //-dHdx = q.y
+                //-q.c = (right-at)/d.x
+                //-q.c*d.x = right-at
+                // -at = -q.c*d.x - right
+                //at = right + q.c*d.x
+                at = Utils.Lerp(at, up - qAt.X * d.Y, step);
+                at = Utils.Lerp(at, right + qAt.Y * d.X, step);
 
                 
                 var Hdx = (right - left) / (2 * d.X);
