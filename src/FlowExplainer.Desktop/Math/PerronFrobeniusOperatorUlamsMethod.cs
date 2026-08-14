@@ -5,7 +5,6 @@ namespace FlowExplainer;
 
 
 
-
 public class PerronFrobeniusOperatorUlamsMethod
 {
     public struct Particle

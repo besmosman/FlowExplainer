@@ -4,6 +4,7 @@ using System.Numerics;
 using System.Reflection;
 using System.Text;
 using ImGuiNET;
+using MathNet.Numerics.Data.Matlab;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Newtonsoft.Json;
 
@@ -97,10 +98,10 @@ public static class Scripting
         //g.SetGridDiagnostic(new DensityEstimation()); 
 
 
-        
-        LoadScene(world, new HeatSimScene());
+
+        LoadScene(world, new PipeScene());
         //
-        
+
         //VariationalPresentation.RecomputeDataset(world.FlowExplainer, 3);
         /*if (true)
         {

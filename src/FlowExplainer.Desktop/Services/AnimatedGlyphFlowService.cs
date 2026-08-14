@@ -19,8 +19,8 @@ public class AnimatedGlyphFlowService : WorldService, IAxisTitle
     public double lastSimTime = -1f;
     private double avgSpeed = 0.0;
 
-    [Input] public IVectorField<Vec3, Vec2>? AltVectorField;
-    [Input] public double? AltTime;
+    public IVectorField<Vec3, Vec2>? AltVectorField;
+    public double? AltTime;
 
     public override string? Name => "Animated Glyph Flow Visualizer";
     public override string? CategoryName => "Vectorfield";
