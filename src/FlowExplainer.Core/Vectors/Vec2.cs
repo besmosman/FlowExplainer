@@ -159,6 +159,12 @@ public struct Vec2 : IVec<Vec2, double>, IVecUpDimension<Vec3>, IVecDownDimensio
     {
         return (X * X) + (Y * Y);
     }
+    
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public double Area()
+    {
+        return X*Y;
+    }
 
     public static implicit operator Vector2(Vec2 v) => new((float)v.X, (float)v.Y);
     public static explicit operator Vec2(Vector2 v) => new(v.X, v.Y);

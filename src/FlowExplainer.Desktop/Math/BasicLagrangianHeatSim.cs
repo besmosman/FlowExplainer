@@ -5,60 +5,6 @@ using OpenTK.Graphics.ES30;
 
 namespace FlowExplainer;
 
-public class SphHeatSimulation : WorldService
-{
-    public struct Particle
-    {
-        public Vec2 Position;
-        public double Density;
-        public double Mass;
-        public double ThermalConductivity;
-        public double EnergyPerUnitMass;
-        public double T;
-        public bool Border = false;
-    }
-
-    public Particle[] Particles;
-    public IVectorField<Vec3, Vec2> u;
-    private PointSpatialPartitioner2D<Vec2, Vec2i, Particle> Partitioner;
-    public override void Initialize()
-    {
-        List<Vec2> seeds = new();
-
-        var grid = new Vec2i(100, 50);
-        var worldRect = u.Domain.RectBoundary.Reduce<Vec2>();
-        for (int i = 0; i < grid.X; i++)
-        for (int j = 0; j < grid.Y; j++)
-        {
-            seeds.Add(worldRect.FromRelative(worldRect.FromRelative(new Vec2(i, j) / grid)));
-        }
-
-        Particles = new Particle[seeds.Count];
-        for (int i = 0; i < seeds.Count; i++)
-        {
-            Particles[i] = new Particle()
-            {
-                Position = seeds[i],
-                T = 1,
-            };
-        }
-        
-        Partitioner = new PointSpatialPartitioner2D<Vec2, Vec2i, Particle>(.04f);
-        Partitioner.Init(Particles, (ps, i) => ps[i].Position);
-    }
-    
-    public 
-    
-    public override void Draw(View view)
-    {
-        double renderRadius = .01;
-        foreach (var p in Particles)
-        {
-            Gizmos2D.Instanced.RegisterCircle(p.Position, renderRadius, Color.White);
-        }
-    }
-}
-
 public class BasicLagrangianHeatSim
 {
     public struct Particle

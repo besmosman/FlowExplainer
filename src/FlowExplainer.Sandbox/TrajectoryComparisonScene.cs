@@ -2,10 +2,16 @@ namespace FlowExplainer;
 
 public class HeatSimScene : Scene
 {
-    public HeatSimulation 
+     
     public override void Load(FlowExplainer flowExplainer)
-    {
-        
+    { 
+        var world = flowExplainer.GetGlobalService<WorldManagerService>().Worlds[0];
+        world.DataService.SetDataset("Double Gyre EPS=0, Pe=100");
+        world.DataService.currentSelectedVectorField = "Total Flux";
+        world.DataService.currentSelectedScaler = "Convective Temperature";
+        world.DataService.SimulationTime = 3f;
+
+        world.AddVisualisationService(new OperatorSplittedHeatSimulation());
     }
 }
 

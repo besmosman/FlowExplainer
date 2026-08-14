@@ -3,6 +3,8 @@ using static System.Double;
 
 namespace FlowExplainer;
 
+
+
 public class SpeetjensVelocityField : IVectorField<Vec3, Vec2>
 {
     public double epsilon =0.0;

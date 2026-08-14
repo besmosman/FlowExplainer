@@ -98,7 +98,7 @@ public static class Scripting
 
 
         
-        LoadScene(world, new HeatlinesComparisonScene());
+        LoadScene(world, new HeatSimScene());
         //
         
         //VariationalPresentation.RecomputeDataset(world.FlowExplainer, 3);

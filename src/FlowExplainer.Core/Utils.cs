@@ -135,7 +135,7 @@ public static class Utils
         return bounds.Min + bounds.Size * r;
     }
 
-//https://en.wikipedia.org/wiki/Halton_sequence
+    //https://en.wikipedia.org/wiki/Halton_sequence
     public static Vec3 Halton3(Rect<Vec3> bounds, int n)
     {
         double RadicalInverse(int i, int base_)
@@ -151,5 +151,22 @@ public static class Utils
             return r;
         }
         return bounds.FromRelative(new Vec3(RadicalInverse(n, 2), RadicalInverse(n,3), RadicalInverse(n,5)));
+    }
+    
+    public static Vec2 Halton3(Rect<Vec2> bounds, int n)
+    {
+        double RadicalInverse(int i, int base_)
+        {
+            double f = 1.0;
+            double r = 0.0;
+            while (i > 0)
+            {
+                f /= base_;
+                r += f * (i % base_);
+                i /= base_;
+            }
+            return r;
+        }
+        return bounds.FromRelative(new Vec2(RadicalInverse(n, 2), RadicalInverse(n,3)));
     }
 }
