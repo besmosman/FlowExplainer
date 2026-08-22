@@ -7,10 +7,10 @@ public class DataService : WorldService
 {
     public Dataset LoadedDataset = null!;
 
-    public IVectorField<Vec3, Vec2> VectorField => LoadedDataset.VectorFields[currentSelectedVectorField];
+    public IVectorField<Vec3, Vec2> VectorField => LoadedDataset.GetVectorField<Vec3,Vec2>(currentSelectedVectorField);
     public IVectorField<Vec3, Vec2> VectorFieldInstant => new InstantField<Vec3, Vec2>(VectorField, SimulationTime);
 
-    public IVectorField<Vec3, double> ScalerField => LoadedDataset.ScalerFields[currentSelectedScaler];
+    public IVectorField<Vec3, double> ScalerField => LoadedDataset.GetVectorField<Vec3,double>(currentSelectedScaler);
     public IVectorField<Vec3, double> ScalerFieldInstant => new InstantField<Vec3, double>(ScalerField, SimulationTime);
 
     public string currentSelectedScaler = "Total Temperature";
@@ -86,7 +86,21 @@ public class DataService : WorldService
         }
 
         Artifacts.Clear();
-        foreach (var f in LoadedDataset.ScalerFields)
+        foreach (var f in LoadedDataset.Vectorfields)
+        {
+            object vectorfield = f.Value;
+            var vectorfieldType = vectorfield.GetType().GetInterfaces()
+                .FirstOrDefault(f => f.IsGenericType
+                                     && f.GetGenericTypeDefinition() == typeof(IVectorField<,>));
+            
+            var artifactType = typeof(Artifact<>).MakeGenericType(vectorfieldType);
+            var artifact = (IArtifact)Activator.CreateInstance(artifactType, vectorfield, f.Key, $"From dataset: {LoadedDataset.Name}")!;
+            
+            Artifacts.RegisterOrUpdate(artifact);
+        }
+
+        
+        /*foreach (var f in LoadedDataset.ScalerFields)
         {
             Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec3, double>>(f.Value, f.Key, $"From dataset: {LoadedDataset.Name}"));
         }
@@ -108,19 +122,19 @@ public class DataService : WorldService
             var vectorField = f.Value;
             var v = vectorField.ReducedSlice<Vec3, Vec2, Vec2>(() => SimulationTime);
             Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, Vec2>>(v, f.Key + " slice", $"From  dataset: {LoadedDataset.Name}"));
-        }
+        }*/
     }
 
     public override IEnumerable<ISelectableVectorField<Vec3, double>> GetSelectableVec3Vec1()
     {
-        foreach (var f in LoadedDataset.ScalerFields)
-            yield return new SelectableVectorField<Vec3, double>(f.Key, f.Value);
+        foreach (var f in LoadedDataset.GetAllVectorFields<Vec3,double>())
+            yield return new SelectableVectorField<Vec3, double>(f.name, f.vectorField);
     }
 
     public override IEnumerable<ISelectableVectorField<Vec3, Vec2>> GetSelectableVec3Vec2()
     {
-        foreach (var f in LoadedDataset.VectorFields)
-            yield return new SelectableVectorField<Vec3, Vec2>(f.Key, f.Value);
+        foreach (var f in LoadedDataset.GetAllVectorFields<Vec3,Vec2>())
+            yield return new SelectableVectorField<Vec3, Vec2>(f.name, f.vectorField);
     }
 
     public override void Draw(View view)
@@ -143,7 +157,7 @@ public class DataService : WorldService
     public override void DrawImGuiSettings()
     {
         ImGuiHelpers.Slider("Time Multiplier", ref TimeMultiplier, 0, 10);
-        ImGuiHelpers.Slider("Time", ref SimulationTime, 0, LoadedDataset.VectorFields[currentSelectedVectorField].Domain.RectBoundary.Size.Z);
+        ImGuiHelpers.Slider("Time", ref SimulationTime, 0, LoadedDataset.GetVectorField<Vec3,Vec2>(currentSelectedVectorField).Domain.RectBoundary.Size.Z);
 
         VectorField.OnImGuiEdit();
 
@@ -155,7 +169,7 @@ public class DataService : WorldService
             ImGui.EndCombo();
         }
 
-        if (ImGui.BeginCombo("Scaler Field", currentSelectedScaler))
+        /*if (ImGui.BeginCombo("Scaler Field", currentSelectedScaler))
         {
             foreach (var v in LoadedDataset.ScalerFields)
                 if (ImGui.Selectable(v.Key))
@@ -169,7 +183,7 @@ public class DataService : WorldService
                 if (ImGui.Selectable(v.Key))
                     currentSelectedVectorField = v.Key;
             ImGui.EndCombo();
-        }
+        }*/
 
 
         ImGui.Columns(2);
@@ -195,11 +209,5 @@ public class DataService : WorldService
         ImGui.Columns(1);
         base.DrawImGuiSettings();
     }
-
-
-    public void LoadScalerField(string name, string path)
-    {
-        var regularGridVectorField = RegularGridVectorField<Vec3, Vec3i, double>.Load(path);
-        LoadedDataset.ScalerFields.Add(name, regularGridVectorField);
-    }
+    
 }

@@ -14,7 +14,8 @@ public class PresiChildViewController : IViewController
             return;
         
         var window = view.World.FlowExplainer.GetGlobalService<WindowService>()?.Window;
-        var presi = view.World.FlowExplainer.GetGlobalService<PresentationService>()!.Presi;
+        var presentationService = view.World.FlowExplainer.GetGlobalService<PresentationService>();
+        var presi = presentationService!.Presi;
         view.IsSelected = presi.SelectedWidget?.ConnectedObject == view;
         ViewController2D.Update(view, window);
         DefaultViewController.Update3DCamera(view, window);
@@ -22,8 +23,11 @@ public class PresiChildViewController : IViewController
         var mousePosPresi = presi.View.MousePosition;
         
         view.MousePosition = view.RelativeMousePosition;
+        view.IsMouseButtonDownLeft = window.IsMouseButtonDown(MouseButton.Left);
+        view.IsMouseButtonPressedLeft = window.IsMouseButtonPressed(MouseButton.Left);
+        view.MousePosition = presentationService.Presentation.ScreenRelToWorld(view.LastConnectedWidgetData, presi.View.MousePosition);
         ///var relMouseInPresi = presi.CanvasRect.ToRelative(mousePosPresi);
-        //Logger.LogDebug( view.MousePosition.ToString());
+        Logger.LogDebug( view.MousePosition.ToString());
         view.ResizeToTargetSize();
         view.World.Draw(view);
     }
@@ -39,6 +43,8 @@ public class DefaultViewController : IViewController
             Update3DCamera(view, window);
             ViewController2D.Update(view, window);
             ImGUIViewRenderer.Render(view, view.World.FlowExplainer);
+            view.IsMouseButtonDownLeft = window.IsMouseButtonDown(MouseButton.Left);
+            view.IsMouseButtonPressedLeft = window.IsMouseButtonPressed(MouseButton.Left);
             view.World.Draw(view);
         }
     }

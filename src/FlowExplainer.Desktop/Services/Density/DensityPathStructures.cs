@@ -102,7 +102,7 @@ public class DensityPathStructures : WorldService, IAxisTitle
            return;
         
         var flux = GetRequiredWorldService<DataService>().VectorField;
-        var T = GetRequiredWorldService<DataService>().LoadedDataset.ScalerFields["Convective Temperature"];
+        var T = GetRequiredWorldService<DataService>().LoadedDataset.GetVectorField<Vec3,double>("Convective Temperature");
         
         var rk = IIntegrator<Vec3, Vec2>.Rk4;
         var dat = GetRequiredWorldService<DataService>();

@@ -107,6 +107,13 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
                 (x) => RegularGrid.Evaluate(x).Value));
     }
 
+    public T SetGridDiagnostic<T>() where T : IGridDiagnostic
+    {
+        var gridDiagnostic = Activator.CreateInstance<T>();
+        SetGridDiagnostic(gridDiagnostic);
+        return gridDiagnostic;
+    }
+
     public void SetGridDiagnostic(IGridDiagnostic visualizer)
     {
         if (visualizer.GetType() == typeof(LICGridDiagnostic))
@@ -114,7 +121,8 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
 
         diagnostic = visualizer;
         var dat = GetRequiredWorldService<DataService>();
-        var aspect = Vec2.Normalize(dat.VectorField.Domain.RectBoundary.Size.Down());
+        var domain = dat.DataService.LoadedDataset.GetAllVectorFields<Vec3,double>().First().vectorField.Domain;
+        var aspect = Vec2.Normalize(domain.RectBoundary.Size.Down());
         double scale = Math.Sqrt(TargetCellCount / (aspect.X * aspect.Y));
         int width = Math.Max(1, (int)Math.Round(aspect.X * scale));
         int height = Math.Max(1, (int)Math.Round(aspect.Y * scale));

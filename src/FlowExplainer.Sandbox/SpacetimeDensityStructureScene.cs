@@ -11,7 +11,6 @@ public class HeatlinesComparisonScene : Scene
         world.AddVisualisationService(new GridVisualizer());
         world.AddVisualisationService(new HeatlinesService());
         world.DataService.SimulationTime = 3f;
-
     }
 }
 

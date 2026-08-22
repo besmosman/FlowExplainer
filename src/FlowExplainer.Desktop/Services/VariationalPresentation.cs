@@ -156,11 +156,11 @@ public class VariationalPresentation : NewPresentation
                 load: (world) =>
                 {
                     SetupContainedWorld(world);
-                    var vec = DatasetDoubleGyreContained.VectorFields.First().Value.ReducedSlice<Vec3, Vec2, Vec2>(() => t);
+                    /*var vec = DatasetDoubleGyreContained.VectorFields.First().Value.ReducedSlice<Vec3, Vec2, Vec2>(() => t);
                     world.AddVisualisationService(new ArrowVisualizer()
                     {
                         Vectorfield = new Artifact<IVectorField<Vec2, Vec2>>(vec, "v", "")
-                    });
+                    });*/
                 });
             t += .01;
             Presi.LatexCentered(@"$$\dot{\mathbf{x}} = \mathbf{v}(\mathbf{x}, t), \quad \mathbf{x} \in U, \quad t \in [\alpha, \beta]$$", new Vec2(.5, .93), .15);
@@ -530,7 +530,7 @@ $$
                 w.DataService.SetDataset(DatasetDoubleGyreContained);
                 var vec = new ArbitraryField<Vec2, Vec2>(new RectDomain<Vec2>(-Vec2.One, Vec2.One), field);
                 var domainUp = new RectDomain<Vec3>(vec.Domain.RectBoundary.Min.Up(0), vec.Domain.RectBoundary.Max.Up(1));
-                w.DataService.LoadedDataset.VectorFields["t"] = new ArbitraryField<Vec3, Vec2>(domainUp, p => vec.Evaluate(p.XY));
+                w.DataService.LoadedDataset.Vectorfields["t"] = new ArbitraryField<Vec3, Vec2>(domainUp, p => vec.Evaluate(p.XY));
                 w.DataService.currentSelectedVectorField = "t";
 
                 var stochAttracting = w.AddVisualisationService<StochasticVisualization>();
@@ -594,12 +594,12 @@ $$
             },
             (d) =>
             {
-                d.VectorFields.Add("Velocity", new AnalyticalEvolvingVelocityField()
+                /*d.VectorFields.Add("Velocity", new AnalyticalEvolvingVelocityField()
                 {
                     A = 0.1,
                     w = 2 * double.Pi / 10,
                     epsilon = 0.1,
-                });
+                });*/
             });
     }
 

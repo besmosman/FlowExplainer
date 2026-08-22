@@ -2,10 +2,6 @@ namespace FlowExplainer;
 
 public class HeatlinesService : WorldService
 {
-
-
-
-
     public int samplesX = 5;
     public int samplesY = 3;
 
@@ -14,8 +10,8 @@ public class HeatlinesService : WorldService
     public override void Initialize()
     {
         var t = DataService.SimulationTime;
-        var u = DataService.LoadedDataset.VectorFields["Velocity"].ReducedSlice<Vec3, Vec2, Vec2>(() => t);
-        var T = DataService.LoadedDataset.ScalerFields["Total Temperature"].ReducedSlice<Vec3, Vec2, double>(() => t);
+        var u = DataService.LoadedDataset.GetVectorField<Vec3, Vec2>("Velocity").ReducedSlice<Vec3, Vec2, Vec2>(() => t);
+        var T = DataService.LoadedDataset.GetVectorField<Vec3, double>("Total Temperature").ReducedSlice<Vec3, Vec2, double>(() => t);
         var Pe = 100;
 
         var flux = new ArbitraryField<Vec2, Vec2>(T.Domain, x =>
@@ -71,8 +67,8 @@ public class HeatlinesService : WorldService
                 //(up-at) = c*d.Y
                 //-at =  c*d.y - up;
                 //at = up - c*d.y
-                
-                
+
+
                 //-dHdx = q.y
                 //-q.c = (right-at)/d.x
                 //-q.c*d.x = right-at
@@ -81,12 +77,12 @@ public class HeatlinesService : WorldService
                 at = Utils.Lerp(at, up - qAt.X * d.Y, step);
                 at = Utils.Lerp(at, right + qAt.Y * d.X, step);
 
-                
+
                 var Hdx = (right - left) / (2 * d.X);
                 var Hdy = (up - down) / (2 * d.Y);
                 var error1 = Hdx - -qAt.Y;
                 totalError += error1 * error1;
-                
+
                 //var Hdx = (right - at) / d.X;
                 /*var Hdx = (right - left) / (2 * d.X);
                 var Hdy = (up - down) / (2 * d.Y);
@@ -97,16 +93,18 @@ public class HeatlinesService : WorldService
                 //at += -error2 * step;
                 totalError += error1 * error1;*/
             }
+
             int c = 4;
         }
+
         return H;
     }
 
     public override void Draw(View view)
     {
         var t = DataService.SimulationTime;
-        var u = DataService.LoadedDataset.VectorFields["Velocity"].ReducedSlice<Vec3, Vec2, Vec2>(() => t);
-        var T = DataService.LoadedDataset.ScalerFields["Total Temperature"].ReducedSlice<Vec3, Vec2, double>(() => t);
+        var u = DataService.LoadedDataset.GetVectorField<Vec3, Vec2>("Velocity").ReducedSlice<Vec3, Vec2, Vec2>(() => t);
+        var T = DataService.LoadedDataset.GetVectorField<Vec3, double>("Total Temperature").ReducedSlice<Vec3, Vec2, double>(() => t);
         var Pe = 100;
 
         var flux = new ArbitraryField<Vec2, Vec2>(T.Domain, x =>
@@ -134,6 +132,7 @@ public class HeatlinesService : WorldService
                 lastX = x;
             }
         }
+
         Gizmos2D.Instanced.RenderRects(view.Camera2D);
     }
 }

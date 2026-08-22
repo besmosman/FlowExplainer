@@ -1,11 +1,13 @@
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using MemoryPack;
 
 namespace FlowExplainer;
 
+[MemoryPackable]
 [StructLayout(LayoutKind.Sequential)]
-public struct Vec2 : IVec<Vec2, double>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>, IVecIntegerEquivalent<Vec2i>
+public partial struct Vec2 : IVec<Vec2, double>, IVecUpDimension<Vec3>, IVecDownDimension<Vec1>, IVecIntegerEquivalent<Vec2i>
 {
     public double X;
     public double Y;

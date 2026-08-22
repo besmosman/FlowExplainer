@@ -111,7 +111,7 @@ public class DensityPathStructures2 : WorldService, IAxisTitle
     public override void Draw(View view)
     {
         var flux = GetRequiredWorldService<DataService>().VectorField;
-        var Tconv = GetRequiredWorldService<DataService>().LoadedDataset.ScalerFields["Convective Temperature"];
+        var Tconv = GetRequiredWorldService<DataService>().LoadedDataset.GetVectorField<Vec3,double>("Convective Temperature");
 
         // var rk = IIntegrator<Vec3, Vec2>.Rk4;
         var dat = GetRequiredWorldService<DataService>();

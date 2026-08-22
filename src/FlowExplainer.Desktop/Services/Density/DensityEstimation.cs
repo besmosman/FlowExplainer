@@ -16,7 +16,7 @@ public class DensityEstimation : IGridDiagnostic
         {
             Recompute(gridVisualizer);
         }
-        var ConvectiveTemp = gridVisualizer.DataService.LoadedDataset.ScalerFields["Convective Temperature"];
+        var ConvectiveTemp = gridVisualizer.DataService.LoadedDataset.GetVectorField<Vec3,double>("Convective Temperature");
 
         var renderGrid = gridVisualizer.RegularGrid.Grid;
         var domain = ConvectiveTemp.Domain;
@@ -39,13 +39,13 @@ public class DensityEstimation : IGridDiagnostic
         {
             Recompute(gridVisualizer);
         }
-        var ConvectiveTemp = gridVisualizer.DataService.LoadedDataset.ScalerFields["Convective Temperature"];
+        var ConvectiveTemp = gridVisualizer.DataService.LoadedDataset.GetVectorField<Vec3,double>("Convective Temperature");
         ImGuiHelpers.Slider("Render Z", ref RenderZ, 0, ConvectiveTemp.Domain.RectBoundary.Max.Z);
     }
     private void Recompute(GridVisualizer gridVisualizer)
     {
 
-        var ConvectiveTemp = gridVisualizer.DataService.LoadedDataset.ScalerFields["Convective Temperature"];
+        var ConvectiveTemp = gridVisualizer.DataService.LoadedDataset.GetVectorField<Vec3,double>("Convective Temperature");
         var vec = gridVisualizer.DataService.VectorField;
         var transportField = new ArbitraryField<Vec3, Vec3>(vec.Domain, x => vec.Evaluate(x).Up(double.Abs(ConvectiveTemp.Evaluate(x))));
 

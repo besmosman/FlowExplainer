@@ -16,7 +16,7 @@ public class SpacetimePathVisualizer : WorldService
 
     public override void Draw(View view)
     {
-        var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
+        var ConvectiveTemp = DataService.LoadedDataset.GetVectorField<Vec3,double>("Convective Temperature");
         var vec = DataService.VectorField;
         var FluxField = new ArbitraryField<Vec3, Vec3>(vec.Domain, 
             x => vec.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)));

@@ -2,6 +2,61 @@
 
 namespace FlowExplainer
 {
+    public static class DatasetAnalyticalFields
+    {
+        public static Dictionary<Type, Dictionary<string, Type>> AnalyticalFieldsByType = new();
+
+        static DatasetAnalyticalFields()
+        {
+            RegisterAnalyticalField(typeof(SpeetjensVelocityField));
+            RegisterAnalyticalField(typeof(PipeFlow));
+        }
+
+        public static void RegisterAnalyticalField(Type type)
+        {
+            var vectorfieldType = type.GetInterfaces()
+                .FirstOrDefault(f => f.IsGenericType
+                                     && f.GetGenericTypeDefinition() == typeof(IVectorField<,>));
+
+            if (!AnalyticalFieldsByType.TryGetValue(vectorfieldType, out var types))
+            {
+                types = new();
+                AnalyticalFieldsByType.Add(vectorfieldType, types);
+            }
+
+            types.Add(type.Name, type);
+        }
+
+        public static IVectorField<TIn, TOut> BuildFieldFromSave<TIn, TOut>(AnalyticalVectorFieldSave save, IDomain<TIn> refDomain)
+            where TIn : IVec<TIn, double>
+        {
+            var f = AnalyticalFieldsByType[typeof(IVectorField<TIn, TOut>)][save.TypeName];
+            IVectorField<TIn, TOut> inst = null!;
+            var domainConstructor = f.GetConstructor([typeof(IDomain<TIn>)]);
+            if (domainConstructor != null)
+            {
+                inst = (IVectorField<TIn, TOut>)Activator.CreateInstance(f, [refDomain])!;
+            }
+            else inst = (IVectorField<TIn, TOut>)Activator.CreateInstance(f)!;
+
+            if (save.Arguments != null)
+                foreach (var arg in save.Arguments)
+                {
+                    var valueString = arg.Item2;
+                    var fieldInfo = f.GetField(arg.Item1);
+                    if (fieldInfo.FieldType == typeof(int))
+                        fieldInfo.SetValue(inst, int.Parse(arg.Item2));
+                    else if (fieldInfo.FieldType == typeof(double))
+                        fieldInfo.SetValue(inst, double.Parse(arg.Item2));
+                    else if (fieldInfo.FieldType == typeof(IDomain<TIn>))
+                        fieldInfo.SetValue(inst, refDomain);
+                    else throw new NotImplementedException();
+                }
+
+            return inst;
+        }
+    }
+
     public class DatasetsService : GlobalService
     {
         public Dictionary<string, Dataset> Datasets = new();
@@ -17,52 +72,42 @@ namespace FlowExplainer
                         props.TryAdd("Name", "?");
                         var data = new Dataset(props, dataset =>
                         {
-
+                            IDomain<Vec3> lastDomain3d = null;
                             foreach (var f in Directory.EnumerateFiles(fieldsFolder))
                             {
                                 if (f.EndsWith(".vec3_vec2_field"))
                                 {
                                     var field = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(f);
-                                    dataset.VectorFields.Add(field.DisplayName, field);
+                                    dataset.Vectorfields.Add(field.DisplayName, field);
+                                    lastDomain3d = field.Domain;
                                 }
-                                
+
                                 if (f.EndsWith(".vec3_vec1_field"))
                                 {
                                     var field = RegularGridVectorField<Vec3, Vec3i, Double>.Load(f);
-                                    dataset.ScalerFields.Add(field.DisplayName, field);
+                                    dataset.Vectorfields.Add(field.DisplayName, field);
+                                    lastDomain3d = field.Domain;
+                                }
+
+                                if (f.EndsWith(".vec3_vec2_field_analytical"))
+                                {
+                                    var save = BinarySerializer.Load<AnalyticalVectorFieldSave>(f);
+                                    var field = DatasetAnalyticalFields.BuildFieldFromSave<Vec3, Vec2>(save, lastDomain3d);
+                                    dataset.Vectorfields.Add(save.DisplayName, field);
+                                }
+
+                                if (f.EndsWith(".vec3_vec1_field_analytical"))
+                                {
+                                    var save = BinarySerializer.Load<AnalyticalVectorFieldSave>(f);
+                                    var field = DatasetAnalyticalFields.BuildFieldFromSave<Vec3, double>(save, lastDomain3d);
+                                    dataset.Vectorfields.Add(field.DisplayName, field);
                                 }
                             }
-                            
-                            var velocityField = new SpeetjensVelocityField()
-                            {
-                                DisplayName = "Velocity",
-                                epsilon = double.Parse(props!["EPS"]),
-                            };
-                            dataset.VectorFields.Add(velocityField.DisplayName, velocityField);
-
-                            /*var DiffFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "diffFlux.field"));
-                            var ConvFluxField = RegularGridVectorField<Vec3, Vec3i, Vec2>.Load(Path.Combine(fieldsFolder, "convectiveHeatFlux.field"));
-                            var TempConvection = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempConvection.field"));
-                            var TempTot = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempTot.field"));
-                            var TempTotNoFlow = RegularGridVectorField<Vec3, Vec3i, double>.Load(Path.Combine(fieldsFolder, "tempNoFlow.field"));
-                            var totalFlux = new ArbitraryField<Vec3, Vec2>(DiffFluxField.Domain, p => DiffFluxField.Evaluate(p) + ConvFluxField.Evaluate(p));
-                            var velocityField = new SpeetjensVelocityField()
-                            {
-                                epsilon = double.Parse(props!["EPS"]),
-                            };
-                            dataset.VectorFields.Add("Velocity", velocityField);
-                            dataset.VectorFields.Add("Diffusion Flux", DiffFluxField);
-                            dataset.VectorFields.Add("Convection Flux", ConvFluxField);
-                            dataset.VectorFields.Add("Total Flux", totalFlux);
-                            dataset.ScalerFields.Add("Total Temperature", TempTot);
-                            dataset.ScalerFields.Add("Convective Temperature", TempConvection);
-                            dataset.ScalerFields.Add("No Flow Temperature", TempTotNoFlow);*/
                         });
 
                         Datasets.Add(data.Name, data);
                     }
                 }
-            
         }
 
         public override void Draw()

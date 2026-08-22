@@ -44,7 +44,8 @@ namespace FlowExplainer
         public bool IsMouseButtonPressedLeft;
         public Vec2 MousePosition;
         public Vec2 startCamPos = Vec2.Zero;
-
+        public PresiContext.WidgetData LastConnectedWidgetData;
+        
         /// <summary>
         /// As in the target size, not the the current rendertarget size.
         /// </summary>

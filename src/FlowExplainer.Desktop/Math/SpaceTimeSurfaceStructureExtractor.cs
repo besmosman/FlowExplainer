@@ -13,8 +13,8 @@ public class TrajectoryComparison : WorldService
 
     public override void Draw(View view)
     {
-        var Q = DataService.LoadedDataset.VectorFields["Total Flux"];
-        var T = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
+        var Q = DataService.LoadedDataset.GetVectorField<Vec3, Vec2>("Total Flux");
+        var T = DataService.LoadedDataset.GetVectorField<Vec3, double>("Convective Temperature");
         var u = new ArbitraryField<Vec3, Vec2>(Q.Domain, p => Q.Evaluate(p) / T.Evaluate(p));
 
         var t_start = DataService.SimulationTime;
@@ -43,7 +43,7 @@ public class TrajectoryComparison : WorldService
 
         foreach (ref var p in True.Entries.AsSpan())
         {
-          //  Gizmos2D.Instanced.RegisterCircle(p.XY, 0.005f, Color.Green);
+            //  Gizmos2D.Instanced.RegisterCircle(p.XY, 0.005f, Color.Green);
         }
 
 

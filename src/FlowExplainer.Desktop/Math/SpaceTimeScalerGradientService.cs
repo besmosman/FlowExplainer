@@ -39,8 +39,8 @@ public class SpaceTimeScalerGradientService : WorldService
         if(!view.Is3DCamera)
             return;
         
-        var TotalFlux = DataService.LoadedDataset.VectorFields["Total Flux"];
-        var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
+       // var TotalFlux = DataService.LoadedDataset.GetVectorField<Vec3,Vec2>("Total Flux"];
+        //var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
       //  var ScalerField = new ArbitraryField<Vec3, double>(TotalFlux.Domain, x => (TotalFlux.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)).Length()));
       //  var ScalerField = new ArbitraryField<Vec3, double>(TotalFlux.Domain, x => (TotalFlux.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)).Length()));
 

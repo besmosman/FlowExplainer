@@ -295,7 +295,7 @@ Misc:
             w.DataService.SetDataset(nonperiodicDataset);
             var vec = new ArbitraryField<Vec2, Vec2>(new RectDomain<Vec2>(-Vec2.One, Vec2.One), field);
             var domainUp = new RectDomain<Vec3>(vec.Domain.RectBoundary.Min.Up(0), vec.Domain.RectBoundary.Max.Up(1));
-            w.DataService.LoadedDataset.VectorFields["t"] = new ArbitraryField<Vec3, Vec2>(domainUp, p => vec.Evaluate(p.XY));
+            w.DataService.LoadedDataset.Vectorfields["t"] = new ArbitraryField<Vec3, Vec2>(domainUp, p => vec.Evaluate(p.XY));
             w.DataService.currentSelectedVectorField = "t";
 
             var stochAttracting = w.AddVisualisationService<StochasticVisualization>();

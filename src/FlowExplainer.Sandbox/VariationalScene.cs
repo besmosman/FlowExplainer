@@ -14,7 +14,7 @@ public class VariationalScene : Scene
             },
             (d) =>
             {
-                d.VectorFields.Add("Velocity", new AnalyticalEvolvingVelocityField()
+                d.Vectorfields.Add("Velocity", new AnalyticalEvolvingVelocityField()
                 {
                     A = 0.1,
                     w = 2*double.Pi/10,
@@ -30,7 +30,7 @@ public class VariationalScene : Scene
             },
             (d) =>
             {
-                d.VectorFields.Add("Velocity", new ArbitraryField<Vec3, Vec2>(
+                d.Vectorfields.Add("Velocity", new ArbitraryField<Vec3, Vec2>(
                     new RectDomain<Vec3>(new Rect<Vec3>(new Vec3(-1,-1,0),new Vec3(1,1,10))),
                     x => new Vec2(x.X, -x.Y)));
             });

@@ -34,14 +34,14 @@ public class ParticleSystem : WorldService
 
     public override void Initialize()
     {
-        var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
+        var ConvectiveTemp = DataService.LoadedDataset.GetVectorField<Vec3,double>("Convective Temperature");
         Array.Clear(Particles.Array);
         SeedRect = ConvectiveTemp.Domain.RectBoundary;
         foreach (ref var p in Particles.AsSpan())
         {
             Reseed(ref p);
         }
-        var TotalFlux = DataService.LoadedDataset.VectorFields["Total Flux"];
+        var TotalFlux = DataService.LoadedDataset.GetVectorField<Vec3,Vec2>("Total Flux");
         TransportField = new ArbitraryField<Vec3, Vec3>(new RectDomain<Vec3>(TotalFlux.Domain.RectBoundary),
             x => TotalFlux.Evaluate(x).Up(double.Abs(ConvectiveTemp.Evaluate(x))));
 
@@ -50,8 +50,8 @@ public class ParticleSystem : WorldService
 
     public override void PreDraw()
     {
-        var ConvectiveTemp = DataService.LoadedDataset.ScalerFields["Convective Temperature"];
-        var TotalFlux = DataService.LoadedDataset.VectorFields["Total Flux"];
+        var ConvectiveTemp = DataService.LoadedDataset.GetVectorField<Vec3,double>("Convective Temperature");
+        var TotalFlux = DataService.LoadedDataset.GetVectorField<Vec3,Vec2>("Total Flux");
 
         TransportField = new ArbitraryField<Vec3, Vec3>(new RectDomain<Vec3>(TotalFlux.Domain.RectBoundary),
             x => TotalFlux.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)));

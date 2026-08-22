@@ -97,12 +97,27 @@ public abstract class NewPresentation
         return CoordinatesConverter2D.ViewToWorld(view, viewPos);
     }
 
+    public View DrawWorldPanel(Vec2 relCenterPos, Vec2 relSize, World world, double zoom = 1,
+        [FilePath] string filePath = "",
+        [LineNumber] int lineNumber = 0)
+    {
+        var widgetData = Presi.GetWidgetData(filePath, lineNumber);
+        var view = Presi.GetView(widgetData, world);
+        return DrawWorldPanel(relCenterPos, relSize, zoom, view, widgetData);
+    }
+    
     public View DrawWorldPanel(Vec2 relCenterPos, Vec2 relSize, double zoom = 1, Action<World>? load = null,
         [FilePath] string filePath = "",
         [LineNumber] int lineNumber = 0)
     {
         var widgetData = Presi.GetWidgetData(filePath, lineNumber);
         var view = Presi.GetView(widgetData, load);
+        view.LastConnectedWidgetData = widgetData;
+        return DrawWorldPanel(relCenterPos, relSize, zoom, view, widgetData);
+    }
+
+    private View DrawWorldPanel(Vec2 relCenterPos, Vec2 relSize, double zoom, View view, PresiContext.WidgetData widgetData)
+    {
         view.IsActive = true;
         widgetData.UpdateTransform(relCenterPos, relSize);
         //widgetData.RelPosition = relCenterPos;
@@ -129,10 +144,10 @@ public abstract class NewPresentation
         }
         else
         {
-            var firstOrDefault = view.World?.DataService?.LoadedDataset?.VectorFields.FirstOrDefault();
+            var firstOrDefault = view.World?.DataService?.LoadedDataset?.GetAllVectorFields<Vec3,Vec2>().FirstOrDefault();
             if (firstOrDefault.HasValue)
             {
-                var cc = firstOrDefault.Value.Value.Domain.RectBoundary.Center;
+                var cc = firstOrDefault.Value.vectorField.Domain.RectBoundary.Center;
                 view.Camera2D.Position = -cc.XY;
             }
 

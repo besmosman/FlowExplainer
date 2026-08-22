@@ -10,6 +10,7 @@ public class ClusterPresentation : NewPresentation
 
 
     public double t;
+
     public override void Draw()
     {
         Introduction();
@@ -52,6 +53,7 @@ public class ClusterPresentation : NewPresentation
             {
                 view3d.World.GetWorldService<DensityStructuresSpaceTime3DUI>().Enable();
             }
+
             if (BeginStep())
             {
                 var densityParticlesData = view3d.World.GetWorldService<ParticleSystem>();
@@ -75,13 +77,13 @@ public class ClusterPresentation : NewPresentation
                     structuresSpaceTime.Tau = .05;
                 }
             }
+
             Title("Spacetime Visualization");
         }
-
     }
+
     private void Structures()
     {
-
         if (BeginSlide())
         {
             var m = IsFirstStep() ? 1 : .89;
@@ -103,11 +105,12 @@ public class ClusterPresentation : NewPresentation
             {
                 Presi.Slider("time", ref view.World.DataService.SimulationTime, 0, view.World.DataService.ScalerField.Domain.RectBoundary.Max.Z, new Vec2(0.5, .1), .6);
             }
+
             if (BeginStep())
             {
                 Presi.Text("are @red[not physically meaningfull]", new Vec2(.5, .86), .03, true, Color.White);
-
             }
+
             Title("Instantanous Structures");
         }
 
@@ -138,6 +141,7 @@ public class ClusterPresentation : NewPresentation
                 Title("Time Evolving Structures");
                 Presi.Slider("time", ref view.World.DataService.SimulationTime, 0, view.World.DataService.ScalerField.Domain.RectBoundary.Max.Z, new Vec2(0.5, .1), .6);
             }
+
             if (BeginStep())
             {
                 var size = new Vec2(1, .5) / 1.9;
@@ -218,7 +222,6 @@ public class ClusterPresentation : NewPresentation
                 view.World.DataService.SimulationTime = 0;
                 view.World.GetWorldService<StochasticVisualization>().Initialize();
             }
-
         }
 
 
@@ -248,7 +251,6 @@ public class ClusterPresentation : NewPresentation
 
                     var axis = world.AddVisualisationService<AxisVisualizer>();
                     axis.DrawTitle = false;
-
                 }, "#world", 0);
 
             if (IsFirstStep())
@@ -276,18 +278,15 @@ public class ClusterPresentation : NewPresentation
                 }
 
 
-
-
-
                 Presi.Text("'thermal velocity'  = ", new Vec2(.2 + offsetX, middleY), lh, true, Color.White);
                 Presi.RectCentered(new Vec2(.4 + offsetX, middleY + .013), new Vec2(.1, lineThick), Color.White);
                 //Presi.RectCentered(new Vec2(.45, .15), new Vec2(.1, lineThick), Color.White);
                 Presi.Text("Flux", new Vec2(.4 + offsetX, 0.18), lh, true, Color.White);
                 Presi.Text("T'", new Vec2(.4 + offsetX, 0.09), lh, true, Color.White);
             }
+
             if (BeginStep())
             {
-
                 var screenRelToWorld = ScreenRelToWorld(Presi.GetWidgetData("#world", 0), Presi.View.MousePosition);
                 var p = new Vec3(screenRelToWorld, temp.World.DataService.SimulationTime);
                 double temper = temp.World.DataService.ScalerField.Evaluate(p);
@@ -344,15 +343,16 @@ public class ClusterPresentation : NewPresentation
                 });*/
             //  vel.World.GetWorldService<DataService>().SimulationTime = temp.World.DataService.SimulationTime;
         }
+
         if (BeginSlide())
         {
             var t = DrawWorldPanel(new Vec2(.5, .5), new Vec2(1, .5), zoom: .76,
                 load: (w) =>
                 {
                     w.DataService.SetDataset("Double Gyre EPS=0.1, Pe=100");
-                    var flux = w.DataService.LoadedDataset.VectorFields["Total Flux"];
-                    var T = w.DataService.LoadedDataset.ScalerFields["Convective Temperature"];
-                    w.DataService.LoadedDataset.VectorFields["temp"] = new ArbitraryField<Vec3, Vec2>(flux.Domain, x => flux.Evaluate(x) / (T.Evaluate(x)));
+                    var flux = w.DataService.LoadedDataset.GetVectorField<Vec3, Vec2>("Total Flux");
+                    var T = w.DataService.LoadedDataset.GetVectorField<Vec3, double>("Convective Temperature");
+                    w.DataService.LoadedDataset.Vectorfields.Add("temp", new ArbitraryField<Vec3, Vec2>(flux.Domain, x => flux.Evaluate(x) / (T.Evaluate(x))));
                     w.DataService.currentSelectedVectorField = "temp";
                     var stoch = w.AddVisualisationService<StochasticVisualization>();
                     var axis = w.AddVisualisationService<AxisVisualizer>();
@@ -366,6 +366,7 @@ public class ClusterPresentation : NewPresentation
                 }, "#w", 0);
             Title("Artifacts");
         }
+
         if (BeginSlide())
         {
             Title("Problems");
@@ -389,6 +390,7 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
 ";
                 Presi.LatexCentered(latex, new Vec2(.5, .16), .38);
             }
+
             if (BeginStep())
             {
                 Presi.RectCentered(new Vec2(.15, .805), new Vec2(.265, .01), Color.Yellow);
@@ -400,9 +402,9 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
             }
         }
     }
+
     private void DrawArrow(Vec2 end, Vec2 start)
     {
-
         var dir = Vec2.NormalizeSafe(end - start);
         dir = new Vec2(dir.Y, dir.X);
         var top = Utils.Lerp(start, end, .6) + dir * (end - start).Length() / 4;
@@ -411,12 +413,11 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
         Gizmos2D.Line(Presi.View.Camera2D, top, end + -dir * (end - start).Length() / 30, Color.White, 10.1);
         Gizmos2D.Line(Presi.View.Camera2D, bot, end + dir * (end - start).Length() / 30, Color.White, 10.1);
     }
+
     private void StructureAcentuating()
     {
-
         void StructureSlide(int type)
         {
-
             int curStep = 0;
 
             void RegisterStep(string name, ref bool v)
@@ -460,6 +461,7 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
                         p.Direction = -1;
                 }
             }
+
             var structureAccentuatingService = temp.World.GetWorldService<StructureAccentuatingService>();
             Presi.Checkbox("Integration", ref structureAccentuatingService.Integration, new Vec2(0.1, 0.1));
             Presi.Checkbox("Periodic Reseed", ref structureAccentuatingService.Reseed, new Vec2(0.1, 0.02));
@@ -495,6 +497,7 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
             }
         }
     }
+
     private void Introduction()
     {
         if (BeginSlide())
@@ -508,6 +511,7 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
             Title("Convective Heat Transfer");
             Presi.Image(convection, new Vec2(0.5, .43), .78);
         }
+
         if (BeginSlide())
         {
             var relCenterPos = new Vec2(.5, .5);
@@ -557,8 +561,8 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
                 //DrawWalls();
                 Gizmos2D.Rect(Presi.View.Camera2D, lb, rt, grad.Get(.3f));
                 Gizmos2D.AdvText(Presi.View.Camera2D, WorldToScreenRel(worldPanel, new Vec2(0.5, .25)) + new Vec2(0, -20), 40f, Color.White, "Constant Initial Temperature", centered: true);
-
             }
+
             if (BeginStep())
             {
                 //Title("Hot/Cold Wall");
@@ -566,7 +570,6 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
                 Gizmos2D.AdvText(Presi.View.Camera2D, WorldToScreenRel(worldPanel, new Vec2(0.5, .25)) + new Vec2(0, -20), 40f, Color.White, "Constant Initial Temperature", centered: true);
                 DrawWalls();
             }
-
 
 
             if (BeginStep())
@@ -595,6 +598,7 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
                     view.World.RemoveWorldService(view.World.GetWorldService<GridVisualizer>());
                     view.World.AddVisualisationService<ArrowVisualizer>();
                 }
+
                 Presi.Text("u =  sin(πL)cos(πy), v = -cos(πL)sin(πy)\r\n L = x - sin(2πt)", new Vec2(0.5, 0.05), .024f, true, Color.White);
             }
 
@@ -619,7 +623,6 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
 
         if (BeginSlide())
         {
-
             var size = new Vec2(1, .5) / 1.77;
             var posY = .5;
             var offsetX = -.28;
@@ -647,7 +650,6 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
                 posY = .5;
                 offsetX = -.26;
                 DrawPanels();
-
             }
 
             if (BeginStep())
@@ -680,18 +682,14 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
                         data.currentSelectedScaler = "Convective Temperature";
                         world.AddVisualisationService<GridVisualizer>().SetGridDiagnostic(new Scaler3DGridDiagnostic());
                         world.AddVisualisationService<ArrowVisualizer>().Disable();
-
                     }, "#m");
                 vR.World.DataService.SimulationTime = t;
                 vR.World.GetWorldService<GridVisualizer>().Continous = true;
-
-
             }
 
 
             void DrawPanels()
             {
-
                 var viewR = DrawWorldPanel(new Vec2(.5 - offsetX, posY), size, zoom: .78,
                     load: (world) =>
                     {
@@ -719,12 +717,12 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
                     }, "#l");
 
 
-
                 t += Presi.View.World.FlowExplainer.DeltaTime / 2;
                 if (t + 1 >= view.World.DataService.ScalerField.Domain.RectBoundary.Max.Z)
                 {
                     t = 0.01f;
                 }
+
                 view.World.GetWorldService<GridVisualizer>().Continous = true;
                 viewR.World.GetWorldService<GridVisualizer>().Continous = true;
                 view.World.DataService.SimulationTime = t;
@@ -744,11 +742,13 @@ $$\text{ when physical time of trajectories is parameterised via } t(\mathbf{\xi
                 Title("Computing Heat Flux");
                 t = 1.2;
             }
+
             if (SlideEnter())
             {
                 var view = DrawMainView();
                 view.World.GetWorldService<AxisVisualizer>().DrawTitle = false;
             }
+
             if (BeginStep())
             {
                 var view = DrawMainView();

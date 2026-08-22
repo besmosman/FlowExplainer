@@ -29,11 +29,11 @@ void AddExampleDataset(FlowExplainer.FlowExplainer flowExplainer)
         },
         (d) =>
         {
-            d.VectorFields.Add("Double Gyre", new SpeetjensVelocityField()
+            d.Vectorfields.Add("Double Gyre", new SpeetjensVelocityField()
             {
-                epsilon = 0.1
+                Epsilon = 0.1
             });
-            d.ScalerFields.Add("Scaler Field", new ArbitraryField<Vec3, double>(new RectDomain<Vec3>(Vec3.Zero, new Vec3(1, .5, 1)),
+            d.Vectorfields.Add("Scaler Field", new ArbitraryField<Vec3, double>(new RectDomain<Vec3>(Vec3.Zero, new Vec3(1, .5, 1)),
                 (x) => Vec2.Distance(x.XY, new Vec2(.5f + x.Z, .25))));
         });
 

@@ -1,17 +1,24 @@
 using ImGuiNET;
+using MemoryPack;
 using static System.Double;
 
 namespace FlowExplainer;
 
-
+[MemoryPackable]
+public partial struct AnalyticalVectorFieldSave
+{
+    public string TypeName;
+    public string DisplayName;
+    public (string, string)[]? Arguments;
+}
 
 public class SpeetjensVelocityField : IVectorField<Vec3, Vec2>
 {
-    public double epsilon =0.0;
+    public double Epsilon = 0.0;
     public double Period => 1;
-    public string DisplayName { get; set; }
     private Rect<Vec3> Rect = new(Vec3.Zero, new Vec3(1, .5f, 1));
-    public IDomain<Vec3> Domain => new RectDomain<Vec3>(Rect,  BoundingFunctions.Build(
+
+    public IDomain<Vec3> Domain => new RectDomain<Vec3>(Rect, BoundingFunctions.Build(
         [BoundaryType.Periodic, BoundaryType.Fixed, BoundaryType.Periodic], Rect));
 
     public Vec2 Evaluate(Vec3 x)
@@ -34,7 +41,7 @@ public class SpeetjensVelocityField : IVectorField<Vec3, Vec2>
     {
         var D = 0.5f;
         var K = 2f;
-        var L = epsilon * Sin(2 * Pi * t);
+        var L = Epsilon * Sin(2 * Pi * t);
         var u = Sin(K * Pi * (x - L)) * Cos(Pi * y / D);
         var v = -Cos(K * Pi * (x - L)) * Sin(Pi * y / D);
         return new Vec2(u, v);

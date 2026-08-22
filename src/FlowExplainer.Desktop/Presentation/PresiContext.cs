@@ -349,6 +349,24 @@ public class PresiContext
         var view = presiViews[widget];
         return view;
     }
+    
+    public View GetView(WidgetData widget, World world)
+    {
+        if (!presiViews.ContainsKey(widget))
+        {
+            world.Update();
+            var v = new View(1, 1, world)
+            {
+                Controller = new PresiChildViewController(),
+                AltClearColor = PanelBackgroundColor,
+                Name = $"Presentation view",
+            };
+            presiViews.Add(widget, v);
+        }
+
+        var view = presiViews[widget];
+        return view;
+    }
 
     public int GetId(string filepath, int lineNumber)
     {
