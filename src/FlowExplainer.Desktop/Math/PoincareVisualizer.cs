@@ -41,40 +41,49 @@ public class PoincareVisualizer : WorldService, IAxisTitle
         ImGuiHelpers.Slider("Offset", ref Offset, 0, dat.VectorField.Domain.RectBoundary.Size.Last);
         if (ImGui.Button("Generate"))
         {
-            var integrator = IIntegrator<Vec3, Vec2>.Rk4;
-            var poincare = new PoincareComputer(dat.VectorField, integrator);
+            Generate();
+        }
 
-            List<Vec2> start = new();
+        base.DrawImGuiSettings();
+    }
 
-            for (int i = 0; i < StartPoints; i++)
+    public void Generate()
+    {
+        var dat = GetRequiredWorldService<DataService>();
+        var integrator = IIntegrator<Vec3, Vec2>.Rk4;
+        var poincare = new PoincareComputer(dat.VectorField, integrator);
+
+        List<Vec2> start = new();
+
+        for (int i = 0; i < StartPoints; i++)
+        {
+            double t = i / (StartPoints - 1f);
+            if (StartPoints == 1)
+                t = .5f;
+
+            //start.Add(new Vec2(t * dat.VectorField.Domain.RectBoundary.Size.X, 1 / 4f));
+            start.Add(Utils.Random(dat.VectorField.Domain.RectBoundary).XY);
+        }
+
+        Trajectories.Clear();
+        //var traj = poincare.ComputeOne(new Vec3(.3f, .1f, .4f), dat.VectorField.Domain.RectBoundary.Size.Z, StepsPerPeriod, Periods);
+        Parallel.ForEach(start, (p) =>
+        {
+            var traj = poincare.ComputeOne(p.Up(Offset), dat.VectorField.Domain.RectBoundary.Size.Z, StepsPerPeriod, Periods);
+            Trajectories.Add(traj);
+        });
+
+
+        foreach (var t in Trajectories)
+        {
+            foreach (var tEntry in t.Entries)
             {
-                double t = i / (StartPoints - 1f);
-                if (StartPoints == 1)
-                    t = .5f;
-
-                //start.Add(new Vec2(t * dat.VectorField.Domain.RectBoundary.Size.X, 1 / 4f));
-                start.Add(Utils.Random(dat.VectorField.Domain.RectBoundary).XY);
+                if (tEntry.X > 1)
+                    throw new Exception();
             }
+        }
 
-            Trajectories.Clear();
-            //var traj = poincare.ComputeOne(new Vec3(.3f, .1f, .4f), dat.VectorField.Domain.RectBoundary.Size.Z, StepsPerPeriod, Periods);
-            Parallel.ForEach(start, (p) =>
-            {
-                var traj = poincare.ComputeOne(p.Up(Offset), dat.VectorField.Domain.RectBoundary.Size.Z, StepsPerPeriod, Periods);
-                Trajectories.Add(traj);
-            });
-
-
-            foreach (var t in Trajectories)
-            {
-                foreach (var tEntry in t.Entries)
-                {
-                    if (tEntry.X > 1)
-                        throw new Exception();
-                }
-            }
-
-            /*Parallel.ForEach(start, (p) =>
+        /*Parallel.ForEach(start, (p) =>
             {
                 var totalTime =0.0;
                 var x = p.Up(Offset);
@@ -96,10 +105,6 @@ public class PoincareVisualizer : WorldService, IAxisTitle
                 }
                 Trajectories.Add(new Trajectory<Vec2>(hits.ToArray()));
             });*/
-
-        }
-
-        base.DrawImGuiSettings();
     }
 
     public override void Initialize()

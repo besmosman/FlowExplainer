@@ -19,12 +19,12 @@ public static class Scripting
         world.DataService.currentSelectedVectorField = "Velocity";
         world.DataService.currentSelectedScaler = "Convective Temperature";
 
-        //LoadScene(world, new HeatSimScene());
         var op = new OperatorSplittedPullbackTestService();
         op.Initialize();
         //op.Save(5, .01);
-        world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new PullbackPresentation());
-        world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+        LoadScene(world, new PipeScene());
+        //world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new PullbackPresentation());
+        //world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
     }
 
     private static void LoadScene(World world, Scene scene)

@@ -15,6 +15,7 @@ public partial struct Particle
     public double Area;
     public double TotalDifference;
     public double Tsum;
+    public double Tavgsum;
     public double T_noflow;
     public bool IsSelected;
 }
@@ -41,6 +42,7 @@ public class OperatorSplittedPullbackTestService : WorldService
     public SimulationData Data = new();
 
     public bool IsSimulationSource;
+    public double? targetTime;
     public SimulationSave? save;
     public int saveIndex;
 
@@ -56,12 +58,13 @@ public class OperatorSplittedPullbackTestService : WorldService
         T_noflow,
         T_diff,
         T_avg,
+        T_noflow_avg,
         T_diff_avg
     }
 
     public Value renderValue;
     public Position renderPosition;
-    public double renderRadius = .005;
+    public double renderRadius = .004;
 
 
     public void Save(double duration, double stepsize)
@@ -92,7 +95,7 @@ public class OperatorSplittedPullbackTestService : WorldService
             {
                 Epsilon = .1
             };
-            var grid = new Vec2i(128, 64) * 1;
+            var grid = new Vec2i(200, 100);
             var worldRect = Data.u.Domain.RectBoundary.Reduce<Vec2>();
             var particles = new List<Particle>();
 
@@ -135,7 +138,7 @@ public class OperatorSplittedPullbackTestService : WorldService
                 p.Position = p.StartPosition;
             }
 
-            Data.Partitioner = new PointSpatialPartitioner2D<Vec2, Vec2i, Particle>(.05f);
+            Data.Partitioner = new PointSpatialPartitioner2D<Vec2, Vec2i, Particle>(.02f);
             Data.Partitioner.Init(Data.Particles, (ps, i) => ps[i].Position);
             Data.Partitioner.UpdateEntries();
 
@@ -170,7 +173,7 @@ public class OperatorSplittedPullbackTestService : WorldService
     public void DiffusionStep(double dt)
     {
         Data.Partitioner.UpdateEntries();
-        Data.PartitionerStart.UpdateEntries();
+        //Data.PartitionerStart.UpdateEntries();
 
         Parallel.For(0, Particles.Length, (i) =>
         {
@@ -205,6 +208,7 @@ public class OperatorSplittedPullbackTestService : WorldService
                 Particles[i].Flux = 0;
                 Particles[i].TotalDifference += dt * (Particles[i].T - Particles[i].T_noflow);
                 Particles[i].Tsum += dt * Particles[i].T;
+                Particles[i].Tavgsum += dt * Particles[i].T_noflow;
             }
         });
     }
@@ -284,10 +288,9 @@ public class OperatorSplittedPullbackTestService : WorldService
     {
         if (IsSimulationSource)
         {
-            for (int i = 0; i < 1; i++)
-            {
-                Step(.02f);
-            }
+            if (!targetTime.HasValue || targetTime.Value > Data.Time)
+                for (int i = 0; i < 1; i++)
+                    Step(.02f);
 
             if (GetGlobalService<WindowService>().Window.IsKeyPressed(Keys.R))
             {
@@ -324,6 +327,7 @@ public class OperatorSplittedPullbackTestService : WorldService
         {
             Value.T => i => ScaleTemperature(Particles[i].T),
             Value.T_avg => i => ScaleTemperature(Particles[i].Tsum / Data.Time),
+            Value.T_noflow_avg => i => ScaleTemperature(Particles[i].Tavgsum / Data.Time),
             Value.T_noflow => i => ScaleTemperature(Particles[i].T_noflow),
             Value.T_diff => i => (Particles[i].T - Particles[i].T_noflow) + .5,
             Value.T_diff_avg => i => Particles[i].TotalDifference / Data.Time + .5,

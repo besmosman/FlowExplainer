@@ -10,6 +10,5 @@ public class HeatSimScene : Scene
         world.DataService.currentSelectedScaler = "Convective Temperature";
         world.DataService.SimulationTime = 3f;
         world.AddVisualisationService(new OperatorSplittedPullbackTestService() { IsSimulationSource = true });
-        
     }
 }

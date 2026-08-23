@@ -7,18 +7,23 @@ public static class PresiLatexExtension
 {
     private static Dictionary<string, Texture> latexTextures = new();
 
+    
     extension(PresiContext presi)
     {
         public void LatexCentered(string latex, Vec2 center, double lh, [System.Runtime.CompilerServices.CallerFilePath] string filePath = "",
             [System.Runtime.CompilerServices.CallerLineNumber]
             int lineNumber = 0)
         {
+            var name = $"latex_{latex.GetDeterministicHashCode()}.png";
             if (!Directory.Exists("temp"))
                 Directory.CreateDirectory("temp");
+
             if (!latexTextures.TryGetValue(latex, out var txtr))
             {
-                RenderLatexToPng(latex, "temp/latex.png");
-                txtr = new ImageTexture("temp/latex.png")
+                if (!File.Exists($"temp/{name}"))
+                    RenderLatexToPng(latex, $"temp/{name}");
+                
+                txtr = new ImageTexture($"temp/{name}")
                 {
                     TextureMagFilter = TextureMagFilter.Linear,
                     TextureMinFilter = TextureMinFilter.Linear,
@@ -28,7 +33,7 @@ public static class PresiLatexExtension
 
             var ratio = txtr.Size.ToVec2();
             ratio /= ratio.Y;
-            presi.Image(txtr, center, lh * ratio.X/2, filePath, lineNumber);
+            presi.Image(txtr, center, lh * ratio.X / 2, filePath, lineNumber);
         }
     }
 
@@ -67,6 +72,26 @@ public static class PresiLatexExtension
                     throw new Exception();
                 else return;
             }
+        }
+    }
+    
+    //https://stackoverflow.com/questions/41183507/is-there-a-way-to-make-net-core-gethashcode-deterministic
+    static int GetDeterministicHashCode(this string str)
+    {
+        unchecked
+        {
+            int hash1 = (5381 << 16) + 5381;
+            int hash2 = hash1;
+
+            for (int i = 0; i < str.Length; i += 2)
+            {
+                hash1 = ((hash1 << 5) + hash1) ^ str[i];
+                if (i == str.Length - 1)
+                    break;
+                hash2 = ((hash2 << 5) + hash2) ^ str[i + 1];
+            }
+
+            return hash1 + (hash2 * 1566083941);
         }
     }
 }
