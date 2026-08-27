@@ -117,7 +117,7 @@ public class SpeetjensSpectralDatasetProcesser
             if (typeof(TData) == typeof(Vec3))
                 ext = ".vec3_vec3_field";
 
-            discritized.GridField.Save(path + ext);
+            discritized.GridField.SaveToPath(path + ext);
         }
     }
 

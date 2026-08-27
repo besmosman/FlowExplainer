@@ -360,7 +360,7 @@ public class GridVisualizer : WorldService, IAxisTitle, IGradientScaler
             });
         }
 
-        field.Save(path);
+        field.SaveToPath(path);
     }
 
     public void WaitForComputation()

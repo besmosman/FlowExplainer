@@ -10,7 +10,7 @@ public class Dataset
     public string Name => Properties["Name"];
     public Action<Dataset> Load;
     public bool Loaded = false;
-    
+    public string Path;
     public Dictionary<string, string> Properties;
 
     public IVectorField<TIn, TOut> GetVectorField<TIn, TOut>(string name) where TIn : IVec<TIn, double>

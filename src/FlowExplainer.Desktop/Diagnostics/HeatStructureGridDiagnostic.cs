@@ -17,7 +17,6 @@ public class HeatStructureGridDiagnostic : IGridDiagnostic
         var dat = gridVisualizer.GetRequiredWorldService<DataService>();
         var spaceBounds = dat.VectorField.Domain.RectBoundary.Reduce<Vec2>();
         double t = dat.SimulationTime;
-        var tempratureField = dat.ScalerFieldInstant;
         var datVectorFieldInstant = new ArbitraryField<Vec3, Vec2>(dat.VectorField.Domain, p => dat.VectorField.Evaluate(p) * (M / T));
         if (Reverse)
             datVectorFieldInstant = new ArbitraryField<Vec3, Vec2>(dat.VectorField.Domain, p => -dat.VectorField.Evaluate(p) * (M / T));

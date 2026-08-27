@@ -41,11 +41,11 @@ vec4 ColorGradient(float f) {
 }
 
 vec4 Bilinear(vec2 uvv) {
-    vec2 p = uvv * gridSize - 0.5;
+    vec2 p = uvv * (gridSize - 1);
     vec2 coords = floor(p);
     vec2 m = p - coords;
 
-    coords = clamp(coords, vec2(0), gridSize - vec2(1));
+    coords = clamp(coords, vec2(0), gridSize - vec2(2));
 
     
     Data lt = data[GetIndex(coords)];

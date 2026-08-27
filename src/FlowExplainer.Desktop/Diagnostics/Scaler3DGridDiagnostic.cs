@@ -16,7 +16,7 @@ public class Scaler2DGridDiagnostic : IGridDiagnostic
     }
     public void OnImGuiEdit(GridVisualizer gridVisualizer)
     {
-        gridVisualizer.OptionsManager.ArtifactSelector(ref ScalerField);
+        OptionsManager.ArtifactSelector(gridVisualizer.World, ref ScalerField);
     }
 }
 
@@ -37,7 +37,7 @@ public class Scaler3DGridDiagnostic : IGridDiagnostic
     }
     public void OnImGuiEdit(GridVisualizer gridVisualizer)
     {
-        gridVisualizer.OptionsManager.ArtifactSelector(ref scalerField);
+        OptionsManager.ArtifactSelector(gridVisualizer.World, ref scalerField);
         if (scalerField != null)
         {
             var rect = scalerField.Value.Domain.RectBoundary;

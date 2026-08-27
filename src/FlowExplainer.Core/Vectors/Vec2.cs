@@ -89,33 +89,20 @@ public partial struct Vec2 : IVec<Vec2, double>, IVecUpDimension<Vec3>, IVecDown
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
         {
-            switch (n)
-            {
-                case 0: return X;
-                case 1: return Y;
-                default: throw new IndexOutOfRangeException();
-            }
-/*#if DEBUG
+#if DEBUG
             if (n < 0 || n >= ElementCount)
                 throw new IndexOutOfRangeException();
 #endif
-            return Unsafe.Add(ref X, n);*/
+            return Unsafe.Add(ref X, n);
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         set
         {
-
-            switch (n)
-            {
-                case 0: X = value; break;
-                case 1: Y = value; break;
-                default: throw new IndexOutOfRangeException();
-            }
-/*#if DEBUG
+#if DEBUG
             if (n < 0 || n >= ElementCount)
                 throw new IndexOutOfRangeException();
 #endif
-            Unsafe.Add(ref X, n) = value;*/
+            Unsafe.Add(ref X, n) = value;
         }
     }
 

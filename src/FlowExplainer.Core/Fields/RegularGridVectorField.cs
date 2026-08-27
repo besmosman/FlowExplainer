@@ -80,7 +80,6 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
             throw new Exception();
 
         return value;*/
-        
     }
 
     public Vec Wrap(Vec x)
@@ -191,7 +190,21 @@ public class RegularGridVectorField<Vec, Veci, TData> : IVectorField<Vec, TData>
         };
     }
 
-    public void Save(string path)
+    public void Save(string folder, string name, string? customExt = null)
+    {
+        string input = typeof(Vec).Name.ToLowerInvariant();
+        string output = typeof(TData).Name.ToLowerInvariant();
+        if (output == "double")
+            output = "vec1";
+        var ext = input + "_" + output + "_field";
+
+        if (customExt != null)
+            ext = customExt;
+
+        SaveToPath(Path.Combine(folder, name + "." + ext));
+    }
+
+    public void SaveToPath(string path)
     {
         if (genBounding == null)
         {

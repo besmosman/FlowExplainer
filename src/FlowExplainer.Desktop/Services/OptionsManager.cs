@@ -100,7 +100,7 @@ public class OptionsManager
         }
     }
 
-    public void ArtifactSelector<T>(ref Artifact<T>? field)
+    public static void ArtifactSelector(World world,  ref IArtifact field, Func<Type,bool> filter)
     {
         if (ImGui.Button("Select artifact"))
         {
@@ -111,7 +111,38 @@ public class OptionsManager
         ImGui.SetNextWindowSize(windowSize);
         if (ImGui.BeginPopup("artifact-selector"))
         {
-            foreach (var service in WorldService.World.Services)
+            foreach (var service in world.Services)
+            {
+                var artifacts = service.Artifacts.GetAll();
+                foreach (var artifact in artifacts)
+                {
+                    if (filter(artifact.ValueType))
+                    {
+                        if (ImGui.Button(artifact.DisplayName))
+                        {
+                            field = artifact;
+                            ImGui.CloseCurrentPopup();
+                        }
+                    }
+                }
+            }
+            ImGui.EndPopup();
+        }        
+    }
+
+    
+    public static void ArtifactSelector<T>(World world,  ref Artifact<T>? field)
+    {
+        if (ImGui.Button("Select artifact"))
+        {
+            ImGui.OpenPopupOnItemClick("artifact-selector", ImGuiPopupFlags.MouseButtonLeft);
+        }
+        var windowSize = new Vec2(900, 700);
+        ImGui.SetNextWindowPos(ImGui.GetIO().DisplaySize / 2 - windowSize / 2);
+        ImGui.SetNextWindowSize(windowSize);
+        if (ImGui.BeginPopup("artifact-selector"))
+        {
+            foreach (var service in world.Services)
             {
                 var artifacts = service.Artifacts.GetAll(typeof(T));
                 foreach (var artifact in artifacts)

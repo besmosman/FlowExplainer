@@ -16,7 +16,7 @@ public class MagnitudeGridDiagnostic : IGridDiagnostic
 
     public void OnImGuiEdit(GridVisualizer vis)
     {
-        vis.OptionsManager.ArtifactSelector(ref vectorfield);
+        OptionsManager.ArtifactSelector(vis.World, ref vectorfield);
     }
 }
 

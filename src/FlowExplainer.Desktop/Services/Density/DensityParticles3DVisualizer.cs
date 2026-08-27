@@ -17,7 +17,7 @@ public class SpacetimePathVisualizer : WorldService
     public override void Draw(View view)
     {
         var ConvectiveTemp = DataService.LoadedDataset.GetVectorField<Vec3,double>("Convective Temperature");
-        var vec = DataService.VectorField;
+        var vec = DataService.LoadedDataset.GetAllVectorFields<Vec3,Vec2>().FirstOrDefault().vectorField;
         var FluxField = new ArbitraryField<Vec3, Vec3>(vec.Domain, 
             x => vec.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)));
 
@@ -46,7 +46,7 @@ public class SpacetimePathVisualizer : WorldService
     {
         ImGuiHelpers.Slider("X", ref X, 0, 1);
         ImGuiHelpers.Slider("Y", ref Y, 0, .5);
-        ImGuiHelpers.Slider("Z", ref Z, 0, DataService.VectorField.Domain.RectBoundary.Max.Z);
+        ImGuiHelpers.Slider("Z", ref Z, 0, DataService.LoadedDataset.GetAllVectorFields<Vec3,Vec2>().FirstOrDefault().vectorField.Domain.RectBoundary.Max.Z);
         base.DrawImGuiSettings();
     }
 }

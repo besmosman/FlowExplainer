@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 
 namespace FlowExplainer;
 
@@ -9,7 +10,7 @@ public class ArtifactsManager : IEnumerable<IArtifact>
     public void RegisterOrUpdate(IArtifact artifact)
     {
         var type = artifact.ValueType;
-        
+
         if (!artifacts.ContainsKey(type))
             artifacts.Add(type, new());
         var dictionary = artifacts[type];
@@ -33,6 +34,18 @@ public class ArtifactsManager : IEnumerable<IArtifact>
         return (Artifact<T>)(artifacts[typeof(T)][name]);
     }
 
+    public bool TryGet<T>(string name, [NotNullWhen(true)]out Artifact<T>? artifact)
+    {
+        if (artifacts.TryGetValue(typeof(T), out var list))
+            if (list.TryGetValue(name, out var value))
+            {
+                artifact = (Artifact<T>)value;
+                return true;
+            }   
+        artifact = null;
+        return false;
+    }
+
     public IEnumerable<Artifact<T>> GetAll<T>()
     {
         if (!artifacts.TryGetValue(typeof(T), out var all))
@@ -45,6 +58,11 @@ public class ArtifactsManager : IEnumerable<IArtifact>
         if (!artifacts.TryGetValue(t, out var all))
             return [];
         return all.Values;
+    }
+
+    public IEnumerable<IArtifact> GetAll()
+    {
+        return artifacts.SelectMany(s => s.Value.Values);
     }
 
     public IEnumerator<IArtifact> GetEnumerator()

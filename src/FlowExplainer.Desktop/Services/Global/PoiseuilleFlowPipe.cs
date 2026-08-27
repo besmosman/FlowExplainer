@@ -1,6 +1,6 @@
 namespace FlowExplainer;
 
-public class PipeFlow : IVectorField<Vec3, Vec2>
+public class PoiseuilleFlowPipe : IVectorField<Vec3, Vec2>
 {
     //matlab script gives:
     double d_s_out = 60.3e-3; // outer diameter steel pipe
@@ -9,7 +9,7 @@ public class PipeFlow : IVectorField<Vec3, Vec2>
     double delta_c = 3e-3; // thickness casing
     double U = 1e-2;
 
-    public PipeFlow(IDomain<Vec3> domain)
+    public PoiseuilleFlowPipe(IDomain<Vec3> domain)
     {
         Domain = domain;
     }

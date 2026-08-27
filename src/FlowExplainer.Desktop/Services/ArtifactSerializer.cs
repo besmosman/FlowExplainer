@@ -22,13 +22,13 @@ public static class ArtifactSerializer
         {
             field.GridField.RectDomain = new RectDomain<Vec2>(field.Domain.RectBoundary, GenBounding<Vec2>.None());
             field.DisplayName = o.DisplayName;
-            field.GridField.Save(path + ".vec2_vec2_field");
+            field.GridField.SaveToPath(path + ".vec2_vec2_field");
         }
         else if (o.ValueObj is DiscretizedField<Vec2, Vec2i, double> sfield)
         {
             sfield.GridField.RectDomain = new RectDomain<Vec2>(sfield.Domain.RectBoundary, GenBounding<Vec2>.None());
             sfield.DisplayName = o.DisplayName;
-            sfield.GridField.Save(path + ".vec2_vec1_field");
+            sfield.GridField.SaveToPath(path + ".vec2_vec1_field");
         }
         else if (o.ValueObj is TrajectoryGroup<Vec2> traj2d)
         {

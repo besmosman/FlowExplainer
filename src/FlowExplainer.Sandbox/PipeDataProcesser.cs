@@ -1,8 +1,90 @@
+using System.Xml.Linq;
 using MathNet.Numerics.Data.Matlab;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace FlowExplainer;
+
+public class ComsolPipeDataProcessor
+{
+    public void ProcessDataset(string comsolDataPath, string outputDatasetFolder)
+    {
+        if (Directory.Exists(outputDatasetFolder))
+            Directory.Delete(outputDatasetFolder, true);
+        Directory.CreateDirectory(outputDatasetFolder);
+
+        Dictionary<string, string> props = new Dictionary<string, string>();
+        props.Add("Name", $"PipeFlowCase1");
+        props.Add("Loader", $"PipeFlow");
+        var ser = JsonConvert.SerializeObject(props, Formatting.Indented);
+        File.WriteAllText(Path.Combine(outputDatasetFolder, "properties.json"), ser);
+
+        var temperaturePath = Path.Combine(comsolDataPath, "Temperature.txt");
+        var T = ParseTemperatureField(temperaturePath);
+        T.Save(outputDatasetFolder, T.DisplayName);
+    }
+
+
+    private RegularGridVectorField<Vec3, Vec3i, double> ParseTemperatureField(string temperaturePath)
+    {
+        var lines = File.ReadAllLines(temperaturePath);
+        var gridStart = lines.Index().First(l => l.Item.StartsWith("% Grid")).Index + 1;
+
+        var rLine = SplitAndParse(lines[gridStart]);
+        var zLine = SplitAndParse(lines[gridStart + 1]);
+
+        var min = new Vec2(zLine.Min(), rLine.Min());
+        var max = new Vec2(zLine.Max(), rLine.Max());
+
+        var minTime = GetTimeFromLine(lines.First(l => l.StartsWith("% T (K) @ t=")));
+        var maxTime = GetTimeFromLine(lines.Reverse().First(l => l.StartsWith("% T (K) @ t=")));
+
+        var timesteps = lines.Reverse().Count(l => l.StartsWith("% T (K) @ t="));
+        var gridSize = new Vec3i(zLine.Length, rLine.Length, timesteps);
+
+        var rectDomain = new RectDomain<Vec3>(min.Up(minTime), max.Up(maxTime));
+        var temperatureField = new RegularGridVectorField<Vec3, Vec3i, double>(gridSize, rectDomain);
+        var dt = (maxTime - minTime) / (timesteps - 1);
+        Array.Fill(temperatureField.Grid.Data, double.NaN);
+        for (int l = 0; l < lines.Length; l++)
+        {
+            if (lines[l].StartsWith("% T (K) @ t="))
+            {
+                var t = GetTimeFromLine(lines[l]);
+                var tI = (int)double.Round(t / dt);
+                var startL = l + 1;
+                int z = 0;
+                while (lines.Length > startL + z && !lines[startL + z].StartsWith("%"))
+                {
+                    var temps = SplitAndParse(lines[startL + z]);
+                    for (int r = 0; r < temps.Length; r++)
+                    {
+                        temperatureField.Grid.AtCoords(new Vec3i(z, r, tI)) = temps[r];
+                    }
+
+                    z++;
+                }
+            }
+        }
+
+        for (int i = 0; i < temperatureField.Grid.Data.Length; i++)
+            if (double.IsNaN(temperatureField.Grid.Data[i]))
+                throw new Exception();
+
+        temperatureField.DisplayName = Path.GetFileNameWithoutExtension("Temperature");
+        return temperatureField;
+    }
+
+    public double GetTimeFromLine(string s)
+    {
+        return double.Parse(s.Replace("% T (K) @ t=", ""));
+    }
+
+    public double[] SplitAndParse(string s)
+    {
+        return s.Split(' ', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Select(double.Parse).ToArray();
+    }
+}
 
 public class PipeDataProcesser
 {
@@ -11,14 +93,14 @@ public class PipeDataProcesser
         foreach (var p in Directory.EnumerateFiles(path).Take(1))
         {
             var caseName = Path.GetFileNameWithoutExtension(p).TrimStart("Temperature").TrimEnd("_NoLabels");
-            ProcessDataset(p, Path.Combine(outputFolder,$"PipeSegmentCase{caseName}"));
+            ProcessDataset(p, Path.Combine(outputFolder, $"PipeSegmentCase{caseName}"));
         }
     }
 
     private static void ProcessDataset(string path, string outputFolder)
     {
-        if(Directory.Exists(outputFolder))
-            Directory.Delete(outputFolder,true);
+        if (Directory.Exists(outputFolder))
+            Directory.Delete(outputFolder, true);
         Directory.CreateDirectory(outputFolder);
         var mats = MatlabReader.List(path);
         var R = MatlabReader.Read<double>(path, "R");
@@ -65,11 +147,11 @@ public class PipeDataProcesser
         }
 
         temperature.DisplayName = "T";
-        temperature.Save(Path.Combine(outputFolder, "T.vec3_vec1_field"));
+        temperature.SaveToPath(Path.Combine(outputFolder, "T.vec3_vec1_field"));
         BinarySerializer.Save(Path.Combine(outputFolder, "u.vec3_vec2_field_analytical"), new AnalyticalVectorFieldSave
         {
             DisplayName = "u",
-            TypeName = nameof(PipeFlow),
+            TypeName = nameof(PoiseuilleFlowPipe),
         });
 
         Dictionary<string, string> props = new Dictionary<string, string>();

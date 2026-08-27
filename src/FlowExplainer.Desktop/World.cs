@@ -41,6 +41,17 @@ namespace FlowExplainer
                 service.Enable();
         }
 
+        public Artifact<T> GetArtifact<T>(string name)
+        {
+            foreach (var s in Services)
+            {
+                if (s.Artifacts.TryGet<T>(name, out var artifact))
+                    return artifact;
+            }
+
+            throw new ArgumentException();
+        }
+        
         public IEnumerable<ISelectableVectorField<I, O>> GetSelectableVectorFields<I, O>() where I : IVec<I, double>
         {
             if (typeof(I) == typeof(Vec2) && typeof(O) == typeof(double))

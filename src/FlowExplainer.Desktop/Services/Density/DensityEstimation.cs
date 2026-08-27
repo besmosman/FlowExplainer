@@ -2,6 +2,7 @@ using ImGuiNET;
 
 namespace FlowExplainer;
 
+/*
 public class DensityEstimation : IGridDiagnostic
 {
 
@@ -46,7 +47,7 @@ public class DensityEstimation : IGridDiagnostic
     {
 
         var ConvectiveTemp = gridVisualizer.DataService.LoadedDataset.GetVectorField<Vec3,double>("Convective Temperature");
-        var vec = gridVisualizer.DataService.VectorField;
+        var vec = gridVisualizer.DataService;
         var transportField = new ArbitraryField<Vec3, Vec3>(vec.Domain, x => vec.Evaluate(x).Up(double.Abs(ConvectiveTemp.Evaluate(x))));
 
         Density = new RegularGridVectorField<Vec3, Vec3i, double>(new Vec3i(32, 16, 32)*4, ConvectiveTemp.Domain.RectBoundary.Min, ConvectiveTemp.Domain.RectBoundary.Max);
@@ -64,4 +65,4 @@ public class DensityEstimation : IGridDiagnostic
             }
         });
     }
-}
+}*/

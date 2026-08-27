@@ -31,7 +31,7 @@ public class DensityPathStructures : WorldService, IAxisTitle
 
 
 
-
+    public double SimulationTime;
     public Vec2i SampleGridSize = new Vec2i(32, 16) * 24;
     public int ParticleCount = 1;
 
@@ -72,7 +72,7 @@ public class DensityPathStructures : WorldService, IAxisTitle
         Particles = new Particle[ParticleCount];
         ParticlesBuffer = new StorageBuffer<Particle>(Particles);
         var dat = GetRequiredWorldService<DataService>();
-        var rect = dat.VectorField.Domain.RectBoundary;
+        var rect = dat.LoadedDataset.GetAllVectorFields<Vec3,Vec2>().FirstOrDefault().vectorField.Domain.RectBoundary;
         for (int i = 0; i < ParticleCount; i++)
         {
             var pos = Utils.Random(rect).XY;
@@ -101,7 +101,7 @@ public class DensityPathStructures : WorldService, IAxisTitle
         if(!view.Is2DCamera)
            return;
         
-        var flux = GetRequiredWorldService<DataService>().VectorField;
+        var flux = GetRequiredWorldService<DataService>().LoadedDataset.GetAllVectorFields<Vec3,Vec2>().FirstOrDefault().vectorField;
         var T = GetRequiredWorldService<DataService>().LoadedDataset.GetVectorField<Vec3,double>("Convective Temperature");
         
         var rk = IIntegrator<Vec3, Vec2>.Rk4;
@@ -109,7 +109,7 @@ public class DensityPathStructures : WorldService, IAxisTitle
         var bounding = flux.Domain.Bounding;
         var dt = dat.MultipliedDeltaTime;
         
-        var seedRect = dat.VectorField.Domain.RectBoundary.Reduce<Vec2>();
+        var seedRect = dat.LoadedDataset.GetAllVectorFields<Vec3,Vec2>().FirstOrDefault().vectorField.Domain.RectBoundary.Reduce<Vec2>();
 
         //seedRect = new Rect<Vec2>(Vec2.Zero, new Vec2(1, 0));
         //seedRect = new Rect<Vec2>(new Vec2(.3, .1), new Vec2(.7, .4));
@@ -118,7 +118,7 @@ public class DensityPathStructures : WorldService, IAxisTitle
             ref var p = ref Particles[i];
             p.LastPosition = p.Position;
             float temp = (float)T.Evaluate(p.Position.Up(p.IntegrationTime));
-            p.Position = bounding.Bound(rk.Integrate(flux, p.Position.Up(dat.SimulationTime), dt)).XY;
+            p.Position = bounding.Bound(rk.Integrate(flux, p.Position.Up(SimulationTime), dt)).XY;
             if (dt != 0 && Utils.Random(0, 1) > 1f - reseedRate)
             {
                 p.Position = Utils.Random(seedRect);
@@ -232,7 +232,7 @@ public class DensityPathStructures : WorldService, IAxisTitle
     {
         var dat = World.GetWorldService<DataService>();
         var type = dat.TimeMultiplier > 0 ? "Attracting" : "Repelling";
-        return $"{type} {(dat.currentSelectedVectorField)} [Double Gyre Pe={dat.LoadedDataset.Properties["Pe"]},eps={dat.LoadedDataset.Properties["EPS"]}]";
+        return $"{type}  [Double Gyre Pe={dat.LoadedDataset.Properties["Pe"]},eps={dat.LoadedDataset.Properties["EPS"]}]";
     }
 
     //gpt
