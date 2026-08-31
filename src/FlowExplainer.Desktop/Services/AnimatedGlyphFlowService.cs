@@ -7,20 +7,19 @@ namespace FlowExplainer;
 public class AnimatedGlyphFlowService : WorldService, IAxisTitle
 {
     private int posPer = 64;
-    public int amount = 1600;
-    public double thickness = .003f;
-    public double speed = 3;
-    private Vec2[] centers;
+    [Input(Min = 100, Max = 10_000)] public int amount = 1600;
+    [Input(Min = 0.01, Max = .01)] public double thickness = .003f;
+    [Input(Min = 0.0, Max = 1.0)] public double speed = 3;
+    [Input(Min = 0.0, Max = 1.0)] public double opacity = .21f;
 
-    public double opacity = .21f;
+    private Vec2[] centers;
     double end = 2;
 
     public double dt = .001f;
-    public double lastSimTime = -1f;
+    public int lastVectorfieldHash = 0;
     private double avgSpeed = 0.0;
 
-    public IVectorField<Vec3, Vec2>? AltVectorField;
-    public double? AltTime;
+    [Input] public Artifact<IVectorField<Vec2, Vec2>>? VectorField;
 
     public override string? Name => "Animated Glyph Flow Visualizer";
     public override string? CategoryName => "Vectorfield";
@@ -33,22 +32,22 @@ public class AnimatedGlyphFlowService : WorldService, IAxisTitle
 
     public override void DrawImGuiSettings()
     {
-        ImGui.SliderInt("Amount", ref amount, 100, 10_000);
+        /*ImGui.SliderInt("Amount", ref amount, 100, 10_000);
         ImGuiHelpers.Slider("Thickness", ref thickness, 0, .01f);
         ImGuiHelpers.Slider("Speed", ref speed, 0, 10);
-        ImGuiHelpers.Slider("Opacity", ref opacity, 0, 1);
+        ImGuiHelpers.Slider("Opacity", ref opacity, 0, 1);*/
         base.DrawImGuiSettings();
     }
 
-    public override void DrawImGuiDataSettings()
+    /*public override void DrawImGuiDataSettings()
     {
         var dat = GetRequiredWorldService<DataService>();
         var field = AltVectorField ?? dat.VectorField;
         //ImGui.SameLine();
         ImGuiHelpers.OptionalDoubleSlider("Alt time", ref AltTime, field.Domain.RectBoundary.Min.Last, field.Domain.RectBoundary.Max.Last);
-        ImGuiHelpers.OptonalVectorFieldSelector(World, ref AltVectorField);
+        Artifacts. (World, ref AltVectorField);
         base.DrawImGuiDataSettings();
-    }
+    }*/
 
 
     private Data[] PerData;
@@ -99,28 +98,30 @@ public class AnimatedGlyphFlowService : WorldService, IAxisTitle
 
     public override void PreDraw()
     {
-        var dat = GetRequiredWorldService<DataService>();
-        var velField = AltVectorField ?? dat.VectorField;
-        double time = AltTime ?? dat.SimulationTime;
-        var instantField = velField.ReducedSlice<Vec3, Vec2, Vec2>(() => time);
+        if (VectorField == null)
+            return;
+        
+        var velField = VectorField.Value;
+        var instantField = VectorField.Value;
         var velMag = 0.0;
 
         if (amount != PerData.Length)
             Init();
 
 
-        if (time != lastSimTime)
+        if (VectorField.Value.GetHashCode() != lastVectorfieldHash)
         {
             for (int i = 0; i < amount; i++)
             {
                 PerData[i].TimeAlive = -((double)i / amount) * 5;
-                var pos = velField.Domain.RectBoundary.Reduce<Vec2>().FromRelative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
+                var pos = velField.Domain.RectBoundary.FromRelative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
                 var span = centers.AsSpan(i * posPer, posPer);
                 span.Fill(pos);
             }
+
+            lastVectorfieldHash = VectorField.Value.GetHashCode();
         }
 
-        lastSimTime = time;
         int c = 0;
 
 
@@ -129,7 +130,7 @@ public class AnimatedGlyphFlowService : WorldService, IAxisTitle
             var span = centers.AsSpan(i * posPer, posPer);
             if (PerData[i].TimeAlive > end + 2f + ((i * 17 + i * 1535 + i) % 1000) / 1000f)
             {
-                var pos = velField.Domain.RectBoundary.Reduce<Vec2>().FromRelative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
+                var pos = velField.Domain.RectBoundary.FromRelative(new Vec2(Random.Shared.NextSingle(), Random.Shared.NextSingle()));
                 span.Fill(pos);
                 PerData[i].TimeAlive = -Random.Shared.NextSingle() * 5;
             }
@@ -262,6 +263,8 @@ public class AnimatedGlyphFlowService : WorldService, IAxisTitle
 
     public string GetTitle()
     {
-        return "Animated Glyphs (" + (AltVectorField?.DisplayName ?? GetRequiredWorldService<DataService>().VectorField.DisplayName) + ")";
+        if (VectorField == null)
+            return "";
+        return "Animated Glyphs (" + (VectorField.DisplayName) + ")";
     }
 }

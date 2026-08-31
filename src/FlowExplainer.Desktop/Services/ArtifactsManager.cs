@@ -10,17 +10,17 @@ public class ArtifactsManager : IEnumerable<IArtifact>
     public void RegisterOrUpdate(IArtifact artifact)
     {
         var type = artifact.ValueType;
-
+        artifact.ID = artifact.ID.ToUpperInvariant();
         if (!artifacts.ContainsKey(type))
             artifacts.Add(type, new());
         var dictionary = artifacts[type];
-        if (dictionary.TryGetValue(artifact.DisplayName, out var value))
+        if (dictionary.TryGetValue(artifact.ID, out var value))
         {
             value.ValueObj = artifact.ValueObj;
         }
         else
         {
-            dictionary.Add(artifact.DisplayName, artifact);
+            dictionary.Add(artifact.ID, artifact);
         }
     }
 
@@ -29,15 +29,15 @@ public class ArtifactsManager : IEnumerable<IArtifact>
         artifacts.Clear();
     }
 
-    public Artifact<T> Get<T>(string name)
+    public Artifact<T> Get<T>(string id)
     {
-        return (Artifact<T>)(artifacts[typeof(T)][name]);
+        return (Artifact<T>)(artifacts[typeof(T)][id.ToUpperInvariant()]);
     }
 
-    public bool TryGet<T>(string name, [NotNullWhen(true)]out Artifact<T>? artifact)
+    public bool TryGet<T>(string id, [NotNullWhen(true)]out Artifact<T>? artifact)
     {
         if (artifacts.TryGetValue(typeof(T), out var list))
-            if (list.TryGetValue(name, out var value))
+            if (list.TryGetValue(id.ToUpperInvariant(), out var value))
             {
                 artifact = (Artifact<T>)value;
                 return true;

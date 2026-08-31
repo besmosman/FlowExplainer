@@ -39,6 +39,8 @@ public interface IArtifact
     public string Description { get; }
     public Type ValueType { get; }
     public object ValueObj { get; set; }
+    public string ID { get; set; }
+
 }
 
 public class Artifact<T> : IArtifact
@@ -48,11 +50,14 @@ public class Artifact<T> : IArtifact
     public object ValueObj { get => Value; set => Value = (T)value; }
     public string DisplayName { get; set; }
     public string Description { get; set; }
+    public string ID { get; set; }
+
     public Type ValueType => typeof(T);
 
-    public Artifact(T value, string displayName, string description)
+    public Artifact(T value, string id, string displayName, string description)
     {
         Value = value;
+        ID = id;
         DisplayName = displayName;
         Description = description;
     }

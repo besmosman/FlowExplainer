@@ -20,7 +20,7 @@ public class HeatlinesService : WorldService
             return u.Evaluate(x) * T.Evaluate(x) - (1.0 / Pe) * gradT;
         });
 
-        H = new(SolveHeatFunction(flux), "Heat Function", "");
+        H = new(SolveHeatFunction(flux), "heatlines/h", "Heat Function", "");
         Artifacts.RegisterOrUpdate(H);
         var scaler2DGridDiagnostic = new Scaler2DGridDiagnostic();
         GetRequiredWorldService<GridVisualizer>().SetGridDiagnostic(scaler2DGridDiagnostic);

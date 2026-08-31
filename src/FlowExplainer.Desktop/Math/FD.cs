@@ -66,6 +66,17 @@ public static class FD
             }
             return d;
         }
+        
+        public IVectorField<Vec, Vec> FiniteDifferenceGradientField(double h)
+        {
+            return new ArbitraryField<Vec, Vec>(scalerfield.Domain, x => scalerfield.FiniteDifferenceGradient(x,h));
+        }
+
+        public IVectorField<Vec, VecR> FiniteDifferenceGradientIgnoreLastField<VecR>(double h) 
+            where VecR : IVec<VecR, double>, IVecUpDimension<Vec>
+        {
+            return new ArbitraryField<Vec, VecR>(scalerfield.Domain, x => scalerfield.FiniteDifferenceGradientIgnoreLast<Vec, VecR>(x,h));
+        }
 
         public VecR FiniteDifferenceGradientIgnoreLast<VecR>(Vec x, double h) where VecR : IVec<VecR, double>, IVecUpDimension<Vec>
         {

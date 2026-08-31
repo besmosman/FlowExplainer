@@ -15,9 +15,7 @@ public static class Scripting
             "C:\\Users\\osman\\Downloads\\ScalarTransportCFDCaseStudies\\Data",
             "Datasets");*/
 
-        /*
         new ComsolPipeDataProcessor().ProcessDataset("C:\\Users\\osman\\Documents\\ComsolResults\\PipeFlow1", "Datasets\\PipeFlow1");
-        */
         
 
         world.DataService.SetDataset("Double Gyre EPS=0.1, Pe=100");
@@ -27,7 +25,7 @@ public static class Scripting
         //var op = new OperatorSplittedPullbackTestService();
         //op.Initialize();
         //op.Save(5, .01);
-        LoadScene(world, new PipeScene());
+        LoadScene(world, new PipeFlowSpacetimeDensityStructureScene());
         //world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new PullbackPresentation());
         //world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
     }

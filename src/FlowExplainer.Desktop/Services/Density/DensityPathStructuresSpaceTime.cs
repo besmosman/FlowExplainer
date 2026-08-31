@@ -132,9 +132,9 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
         SlicingAxis = 1;
         */
 
-        if (DataService.SimulationTime != lastT)
+        if (SliceValue != lastT)
         {
-            lastT = DataService.SimulationTime;
+            lastT = SliceValue;
             var decayMulti = .4f;
             foreach (ref var s in Samples.AsSpan())
             {
@@ -313,59 +313,17 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
         Vec2 d = p - closest;
         return Vec2.Dot(d, d);
     }
-
-    private static Vec2 ClosestPointOnLine(Vec2 p, Vec2 a, Vec2 b, out double t)
-    {
-        Vec2 ab = b - a;
-        double abLenSq = Vec2.Dot(ab, ab);
-
-        // Degenerate segment
-        if (abLenSq == 0f)
-        {
-            t = .5;
-            return (a + b) / 2;
-        }
-
-        t = Vec2.Dot(p - a, ab) / abLenSq;
-        t = Math.Clamp(t, 0f, 1f);
-
-        Vec2 closest = a + ab * t;
-        return closest;
-    }
-
-    /*
-    public double ComputeContrubtion(Vec2 samplePos, Vec3 LastPhase, Vec3 Phase, double sliceT, double timeAlive)
-    {
-        var disSqrt = DistancePointSegmentSq(samplePos, LastPhase.XY, Phase.XY, out var t);
-        var phaseAtT = Utils.Lerp(LastPhase, Phase, t);
-        var signedDistanceToSliceZ = (phaseAtT.Z - sliceT);
-        double particleInfluence = 1 - double.Abs(signedDistanceToSliceZ / Tau);
-        particleInfluence = Math.Clamp(particleInfluence, 0, 1);
-        return Accum((float)disSqrt, Math.Min(1, timeAlive), (float)(AccumelationFactor * particleInfluence));
-    }*/
-
+    
 
     public override void Draw(View view)
     {
         if (view.Is3DCamera)
             return;
-
-        var dat = GetRequiredWorldService<DataService>();
-        var flux = GetRequiredWorldService<DataService>().VectorField;
-        var bounding = flux.Domain.Bounding;
-        double t_bounded = bounding.BoundLastAxis(dat.SimulationTime);
-
+        
         Gizmos2D.ImageCenteredInvertedY(view.Camera2D, RenderTexture, GetRelevant2DPos(WorldRect.Center), GetRelevant2DPos(WorldRect.Size));
     }
 
-
-    private double Accum(double dis, double timeFactor, double accum)
-    {
-        double sigma = (double)InfluenceRadius / 3.3f * timeFactor;
-        double spatialFactor = Math.Exp(-(dis) / (2f * sigma * sigma));
-        return timeFactor * spatialFactor * accum;
-    }
-
+    
     public override void DrawImGuiSettings()
     {
         if (ImGuiHelpers.NamedIntCombo("Horizontal Axis", ref HorizontalAxisDimension, ["X", "Y", "T"]))
@@ -390,16 +348,14 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
 
         
         ImGuiHelpers.NamedIntCombo("Slicing Axis", ref SlicingAxis, ["X", "Y", "T"]);
-
-
+        var rect = GetRequiredWorldService<ParticleSystem>().TransportField.Domain.RectBoundary;
+        ImGuiHelpers.Slider("Slice Value", ref SliceValue, rect.Min[SlicingAxis], rect.Max[SlicingAxis]);
 
         ImGuiHelpers.Slider("σ", ref InfluenceRadius, 0, .01f);
         ImGuiHelpers.Slider("Sample Grid Size X", ref SampleGridSizeX, 1, 2048);
         ImGuiHelpers.Slider("Power", ref Power, 0, 2f);
         ImGuiHelpers.Slider("α", ref AccumelationFactor, 0, 1f);
-        var rect = GetRequiredWorldService<ParticleSystem>().TransportField.Domain.RectBoundary;
         ImGuiHelpers.Slider("τ", ref Tau, 0, rect.Size[SlicingAxis]);
-        ImGuiHelpers.Slider("slice", ref SliceValue, rect.Min[SlicingAxis], rect.Max[SlicingAxis]);
         ImGuiHelpers.Slider("d", ref Decay, 0, 1f);
         if (ImGui.Button("Reset"))
         {
@@ -411,7 +367,6 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
 
     public string GetTitle()
     {
-        var dat = World.GetWorldService<DataService>();
         var type = "";
         switch (World.GetWorldService<ParticleSystem>().integrationMode)
         {
@@ -429,8 +384,9 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
                 throw new ArgumentOutOfRangeException();
         }
         type = type + " Structures ";
-        type += "(" + (dat.currentSelectedVectorField).Replace("Flux", "Contribution") + ")";
-        return $"Dataset: [Double Gyre Pe={dat.LoadedDataset.Properties["Pe"]},eps={dat.LoadedDataset.Properties["EPS"]}] \r\n {type}";
+        type += "(" + (World.GetWorldService<ParticleSystem>().TransportField.DisplayName) + ")";
+        return type;
+        //return $"Dataset: [Double Gyre Pe={dat.LoadedDataset.Properties["Pe"]},eps={dat.LoadedDataset.Properties["EPS"]}] \r\n {type}";
     }
 
 

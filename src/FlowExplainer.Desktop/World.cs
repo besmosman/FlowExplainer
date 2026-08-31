@@ -41,11 +41,11 @@ namespace FlowExplainer
                 service.Enable();
         }
 
-        public Artifact<T> GetArtifact<T>(string name)
+        public Artifact<T> GetArtifact<T>(string id)
         {
             foreach (var s in Services)
             {
-                if (s.Artifacts.TryGet<T>(name, out var artifact))
+                if (s.Artifacts.TryGet<T>(id, out var artifact))
                     return artifact;
             }
 

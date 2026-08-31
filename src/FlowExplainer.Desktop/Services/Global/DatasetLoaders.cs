@@ -10,7 +10,7 @@ public static class DatasetLoaders
         RegisterLoader("Default", DefaultDatasetLoader);
         RegisterLoader("PipeFlow", PipeFlowDatasetLoader);
     }
-    
+
     public static void RegisterLoader(string name, Action<Dataset> loader)
     {
         Loaders.Add(name, loader);
@@ -62,10 +62,92 @@ public static class DatasetLoaders
         }
     }
 
+
+    public struct PipeMaterial
+    {
+        public double StartR;
+        public string Name;
+        public double Density; //kg/m3
+        public double HeatCapacity; //J/kgK
+        public double ThermalConductivity; //W/mK
+    }
+
     public static void PipeFlowDatasetLoader(Dataset dataset)
     {
         LoadSerializedFields(dataset);
         var pipeFlow = new PoiseuilleFlowPipe(dataset.GetVectorField<Vec3, double>("Temperature").Domain);
         dataset.Vectorfields.Add("Velocity", pipeFlow);
+
+        var rw = 27e-3;
+        var rs = 30.15e-3;
+        var ri = 59.5e-3;
+        var rc = 62.5e-3;
+        var rg = 1.5 * rc;
+        var L = 20 * rw;
+        var U_mean = 1e-2;
+
+        PipeMaterial[] materials =
+        [
+            new()
+            {
+                StartR = 0,
+                Name = "Water",
+                Density = 996.7,
+                HeatCapacity = 4066.7,
+                ThermalConductivity = 0.605,
+            },
+            new()
+            {
+                StartR = rw,
+                Name = "Steel",
+                ThermalConductivity = 51,
+                HeatCapacity = 502.5,
+                Density = 7900,
+            },
+            new()
+            {
+                StartR = rs,
+                Name = "Insulation",
+                ThermalConductivity = 0.027,
+                HeatCapacity = 1400,
+                Density = 30,
+            },
+            new()
+            {
+                StartR = ri,
+                Name = "Casing",
+                ThermalConductivity = 0.43,
+                Density = 944,
+                HeatCapacity = 2250,
+            },
+            new()
+            {
+                StartR = rc,
+                Name = "Ground",
+                ThermalConductivity = 1.6,
+                Density = 1500,
+                HeatCapacity = 1200,
+            }
+        ];
+
+        var PeField = new ArbitraryField<Vec3, double>(pipeFlow.Domain, x =>
+        {
+            var r = x.Y;
+            for (int i = materials.Length - 1; i >= 0; i--)
+            {
+                var material = materials[i];
+                if (material.StartR <= r)
+                {
+                    var alpha = material.ThermalConductivity / (material.Density * material.HeatCapacity);
+                    var U = U_mean;
+                    var Pe = U * L / alpha;
+                    return Pe;
+                }
+            }
+
+            return 0;
+            //throw new ArgumentException();
+        });
+        dataset.Vectorfields.Add("Pe", PeField);
     }
 }

@@ -13,6 +13,7 @@ public partial struct TrajectoryGroup<T> where T : IVec<T, double>
     }
 }
 
+/*
 public static class ArtifactSerializer
 {
 
@@ -72,4 +73,4 @@ public static class ArtifactSerializer
         else
             throw new Exception();
     }
-}
+}*/

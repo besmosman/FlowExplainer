@@ -49,14 +49,14 @@ public class TimeSliceService : WorldService
         if (artifact is Artifact<IVectorField<Vec3, Vec2>> v)
         {
             var sliced = v.Value.ReducedSlice<Vec3, Vec2, Vec2>(() => sliceValue);
-            slicedArtifact = new Artifact<IVectorField<Vec2, Vec2>>(sliced, v.DisplayName + " (slice)", artifact.Description + " (sliced)");
+            slicedArtifact = new Artifact<IVectorField<Vec2, Vec2>>(sliced, v.ID + "/sliced", v.DisplayName + " (slice)", artifact.Description + " (sliced)");
             min = v.Value.Domain.RectBoundary.Min.Z;
             max = v.Value.Domain.RectBoundary.Max.Z;
         }
         else if (artifact is Artifact<IVectorField<Vec3, double>> s)
         {
             var sliced = s.Value.ReducedSlice<Vec3, Vec2, double>(() => sliceValue);
-            slicedArtifact = new Artifact<IVectorField<Vec2, double>>(sliced, s.DisplayName + " (slice)", artifact.Description + " (sliced)");
+            slicedArtifact = new Artifact<IVectorField<Vec2, double>>(sliced, s.ID + "/sliced", s.DisplayName + " (slice)", artifact.Description + " (sliced)");
             min = s.Value.Domain.RectBoundary.Min.Z;
             max = s.Value.Domain.RectBoundary.Max.Z;
         }
@@ -126,7 +126,7 @@ public class ArrowVisualizer : WorldService, IAxisTitle
         var domainSize = domain.Size;
         var domainArea = domainSize.X * domainSize.Y;
         var spacing = Math.Sqrt(domainArea / GridCells);
-        var maxDirLenght2 = 0.0;
+        var maxDirLenght2 = 1.0;
         var gridSize = (domainSize / spacing).CeilInt();
         var cellSize = domainSize / gridSize.ToVec2();
         var domainBounding = vectorfield.Domain.Bounding;
@@ -139,7 +139,7 @@ public class ArrowVisualizer : WorldService, IAxisTitle
                 var dir = EvaluateCached(pos);
                 if (double.IsNaN(dir.X) || double.IsNaN(dir.Y))
                     continue;
-                maxDirLenght2 = Math.Max(maxDirLenght2, dir.LengthSquared());
+                //maxDirLenght2 = Math.Max(maxDirLenght2, dir.LengthSquared());
             }
         }
 

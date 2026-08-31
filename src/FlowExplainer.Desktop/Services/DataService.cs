@@ -89,7 +89,7 @@ public class DataService : WorldService
                                      && f.GetGenericTypeDefinition() == typeof(IVectorField<,>));
 
             var artifactType = typeof(Artifact<>).MakeGenericType(vectorfieldType);
-            var artifact = (IArtifact)Activator.CreateInstance(artifactType, vectorfield, f.Key, $"From dataset: {LoadedDataset.Name}")!;
+            var artifact = (IArtifact)Activator.CreateInstance(artifactType, vectorfield, $"dataset/{f.Key.ToLowerInvariant().Replace(" ", "-")}", f.Key, $"From dataset: {LoadedDataset.Name}")!;
 
             Artifacts.RegisterOrUpdate(artifact);
         }

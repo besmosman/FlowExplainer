@@ -34,27 +34,18 @@ public class ParticleSystem : WorldService
 
     public override void Initialize()
     {
-        var ConvectiveTemp = DataService.LoadedDataset.GetVectorField<Vec3,double>("Convective Temperature");
-        Array.Clear(Particles.Array);
-        SeedRect = ConvectiveTemp.Domain.RectBoundary;
+        SetTransportField();
+        SeedRect = TransportField.Domain.RectBoundary;
         foreach (ref var p in Particles.AsSpan())
         {
             Reseed(ref p);
         }
-        var TotalFlux = DataService.LoadedDataset.GetVectorField<Vec3,Vec2>("Total Flux");
-        TransportField = new ArbitraryField<Vec3, Vec3>(new RectDomain<Vec3>(TotalFlux.Domain.RectBoundary),
-            x => TotalFlux.Evaluate(x).Up(double.Abs(ConvectiveTemp.Evaluate(x))));
-
 
     }
 
     public override void PreDraw()
     {
-        var ConvectiveTemp = DataService.LoadedDataset.GetVectorField<Vec3,double>("Convective Temperature");
-        var TotalFlux = DataService.LoadedDataset.GetVectorField<Vec3,Vec2>("Total Flux");
-
-        TransportField = new ArbitraryField<Vec3, Vec3>(new RectDomain<Vec3>(TotalFlux.Domain.RectBoundary),
-            x => TotalFlux.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)));
+        SetTransportField();
 
         /*
         TransportField = new ArbitraryField<Vec3, Vec3>(new RectDomain<Vec3>(TotalFlux.Domain.RectBoundary),
@@ -106,9 +97,24 @@ public class ParticleSystem : WorldService
         base.PreDraw();
     }
 
+    private void SetTransportField()
+    {
+        var ConvectiveTemp = World.GetArtifact<IVectorField<Vec3, double>>("LTF/temperature/convective").Value;
+        var TotalFlux = World.GetArtifact<IVectorField<Vec3, Vec2>>("LTF/flux/total").Value;
+        
+        //TotalFlux = DataService.LoadedDataset.GetVectorField<Vec3, Vec2>("Velocity");
+
+        TransportField = new ArbitraryField<Vec3, Vec3>(new RectDomain<Vec3>(TotalFlux.Domain.RectBoundary),
+            x => TotalFlux.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)))
+        {
+            DisplayName = "[Q'_x,Q'_y, T']",
+        };
+    }
+
     public override void Draw(View view)
     {
-        view.CameraOffset = new Vec3(-1.0 / 2, -.5 / 2, DataService.SimulationTime);
+        var center = TransportField.Domain.RectBoundary.Center;
+        view.CameraOffset = new Vec3(-center.X, -center.Y, SeedRect.Center.Z);
     }
 
     private IVectorField<Vec3, T> PerodicExtend<T>(IVectorField<Vec3, T> vec)

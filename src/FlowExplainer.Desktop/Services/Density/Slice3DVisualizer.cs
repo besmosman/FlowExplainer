@@ -45,7 +45,6 @@ public class Slice3DVisualizer : WorldService
                 }
             }
         });
-        double t = DataService.SimulationTime;
         RenderTexture.Blit(SliceView.RenderTarget, SliceView.PostProcessingTarget);
         var p = new Vec3();
         p[spaceTime.SlicingAxis] = spaceTime.SliceValue;

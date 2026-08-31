@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 
 namespace FlowExplainer;
 
-public class VariationalPresentation : NewPresentation
+/*public class VariationalPresentation : NewPresentation
 {
     public static Dataset DatasetDoubleGyreContained;
 
@@ -160,7 +160,7 @@ public class VariationalPresentation : NewPresentation
                     world.AddVisualisationService(new ArrowVisualizer()
                     {
                         Vectorfield = new Artifact<IVectorField<Vec2, Vec2>>(vec, "v", "")
-                    });*/
+                    });#1#
                 });
             t += .01;
             Presi.LatexCentered(@"$$\dot{\mathbf{x}} = \mathbf{v}(\mathbf{x}, t), \quad \mathbf{x} \in U, \quad t \in [\alpha, \beta]$$", new Vec2(.5, .93), .15);
@@ -248,7 +248,7 @@ $$
                     {
                         Vectorfield = Artifacts.Get<IVectorField<Vec2, Vec2>>("Lambda 2 Gradient"),
                         GridCells = 10_000
-                    });*/
+                    });#1#
                 });
 
             Presi.LatexCentered(
@@ -296,7 +296,7 @@ $$
                 });
             view.Camera2D.Position = -new Vec2(2, 1) / 2;
             Presi.LatexCentered("$\\boldsymbol{\\xi}_2$", new Vec2(0.5, .9), .14);
-        }*/
+        }#1#
 
         for (int i = 1; i <= 3; i++)
         {
@@ -599,7 +599,7 @@ $$
                     A = 0.1,
                     w = 2 * double.Pi / 10,
                     epsilon = 0.1,
-                });*/
+                });#1#
             });
     }
 
@@ -697,4 +697,4 @@ $$
             data.Artifacts.RegisterOrUpdate(artifact);
         axis.DrawTitle = false;
     }
-}
+}*/

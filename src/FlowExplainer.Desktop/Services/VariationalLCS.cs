@@ -3,8 +3,6 @@ using ImGuiNET;
 
 namespace FlowExplainer;
 
-
-
 public class VariationalLCS : WorldService
 {
     [Input] public Artifact<IVectorField<Vec3, Vec2>>? VelocityField;
@@ -205,24 +203,24 @@ public class VariationalLCS : WorldService
             */
 
         Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, double>>(
-            validSubspace, "Valid Subspace",
+            validSubspace, "variational/valid-subspace", "Valid Subspace",
             "Conditions A and B"));
 
         Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, double>>(
-            lambda2Field, "Lambda 1", ""));
+            lambda2Field, "variational/lambda-1", "Lambda 1", ""));
 
         Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, double>>(
-            lambda2Field, "Lambda 2", ""));
-        
+            lambda2Field, "variational/lambda-2", "Lambda 2", ""));
+
         Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, Vec2>>(
-            scaledEigenVector2, "Scaled Eigen Vector 2", ""));
+            scaledEigenVector2, "variational/eigen-vector2/scaled", "Scaled Eigen Vector 2", ""));
 
         /*Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, Vec2>>(
             scaledEigenVector2Perp, "Scaled Eigen Vector 2 Perp", ""));*/
 
         Artifacts.RegisterOrUpdate(new Artifact<TrajectoryGroup<Vec2>>(
-            new TrajectoryGroup<Vec2>(trajs.ToArray()), "LCS", ""));
-        
+            new TrajectoryGroup<Vec2>(trajs.ToArray()), "variational/trajectories", "LCS", ""));
+
         /*
         Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, Vec2>>(
             eigen2Grad, "Lambda 2 Gradient",
@@ -231,10 +229,10 @@ public class VariationalLCS : WorldService
 
 
         Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, Vec2>>(eigenVector1.Discritize(gridSize),
-            "Eigen Vector 1", ""));
+            "variational/eigen-vector1", "Eigen Vector 1", ""));
 
         Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, Vec2>>(eigenVector2.Discritize(gridSize),
-            "Eigen Vector 2", ""));
+            "variational/eigen-vector1", "Eigen Vector 2", ""));
 
         /*Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec2, double>>(
             eigenInfoField.Select(s => (1f / double.Abs(T)) * double.Log(double.Sqrt(double.Max(s.Lambda1, s.Lambda2)))), "FTLE",
@@ -306,7 +304,7 @@ public class VariationalLCS : WorldService
 
         if (totalLenght >= l_min)
             return new Trajectory<Vec2>(positions.ToArray());
-        else 
+        else
             return null;
     }
 

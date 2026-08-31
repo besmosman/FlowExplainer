@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace FlowExplainer;
 
 public class Dataset
@@ -16,6 +18,13 @@ public class Dataset
     public IVectorField<TIn, TOut> GetVectorField<TIn, TOut>(string name) where TIn : IVec<TIn, double>
     {
         return (IVectorField<TIn, TOut>)Vectorfields[name];
+    }
+    
+    public bool TryGetVectorField<TIn, TOut>(string name, [NotNullWhen(true)]out IVectorField<TIn, TOut>? field) where TIn : IVec<TIn, double>
+    {
+        var r = Vectorfields.TryGetValue(name, out object value);
+        field = value as IVectorField<TIn, TOut>;
+        return r;
     }
 
     public IEnumerable<(string name, IVectorField<TIn, TOut> vectorField)> GetAllVectorFields<TIn, TOut>() where TIn : IVec<TIn, double>
