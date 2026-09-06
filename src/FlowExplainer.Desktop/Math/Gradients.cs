@@ -18,8 +18,8 @@ public static class Gradients
 
     public static IEnumerable<ColorGradient> All => grads.Select(s => s.Value.Value);
 
-    public static ColorGradient Grayscale => GetGradient("grayscale");
-    public static ColorGradient Parula => GetGradient("matlab_parula");
+    public static ColorGradient Grayscale => GetGradient("Gray");
+    public static ColorGradient Parula => GetGradient("Parula");
     public static ColorGradient BlueGrayRed => GetGradient("BlueGrayRed");
     public static ColorGradient GetGradient(string name) => grads[name].Value;
 
@@ -27,7 +27,7 @@ public static class Gradients
     {
         using var image = Image.Load<Rgba32>(path);
         var samples = 64;
-        int padding = 2;
+        int padding = 0;
         var y = image.Height / 2;
         (double time, Color value)[] entries = new (double time, Color value)[samples];
         for (int i = 0; i < samples; i++)

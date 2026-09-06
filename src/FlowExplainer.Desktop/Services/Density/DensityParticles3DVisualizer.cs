@@ -16,9 +16,9 @@ public class SpacetimePathVisualizer : WorldService
 
     public override void Draw(View view)
     {
-        var ConvectiveTemp = DataService.LoadedDataset.GetVectorField<Vec3,double>("Convective Temperature");
-        var vec = DataService.LoadedDataset.GetAllVectorFields<Vec3,Vec2>().FirstOrDefault().vectorField;
-        var FluxField = new ArbitraryField<Vec3, Vec3>(vec.Domain, 
+        var ConvectiveTemp = DataService.LoadedDataset.GetVectorField<Vec3, double>("Convective Temperature");
+        var vec = DataService.LoadedDataset.GetAllVectorFields<Vec3, Vec2>().FirstOrDefault().vectorField;
+        var FluxField = new ArbitraryField<Vec3, Vec3>(vec.Domain,
             x => vec.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)));
 
         var traj = IFlowOperatorSteady<Vec3>.Default.ComputeTrajectory(new Vec3(X, Y, Z), 10, FluxField);
@@ -29,6 +29,7 @@ public class SpacetimePathVisualizer : WorldService
             {
                 continue;
             }
+
             Gizmos.DrawLine(view, start, end, .004f, Color.Green);
         }
 
@@ -46,7 +47,7 @@ public class SpacetimePathVisualizer : WorldService
     {
         ImGuiHelpers.Slider("X", ref X, 0, 1);
         ImGuiHelpers.Slider("Y", ref Y, 0, .5);
-        ImGuiHelpers.Slider("Z", ref Z, 0, DataService.LoadedDataset.GetAllVectorFields<Vec3,Vec2>().FirstOrDefault().vectorField.Domain.RectBoundary.Max.Z);
+        ImGuiHelpers.Slider("Z", ref Z, 0, DataService.LoadedDataset.GetAllVectorFields<Vec3, Vec2>().FirstOrDefault().vectorField.Domain.RectBoundary.Max.Z);
         base.DrawImGuiSettings();
     }
 }
@@ -57,6 +58,7 @@ public class DensityParticles3DVisualizer : WorldService
     public double Radius = .003;
     public bool ExtendBounds;
 
+   
     public override void Initialize()
     {
     }
@@ -66,9 +68,10 @@ public class DensityParticles3DVisualizer : WorldService
         if (!view.Is3DCamera)
             return;
 
+        var phaseTo3DRenderSpace = GetRequiredWorldService<DensityStructuresSpaceTime3DUI>().PhaseTo3DRenderSpace; 
         foreach (ref var p in GetRequiredWorldService<ParticleSystem>().Particles.AsSpan())
         {
-            Gizmos.Instanced.RegisterSphere(p.Phase, Radius, Color.Grey(.9f));
+            Gizmos.Instanced.RegisterSphere(phaseTo3DRenderSpace(p.Phase), Radius, Color.Grey(.9f));
         }
 
         if (ExtendBounds)

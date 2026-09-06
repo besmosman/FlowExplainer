@@ -25,6 +25,7 @@ public class Slice3DVisualizer : WorldService
         if (!view.Is3DCamera)
             return;
         var spaceTime = GetRequiredWorldService<DensityPathStructuresSpaceTime>();
+        var phaseToWorld = GetRequiredWorldService<DensityStructuresSpaceTime3DUI>().PhaseTo3DRenderSpace;
         var size = spaceTime.GetRelevant2DPos(DataService.VectorField.Domain.RectBoundary.Size);
 
         SliceView.Camera2D.Scale = 2000f;
@@ -68,7 +69,7 @@ public class Slice3DVisualizer : WorldService
         }
         Gizmos.texturedMat.SetUniform("model", 
                                                 Matrix4x4.CreateScale((float)size.X, (float)size.Y, 1) * rot  * 
-                                               Matrix4x4.CreateTranslation(pos.ToNumerics()));
+                                               Matrix4x4.CreateTranslation(phaseToWorld(pos).ToNumerics()));
         Gizmos.texturedMat.SetUniform("tint", Color.White);
         Gizmos.texturedMat.SetUniform("mainTex", SliceView.PostProcessingTarget);
         Gizmos.Quad.Draw();

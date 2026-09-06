@@ -29,34 +29,33 @@ public interface IKernel
 public class LICGridDiagnostic : IGridDiagnostic
 {
     public double arcLength = .1;
+    public double t = 20;
+
     public bool UseCustomColoring => true;
     public bool UseUnsteady;
 
     private RegularGridVectorField<Vec2, Vec2i, double> licField = new(Vec2i.One, default, default);
     private IVectorField<Vec2, double> NoiseField = new NoiseField();
+    public Artifact<IVectorField<Vec3, Vec2>>? VectorField;
     public bool modulateByTemp = false;
 
 
     public void UpdateGridData(GridVisualizer gridVisualizer, CancellationToken token)
     {
+        if(VectorField == null)
+            return;
+        
         var renderGrid = gridVisualizer.RegularGrid;
-
-        var dat = gridVisualizer.GetRequiredWorldService<DataService>()!;
-        var domain = dat.VectorField.Domain;
-
-
-
-        var t = dat.SimulationTime;
-        var tau = dat.SimulationTime + arcLength;
+        var domain = VectorField.Value.Domain;
 
         if (licField.GridSize != gridVisualizer.RegularGrid.GridSize)
             licField.Resize(gridVisualizer.RegularGrid.GridSize, gridVisualizer.RegularGrid.RectDomain);
 
 
         if (UseUnsteady)
-            LIC.ComputeASteady(NoiseField, dat.VectorField, licField, t, 0.4f, arcLength, token);
+            LIC.ComputeASteady(NoiseField, VectorField.Value, licField, t, 0.4f, arcLength, token);
         else
-            LIC.ComputeSteady(NoiseField, dat.VectorField, licField, t, arcLength, token);
+            LIC.ComputeSteady(NoiseField, VectorField.Value, licField, t, arcLength, token);
 
         var licMin = licField.Grid.Data.Min();
         var licMax = licField.Grid.Data.Max();
@@ -68,16 +67,16 @@ public class LICGridDiagnostic : IGridDiagnostic
             var lic = licField.Grid[new Vec2i(i, j)];
             ref var cell = ref renderGrid.Grid.AtCoords(new Vec2i(i, j));
             var pos = renderGrid.ToWorldPos(new Vec2(i + .5f, j + .5f));
-            var temp = dat.ScalerField.Evaluate(pos.Up(t));
-            var v = gridVisualizer.ScaleScaler(temp);
+            //  var temp = gridVisualizer.DataService.ScalerField.Evaluate(pos.Up(t));
+            // var v = gridVisualizer.ScaleScaler(temp);
             var licMulti = (lic - licMin) / (licMax - licMin);
-            if (modulateByTemp)
+            /*if (modulateByTemp)
             {
                 cell.Value = temp;
                 licMulti += .5f;
-                cell.Color = dat.ColorGradient.GetCached(v) * new Color(licMulti, licMulti, licMulti, 1);
-            }
-            else
+                cell.Color = gridVisualizer.DataService.ColorGradient.GetCached(v) * new Color(licMulti, licMulti, licMulti, 1);
+            }*/
+            //  else
             {
                 cell.Value = licMulti;
                 cell.Color = new Color(licMulti, licMulti, licMulti, 1);
@@ -101,9 +100,9 @@ public class LICGridDiagnostic : IGridDiagnostic
 
     public void OnImGuiEdit(GridVisualizer vis)
     {
-        var dat = vis.GetRequiredWorldService<DataService>()!;
-        double period = dat.VectorField.Domain.RectBoundary.Size.Last;
-        ImGuiHelpers.Slider("arc length", ref arcLength, 0, dat.VectorField.Domain.RectBoundary.Size.X / 5);
+        //double period = VectorField.Value.Domain.RectBoundary.Size.Last;
+        //ImGuiHelpers.Slider("arc length", ref arcLength, 0, VectorField.Value.Domain.RectBoundary.Size.X / 5);
         ImGui.Checkbox("modulate by temp", ref modulateByTemp);
+        OptionsManager.ArtifactSelector(vis.World, ref VectorField);
     }
 }

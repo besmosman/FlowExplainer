@@ -44,12 +44,13 @@ public class AxisVisualizer : WorldService
             new Vertex(new Vec3(1f, 1f, 0), new Vec2(0, 1), Vec4.One),
             new Vertex(new Vec3(0f, 1f, 0), new Vec2(0, 0), Vec4.One),
         ], [0, 1, 2, 0, 2, 3]));
-
+        
     }
 
 
     public override void Draw(View view)
     {
+
         if (!view.Is2DCamera)
             return;
         var dat = GetRequiredWorldService<DataService>();
@@ -111,16 +112,16 @@ public class AxisVisualizer : WorldService
                 var value = Utils.Lerp(HorizontalAxis.Min, HorizontalAxis.Max, c);
                 var pos = Utils.Lerp(horizontalStart, horizontalEnd, c);
                 Gizmos2D.Line(view.ScreenCamera, pos + new Vec2(0, 15), pos + new Vec2(0, -thickness / 2f), color, thickness);
-                Gizmos2D.AdvText(view.ScreenCamera, pos + new Vec2(0, 0), lh, color, value.ToString("N1"), centered: true);
+                Gizmos2D.AdvText(view.ScreenCamera, pos + new Vec2(0, 0), lh, color, value.ToString("N2"), centered: true);
             }
 
             for (int i = 0; i <= VerticalAxis.Steps; i++)
             {
                 double c = i / (double)VerticalAxis.Steps;
                 var value = Utils.Lerp(domain.Min.Y, domain.Max.Y, c);
-                var pos = Utils.Lerp(horizontalStart, horizontalEnd, c);
+                var pos = Utils.Lerp(verticalStart, verticalEnd, c);
                 Gizmos2D.Line(view.ScreenCamera, pos + new Vec2(-25, 0), pos + new Vec2(thickness / 2f, 0), color, thickness);
-                Gizmos2D.AdvText(view.ScreenCamera, pos + new Vec2(-lh*3,-lh*1.3), lh, color, value.ToString("N1"), centered: true);
+                Gizmos2D.AdvText(view.ScreenCamera, pos + new Vec2(-lh*3,-lh*1.3), lh, color, value.ToString("N2"), centered: true);
             }
         }
 

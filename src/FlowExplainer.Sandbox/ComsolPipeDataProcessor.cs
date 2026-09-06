@@ -4,15 +4,18 @@ namespace FlowExplainer;
 
 public class ComsolPipeDataProcessor
 {
-    public void ProcessDataset(string comsolDataPath, string outputDatasetFolder)
+    public void ProcessDataset(string comsolDataPath, double timeMulti  = 1)
     {
+        var outputDatasetFolder = $"Datasets\\{Path.GetFileNameWithoutExtension(comsolDataPath)}";
+        
         if (Directory.Exists(outputDatasetFolder))
             Directory.Delete(outputDatasetFolder, true);
         Directory.CreateDirectory(outputDatasetFolder);
 
         Dictionary<string, string> props = new Dictionary<string, string>();
-        props.Add("Name", $"PipeFlowCase1");
+        props.Add("Name", Path.GetFileName(comsolDataPath));
         props.Add("Loader", $"PipeFlow");
+        props.Add("TimeMulti", timeMulti.ToString());
         var ser = JsonConvert.SerializeObject(props, Formatting.Indented);
         File.WriteAllText(Path.Combine(outputDatasetFolder, "properties.json"), ser);
 

@@ -158,6 +158,7 @@ public class AnimatedGlyphFlowService : WorldService, IAxisTitle
             PerData[i].TimeAlive += FlowExplainer.DeltaTime;
         });
         avgSpeed = velMag / c;
+        avgSpeed = 1;
         base.PreDraw();
     }
 

@@ -71,23 +71,29 @@ public static class FD
         {
             return new ArbitraryField<Vec, Vec>(scalerfield.Domain, x => scalerfield.FiniteDifferenceGradient(x,h));
         }
-
+        
         public IVectorField<Vec, VecR> FiniteDifferenceGradientIgnoreLastField<VecR>(double h) 
             where VecR : IVec<VecR, double>, IVecUpDimension<Vec>
         {
-            return new ArbitraryField<Vec, VecR>(scalerfield.Domain, x => scalerfield.FiniteDifferenceGradientIgnoreLast<Vec, VecR>(x,h));
+            return new ArbitraryField<Vec, VecR>(scalerfield.Domain, x => scalerfield.FiniteDifferenceGradientIgnoreLast<Vec, VecR>(x,VecR.One * h));
         }
 
-        public VecR FiniteDifferenceGradientIgnoreLast<VecR>(Vec x, double h) where VecR : IVec<VecR, double>, IVecUpDimension<Vec>
+        public IVectorField<Vec, VecR> FiniteDifferenceGradientIgnoreLastField<VecR>(VecR h) 
+            where VecR : IVec<VecR, double>, IVecUpDimension<Vec>
+        {
+            return new ArbitraryField<Vec, VecR>(scalerfield.Domain, x => scalerfield.FiniteDifferenceGradientIgnoreLast<Vec, VecR>(x,VecR.One * h));
+        }
+        
+        public VecR FiniteDifferenceGradientIgnoreLast<VecR>(Vec x, VecR h) where VecR : IVec<VecR, double>, IVecUpDimension<Vec>
         {
             var d = VecR.Zero;
             for (int i = 0; i < x.ElementCount - 1; i++)
             {
                 var leftCoords = x;
                 var rightCoords = x;
-                leftCoords[i] -= h;
-                rightCoords[i] += h;
-                d[i] = (scalerfield.Evaluate(rightCoords) - scalerfield.Evaluate(leftCoords)) / (2 * h);
+                leftCoords[i] -= h[i];
+                rightCoords[i] += h[i];
+                d[i] = (scalerfield.Evaluate(rightCoords) - scalerfield.Evaluate(leftCoords)) / (2 * h[i]);
             }
             return d;
         }

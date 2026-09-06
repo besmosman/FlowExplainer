@@ -7,11 +7,12 @@ public class PoiseuilleFlowPipe : IVectorField<Vec3, Vec2>
     double delta_s = 2.9e-3; // thickness steel pipe
     double d_c_out = 125e-3; // outer diameter casing
     double delta_c = 3e-3; // thickness casing
-    double U = 1e-2;
+    double U;
 
-    public PoiseuilleFlowPipe(IDomain<Vec3> domain)
+    public PoiseuilleFlowPipe(IDomain<Vec3> domain, double U_mean)
     {
         Domain = domain;
+        U = U_mean;
     }
 
     double rw => d_s_out / 2 - delta_s;

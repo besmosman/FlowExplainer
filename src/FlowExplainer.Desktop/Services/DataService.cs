@@ -6,7 +6,7 @@ namespace FlowExplainer;
 public class DataService : WorldService
 {
     public Dataset LoadedDataset = null!;
-    public ColorGradient ColorGradient { get; set; } = Gradients.GetGradient("matlab_parula");
+    public ColorGradient ColorGradient { get; set; } = Gradients.GetGradient("Parula");
 
     public double TimeMultiplier = 0;
 

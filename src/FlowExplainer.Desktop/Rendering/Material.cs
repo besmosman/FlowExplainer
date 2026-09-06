@@ -97,6 +97,9 @@ namespace FlowExplainer
                 case byte v:
                     GL.ProgramUniform1(ProgramHandle, loc, v);
                     break;
+                case Lazy<Texture> v2:
+                    SetUniform<Texture>(name, v2.Value);
+                    break;
                 case Texture v:
                     {
                         // if the uniform was already set, replace the old association

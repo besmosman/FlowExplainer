@@ -31,7 +31,6 @@ public class ParticleSystem : WorldService
     public IVectorField<Vec3, Vec3> TransportField;
 
 
-
     public override void Initialize()
     {
         SetTransportField();
@@ -40,7 +39,6 @@ public class ParticleSystem : WorldService
         {
             Reseed(ref p);
         }
-
     }
 
     public override void PreDraw()
@@ -72,28 +70,28 @@ public class ParticleSystem : WorldService
             _ => throw new ArgumentOutOfRangeException(),
         };
 
-        if(Particles.Length > 0)
-        Parallel.ForEach(Partitioner.Create(0, Particles.Length), range =>
-        {
-            for (int i = range.Item1; i < range.Item2; i++)
+        if (Particles.Length > 0)
+            Parallel.ForEach(Partitioner.Create(0, Particles.Length), range =>
             {
-                ref var p = ref Particles[i];
-                p.LastLastPhase = p.LastPhase;
-                p.LastPhase = p.Phase;
-                var dir = integrationDirection(i);
-                p.Phase = rk4.Integrate(TransportField, p.Phase, dFictitious * dir);
-                p.Phase = bounds.Bound(p.Phase);
-                p.LastTimeAlive = p.TimeAlive;
-                p.TimeAlive += double.Abs(dFictitious);
-            }
+                for (int i = range.Item1; i < range.Item2; i++)
+                {
+                    ref var p = ref Particles[i];
+                    p.LastLastPhase = p.LastPhase;
+                    p.LastPhase = p.Phase;
+                    var dir = integrationDirection(i);
+                    p.Phase = rk4.Integrate(TransportField, p.Phase, dFictitious * dir);
+                    p.Phase = bounds.Bound(p.Phase);
+                    p.LastTimeAlive = p.TimeAlive;
+                    p.TimeAlive += double.Abs(dFictitious);
+                }
 
-            for (int i = range.Item1; i < range.Item2; i++)
-            {
-                ref var p = ref Particles[i];
-                if (Random.Shared.NextSingle() < ReseedRate * double.Abs(dFictitious))
-                    Reseed(ref p);
-            }
-        });
+                for (int i = range.Item1; i < range.Item2; i++)
+                {
+                    ref var p = ref Particles[i];
+                    if (Random.Shared.NextSingle() < ReseedRate * double.Abs(dFictitious))
+                        Reseed(ref p);
+                }
+            });
         base.PreDraw();
     }
 
@@ -101,20 +99,32 @@ public class ParticleSystem : WorldService
     {
         var ConvectiveTemp = World.GetArtifact<IVectorField<Vec3, double>>("LTF/temperature/convective").Value;
         var TotalFlux = World.GetArtifact<IVectorField<Vec3, Vec2>>("LTF/flux/total").Value;
-        
+       // TotalFlux = World.GetArtifact<IVectorField<Vec3, Vec2>>("LTF/flux/conductive").Value;
+
         //TotalFlux = DataService.LoadedDataset.GetVectorField<Vec3, Vec2>("Velocity");
+        /*TransportField = new ArbitraryField<Vec3, Vec3>(new RectDomain<Vec3>(TotalFlux.Domain.RectBoundary),
+            x => TotalFlux.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)))
+        {
+            DisplayName = "[Q'_x,Q'_y, T']",
+        };*/
 
         TransportField = new ArbitraryField<Vec3, Vec3>(new RectDomain<Vec3>(TotalFlux.Domain.RectBoundary),
             x => TotalFlux.Evaluate(x).Up(ConvectiveTemp.Evaluate(x)))
         {
             DisplayName = "[Q'_x,Q'_y, T']",
         };
+        
+        /*TransportField = new ArbitraryField<Vec3, Vec3>(new RectDomain<Vec3>(TotalFlux.Domain.RectBoundary),
+            x => TotalFlux.Evaluate(x).Up(1))
+        {
+            DisplayName = "[Q'_x,Q'_y, 1]",
+        };*/
     }
 
     public override void Draw(View view)
     {
         var center = TransportField.Domain.RectBoundary.Center;
-        view.CameraOffset = new Vec3(-center.X, -center.Y, SeedRect.Center.Z);
+        view.CameraOffset = new Vec3(-center.X, -center.Y, GetRequiredWorldService<DensityStructuresSpaceTime3DUI>().PhaseTo3DRenderSpace(SeedRect.Center).Z);
     }
 
     private IVectorField<Vec3, T> PerodicExtend<T>(IVectorField<Vec3, T> vec)
@@ -143,6 +153,7 @@ public class ParticleSystem : WorldService
     }
 
     public int SlicingAxis = 2;
+
     public string SlicingAxisName()
     {
         switch (SlicingAxis)
@@ -151,8 +162,10 @@ public class ParticleSystem : WorldService
             case 1: return "Y";
             case 2: return "Z";
         }
+
         throw new NotImplementedException();
     }
+
     public override void DrawImGuiSettings()
     {
         int t = Particles.Length;
@@ -186,6 +199,7 @@ public class ParticleSystem : WorldService
         {
             Initialize();
         }
+
         base.DrawImGuiSettings();
     }
 }

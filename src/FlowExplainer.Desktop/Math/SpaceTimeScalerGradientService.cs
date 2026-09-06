@@ -68,7 +68,7 @@ public class SpaceTimeScalerGradientService : WorldService
         Parallel.For(0, Particles.Length, i =>
         {
             ref var p = ref Particles[i];
-            var grad = ScalerField.FiniteDifferenceGradientIgnoreLast<Vec3, Vec2>(p.Position, .0001f).NormalizedSafe();
+            var grad = ScalerField.FiniteDifferenceGradientIgnoreLast<Vec3, Vec2>(p.Position, Vec2.One * .0001).NormalizedSafe();
             var distanceToTarget = TargetValue - ScalerField.Evaluate(p.Position);
             p.Position += grad.Up(0) * distanceToTarget * MoveSpeed;
             p.Position = domainBounding.Bound(p.Position);

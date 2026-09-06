@@ -15,9 +15,18 @@ public static class Scripting
             "C:\\Users\\osman\\Downloads\\ScalarTransportCFDCaseStudies\\Data",
             "Datasets");*/
 
-        new ComsolPipeDataProcessor().ProcessDataset("C:\\Users\\osman\\Documents\\ComsolResults\\PipeFlow1", "Datasets\\PipeFlow1");
-        
+        /*new ComsolPipeDataProcessor().ProcessDataset(
+            "C:\\Users\\osman\\Documents\\ComsolResults\\PipeFlow Original", 1);*/
 
+        /*new ComsolPipeDataProcessor().ProcessDataset(
+            "C:\\Users\\osman\\Documents\\ComsolResults\\PipeFlow Slow", .01);*/
+        
+        /*new ComsolPipeDataProcessor().ProcessDataset(
+     "C:\\Users\\osman\\Documents\\ComsolResults\\PipeFlow Slow+BC", .01);*/
+        
+        /*new ComsolPipeDataProcessor().ProcessDataset(
+   "C:\\Users\\osman\\Documents\\ComsolResults\\PipeFlow Slow+Cool", .01);*/
+        
         world.DataService.SetDataset("Double Gyre EPS=0.1, Pe=100");
         world.DataService.currentSelectedVectorField = "Velocity";
         world.DataService.currentSelectedScaler = "Convective Temperature";

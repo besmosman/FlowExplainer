@@ -4,63 +4,6 @@ using Newtonsoft.Json;
 
 namespace FlowExplainer;
 
-public static class ArtifactKeys
-{
-    public const string LTF_flux_total = "LTF/flux/total";
-}
-
-public class LagrangianTransportFormalismService : WorldService
-{
-    public void Recompute(IVectorField<Vec3,Vec2> u, 
-        IVectorField<Vec3,double> T,
-        IVectorField<Vec3,double> T_reference,
-        IVectorField<Vec3,double> Pe)
-    {
-        
-        /*
-        IVectorField<Vec3, double> PeField = null;
-        if (dataset.Properties.TryGetValue("Pe", out string? property))
-        {
-            var Pe = double.Parse(property);
-            PeField = new ArbitraryField<Vec3, double>(IDomain<Vec3>.Infinite, _ => Pe);
-        }
-        else if(dataset.TryGetVectorField<Vec3,double>("Pe", out var f))
-        {
-            PeField = f;
-        }
-        else
-        {
-            throw new Exception("No Pe defined");
-        }*/
-
-        var U_mean = 1e-2;
-        var T_conv = new ArbitraryField<Vec3, double>(T.Domain, x => T.Evaluate(x) - T_reference.Evaluate(x)) ;
-        var h = T.Domain.RectBoundary.Size.X / 100000;
-        var T_conv_grad = T_conv.FiniteDifferenceGradientIgnoreLastField<Vec3, Vec2>(h);
-        var q_prime = new ArbitraryField<Vec3, Vec2>(T.Domain, x => -(1.0 / Pe.Evaluate(x)) * T_conv_grad.Evaluate(x));
-        var q_c = new ArbitraryField<Vec3, Vec2>(T.Domain, x => (u.Evaluate(x)/U_mean) * T_conv.Evaluate(x));
-        var q_total = new ArbitraryField<Vec3, Vec2>(T.Domain, x => q_prime.Evaluate(x) + q_c.Evaluate(x));
-
-        Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec3, Vec2>>
-            (q_total, "LTF/flux/total", "Flux (net convective)", "LTF"));
-        Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec3, Vec2>>
-            (q_c, "LTF/flux/convection", "Flux (convection)", "LTF"));
-        Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec3, Vec2>>(q_prime,
-            "LTF/flux/conductive", "Flux (conductive)", "LTF"));
-        Artifacts.RegisterOrUpdate(new Artifact<IVectorField<Vec3, double>>(T_conv,
-            "LTF/temperature/convective", "Temperature (relative)", "LTF"));
-    }
-
-    public override void Initialize()
-    {
-    }
-
-    public override void Draw(View view)
-    {
-   
-    }
-}
-
 public class SpeetjensSpectralDatasetProcesser
 {
     public static void RebuildSpeetjensDatasets()
@@ -123,7 +66,7 @@ public class SpeetjensSpectralDatasetProcesser
         var physicalSource = new ArbitraryField<Vec3, double>(tempTot.Domain,
             x =>
             {
-                var grad = tempNoFlow.FiniteDifferenceGradientIgnoreLast<Vec3, Vec2>(x, .0001f);
+                var grad = tempNoFlow.FiniteDifferenceGradientIgnoreLast<Vec3, Vec2>(x, Vec2.One * .0001f);
                 if (double.IsNaN(grad.Y))
                     grad.Y = 0;
                 return Vec2.Dot(-velocityField.Evaluate(x), grad);

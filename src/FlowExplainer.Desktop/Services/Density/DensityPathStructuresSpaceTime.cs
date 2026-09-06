@@ -14,6 +14,11 @@ public class DensityStructuresSpaceTime3DUI : WorldService
     {
     }
 
+    public Vec3 PhaseTo3DRenderSpace(Vec3 start)
+    {
+        return start * new Vec3(1, 1, 1.0 / 4000.0);
+    }
+
     public override void Draw(View view)
     {
         if (!view.Is2DCamera)
@@ -24,7 +29,8 @@ public class DensityStructuresSpaceTime3DUI : WorldService
             double t_bounded = bounding.BoundLastAxis(dat.SimulationTime);
             var seedInterval = GetRequiredWorldService<ParticleSystem>().SeedRect;
             var structures = GetRequiredWorldService<DensityPathStructuresSpaceTime>();
-            Gizmos.DrawLine(view, new Vec3(.0, .0, seedInterval.Min.Z), new Vec3(.0, .0, seedInterval.Max.Z), .025, new Color(1, 1, 0));
+            Gizmos.DrawLine(view, PhaseTo3DRenderSpace(new Vec3(.0, .0, seedInterval.Min.Z)),
+                PhaseTo3DRenderSpace(new Vec3(.0, .0, seedInterval.Max.Z)), .025, new Color(1, 1, 0));
             if (structures.Tau > 0)
             {
                 /*if (GetRequiredWorldService<DensityParticlesData>().Reversed)
@@ -36,6 +42,22 @@ public class DensityStructuresSpaceTime3DUI : WorldService
                     Gizmos.DrawLine(view, new Vec3(.0, .0, t_bounded - structures.Tau), new Vec3(.0, .0, t_bounded), .03, new Color(1, .4, 0));
                 }*/
             }
+
+            var domain = dat.VectorField.Domain.RectBoundary;
+
+            var th = 0.02f;
+            Gizmos.DrawLine(view,
+                PhaseTo3DRenderSpace(domain.Min),
+                PhaseTo3DRenderSpace(new Vec3(domain.Max.X, domain.Min.Y, domain.Min.Z)), th, new Color(1, 0, 0));
+
+            Gizmos.DrawLine(view,
+                PhaseTo3DRenderSpace(new Vec3(domain.Min.X, domain.Min.Y, domain.Min.Z)),
+                PhaseTo3DRenderSpace(new Vec3(domain.Min.X, domain.Max.Y, domain.Min.Z)), th, new Color(0, 1, 0));
+
+
+            Gizmos.DrawLine(view,
+                PhaseTo3DRenderSpace(new Vec3(domain.Min.X, domain.Min.Y, domain.Min.Z)),
+                PhaseTo3DRenderSpace(new Vec3(domain.Min.X, domain.Min.Y, domain.Max.Z)), th, new Color(0, 0, 1, 1));
         }
     }
 }
@@ -70,6 +92,7 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
     public double Decay = .04f;
     public double Power = 1 / 2f;
     public double Tau = 0.1;
+    public bool UseMaterialSpecificGradients = true;
 
     public override string? Name => "Density Path Structures";
     public override string? Description => "Visualization of attracting and repelling structures in transport fields";
@@ -105,6 +128,11 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
         material = new Material(new Shader("Assets/Shaders/sdf.frag", ShaderType.FragmentShader), Shader.DefaultWorldSpaceVertex);
         Reset();
         RenderTexture = new RenderTexture(1, 1);
+        gradFluid = Gradients.Parula;
+        gradSteel = Gradients.GetGradient("Steel");
+        gradInsolation = Gradients.GetGradient("Cubehelix");
+        gradCasing = Gradients.GetGradient("Steel");
+        gradGround = Gradients.GetGradient("Cubehelix");
     }
 
     FastNoise noise = new FastNoise();
@@ -122,7 +150,14 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
     {
         return (float)((noise.GetNoise((float)pos.X * 4000, (float)pos.Y * 4000)) + 1) * 0.5f;
     }
+
     private double lastT = 0;
+
+    private ColorGradient gradFluid;
+    private ColorGradient gradSteel;
+    private ColorGradient gradInsolation;
+    private ColorGradient gradCasing;
+    private ColorGradient gradGround;
 
     public override void PreDraw()
     {
@@ -191,6 +226,7 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
                 //worldRect.Min -= new Vec2(0.5, 0);
                 // worldRect.Max += new Vec2(0.5, 0);
             }
+
             double weightWeight = 0;
             if (DataService.currentSelectedVectorField == "Total Flux")
                 weightWeight = 1;
@@ -232,6 +268,7 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
                     var samplePos = new Vec2(samplePos3d[HorizontalAxisDimension], samplePos3d[VerticalAxisDimension]);
                     ref var sampleInfoAt = ref GetSampleInfoAt(gridCoord);
                     double legnthRatio = double.Min(1, Vec2.Distance(GetRelevant2DPos(p.LastPhase), GetRelevant2DPos(p.Phase)) / InfluenceRadius * 2);
+                    legnthRatio = 1;
                     double accum = TransferFunction(samplePos, p.LastPhase, p.Phase, SliceValue, p.TimeAlive);
                     accum -= TransferFunction(samplePos, p.LastLastPhase, p.LastPhase, SliceValue, p.TimeAlive) * legnthRatio;
                     accum = Math.Max(accum, 0);
@@ -257,6 +294,12 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
             material.SetUniform("colorgradient", GetRequiredWorldService<DataService>().ColorGradient.Texture.Value);
             material.SetUniform("projection", cam.GetProjectionMatrix());
 
+            material.SetUniform("colorByMaterial", UseMaterialSpecificGradients);
+            material.SetUniform("gradFluid", gradFluid.Texture);
+            material.SetUniform("gradSteel", gradSteel.Texture);
+            material.SetUniform("gradInsulation", gradInsolation.Texture);
+            material.SetUniform("gradCasing", gradCasing.Texture);
+            material.SetUniform("gradGround", gradGround.Texture);
 
             var model = Matrix4x4.CreateScale((float)worldRect.Size[HorizontalAxisDimension], (float)worldRect.Size[VerticalAxisDimension], .4f) *
                         Matrix4x4.CreateTranslation((float)worldRect.Min[HorizontalAxisDimension], (float)worldRect.Min[VerticalAxisDimension], 0);
@@ -265,9 +308,13 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
         });
         var axis = GetRequiredWorldService<AxisVisualizer>();
         axis.HorizontalAxis.Min = WorldRect.Min[HorizontalAxisDimension];
+        axis.HorizontalAxis.Min = 0;
         axis.HorizontalAxis.Max = WorldRect.Max[HorizontalAxisDimension];
+        axis.HorizontalAxis.Steps = 7;
         axis.VerticalAxis.Min = WorldRect.Min[VerticalAxisDimension];
+        axis.VerticalAxis.Min = 0;
         axis.VerticalAxis.Max = WorldRect.Max[VerticalAxisDimension];
+        axis.VerticalAxis.Steps = 2;
         base.PreDraw();
     }
 
@@ -313,40 +360,38 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
         Vec2 d = p - closest;
         return Vec2.Dot(d, d);
     }
-    
+
 
     public override void Draw(View view)
     {
         if (view.Is3DCamera)
             return;
-        
+
         Gizmos2D.ImageCenteredInvertedY(view.Camera2D, RenderTexture, GetRelevant2DPos(WorldRect.Center), GetRelevant2DPos(WorldRect.Size));
     }
 
-    
+
     public override void DrawImGuiSettings()
     {
         if (ImGuiHelpers.NamedIntCombo("Horizontal Axis", ref HorizontalAxisDimension, ["X", "Y", "T"]))
         {
-            
         }
+
         ImGuiHelpers.NamedIntCombo("Vertical Axis", ref VerticalAxisDimension, ["X", "Y", "T"]);
 
-        if ((HorizontalAxisDimension == 0 && VerticalAxisDimension == 1) || 
+        if ((HorizontalAxisDimension == 0 && VerticalAxisDimension == 1) ||
             (HorizontalAxisDimension == 1 && VerticalAxisDimension == 0))
             SlicingAxis = 2;
-        
-        if ((HorizontalAxisDimension == 2 && VerticalAxisDimension == 0) || 
+
+        if ((HorizontalAxisDimension == 2 && VerticalAxisDimension == 0) ||
             (HorizontalAxisDimension == 0 && VerticalAxisDimension == 2))
             SlicingAxis = 1;
-        
-        if ((HorizontalAxisDimension == 2 && VerticalAxisDimension == 1) || 
+
+        if ((HorizontalAxisDimension == 2 && VerticalAxisDimension == 1) ||
             (HorizontalAxisDimension == 1 && VerticalAxisDimension == 2))
             SlicingAxis = 0;
-        
-   
 
-        
+
         ImGuiHelpers.NamedIntCombo("Slicing Axis", ref SlicingAxis, ["X", "Y", "T"]);
         var rect = GetRequiredWorldService<ParticleSystem>().TransportField.Domain.RectBoundary;
         ImGuiHelpers.Slider("Slice Value", ref SliceValue, rect.Min[SlicingAxis], rect.Max[SlicingAxis]);
@@ -370,24 +415,22 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
         var type = "";
         switch (World.GetWorldService<ParticleSystem>().integrationMode)
         {
-
             case ParticleSystem.IntegrationMode.Forward:
-                type = "Attracting";
+                type = "Forward";
                 break;
             case ParticleSystem.IntegrationMode.Backwords:
-                type = "Repelling";
+                type = "Backwards";
                 break;
             case ParticleSystem.IntegrationMode.Mixed:
-                type = "Attracting/Repelling";
+                type = "Mixed";
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
-        type = type + " Structures ";
+
+        type = type + " ";
         type += "(" + (World.GetWorldService<ParticleSystem>().TransportField.DisplayName) + ")";
         return type;
         //return $"Dataset: [Double Gyre Pe={dat.LoadedDataset.Properties["Pe"]},eps={dat.LoadedDataset.Properties["EPS"]}] \r\n {type}";
     }
-
-
 }

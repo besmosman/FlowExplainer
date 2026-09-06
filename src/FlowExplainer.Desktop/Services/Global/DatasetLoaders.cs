@@ -75,8 +75,7 @@ public static class DatasetLoaders
     public static void PipeFlowDatasetLoader(Dataset dataset)
     {
         LoadSerializedFields(dataset);
-        var pipeFlow = new PoiseuilleFlowPipe(dataset.GetVectorField<Vec3, double>("Temperature").Domain);
-        dataset.Vectorfields.Add("Velocity", pipeFlow);
+      
 
         var rw = 27e-3;
         var rs = 30.15e-3;
@@ -86,6 +85,13 @@ public static class DatasetLoaders
         var L = 20 * rw;
         var U_mean = 1e-2;
 
+        var multi = double.Parse(dataset.Properties["TimeMulti"]);
+        U_mean *= multi;
+
+        var domain = dataset.GetVectorField<Vec3, double>("Temperature").Domain;
+        var pipeFlow = new PoiseuilleFlowPipe(domain, U_mean);
+        dataset.Vectorfields.Add("Velocity", pipeFlow);
+        
         PipeMaterial[] materials =
         [
             new()
@@ -130,7 +136,7 @@ public static class DatasetLoaders
             }
         ];
 
-        var PeField = new ArbitraryField<Vec3, double>(pipeFlow.Domain, x =>
+        var alpha = new ArbitraryField<Vec3, double>(pipeFlow.Domain, x =>
         {
             var r = x.Y;
             for (int i = materials.Length - 1; i >= 0; i--)
@@ -138,16 +144,13 @@ public static class DatasetLoaders
                 var material = materials[i];
                 if (material.StartR <= r)
                 {
-                    var alpha = material.ThermalConductivity / (material.Density * material.HeatCapacity);
-                    var U = U_mean;
-                    var Pe = U * L / alpha;
-                    return Pe;
+                    return material.ThermalConductivity / (material.Density * material.HeatCapacity);
                 }
             }
 
             return 0;
             //throw new ArgumentException();
         });
-        dataset.Vectorfields.Add("Pe", PeField);
+        dataset.Vectorfields.Add("Thermal Diffusivity", alpha);
     }
 }
