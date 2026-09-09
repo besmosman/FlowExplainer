@@ -409,6 +409,7 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
             Reset();
         }
         
+        
         if (ImGui.Button("Settings A"))
         {
             AccumelationFactor = 2.5;
