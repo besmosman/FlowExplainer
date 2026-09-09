@@ -172,7 +172,7 @@ public class ParticleSystem : WorldService
 
         ImGuiHelpers.Slider("Particle Count", ref t, 0, 10000);
         Particles.ResizeIfNeeded(t);
-        ImGuiHelpers.Slider("Δξ", ref dFictitious, 0, .1);
+        ImGuiHelpers.Slider("Δξ", ref dFictitious, 0, 2);
         if (ImGuiHelpers.EnumCombo("Integration Mode", ref integrationMode))
         {
             //  Initialize();

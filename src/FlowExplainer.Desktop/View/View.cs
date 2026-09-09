@@ -28,6 +28,7 @@ namespace FlowExplainer
 
         public bool IsOpen = true;
         public bool IsActive = true;
+        public bool NeedsRendering = true;
         public bool Is3DCamera = false;
         public bool Is2DCamera => !Is3DCamera;
         public Camera Camera = new();
@@ -45,7 +46,7 @@ namespace FlowExplainer
         public Vec2 MousePosition;
         public Vec2 startCamPos = Vec2.Zero;
         public PresiContext.WidgetData LastConnectedWidgetData;
-        
+
         /// <summary>
         /// As in the target size, not the the current rendertarget size.
         /// </summary>

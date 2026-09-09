@@ -21,6 +21,7 @@ public class PresentationViewController : IViewController
             presiView.TargetSize = size;
             presiView.RelativeMousePosition = new Vec2(window.MousePosition.X, window.MousePosition.Y);
             var canvasSize = presi.CanvasSize*presiView.Camera2D.Scale;
+            presi.View.NeedsRendering = true;
             //presiView.Camera2D.Scale = 1;
         }
         else

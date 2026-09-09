@@ -139,7 +139,7 @@ public class ArrowVisualizer : WorldService, IAxisTitle
                 var dir = EvaluateCached(pos);
                 if (double.IsNaN(dir.X) || double.IsNaN(dir.Y))
                     continue;
-                //maxDirLenght2 = Math.Max(maxDirLenght2, dir.LengthSquared());
+                maxDirLenght2 = Math.Max(maxDirLenght2, dir.LengthSquared());
             }
         }
 
@@ -153,7 +153,10 @@ public class ArrowVisualizer : WorldService, IAxisTitle
                 if (double.IsNaN(dir.X) || double.IsNaN(dir.Y))
                     continue;
 
-                dir = double.Clamp(((dir.Length()) / (double.Sqrt(maxDirLenght2))), .0f, 1f) * Vec2.NormalizeSafe(dir);
+                double c = double.Pow(dir.LengthSquared() / maxDirLenght2, .3);
+                dir = double.Clamp(c, .0f, 1f) * Vec2.NormalizeSafe(dir);
+               // dir = dir.NormalizedSafe();
+
                 if (double.IsNaN(dir.X) || double.IsNaN(dir.Y))
                     continue;
 
@@ -192,7 +195,7 @@ public class ArrowVisualizer : WorldService, IAxisTitle
 
         if (AutoResize)
         {
-            Length = cellSize.Y * .6;
+            Length = cellSize.Y * 1.3;
             Thickness = cellSize.Y / 10;
         }
     }

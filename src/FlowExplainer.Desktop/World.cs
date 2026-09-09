@@ -51,7 +51,7 @@ namespace FlowExplainer
 
             throw new ArgumentException();
         }
-        
+
         public IEnumerable<ISelectableVectorField<I, O>> GetSelectableVectorFields<I, O>() where I : IVec<I, double>
         {
             if (typeof(I) == typeof(Vec2) && typeof(O) == typeof(double))
@@ -60,7 +60,6 @@ namespace FlowExplainer
                     yield return (ISelectableVectorField<I, O>)f;
             else if (typeof(I) == typeof(Vec3) && typeof(O) == typeof(Vec2))
             {
-
                 foreach (var s in Services)
                 {
                     foreach (var f in s.GetSelectableVec3Vec2())
@@ -137,7 +136,8 @@ namespace FlowExplainer
                         service.IsInitialzied = true;
                     }
 
-                    service.PreDraw();
+                   // if (IsViewed)
+                        service.PreDraw();
                 }
         }
 

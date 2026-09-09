@@ -28,13 +28,13 @@ public class AxisVisualizer : WorldService
         public double Max;
         public int Steps;
         public bool Visible = true;
-        
+
         public AxisInfo(string name)
         {
             Name = name;
         }
     }
-    
+
     public override void Initialize()
     {
         gradientMesh = new Mesh(new Geometry(
@@ -44,13 +44,19 @@ public class AxisVisualizer : WorldService
             new Vertex(new Vec3(1f, 1f, 0), new Vec2(0, 1), Vec4.One),
             new Vertex(new Vec3(0f, 1f, 0), new Vec2(0, 0), Vec4.One),
         ], [0, 1, 2, 0, 2, 3]));
-        
     }
 
+    public void AutoAxis()
+    {
+        HorizontalAxis.Min = 0;
+        VerticalAxis.Min = 0;
+        var domain = DataService.LoadedDataset.GetAllVectorFields<Vec3, double>().First().vectorField.Domain;
+        HorizontalAxis.Max = domain.RectBoundary.Max.X;
+        VerticalAxis.Max = domain.RectBoundary.Max.Y;
+    }
 
     public override void Draw(View view)
     {
-
         if (!view.Is2DCamera)
             return;
         var dat = GetRequiredWorldService<DataService>();
@@ -81,7 +87,7 @@ public class AxisVisualizer : WorldService
                         string title = Title ?? titler.GetTitle();
                         title = title.Replace("eps=", " ε=");
                         Gizmos2D.AdvText(view.ScreenCamera, new Vec2((horizontalStart.X + horizontalEnd.X) / 2, y), lh, color, title, centered: true);
-                        y -= lh*1.8;
+                        y -= lh * 1.8;
                     }
                 }
             //if (titler != null)
@@ -103,9 +109,8 @@ public class AxisVisualizer : WorldService
 
                 Gizmos2D.Text(view.ScreenCamera, new Vec2((lb.X + rb.X) / 2, lt.Y - lh * 2), lh, color, title, centered: true);
             }*/
-            
-            
-            
+
+
             for (int i = 0; i <= HorizontalAxis.Steps; i++)
             {
                 double c = i / (double)HorizontalAxis.Steps;
@@ -121,7 +126,7 @@ public class AxisVisualizer : WorldService
                 var value = Utils.Lerp(domain.Min.Y, domain.Max.Y, c);
                 var pos = Utils.Lerp(verticalStart, verticalEnd, c);
                 Gizmos2D.Line(view.ScreenCamera, pos + new Vec2(-25, 0), pos + new Vec2(thickness / 2f, 0), color, thickness);
-                Gizmos2D.AdvText(view.ScreenCamera, pos + new Vec2(-lh*3,-lh*1.3), lh, color, value.ToString("N2"), centered: true);
+                Gizmos2D.AdvText(view.ScreenCamera, pos + new Vec2(-lh * 3, -lh * 1.3), lh, color, value.ToString("N2"), centered: true);
             }
         }
 
@@ -148,7 +153,7 @@ public class AxisVisualizer : WorldService
                     gradientMesh.Draw();
                     (double min, double max) = scaler.GetScale();
 
-                    Gizmos2D.Text(view.ScreenCamera, new Vec2(posX + width / 2f, posY-lh-lh - 15), lh, color, max.ToString("F2", CultureInfo.InvariantCulture), centered: true);
+                    Gizmos2D.Text(view.ScreenCamera, new Vec2(posX + width / 2f, posY - lh - lh - 15), lh, color, max.ToString("F2", CultureInfo.InvariantCulture), centered: true);
                     Gizmos2D.Text(view.ScreenCamera, new Vec2(posX + width / 2f, posY + height - 5), lh, color, min.ToString("F2", CultureInfo.InvariantCulture), centered: true);
                 }
             }

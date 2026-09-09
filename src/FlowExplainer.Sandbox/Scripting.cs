@@ -20,13 +20,13 @@ public static class Scripting
 
         /*new ComsolPipeDataProcessor().ProcessDataset(
             "C:\\Users\\osman\\Documents\\ComsolResults\\PipeFlow Slow", .01);*/
-        
+
         /*new ComsolPipeDataProcessor().ProcessDataset(
      "C:\\Users\\osman\\Documents\\ComsolResults\\PipeFlow Slow+BC", .01);*/
-        
+
         /*new ComsolPipeDataProcessor().ProcessDataset(
    "C:\\Users\\osman\\Documents\\ComsolResults\\PipeFlow Slow+Cool", .01);*/
-        
+
         world.DataService.SetDataset("Double Gyre EPS=0.1, Pe=100");
         world.DataService.currentSelectedVectorField = "Velocity";
         world.DataService.currentSelectedScaler = "Convective Temperature";
@@ -34,9 +34,16 @@ public static class Scripting
         //var op = new OperatorSplittedPullbackTestService();
         //op.Initialize();
         //op.Save(5, .01);
-        LoadScene(world, new PipeFlowSpacetimeDensityStructureScene());
-        //world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new PullbackPresentation());
-        //world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+        if (false)
+        {
+            LoadScene(world, new PipeFlowSpacetimeDensityStructureScene());
+        }
+        else
+        {
+            LoadScene(world, new PipeFlowSpacetimeDensityStructureScene());
+            world.FlowExplainer.GetGlobalService<PresentationService>().LoadPresentation(new PipePresentation());
+            world.FlowExplainer.GetGlobalService<PresentationService>().StartPresenting();
+        }
     }
 
     private static void LoadScene(World world, Scene scene)

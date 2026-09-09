@@ -16,7 +16,8 @@ public class DensityStructuresSpaceTime3DUI : WorldService
 
     public Vec3 PhaseTo3DRenderSpace(Vec3 start)
     {
-        return start * new Vec3(1, 1, 1.0 / 4000.0);
+        var flux = GetRequiredWorldService<DataService>().VectorField;
+        return start * new Vec3(1, 1, 2.0 / flux.Domain.RectBoundary.Size.Z);
     }
 
     public override void Draw(View view)
@@ -78,7 +79,7 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
     }
 
 
-    public int SampleGridSizeX = 1248;
+    public int SampleGridSizeX = 2000;
     public int SampleToTextureMultiple = 1;
     public Vec2i SampleGridSize;
     public Vec2i TextureSize => SampleGridSize * SampleToTextureMultiple;
@@ -92,7 +93,7 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
     public double Decay = .04f;
     public double Power = 1 / 2f;
     public double Tau = 0.1;
-    public bool UseMaterialSpecificGradients = true;
+    public bool UseMaterialSpecificGradients = false;
 
     public override string? Name => "Density Path Structures";
     public override string? Description => "Visualization of attracting and repelling structures in transport fields";
@@ -389,7 +390,7 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
 
         if ((HorizontalAxisDimension == 2 && VerticalAxisDimension == 1) ||
             (HorizontalAxisDimension == 1 && VerticalAxisDimension == 2))
-            SlicingAxis = 0;
+            SlicingAxis = 0;    
 
 
         ImGuiHelpers.NamedIntCombo("Slicing Axis", ref SlicingAxis, ["X", "Y", "T"]);
@@ -399,14 +400,40 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
         ImGuiHelpers.Slider("σ", ref InfluenceRadius, 0, .01f);
         ImGuiHelpers.Slider("Sample Grid Size X", ref SampleGridSizeX, 1, 2048);
         ImGuiHelpers.Slider("Power", ref Power, 0, 2f);
-        ImGuiHelpers.Slider("α", ref AccumelationFactor, 0, 1f);
+        ImGuiHelpers.Slider("α", ref AccumelationFactor, 0, .1f);
         ImGuiHelpers.Slider("τ", ref Tau, 0, rect.Size[SlicingAxis]);
         ImGuiHelpers.Slider("d", ref Decay, 0, 1f);
+        ImGui.Checkbox("Material Specific Colormaps", ref UseMaterialSpecificGradients);
         if (ImGui.Button("Reset"))
         {
             Reset();
         }
 
+
+        if (ImGui.Button("Settings A"))
+        {
+            AccumelationFactor = 2.5;
+            Tau = 4000;
+            GetRequiredWorldService<ParticleSystem>().ReseedRate = .03;
+            GetRequiredWorldService<ParticleSystem>().SeedRect.Min.Z = 0;
+            GetRequiredWorldService<ParticleSystem>().SeedRect.Max.Z = 10_000;
+            Decay = .3;
+            SliceValue = 4000;
+
+        }
+        
+        if (ImGui.Button("Settings B"))
+        {
+            AccumelationFactor = 2.5;
+            Tau = 4000;
+
+            GetRequiredWorldService<ParticleSystem>().ReseedRate = .03;
+            GetRequiredWorldService<ParticleSystem>().SeedRect.Min.Z = 4000;
+            GetRequiredWorldService<ParticleSystem>().SeedRect.Max.Z = 4000;
+            SliceValue = 4000;
+            Decay = .3;
+        }
+        
         base.DrawImGuiSettings();
     }
 
@@ -429,6 +456,7 @@ public class DensityPathStructuresSpaceTime : WorldService, IAxisTitle
         }
 
         type = type + " ";
+        type = "Forward Integration ";
         type += "(" + (World.GetWorldService<ParticleSystem>().TransportField.DisplayName) + ")";
         return type;
         //return $"Dataset: [Double Gyre Pe={dat.LoadedDataset.Properties["Pe"]},eps={dat.LoadedDataset.Properties["EPS"]}] \r\n {type}";

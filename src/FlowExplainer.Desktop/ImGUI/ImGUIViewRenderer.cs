@@ -26,8 +26,10 @@ public class ImGUIViewRenderer
         
         ImGui.SetNextWindowSize(rendertexture.Size.ToNumerics(), ImGuiCond.Appearing);
         ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vec2(0, 0));
+        view.NeedsRendering = false;
         if (ImGui.Begin(view.Name, ref view.IsOpen))
         {
+            view.NeedsRendering = true;
             var min = ImGui.GetCursorScreenPos();
             Vec2 size = (Vec2)ImGui.GetContentRegionAvail() - new Vec2(6, 6);
             view.TargetSize = size;

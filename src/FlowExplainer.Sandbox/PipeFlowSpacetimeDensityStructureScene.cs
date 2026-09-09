@@ -50,13 +50,8 @@ public class PipeFlowSpacetimeDensityStructureScene : Scene
         view3D.Is3DCamera = true;
         view3D.Name = "Spacetime View";
         var ltf = world.AddVisualisationService<LagrangianTransportFormalismService>();
-        var dataset = world.DataService.LoadedDataset;
-        var u = dataset.GetVectorField<Vec3, Vec2>("Velocity");
-        var T = dataset.GetVectorField<Vec3, double>("Temperature");
-        var T_noflow = dataset.GetVectorField<Vec3, double>("Temperature_NoFlow");
-        var alpha = dataset.GetVectorField<Vec3, double>("Thermal Diffusivity");
-        ltf.Recompute(u, T, T_noflow, alpha);
-
+        ltf.AutoUpdatePipeLTF = true;
+        ltf.RecomputePipeCaseLTF();
         var axis = world.AddVisualisationService<AxisVisualizer>();
         
         //world.AddVisualisationService<Axis3D>();

@@ -60,12 +60,14 @@ public class PresiContext
 
         public Vec2 LastTargetPosition;
         public Vec2 TargetPosition;
-        
+
         public Vec2 LastTargetSize;
         public Vec2 TargetSize;
         public double AnimSpeed = 2;
         public double AnimMovement => easeInOutCubic(Math.Min(TimeSinceLastMovement * 3, 1));
         public double AnimAppearing => easeInOutCubic(Math.Min(TimeAlive * 3, 1));
+
+        public bool IsBeingPressed;
 
         public void UpdateTransform(Vec2 position, Vec2 size)
         {
@@ -82,7 +84,7 @@ public class PresiContext
                 TargetPosition = position;
                 TimeSinceLastMovement = 0;
             }
-            
+
             if (TargetSize != size)
             {
                 LastTargetSize = RelSize;
@@ -96,7 +98,6 @@ public class PresiContext
                 TargetSize = size;
                 TimeSinceLastMovement = 0;
             }
-
         }
 
         double easeInOutCubic(double x)
@@ -104,8 +105,6 @@ public class PresiContext
             return x < 0.5 ? 4 * x * x * x : 1 - double.Pow(-2 * x + 2, 3) / 2;
         }
     }
-    
-    
 
 
     public void Text(string title, Vec2 relPos, double lh, bool centered, Color color, [System.Runtime.CompilerServices.CallerFilePath] string filePath = "",
@@ -127,23 +126,23 @@ public class PresiContext
         return CanvasRect.FromRelative(rel);
     }
 
-    
+
     public void Image(Texture texture, Vec2 relCenter, double relWidth, [System.Runtime.CompilerServices.CallerFilePath] string filePath = "",
         [System.Runtime.CompilerServices.CallerLineNumber]
         int lineNumber = 0)
     {
         var widgetData = GetWidgetData(filePath, lineNumber);
-        widgetData.UpdateTransform(relCenter,new Vec2(relWidth, relWidth));
-        Gizmos2D.ImageCentered(View.Camera2D, texture, RelToSceen(widgetData.RelPosition), RelToSceen(widgetData.RelSize.X), alpha:widgetData.AnimAppearing);
+        widgetData.UpdateTransform(relCenter, new Vec2(relWidth, relWidth));
+        Gizmos2D.ImageCentered(View.Camera2D, texture, RelToSceen(widgetData.RelPosition), RelToSceen(widgetData.RelSize.X), alpha: widgetData.AnimAppearing);
     }
 
-    
+
     public void RectCentered(Vec2 relCenter, Vec2 relSize, Color color, [System.Runtime.CompilerServices.CallerFilePath] string filePath = "",
         [System.Runtime.CompilerServices.CallerLineNumber]
         int lineNumber = 0)
     {
         var widgetData = GetWidgetData(filePath, lineNumber);
-        widgetData.UpdateTransform(relCenter,relSize);
+        widgetData.UpdateTransform(relCenter, relSize);
         Gizmos2D.RectCenter(View.Camera2D, RelToSceen(widgetData.RelPosition), RelToSceen(widgetData.RelSize), color.WithAlpha(widgetData.AnimAppearing));
     }
 
@@ -222,7 +221,7 @@ public class PresiContext
         widgetData.RelSize = new Vec2(height, height);
         var size = RelToSceen(widgetData.RelSize);
         size.X = size.Y;
-        Gizmos2D.RectCenter(View.Camera2D , center, size, Color.Grey(.8f));
+        Gizmos2D.RectCenter(View.Camera2D, center, size, Color.Grey(.8f));
         if (value)
             Gizmos2D.RectCenter(View.Camera2D, center, size * .8f, Color.Grey(.4f));
         Gizmos2D.Text(View.Camera2D, center + new Vec2(45, -20), 34, Color.White, name);
@@ -252,9 +251,18 @@ public class PresiContext
         var t = (value - minValue) / (maxValue - minValue);
         t = double.Clamp(t, 0, 1);
         Gizmos2D.Circle(View.Camera2D, Utils.Lerp(left, right, t), Color.White, 20);
-        Gizmos2D.AdvText(View.Camera2D, center + new Vec2(0, -48 - 36), 48, Color.White, name + " = " + value.ToString("N2"), centered: true);
+        string s = value.ToString("N2");
+        if (value > 100)
+            s = value.ToString("N0");
+        Gizmos2D.AdvText(View.Camera2D, center + new Vec2(0, -48 - 36), 48, Color.White, name + " = " + s, centered: true);
         var rect = new Rect<Vec2>(center - new Vec2(width / 2, height / 2), center + new Vec2(width / 2, height / 2));
         if (View.IsMouseButtonDownLeft && rect.Contains(View.MousePosition))
+        {
+            widgetData.IsBeingPressed = true;
+            MouseLeftPressUsed = true;
+        }
+
+        if (widgetData.IsBeingPressed && View.IsMouseButtonDownLeft)
         {
             double newT = (View.MousePosition.X - left.X) / width;
             newT = double.Clamp(newT, 0, 1);
@@ -262,6 +270,9 @@ public class PresiContext
             SelectWidget(widgetData);
             MouseLeftPressUsed = true;
         }
+
+        if (!View.IsMouseButtonDownLeft)
+            widgetData.IsBeingPressed = false;
     }
 
     private double RelToSceen(double width)
@@ -349,7 +360,7 @@ public class PresiContext
         var view = presiViews[widget];
         return view;
     }
-    
+
     public View GetView(WidgetData widget, World world)
     {
         if (!presiViews.ContainsKey(widget))
@@ -424,13 +435,13 @@ public class PresiContext
         {
             //DOES NOT WORK YETTT
             var relMouseInPresi = CanvasRect.ToRelative(View.MousePosition);
-            var childRect = new Rect<Vec2>(RelToSceen(view.Key.RelPosition - view.Key.RelSize/2), RelToSceen(view.Key.TargetSize));
+            var childRect = new Rect<Vec2>(RelToSceen(view.Key.RelPosition - view.Key.RelSize / 2), RelToSceen(view.Key.TargetSize));
             //Gizmos2D.RectCenter(View.Camera2D, childRect.Center, childRect.Size, Color.Green);
             var relChildView = childRect.ToRelative(relMouseInPresi);
             //Logger.LogDebug(relChildView.ToString());
-            var childWold = CoordinatesConverter2D.ViewToWorld(view.Value, new Vec2(0,1) * view.Value.Size.ToVec2());
+            var childWold = CoordinatesConverter2D.ViewToWorld(view.Value, new Vec2(0, 1) * view.Value.Size.ToVec2());
             view.Value.RelativeMousePosition = childWold;
-            
+
             var subRenderMin = view.Key.RenderMin;
             var subRenderMax = view.Key.RenderMax;
             var subRenderRect = new Rect<Vec2>(subRenderMin, subRenderMax);
@@ -449,7 +460,7 @@ public class PresiContext
 
             var localPosPixels = mainwindowCoord - subRenderMin;
             var localPosNormalized = mainwindowCoord - subRenderMin;
-           // view.Value.RelativeMousePosition = subRenderRect.ToRelative(mainwindowCoord + new Vec2(0, -100)) / new Vec2(.69f, .5f) * view.Value.Size.ToVec2();
+            // view.Value.RelativeMousePosition = subRenderRect.ToRelative(mainwindowCoord + new Vec2(0, -100)) / new Vec2(.69f, .5f) * view.Value.Size.ToVec2();
 
             //Logger.LogDebug((subRenderRect.ToRelative(mainwindowCoord) / view.Key.RelSize).ToString());
             //Logger.LogDebug(view.Value.RelativeMousePosition.ToString());

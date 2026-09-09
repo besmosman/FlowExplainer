@@ -8,8 +8,10 @@ namespace FlowExplainer;
 public class PresentationService : GlobalService
 {
     public bool IsPresenting { get; set; }
+
     //public Slide[] Slides { get; set; }
     public NewPresentation Presentation;
+
     //public int CurrentSlideIndex { get; set; }
     // public Slide CurrentSlide => Slides[CurrentSlideIndex];
     public PresiContext Presi = null!;
@@ -88,6 +90,7 @@ public class PresentationService : GlobalService
     private void PausePresenting()
     {
         IsPresenting = false;
+
     }
 
     public void StartPresenting()
@@ -101,6 +104,7 @@ public class PresentationService : GlobalService
     }
 
     private List<Vec2> highlighted = new();
+
     public override void Draw()
     {
         var window = FlowExplainer.GetGlobalService<WindowService>()!.Window;
@@ -110,10 +114,10 @@ public class PresentationService : GlobalService
             {
                 //LoadPresentation(new HeatStructuresPresentation());
 
-            if (!IsPresenting)
-                StartPresenting();
-            else
-                PausePresenting();
+                if (!IsPresenting)
+                    StartPresenting();
+                else
+                    PausePresenting();
             }
         }
 
@@ -146,18 +150,19 @@ public class PresentationService : GlobalService
                 }
             }
 
-            foreach (var v in Presi.ActiveChildViews)
-            {
-                v.Controller.UpdateAndDraw(v);
-            }
+                foreach (var v in Presi.ActiveChildViews)
+                {
+                    v.Controller.UpdateAndDraw(v);
+                }
 
             if (presiView.IsFullScreen)
             {
                 presiView.Controller.UpdateAndDraw(presiView);
             }
+
             Presi.LastCurrentSlide = Presi.CurrentSlide;
             Presi.LastCurrentStep = Presi.CurrentStep;
-            
+
             if (window.IsKeyPressed(Keys.Up))
                 PrevSlide();
 
@@ -169,12 +174,11 @@ public class PresentationService : GlobalService
                 Presi.CurrentSlide = 0;
                 Presi.CurrentStep = 0;
             }
+
             if (window.IsKeyPressed(Keys.F12))
             {
                 ToggleFullScreen();
             }
-
-        
         }
     }
 
@@ -182,9 +186,9 @@ public class PresentationService : GlobalService
     {
         var presiView = PresiView;
 
-        if(presiView == null)
+        if (presiView == null)
             return;
-        
+
         if (presiView?.IsFullScreen == true)
         {
             var window = FlowExplainer.GetGlobalService<WindowService>()!.Window;
@@ -197,16 +201,18 @@ public class PresentationService : GlobalService
             Gizmos2D.ImageCentered(new ScreenCamera(size.RoundInt()), presiView.PostProcessingTarget, size / 2, size);
             GL.Enable(EnableCap.Blend);
         }
+
         for (int i = 0; i < highlighted.Count - 1; i++)
         {
             var vec2 = highlighted[i];
             var dir = highlighted[i + 1] - vec2;
             Gizmos2D.Instanced.RegisterLine(highlighted[i] - dir / 10, highlighted[i + 1], new Color(1, 0, 0, 1), 10f);
         }
-    
+
         Gizmos2D.Instanced.RenderRects(presiView.Camera2D);
         base.AfterDraw();
     }
+
     private void ToggleFullScreen()
     {
         var window = FlowExplainer.GetGlobalService<WindowService>()!.Window;
